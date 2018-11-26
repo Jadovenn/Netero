@@ -1,0 +1,8 @@
+version: 2
+jobs:
+  build:
+    docker: # use the docker executor type; machine and macos executors are also supported
+    - image: gcc # the primary container, where your job's commands are run
+    steps:
+    - checkout # check out the code in the project directory
+    - run: cmake . # run the `echo` command
