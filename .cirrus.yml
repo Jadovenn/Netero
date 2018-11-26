@@ -1,0 +1,5 @@
+container:
+  image: clang38
+task:
+  build_script: cmake .
+  tests_script: make test
