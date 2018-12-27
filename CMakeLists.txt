@@ -17,10 +17,12 @@ endif(CORE)
 
 if(ECS)
 	list(APPEND PUBLIC_HEADER
-			./Headers/netero/ECS/world.hpp)
+			./Headers/netero/ECS/world.hpp
+			./Headers/netero/ECS/entity.hpp)
 	list(APPEND SRCS
 			./Sources/ECS/world.cpp
-)
+			./Sources/ECS/entityContainer.cpp
+			./Sources/ECS/entity.cpp)
 endif(ECS)
 
 if(OS)
