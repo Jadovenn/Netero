@@ -8,6 +8,7 @@
 #include <mutex>
 #include <memory>
 #include <string>
+#include <vector>
 #include "netero/ECS/entity.hpp"
 
 namespace netero::ecs {
