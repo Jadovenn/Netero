@@ -45,22 +45,23 @@ set_target_properties(Netero
     PROPERTIES
 	PUBLIC_HEADER "${PUBLIC_HEADER}"
 	LINKER_LANGUAGE CXX
-	INTERFACE_INCLUDE_DIRECTORIES "C:/Program Files/Netero/include"
+##	INTERFACE_INCLUDE_DIRECTORIES "C:/Program Files/Netero/include"
 	CXX_STANDARD 17)
 
-INSTALL(TARGETS Netero
-		EXPORT NETEROConfig
-        LIBRARY DESTINATION "C:/Program Files/Netero/lib"
-		ARCHIVE DESTINATION "C:/Program Files/Netero/lib")
-export(TARGETS Netero
-		NAMESPACE Netero::
-		FILE ${CMAKE_CURRENT_BINARY_DIR}/NETEROConfig.cmake)
-INSTALL(EXPORT NETEROConfig
-		DESTINATION "C:/Program Files/Netero/lib/cmake/Netero"
-		NAMESPACE Netero::)
-INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/Headers/netero
-		DESTINATION "C:/Program Files/Netero/include"
-		PATTERN "*.h*")
+
+##INSTALL(TARGETS Netero
+##		EXPORT NETEROConfig
+##        LIBRARY DESTINATION "C:/Program Files/Netero/lib"
+##		ARCHIVE DESTINATION "C:/Program Files/Netero/lib")
+##export(TARGETS Netero
+##		NAMESPACE Netero::
+##		FILE ${CMAKE_CURRENT_BINARY_DIR}/NETEROConfig.cmake)
+##INSTALL(EXPORT NETEROConfig
+##		DESTINATION "C:/Program Files/Netero/lib/cmake/Netero"
+##		NAMESPACE Netero::)
+##INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/Headers/netero
+##		DESTINATION "C:/Program Files/Netero/include"
+##		PATTERN "*.h*")
 
 
 set(NETERO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/Headers)
