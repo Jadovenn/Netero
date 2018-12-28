@@ -14,6 +14,13 @@ int	createEntity() {
 	netero::ecs::Entity second = world.createEntity("second");
 	if (!second.valid())
 		return 2;
+	if (world.size() != 2)
+		return 3;
+	world.killEntity(first);
+	if (first.valid())
+		return 4;
+	if (world.size() != 1)
+		return 5;
 	return 0;
 }
 
