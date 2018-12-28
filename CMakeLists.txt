@@ -63,5 +63,6 @@ INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/Headers/netero
 		PATTERN "*.h*")
 
 
+set(NETERO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/Headers)
 enable_testing()
 add_subdirectory("Test")
