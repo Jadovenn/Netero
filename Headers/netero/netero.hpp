@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "ECS/world.hpp"
+
 namespace netero {
 
 }

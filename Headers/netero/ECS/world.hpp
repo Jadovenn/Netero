@@ -9,25 +9,27 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "netero/ECS/entity.hpp"
+#include "entity.hpp"
 
-namespace netero::ecs {
+namespace netero {
+	namespace ecs {
 
-	class World {
-	public:
-		World();
-		~World();
-		World(World &rhs);
-		World(World &&rhs);
-		const World	&operator=(const World& rhs);
-		World	&operator=(World&& rhs);
+		class World {
+		public:
+			World();
+			~World();
+			World(World &rhs);
+			World(World &&rhs);
+			const World	&operator=(const World& rhs);
+			World	&operator=(World&& rhs);
 
-		Entity	createEntity();
-		Entity	createEntity(const std::string &name);
-	private:
-		void	_deleteEntities();
-		std::mutex						_entityAllocatorLock;
-		std::vector<EntityContainer*>	_entities;
-	};
-	
+			Entity	createEntity();
+			Entity	createEntity(const std::string &name);
+		private:
+			void	_deleteEntities();
+			std::mutex						_entityAllocatorLock;
+			std::vector<EntityContainer*>	_entities;
+		};
+
+	}
 }
