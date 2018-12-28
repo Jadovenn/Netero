@@ -7,6 +7,11 @@ OPTION(ECS "netero ECS, contain Entity Component System architecture" ON)
 OPTION(OBSERVER "netero Observer, contain a Qt signals/slots like, implementation" OFF)
 OPTION(OS " netero Os, contain Operating System ressources encapsulation and abstraction" OFF)
 
+set(CMAKE_CXX_COMPILER_VERSION  17)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 # Modules definitions
 
 if(CORE)
@@ -38,10 +43,25 @@ target_include_directories(Netero PUBLIC Headers)
 
 set_target_properties(Netero
     PROPERTIES
+	PUBLIC_HEADER "${PUBLIC_HEADER}"
 	LINKER_LANGUAGE CXX
-	CXX_STANDARD 17
-)
+	INTERFACE_INCLUDE_DIRECTORIES "C:/Program Files/Netero/include"
+	CXX_STANDARD 17)
 
-# Test
+INSTALL(TARGETS Netero
+		EXPORT NETEROConfig
+        LIBRARY DESTINATION "C:/Program Files/Netero/lib"
+		ARCHIVE DESTINATION "C:/Program Files/Netero/lib")
+export(TARGETS Netero
+		NAMESPACE Netero::
+		FILE ${CMAKE_CURRENT_BINARY_DIR}/NETEROConfig.cmake)
+INSTALL(EXPORT NETEROConfig
+		DESTINATION "C:/Program Files/Netero/lib/cmake/Netero"
+		NAMESPACE Netero::)
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/Headers/netero
+		DESTINATION "C:/Program Files/Netero/include"
+		PATTERN "*.h*")
+
+
 enable_testing()
 add_subdirectory("Test")
