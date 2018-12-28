@@ -3,6 +3,7 @@
  * see LICENCE.txt
  */
 
+#include <algorithm>
 #include "netero/ECS/world.hpp"
 
 namespace netero::ecs {
@@ -61,5 +62,21 @@ namespace netero::ecs {
 		return newEntity;
 	}
 
+	void	World::killEntity(Entity &entity) {
+		std::lock_guard<std::mutex>	lock(_entityAllocatorLock);
+		auto entIt = std::find_if(_entities.begin(), _entities.end(), [&entity] (EntityContainer *ent) {
+			return entity == ent;
+		});
+		if (entIt == _entities.end())
+			return;
+		entity.disable();
+		entity.unregister();
+		delete *entIt;
+		_entities.erase(entIt);
+	}
+
+	std::size_t	World::size() {
+		return _entities.size();
+	}
 }
 

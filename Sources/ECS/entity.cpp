@@ -43,6 +43,10 @@ namespace netero::ecs {
 		return _base == rhs._base;
 	}
 
+	bool	Entity::operator==(const EntityContainer *rhs) {
+		return _base == rhs;
+	}
+
 	bool	Entity::valid() const noexcept {
 		return _base ? true : false;
 	}
@@ -53,6 +57,10 @@ namespace netero::ecs {
 
 	void	Entity::disable() {
 		_base->status = false;
+	}
+	
+	void	Entity::unregister() {
+		_base = nullptr;
 	}
 }
 

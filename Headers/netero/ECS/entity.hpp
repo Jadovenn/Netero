@@ -39,12 +39,14 @@ namespace netero {
 			Entity	&operator=(const Entity &rhs);
 			Entity	&operator=(Entity &&rhs);
 			bool	operator==(const Entity &rhs);
+			bool	operator==(const EntityContainer *rhs);
 			EntityContainer	*operator->();
 			virtual ~Entity() = default;
 
 			bool	valid() const noexcept;
 			void	enable();
 			void	disable();
+			void	unregister();
 
 		private:
 			EntityContainer		*_base;

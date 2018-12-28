@@ -25,6 +25,8 @@ namespace netero {
 
 			Entity	createEntity();
 			Entity	createEntity(const std::string &name);
+			void	killEntity(Entity &entity);
+			std::size_t	size();
 		private:
 			void	_deleteEntities();
 			std::mutex						_entityAllocatorLock;
