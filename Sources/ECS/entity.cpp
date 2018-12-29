@@ -4,6 +4,7 @@
  */
 
 #include "netero/ECS/entity.hpp"
+#include "netero/ECS/world.hpp"
 
 namespace netero::ecs {
 
@@ -61,6 +62,11 @@ namespace netero::ecs {
 	
 	void	Entity::unregister() {
 		_base = nullptr;
+	}
+
+	void	Entity::kill() {
+		auto *entityWorld = this->_base->getWorld();
+		entityWorld->killEntity(*this);
 	}
 }
 

@@ -10,7 +10,7 @@ namespace netero::ecs {
 	EntityContainer::EntityContainer(World *world, const std::string &name)
 		:	id{name},
 			_world(world),
-			status(true)
+			status(false)
 	{}
 
 	EntityContainer::~EntityContainer()

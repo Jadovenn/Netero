@@ -46,6 +46,7 @@ namespace netero {
 			bool	valid() const noexcept;
 			void	enable();
 			void	disable();
+			void	kill();
 			void	unregister();
 
 		private:

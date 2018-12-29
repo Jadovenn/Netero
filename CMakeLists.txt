@@ -26,6 +26,7 @@ if(ECS)
 			./Headers/netero/ECS/entity.hpp)
 	list(APPEND SRCS
 			./Sources/ECS/world.cpp
+			./Sources/ECS/worldCache.cpp
 			./Sources/ECS/entityContainer.cpp
 			./Sources/ECS/entity.cpp)
 endif(ECS)
