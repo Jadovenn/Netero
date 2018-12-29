@@ -90,6 +90,8 @@ namespace netero::ecs {
 	void	World::update() {
 		if (_localWorldCache.statusFlag) {
 			_localWorldCache.generate(_entities);
+		}
+		else {
 			_localWorldCache.collectGarbage();
 		}
 	}
