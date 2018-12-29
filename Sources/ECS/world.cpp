@@ -71,12 +71,27 @@ namespace netero::ecs {
 			return;
 		entity.disable();
 		entity.unregister();
-		delete *entIt;
+		_localWorldCache.killedEntities.push_back(*entIt);
 		_entities.erase(entIt);
 	}
 
 	std::size_t	World::size() {
 		return _entities.size();
+	}
+
+	World::Statistic	&World::getStatistic() {
+		_statistic.size = _entities.size();
+		_statistic.activeEntities = _localWorldCache.activeEntities.size();
+		_statistic.unactiveEntities = _localWorldCache.unactiveEntities.size();
+		_statistic.garbadgeSize = _localWorldCache.killedEntities.size();
+		return _statistic;
+	}
+
+	void	World::update() {
+		if (_localWorldCache.statusFlag) {
+			_localWorldCache.generate(_entities);
+			_localWorldCache.collectGarbage();
+		}
 	}
 }
 
