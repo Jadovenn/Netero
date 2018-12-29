@@ -9,6 +9,7 @@
 #include "Core/type_id.hpp"
 
 #include "ECS/world.hpp"
+#include "ECS/component.hpp"
 
 namespace netero {
 

@@ -19,4 +19,5 @@ namespace netero::ecs {
 	World	*EntityContainer::getWorld() {
 		return _world;
 	}
+
 }

@@ -8,7 +8,5 @@
 namespace netero {
 	namespace ecs {
 
-
-
 	}
 }
