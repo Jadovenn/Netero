@@ -17,18 +17,21 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 if(CORE)
 	list(APPEND PUBLIC_HEADER
 			./Headers/netero/netero.hpp
-			./Headers/netero/Core/internal.hpp)
+			./Headers/netero/Core/internal.hpp
+			./Headers/netero/Core/type_id.hpp)
 endif(CORE)
 
 if(ECS)
 	list(APPEND PUBLIC_HEADER
 			./Headers/netero/ECS/world.hpp
-			./Headers/netero/ECS/entity.hpp)
+			./Headers/netero/ECS/entity.hpp
+			./Headers/netero/ECS/component.hpp)
 	list(APPEND SRCS
 			./Sources/ECS/world.cpp
 			./Sources/ECS/worldCache.cpp
+			./Sources/ECS/entity.cpp
 			./Sources/ECS/entityContainer.cpp
-			./Sources/ECS/entity.cpp)
+			./Sources/ECS/component.cpp)
 endif(ECS)
 
 if(OS)
