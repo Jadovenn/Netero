@@ -1,5 +1,12 @@
 project(Test)
 
+# Core Test
+add_executable(core_type_id Core/core_type_id.cpp)
+target_include_directories(core_type_id PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(core_type_id Netero)
+add_test(NAME core_type_id COMMAND ./core_type_id)
+
+# ECS Test
 add_executable(ecs_world ECS/ecs_world.cpp)
 target_include_directories(ecs_world PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(ecs_world Netero)
@@ -9,4 +16,3 @@ add_executable(ecs_entity ECS/ecs_entity.cpp)
 target_include_directories(ecs_entity PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(ecs_entity Netero)
 add_test(NAME ecs_entity COMMAND ./ecs_entity)
-
