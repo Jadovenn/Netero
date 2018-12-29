@@ -11,11 +11,6 @@ namespace netero {
 		class Component {
 		public:
 			virtual ~Component() = default;
-
-
-		private:
-			static size_t	_componentCounter;
 		};
-
 	}
 }
