@@ -20,7 +20,7 @@ int	createEntity() {
 	std::cout << "ecs_world: World size " << world.size() << std::endl;
 	if (world.size() != 2)
 		return 3;
-	std::cout << "ecs_world: Kill entity first" << std::endl;
+	std::cout << "ecs_world: Kill entity second" << std::endl;
 	world.killEntity(first);
 	if (first.valid())
 		return 4;
