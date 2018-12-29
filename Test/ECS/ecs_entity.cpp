@@ -17,6 +17,7 @@ int	entityLocalScope() {
 		return 1;
 	if (world.size() != 0)
 		return 2;
+	return 0;
 }
 
 int	main() {
