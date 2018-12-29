@@ -27,6 +27,10 @@ namespace netero {
 			World	*getWorld();
 			template<typename T, typename ...Args>
 			T	&addComponent(Args&&... args);
+			template<typename T>
+			T	&getComponent();
+			template<typename T>
+			void	deleteComponent();
 
 			bool	status;
 		private:
@@ -38,15 +42,34 @@ namespace netero {
 
 		template<typename T, typename ...Args>
 		T	&EntityContainer::addComponent(Args&&... args) {
-			static_assert(std::is_base_of<Component, T>(), "T is not based on Component");
+			static_assert(std::is_base_of<Component, T>(), "T is not based on Component.");
 			std::size_t count = _components.count(CompoentTypeID::getTypeID<T>());
 			if (count != 0)
-				throw std::runtime_error("One entitie could not own the same component twice");
+				throw std::runtime_error("One entitie could not own the same component twice.");
 			T	*dataPtr = new (std::nothrow) T{ std::forward<Args>(args)... };
 			if (!dataPtr)
 				throw std::bad_alloc();
 			_components[CompoentTypeID::getTypeID<T>()] = dataPtr;
 			return *dataPtr;
+		}
+
+		template<typename T>
+		T	&EntityContainer::getComponent() {
+			static_assert(std::is_base_of<Component, T>(), "T is not based on Component.");
+			std::size_t count = _components.count(CompoentTypeID::getTypeID<T>());
+			if (count == 0)
+				throw std::runtime_error("Entity does not own T component.");
+			return dynamic_cast<T&>(*_components.at(CompoentTypeID::getTypeID<T>()));
+		}
+
+		template<typename T>
+		void	EntityContainer::deleteComponent() {
+			static_assert(std::is_base_of<Component, T>(), "T is not based on Component.");
+			auto compIt = _components.find(CompoentTypeID::getTypeID<T>());
+			if (compIt == _components.end())
+				throw std::runtime_error("Entity does not own T component.");
+			delete (*compIt).second;
+			_components.erase(compIt);
 		}
 
 		class Entity

@@ -13,8 +13,11 @@ namespace netero::ecs {
 			status(false)
 	{}
 
-	EntityContainer::~EntityContainer()
-	{}
+	EntityContainer::~EntityContainer() {
+		for (auto &comp : _components) {
+			delete comp.second;
+		}
+	}
 
 	World	*EntityContainer::getWorld() {
 		return _world;
