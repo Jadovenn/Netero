@@ -25,13 +25,16 @@ if(ECS)
 	list(APPEND PUBLIC_HEADER
 			./Headers/netero/ECS/world.hpp
 			./Headers/netero/ECS/entity.hpp
-			./Headers/netero/ECS/component.hpp)
+			./Headers/netero/ECS/component.hpp
+			./Headers/netero/ECS/component_filter.hpp
+			./Headers/netero/ECS/system.hpp)
 	list(APPEND SRCS
 			./Sources/ECS/world.cpp
 			./Sources/ECS/worldCache.cpp
 			./Sources/ECS/entity.cpp
 			./Sources/ECS/entityContainer.cpp
-			./Sources/ECS/component.cpp)
+			./Sources/ECS/component.cpp
+			./Sources/ECS/system.cpp)
 endif(ECS)
 
 if(OS)
