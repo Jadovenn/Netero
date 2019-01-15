@@ -52,11 +52,6 @@ public:
 	int								idx;
 	std::size_t						size;
 private:
-	template<typename Last>
-	void	decomposer(Last last) {
-		static_assert(false, "ctor parameter are not pair");
-	}
-
 	template<typename First, typename Second>
 	void	decomposer(First first, Second second) {
 		static_assert(std::is_same<First, T>::value && std::is_same<Second, T>::value, "First must be type T");

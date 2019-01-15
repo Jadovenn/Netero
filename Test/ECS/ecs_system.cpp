@@ -47,7 +47,7 @@ int		main() {
 
 	// Set up third entity
 	third->addComponent<Position>(40, 40);
-	third->addComponent<Name>("Villag Pannel");
+	third->addComponent<Name>("Village Pannel");
 	third->addComponent<Text>("Welecome to the village!");
 	third.enable();
 
