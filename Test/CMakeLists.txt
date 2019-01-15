@@ -26,3 +26,8 @@ add_executable(ecs_component_filter ECS/ecs_component_filter.cpp)
 target_include_directories(ecs_component_filter PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(ecs_component_filter Netero)
 add_test(NAME ecs_component_filter COMMAND ./ecs_component)
+
+add_executable(ecs_system ECS/ecs_system.cpp ECS/ecs_dataset.hpp)
+target_include_directories(ecs_system PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(ecs_system Netero)
+add_test(NAME ecs_system COMMAND ./ecs_system)

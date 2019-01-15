@@ -10,6 +10,7 @@
 
 #include "ECS/world.hpp"
 #include "ECS/component_filter.hpp"
+#include "ECS/system.hpp"
 
 namespace netero {
 

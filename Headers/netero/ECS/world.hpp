@@ -7,9 +7,13 @@
 
 #include <mutex>
 #include <memory>
+#include <exception>
 #include <string>
+#include <map>
 #include <vector>
+#include "../Core/type_id.hpp"
 #include "entity.hpp"
+#include "system.hpp"
 
 /**
  * Process to update the world
@@ -54,6 +58,27 @@ namespace netero {
 			Entity	createEntity();
 			Entity	createEntity(const std::string &name);
 			void	killEntity(Entity &entity);
+			
+			template<typename T, typename ...Args>
+			void	addSystem(Args ...args) {
+				static_assert(std::is_base_of<BaseSystem, T>::value, "System not base on BaseSystem, your system must inherite from netero::system<>");
+				T	*data = new (std::nothrow) T(std::forward(args)...);
+				if (!data)
+					throw std::bad_alloc();
+				_systems[netero::TypeID<BaseSystem>::getTypeID<T>()] = data;
+				_localWorldCache.tick();
+			}
+
+			template<typename T>
+			void	removeSystem() {
+				static_assert(std::is_base_of<BaseSystem, T>::value, "System not base on BaseSystem, your system must inherite from netero::system<>");
+				auto systemIt = _systems.find(netero::TypeID<BaseSystem>::getTypeID<T>());
+				if (systemIt == _systems.end())
+					return;
+				delete (*systemIt).second;
+				_systems.erase(systemIt);
+			}
+
 			std::size_t	size();
 			World::Statistic	&getStatistic();
 
@@ -62,9 +87,11 @@ namespace netero {
 			void	_deleteEntities();
 			std::mutex						_entityAllocatorLock;
 			std::vector<EntityContainer*>	_entities;
+			std::map<netero::type_id, BaseSystem*>		_systems;
 			World::Cache					_localWorldCache;
 			World::Statistic				_statistic;
 		};
 
 	}
 }
+

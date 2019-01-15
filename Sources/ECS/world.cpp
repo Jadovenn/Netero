@@ -14,6 +14,9 @@ namespace netero::ecs {
 
 	World::~World() {
 		_deleteEntities();
+		for (auto &system: _systems) {
+			delete system.second;
+		}
 	}
 
 	World::World(World &rhs) {
@@ -95,4 +98,5 @@ namespace netero::ecs {
 			_localWorldCache.collectGarbage();
 		}
 	}
+
 }

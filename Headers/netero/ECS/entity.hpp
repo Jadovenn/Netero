@@ -8,7 +8,9 @@
 #include <cstddef>
 #include <string>
 #include <map>
+#include <list>
 #include <exception>
+#include <algorithm>
 #include "netero/ECS/component.hpp"
 
 namespace netero {
@@ -38,26 +40,30 @@ namespace netero {
 			World		*_world;
 			id			id;
 			std::map<netero::type_id, Component *>	_components;
+			std::list<netero::type_id>				_componentsIdSet;
 		};
 
 		template<typename T, typename ...Args>
 		T	&EntityContainer::addComponent(Args&&... args) {
 			static_assert(std::is_base_of<Component, T>(), "T is not based on Component.");
-			std::size_t count = _components.count(CompoentTypeID::getTypeID<T>());
-			if (count != 0)
+			netero::type_id	componentID = CompoentTypeID::getTypeID<T>();
+			bool isExisting = std::binary_search(_componentsIdSet.begin(), _componentsIdSet.end(), componentID);
+			if (isExisting)
 				throw std::runtime_error("One entitie could not own the same component twice.");
 			T	*dataPtr = new (std::nothrow) T{ std::forward<Args>(args)... };
 			if (!dataPtr)
 				throw std::bad_alloc();
-			_components[CompoentTypeID::getTypeID<T>()] = dataPtr;
+			_components[componentID] = dataPtr;
+			_componentsIdSet.push_back(componentID);
+			_componentsIdSet.sort();
 			return *dataPtr;
 		}
 
 		template<typename T>
 		T	&EntityContainer::getComponent() {
 			static_assert(std::is_base_of<Component, T>(), "T is not based on Component.");
-			std::size_t count = _components.count(CompoentTypeID::getTypeID<T>());
-			if (count == 0)
+			bool isExisting = std::binary_search(_componentsIdSet.begin(), _componentsIdSet.end(), CompoentTypeID::getTypeID<T>());
+			if (!isExisting)
 				throw std::runtime_error("Entity does not own T component.");
 			return dynamic_cast<T&>(*_components.at(CompoentTypeID::getTypeID<T>()));
 		}
@@ -65,11 +71,14 @@ namespace netero {
 		template<typename T>
 		void	EntityContainer::deleteComponent() {
 			static_assert(std::is_base_of<Component, T>(), "T is not based on Component.");
-			auto compIt = _components.find(CompoentTypeID::getTypeID<T>());
-			if (compIt == _components.end())
+			netero::type_id	componentID = CompoentTypeID::getTypeID<T>();
+			bool isExisting = std::binary_search(_componentsIdSet.begin(), _componentsIdSet.end(), componentID);
+			if (!isExisting)
 				throw std::runtime_error("Entity does not own T component.");
+			auto compIt = _components.find(componentID);
 			delete (*compIt).second;
 			_components.erase(compIt);
+			_componentsIdSet.remove(componentID);
 		}
 
 		class Entity
