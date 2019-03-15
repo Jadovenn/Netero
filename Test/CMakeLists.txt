@@ -1,6 +1,6 @@
 project(Test)
 
-# Core Test
+# core Test
 add_executable(core_type_id Core/core_type_id.cpp)
 target_include_directories(core_type_id PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(core_type_id Netero)

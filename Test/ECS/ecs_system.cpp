@@ -7,7 +7,7 @@
 
 namespace ecs = netero::ecs;
 
-// Will get all the enabeled entities
+// Will get all the enabled entities
 struct Alltest : public ecs::System<> {
 
 };

@@ -3,7 +3,7 @@ project(Netero)
 
 # Modules declaration
 OPTION(CORE "netero Core, contain internal stuff" ON)
-OPTION(ECS "netero ECS, contain Entity Component System architecture" ON)
+OPTION(ecs "netero ecs, contain Entity Component System architecture" ON)
 OPTION(OBSERVER "netero Observer, contain a Qt signals/slots like, implementation" OFF)
 OPTION(OS " netero Os, contain Operating System ressources encapsulation and abstraction" OFF)
 
@@ -17,25 +17,25 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 if(CORE)
 	list(APPEND PUBLIC_HEADER
 			./Headers/netero/netero.hpp
-			./Headers/netero/Core/internal.hpp
-			./Headers/netero/Core/type_id.hpp)
+			Headers/netero/core/internal.hpp
+			Headers/netero/core/type_id.hpp)
 endif(CORE)
 
-if(ECS)
+if(ecs)
 	list(APPEND PUBLIC_HEADER
-			./Headers/netero/ECS/world.hpp
-			./Headers/netero/ECS/entity.hpp
-			./Headers/netero/ECS/component.hpp
-			./Headers/netero/ECS/component_filter.hpp
-			./Headers/netero/ECS/system.hpp)
+			./Headers/netero/ecs/world.hpp
+			./Headers/netero/ecs/entity.hpp
+			./Headers/netero/ecs/component.hpp
+			./Headers/netero/ecs/component_filter.hpp
+			./Headers/netero/ecs/system.hpp)
 	list(APPEND SRCS
-			./Sources/ECS/world.cpp
-			./Sources/ECS/worldCache.cpp
-			./Sources/ECS/entity.cpp
-			./Sources/ECS/entityContainer.cpp
-			./Sources/ECS/component.cpp
-			./Sources/ECS/system.cpp)
-endif(ECS)
+			./Sources/ecs/world.cpp
+			./Sources/ecs/worldCache.cpp
+			./Sources/ecs/entity.cpp
+			./Sources/ecs/entityContainer.cpp
+			./Sources/ecs/component.cpp
+			./Sources/ecs/system.cpp)
+endif(ecs)
 
 if(OS)
 endif(OS)
@@ -45,7 +45,7 @@ endif(OBSERVER)
 
 # Target
 
-add_library(Netero ${SRCS} ${PUBLIC_HEADER})
+add_library(Netero ${SRCS} ${PUBLIC_HEADER} Headers/netero/pool/pool.cpp Headers/netero/pool/pool.hpp Headers/netero/queue.hpp)
 target_include_directories(Netero PUBLIC Headers)
 
 set_target_properties(Netero

@@ -3,8 +3,8 @@
  * see LICENCE.txt
  */
 
-#include "netero/ECS/entity.hpp"
-#include "netero/ECS/world.hpp"
+#include "netero/ecs/entity.hpp"
+#include "netero/ecs/world.hpp"
 
 namespace netero::ecs {
 

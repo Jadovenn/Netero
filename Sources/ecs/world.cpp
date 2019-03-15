@@ -4,7 +4,7 @@
  */
 
 #include <algorithm>
-#include "netero/ECS/world.hpp"
+#include "netero/ecs/world.hpp"
 
 namespace netero::ecs {
 

@@ -11,7 +11,7 @@
 #include <list>
 #include <exception>
 #include <algorithm>
-#include "netero/ECS/component.hpp"
+#include "component.hpp"
 
 namespace netero {
 	namespace ecs {

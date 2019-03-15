@@ -5,6 +5,13 @@
 
 #pragma once
 
+namespace netero {
+    /**
+     * @brief use for default size allocation in container
+     */
+    constexpr int page_size = 18;
+}
+
 #ifdef WIN32
 #define N_WIN32
 #endif // WIN32

@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "Core/internal.hpp"
-#include "Core/type_id.hpp"
+#include "core/internal.hpp"
+#include "core/type_id.hpp"
 
-#include "ECS/world.hpp"
-#include "ECS/component_filter.hpp"
-#include "ECS/system.hpp"
+#include "ecs/world.hpp"
+#include "ecs/component_filter.hpp"
+#include "ecs/system.hpp"
 
 namespace netero {
 

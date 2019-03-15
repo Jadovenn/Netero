@@ -31,3 +31,8 @@
 *.out
 *.app
 /.vs
+
+# Temporary/Build Directory
+build/
+cmake-build*/
+
