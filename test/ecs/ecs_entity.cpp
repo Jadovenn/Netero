@@ -4,7 +4,7 @@
  */
 
 #include <iostream>
-#include "../../Headers/netero/netero.hpp"
+#include "netero/netero.hpp"
 
 netero::ecs::World	world;
 

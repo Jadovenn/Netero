@@ -9,7 +9,7 @@ namespace netero {
     /**
      * @brief use for default size allocation in container
      */
-    constexpr int page_size = 18;
+    const int page_size = 18;
 }
 
 #ifdef WIN32
