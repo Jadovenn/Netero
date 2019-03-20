@@ -49,7 +49,7 @@ set_target_properties(ecs_component_filter
         LINKER_LANGUAGE CXX
         CXX_STANDARD 17)
 
-add_executable(ecs_system ecs/ecs_system.cpp ECS/ecs_dataset.hpp)
+add_executable(ecs_system ecs/ecs_system.cpp ecs/ecs_dataset.hpp)
 target_include_directories(ecs_system PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(ecs_system Netero)
 add_test(NAME ecs_system COMMAND ./ecs_system)
