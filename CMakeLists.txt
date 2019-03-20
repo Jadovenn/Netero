@@ -45,7 +45,7 @@ endif(OBSERVER)
 # Target
 
 add_library(Netero ${SRCS} ${PUBLIC_HEADER})
-target_include_directories(Netero PUBLIC Headers)
+target_include_directories(Netero PUBLIC headers)
 
 set_target_properties(Netero
     PROPERTIES
@@ -53,6 +53,6 @@ set_target_properties(Netero
 	LINKER_LANGUAGE CXX
 	CXX_STANDARD 17)
 
-set(NETERO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/Headers)
+set(NETERO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/headers)
 enable_testing()
 add_subdirectory("test")
