@@ -7,8 +7,7 @@
   #+#   #+#+# #+#            #+#     #+#        #+#    #+# #+#    #+#        
  ###    #### ##########     ###     ########## ###    ###  ########          
 ```
-
-[![CircleCI](https://circleci.com/gh/domage-j/netero.svg?style=svg&circle-token=465f51833446dc7eaae24f57dc348156ba549a19)](https://circleci.com/gh/domage-j/netero)
+[![CircleCI](https://circleci.com/gh/domage-j/netero-libs.svg?style=svg&circle-token=465f51833446dc7eaae24f57dc348156ba549a19)](https://circleci.com/gh/domage-j/netero-libs)
 
 # Utility Library
 
