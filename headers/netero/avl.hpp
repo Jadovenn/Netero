@@ -111,9 +111,7 @@
      	avl()
      	: root(nullptr) {};
 
-     	~avl() {
-     		deleteTree(root);
-     	}
+     	~avl() { deleteTree(root); }
 
      	/**
      	 * @brief inOrder traversal of the tree
@@ -122,7 +120,7 @@
      	void	inOrder(std::function<void(const T&)> callback) {
      		node	*idx = root;
 			inOrder(callback, idx);
-     	}
+     	} // O(n) = n
 
 	 private:
      	/**
@@ -138,7 +136,7 @@
 			callBack(*idx->data);
      		if (idx->rhs)
      			inOrder(callBack, idx->rhs);
-     	}
+     	} // O(n) = n
 	 public:
      	/**
      	 * @brief search if the given item exist in the tree
@@ -209,12 +207,46 @@
              new_node->parent->computeBalance();
          }
 
+         void 	remove(const T &item) {
+         	node	*idx = root;
+         	if (!idx) // Special case, tree is empty
+         		return;
+         	while (idx) { // find the node to remove
+				 if (*idx->data == item) {
+					 break;
+				 }
+				 else if (*idx->data < item) {
+					 idx = idx->rhs;
+				 }
+				 else {
+					 idx = idx->lhs;
+				 }
+         	}
+         	if (!idx) // Special case this data is not in this tree
+         		return;
+         	{ // Regular case, delete the node and set correctly the new root
+         		if (idx->parent == nullptr) { // Special case, idx is root
+         			root = deleteNode(idx);
+         		}
+         		else if (idx->parent->lhs == idx) {
+         			idx->parent->lhs = deleteNode(idx);
+         		}
+         		else {
+         			idx->parent->rhs = deleteNode(idx);
+         		}
+			} // end regular case context
+			// Now we can balance thing here
+         }
 
 #ifdef NETERO_DEBUG
 		void	display() {
          	std::cout << "--Display-----------------" << std::endl;
-         	node *idx = root;
-         	inOrderTraversal(idx);
+         	if (root) {
+				node *idx = root;
+				inOrderTraversal(idx);
+			}
+         	else
+         		std::cout << "[empty]" << std::endl;
 			std::cout << "--------------------------" << std::endl;
         }
 
@@ -241,6 +273,44 @@
      		deleteTree(item->lhs);
      		delete item;
      	}
+
+     	/**
+     	 * @brief delete a node and return the root of the new subtree
+     	 * @param data
+     	 */
+     	node 	*deleteNode(node *item) {
+			node	*new_root = nullptr;
+     		if (!item->lhs && !item->rhs) { // Regular case is the node is leaf
+     			delete item;
+     			return new_root;
+     		}
+     		if (item->lhs && item->rhs) { // Regular case, item is a node with two child
+				node *idx = item->rhs;
+				while (idx->rhs)					// Step 1, find the bigger elem in the right sub-tree
+					idx = idx->rhs;
+				delete item->data;					// Step 2, Swap item and idx data
+				item->data = idx->data;
+				idx->data = nullptr;
+				node *idx_parent = idx->parent; 	// Step 4, remove the bigger elem initial node
+				idx_parent->rhs = deleteNode(idx);
+				if (idx_parent->rhs)				// Step 5, make sure the parent link is correct
+					idx_parent->rhs->parent = idx_parent;
+				return item;						// Step 6, return the initial node with the data field updated
+     		}
+     		else if (item->lhs) { // Regular case, item is a node with only lhs
+     			new_root = item->lhs;
+     			new_root->parent = item->parent;
+     			delete item;
+     			return new_root;
+     		}
+     		else if (item->rhs) { // Regular case, item is node with only rhs
+     			new_root = item->rhs;
+				new_root->parent = item->parent;
+     			delete item;
+     			return new_root;
+     		}
+     		return nullptr; // should never be reach
+        }
          node   *root;
      };
 
