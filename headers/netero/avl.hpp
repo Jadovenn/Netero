@@ -60,7 +60,7 @@
          };
 
      public:
-     	class iterator: public std::iterator<std::input_iterator_tag, T, T, const T*, T&> {
+     	class iterator: public std::iterator<std::input_iterator_tag, T, T, const T*, const T&> {
 		public:
      		explicit iterator(avl &tree) {
      			tree.inOrder([&] (const auto &e) {
@@ -87,17 +87,11 @@
      			return *this;
      		}
 
-     		const T& operator*() const {
-     			return idx;
-     		}
+     		const T& operator*() const { return idx; }
 
-     		bool    operator==(iterator other) const {
-     			return idx == other.idx && isListEmpty;
-     		}
+     		bool    operator==(iterator other) const { return idx == other.idx && isListEmpty; }
 
-     		bool    operator!=(iterator other) const {
-     			return !isListEmpty;
-     		}
+     		bool    operator!=(iterator other) const { return !isListEmpty; }
 
 		private:
      		bool 			isListEmpty;

@@ -17,6 +17,7 @@ int 	main() {
 	avl_tree.add(12);
 	avl_tree.add(24);
 	avl_tree.add(3);
+	avl_tree.add(4);
 	if (!avl_tree.search(1))
 		return 1;
 	if (avl_tree.search(23))
