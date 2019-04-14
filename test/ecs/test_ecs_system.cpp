@@ -20,6 +20,7 @@ public:
 
 	virtual ~PathSystem() = default;
 	void	exec() final {
+		/**
 	    std::cout << "I am a system" << std::endl;
 		for (auto entity : getEntities()) {
 			auto &position = entity->getComponent<Position>();
@@ -29,6 +30,7 @@ public:
 			position.x = next_x;
 			position.y = next_y;
 		}
+		 */
 	}
 };
 
