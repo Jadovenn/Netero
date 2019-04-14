@@ -3,7 +3,8 @@
  * see LICENCE.txt
  */
 
-#include "ecs_dataset.hpp"
+#include <iostream>
+#include "test_ecs_dataset.hpp"
 
 namespace ecs = netero::ecs;
 
@@ -19,7 +20,7 @@ public:
 
 	virtual ~PathSystem() = default;
 	void	exec() final {
-		/**
+	    std::cout << "I am a system" << std::endl;
 		for (auto entity : getEntities()) {
 			auto &position = entity->getComponent<Position>();
 			auto &path = entity->getComponent<Path<int>>();
@@ -28,7 +29,6 @@ public:
 			position.x = next_x;
 			position.y = next_y;
 		}
-		*/
 	}
 };
 
@@ -57,7 +57,9 @@ int		main() {
 	fourth.enable();
 
 	world.addSystem<PathSystem>();
+	world.update();
+    world.update();
+    world.update();
 	world.removeSystem<PathSystem>();
-
 	return 0;
 }
