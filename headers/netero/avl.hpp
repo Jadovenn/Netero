@@ -28,6 +28,10 @@
                  computeBalance();
               }
 
+              ~node() {
+             	delete data;
+             }
+
              int    getDepth() {
                  if (!rhs && !lhs)
                      return 0;
@@ -58,7 +62,7 @@
      public:
      	class iterator: public std::iterator<std::input_iterator_tag, T, T, const T*, T&> {
 		public:
-     		explicit iterator(avl tree) {
+     		explicit iterator(avl &tree) {
      			tree.inOrder([&] (const auto &e) {
      				list.push_back(e);
      			});
