@@ -50,6 +50,8 @@
                  int    x = rhs ? rhs->getDepth() : -1;
                  int    y = lhs ? lhs->getDepth() : -1;
                  balance = x - y;
+                 if (parent)
+                 	parent->computeBalance();
              }
 
              int    balance;
@@ -224,18 +226,24 @@
          	}
          	if (!idx) // Special case this data is not in this tree
          		return;
+         	node	*new_root;
          	{ // Regular case, delete the node and set correctly the new root
          		if (idx->parent == nullptr) { // Special case, idx is root
-         			root = deleteNode(idx);
+         			new_root = deleteNode(idx);
+         			root = new_root;
          		}
          		else if (idx->parent->lhs == idx) {
-         			idx->parent->lhs = deleteNode(idx);
+         			new_root = deleteNode(idx);
+					idx->parent->lhs = new_root;
          		}
          		else {
-         			idx->parent->rhs = deleteNode(idx);
+         			new_root = deleteNode(idx);
+					idx->parent->rhs = new_root;
          		}
 			} // end regular case context
 			// Now we can balance thing here
+			if (new_root)
+				new_root->computeBalance();
          }
 
 #ifdef NETERO_DEBUG
