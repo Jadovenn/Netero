@@ -68,10 +68,12 @@
      			});
      			idx = list.front();
      			list.pop_front();
+     			isListEmpty = false;
      		}
 
      		explicit iterator(T	last) {
      			idx = last;
+				isListEmpty = false;
      		}
 
      		iterator    &operator++() {
@@ -79,6 +81,9 @@
 					idx = list.front();
 					list.pop_front();
 				}
+     			else {
+     				isListEmpty = true;
+     			}
      			return *this;
      		}
 
@@ -87,14 +92,15 @@
      		}
 
      		bool    operator==(iterator other) const {
-     			return idx == other.idx;
+     			return idx == other.idx && isListEmpty;
      		}
 
      		bool    operator!=(iterator other) const {
-     			return idx != other.idx;
+     			return !isListEmpty;
      		}
 
 		private:
+     		bool 			isListEmpty;
      		T				idx;
      		std::list<T>	list;
      	};
