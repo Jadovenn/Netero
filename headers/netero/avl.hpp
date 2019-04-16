@@ -13,10 +13,19 @@
 
  namespace netero {
 
+ 	/**
+ 	 * @brief Adelson Velsky Landis (AVL) tree
+ 	 * @tparam T the type hold by the container
+ 	 */
      template <class T,
      		typename = std::enable_if<std::is_copy_constructible<T>::value>>
      class avl {
 
+
+     	/**
+     	 * @brief structure representing a node in the tree,
+     	 * it hold the data provide by the client
+     	 */
          struct node {
              explicit node(T *data, node *parent = nullptr)
               : data(data),
@@ -32,20 +41,28 @@
              	delete data;
              }
 
+             /**
+              * @brief compute the depth of a node recursivly
+              * by descending to all child of the node
+              * @return the depth
+              */
              int    getDepth() {
                  if (!rhs && !lhs)
                      return 0;
                  if (!rhs)
-                     return lhs->getDepth();
+                     return lhs->getDepth() + 1;
                  else if (!lhs)
-                     return rhs->getDepth();
+                     return rhs->getDepth() + 1;
                  else {
-                     int    x = lhs->getDepth();
-                     int    y = rhs->getDepth();
+                     int    x = lhs->getDepth() + 1;
+                     int    y = rhs->getDepth() + 1;
                      return x > y ? x : y;
                  }
              }
 
+             /**
+              * @brief compute the balance of the node
+              */
              void   computeBalance() {
                  int    x = rhs ? rhs->getDepth() : -1;
                  int    y = lhs ? lhs->getDepth() : -1;
@@ -62,6 +79,10 @@
          };
 
      public:
+     	/**
+     	 * @brief iterator for the container to be compatible
+     	 * with std function and for-range based loop
+     	 */
      	class iterator: public std::iterator<std::input_iterator_tag, T, T, const T*, const T&> {
 		public:
      		explicit iterator(avl &tree) {
@@ -101,6 +122,11 @@
      		std::list<T>	list;
      	};
      	friend iterator;
+     	/**
+     	 * @brief return an iterator to a list generated with traversal in order
+     	 * of the tree
+     	 * @return
+     	 */
      	iterator	begin() {return iterator(*this);}
      	iterator	end() {
      		T	data;
