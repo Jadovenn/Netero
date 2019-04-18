@@ -33,7 +33,6 @@
 					   rhs(nullptr),
 					   lhs(nullptr),
 					   balance(0) {
-				 computeBalance();
 			 }
 
 			 ~node() {
@@ -60,20 +59,6 @@
 			 }
 
 			 /**
-			  * @brief compute the balance of a tree recursivly
-			  * @details it start from the node of the first call
-			  * and climb to the root of the tree, it does balance the tree
-			  * if necessary
-			  */
-			 void computeBalance() {
-			     this->singleBalance();
-				 if (balance == 2 || balance == -2)
-					 this->balanceTree(); // will call computeBalance again
-				 else if (parent)
-					 parent->computeBalance();
-			 }
-
-			 /**
 			  * @brief compute the balance of a single node (rhs - lhs)
 			  * @details instead of going recursivly to the root
 			  * it only compute the node, it does not balance the tree
@@ -83,6 +68,27 @@
 				 int y = lhs ? lhs->getDepth() : -1;
 				 balance = x - y;
 			 }
+			 int balance;
+			 node *parent;
+			 node *rhs;
+			 node *lhs;
+			 T *data;
+		 };
+			 /**
+			  * @brief compute the balance of a tree recursivly
+			  * @details it start from the node of the first call
+			  * and climb to the root of the tree, it does balance the tree
+			  * if necessary
+			  */
+			 void computeBalance(node *item) {
+			     item->singleBalance();
+				 if (item->balance == 2 || item->balance == -2)
+					 this->balanceTree(item); // will call computeBalance again
+				 else if (item->parent)
+					 computeBalance(item->parent);
+			 }
+
+
 
 			 /**
 			  * @brief balance the tree depending the balance factor
@@ -91,26 +97,27 @@
 			  *          case 3: (2)(-1) the right subtree as a left subtree heavy
 			  *          case 4: (-2)(1) the left subtree as a right subtree heavy
 			  */
-			 void balanceTree() {
-				 if (balance == 2) { // case 1 or 3
-					 if (rhs->balance == 1) { // case 1
-					 	rotateLeft(this);
-					 	this->computeBalance();
-					 } else if (rhs->balance == -1) { // case 3
-					 	rotateRight(this->rhs);
-					 	node *subtree = rotateLeft(this);
+			 void balanceTree(node *item) {
+			     std::cout << "Rotation here: " << *item->data << std::endl;
+				 if (item->balance == 2) { // case 1 or 3
+					 if (item->rhs->balance == 1) { // case 1
+					 	rotateLeft(item);
+					 	computeBalance(item);
+					 } else if (item->rhs->balance == -1) { // case 3
+					 	rotateRight(item->rhs);
+					 	node *subtree = rotateLeft(item);
 					 	subtree->lhs->singleBalance();
-					 	subtree->rhs->computeBalance();
+					 	computeBalance(subtree->rhs);
 					 }
-				 } else if (balance == -2) { // case 2 or 4
-					 if (lhs->balance == -1) { // case 2
-					 	rotateRight(this);
-					 	this->computeBalance();
-					 } else if (lhs->balance == 1) { // case 4
-					 	rotateLeft(this->lhs);
-					 	node *subtree = rotateRight(this);
+				 } else if (item->balance == -2) { // case 2 or 4
+					 if (item->lhs->balance == -1) { // case 2
+					 	rotateRight(item);
+					 	computeBalance(item);
+					 } else if (item->lhs->balance == 1) { // case 4
+					 	rotateLeft(item->lhs);
+					 	node *subtree = rotateRight(item);
 					 	subtree->lhs->singleBalance();
-					 	subtree->rhs->computeBalance();
+					 	computeBalance(subtree->rhs);
 					 }
 				 }
 			 }
@@ -121,6 +128,7 @@
 			  * @return new root of the subtree
 			  */
 			 node *rotateRight(node *subtree) {
+			     std::cout << "Right Rotation" << std::endl;
 			 	node *new_root = subtree->lhs;
 				new_root->parent = subtree->parent;
 				subtree->parent = new_root;
@@ -133,6 +141,8 @@
 					else if (new_root->parent->lhs == subtree)
 						new_root->parent->lhs = new_root;
 				}
+				else
+				    this->root = new_root;
 				return new_root; // no balance recomputing at this point
 			 }
 
@@ -154,15 +164,11 @@
 					else if (new_root->parent->lhs == subtree)
 						new_root->parent->lhs = new_root;
 				}
+                else
+                    this->root = new_root;
 				return new_root; // no balance recomputing at this point
 			 }
 
-			 int balance;
-			 node *parent;
-			 node *rhs;
-			 node *lhs;
-			 T *data;
-		 };
      public:
      	/**
      	 * @brief iterator for the container to be compatible
@@ -362,7 +368,7 @@
              new_node->lhs = nullptr;
              if (!root) { // Special case, three is empty add new data as root
                  root = new_node;
-                 root->computeBalance();
+                 computeBalance(root);
                  return;
              }
              { // Regular case, allocate and find the right place to add a leaf
@@ -392,7 +398,7 @@
                  new_node->rhs = nullptr;
              } // end regular case context
              // Now we can balance stuff here
-             new_node->parent->computeBalance();
+             computeBalance(new_node->parent);
          }
 
          void 	remove(const T &item) {
@@ -430,9 +436,9 @@
 			} // end regular case context
 			// Now we can balance thing here
 			if (new_root) // if a sub tree is returned, start balancing here
-				new_root->computeBalance();
+				computeBalance(new_root);
 			else if (parent) // if no subtree is returned start balancing at parent, if parent is null do nothing
-				parent->computeBalance();
+				computeBalance(parent);
 
          }
 
