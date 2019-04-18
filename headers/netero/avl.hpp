@@ -60,38 +60,68 @@
 			 }
 
 			 /**
-			  * @brief compute the balance of the node
+			  * @brief compute the balance of a tree recursivly
+			  * @details it start from the node of the first call
+			  * and climb to the root of the tree, it does balance the tree
+			  * if necessary
 			  */
 			 void computeBalance() {
-				 int x = rhs ? rhs->getDepth() : -1;
-				 int y = lhs ? lhs->getDepth() : -1;
-				 balance = x - y;
+			     this->singleBalance();
 				 if (balance == 2 || balance == -2)
-					 balanceTree(); // will call computeBalance again
+					 this->balanceTree(); // will call computeBalance again
 				 else if (parent)
 					 parent->computeBalance();
 			 }
 
+			 /**
+			  * @brief compute the balance of a single node (rhs - lhs)
+			  * @details instead of going recursivly to the root
+			  * it only compute the node, it does not balance the tree
+			  */
+			 void	singleBalance() {
+			 int x = rhs ? rhs->getDepth() : -1;
+				 int y = lhs ? lhs->getDepth() : -1;
+				 balance = x - y;
+			 }
+
+			 /**
+			  * @brief balance the tree depending the balance factor
+			  * @details case 1: (2)(1) the right subtree is heavy on right
+			  *          case 2: (-2)(-1) the left subtree is heavy on left
+			  *          case 3: (2)(-1) the right subtree as a left subtree heavy
+			  *          case 4: (-2)(1) the left subtree as a right subtree heavy
+			  */
 			 void balanceTree() {
 				 if (balance == 2) { // case 1 or 3
 					 if (rhs->balance == 1) { // case 1
 					 	rotateLeft(this);
+					 	this->computeBalance();
 					 } else if (rhs->balance == -1) { // case 3
 					 	rotateRight(this->rhs);
-					 	rotateLeft(this);
+					 	node *subtree = rotateLeft(this);
+					 	subtree->lhs->singleBalance();
+					 	subtree->rhs->computeBalance();
 					 }
 				 } else if (balance == -2) { // case 2 or 4
 					 if (lhs->balance == -1) { // case 2
 					 	rotateRight(this);
+					 	this->computeBalance();
 					 } else if (lhs->balance == 1) { // case 4
 					 	rotateLeft(this->lhs);
-					 	rotateRight(this);
+					 	node *subtree = rotateRight(this);
+					 	subtree->lhs->singleBalance();
+					 	subtree->rhs->computeBalance();
 					 }
-				 } // last issue balance are wrong here we must set them correctly
+				 }
 			 }
 
+			 /**
+			  * @brief rotate the given tree to the right and return the new root of the subtree
+			  * @param subtree - root of a subtree
+			  * @return new root of the subtree
+			  */
 			 node *rotateRight(node *subtree) {
-			 	node *new_root = subtree->left;
+			 	node *new_root = subtree->lhs;
 				new_root->parent = subtree->parent;
 				subtree->parent = new_root;
 				node *tmp_subRight = new_root->rhs;
@@ -106,8 +136,13 @@
 				return new_root; // no balance recomputing at this point
 			 }
 
+             /**
+              * @brief rotate the given tree to the left and return the new root of the subtree
+              * @param subtree - root of a subtree
+              * @return new root of the subtree
+              */
 			 node *rotateLeft(node *subtree) {
-				 node *new_root = subtree->right;
+				 node *new_root = subtree->rhs;
 				 new_root->parent = subtree->parent;
 				 subtree->parent = new_root;
 				 node *tmp_subLeft = new_root->lhs;
@@ -132,9 +167,14 @@
      	/**
      	 * @brief iterator for the container to be compatible
      	 * with std function and for-range based loop
+     	 * @details it build a list following a in-order traversal of the tree and iterate over it
      	 */
      	class iterator: public std::iterator<std::input_iterator_tag, T, T, const T*, const T&> {
 		public:
+     	    /**
+     	     * @brief build an iterator from a tree and start at the bottom left
+     	     * @param tree - to iterate over
+     	     */
      		explicit iterator(avl &tree) {
      			tree.inOrder([&] (const auto &e) {
      				list.push_back(e);
@@ -144,11 +184,21 @@
      			isListEmpty = false;
      		}
 
+     		/**
+     		 * @brief build an iterator from a specific value
+     		 * @details this iterator will consider this value as
+     		 * a last value to iterate
+     		 * @param last
+     		 */
      		explicit iterator(T	last) {
      			idx = last;
 				isListEmpty = false;
      		}
 
+     		/**
+     		 * @brief increment the iterator to the next value
+     		 * @return
+     		 */
      		iterator    &operator++() {
      			if (!list.empty()) {
 					idx = list.front();
@@ -160,10 +210,24 @@
      			return *this;
      		}
 
+     		/**
+     		 * @brief return the index value
+     		 * @return
+     		 */
      		const T& operator*() const { return idx; }
 
+     		/**
+     		 * @brief eql comparator to another iterator
+     		 * @param other - other iterator
+     		 * @return true if equal, false otherwise
+     		 */
      		bool    operator==(iterator other) const { return idx == other.idx && isListEmpty; }
 
+     		/**
+     		 * @brief noteql comparator to another iterator
+     		 * @param other - other iterator
+     		 * @return true if not eql, false otherwise
+     		 */
      		bool    operator!=(iterator other) const { return !isListEmpty; }
 
 		private:
@@ -173,11 +237,17 @@
      	};
      	friend iterator;
      	/**
-     	 * @brief return an iterator to a list generated with traversal in order
-     	 * of the tree
-     	 * @return
+     	 * @brief return an iterator to the begining of the
+     	 * tree following in-order traversal
+     	 * @return iterator
      	 */
      	iterator	begin() {return iterator(*this);}
+
+     	/**
+     	 * @brief return an iterator to the end of the tree
+     	 * following the in-order traversal
+     	 * @return iterator
+     	 */
      	iterator	end() {
      		T	data;
      		this->inOrder([&] (const auto &e) {
@@ -186,9 +256,28 @@
      		return iterator(data);
      	}
 
+     	// default ctor
      	avl()
      	: root(nullptr) {};
 
+     	// copy ctor
+     	explicit avl(const avl<T> &copy) {
+
+     	}
+
+     	explicit avl(const avl<T> &&move) {
+
+     	}
+
+     	bool operator==(const avl<T> &other) {
+
+     	}
+
+     	bool operator!=(const avl<T> &other) {
+
+     	}
+
+     	// destructor
      	~avl() { deleteTree(root); }
 
      	/**
