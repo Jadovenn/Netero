@@ -262,19 +262,40 @@
 
      	// copy ctor
      	explicit avl(const avl<T> &copy) {
-
+     	    copy.inOrder([&] (const auto &value) {
+     	        this->add(value);
+     	    });
      	}
 
-     	explicit avl(const avl<T> &&move) {
-
+     	// move ctor
+     	explicit avl(avl<T> &&move) {
+     	    this->root = move.root;
+     	    move.root = nullptr;
      	}
 
+     	// copy operator
+     	const avl<T>   &operator=(const avl<T> &copy) {
+     	    copy.inOrder([&] (const auto &value) {
+     	        this->add(value);
+     	    });
+     	    return *this;
+     	}
+
+     	// move operator
+        const avl<T>    &operator=(avl<T> &&move) {
+     	    this->root = move.root;
+     	    move.root = nullptr;
+     	    return *this;
+     	}
+
+     	// eql operator
      	bool operator==(const avl<T> &other) {
-
+     	    return this->root == other.root;
      	}
 
+     	// noteql operator
      	bool operator!=(const avl<T> &other) {
-
+     	    return this->root != other.root;
      	}
 
      	// destructor
