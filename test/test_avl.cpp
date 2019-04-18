@@ -25,7 +25,7 @@ int 	main() {
 		return 1;
 	avl_tree.display();
 	std::cout << "Range base for-loop compatibility:" << std::endl;
-	for (const auto &e: avl_tree) {
+	for (const auto &e: avl_tree) { // perform in-order traversal
 		std::cout << e << std::endl;
 	}
 	avl_tree.display();

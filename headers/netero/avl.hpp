@@ -27,57 +27,107 @@
      	 * it hold the data provide by the client
      	 */
          struct node {
-             explicit node(T *data, node *parent = nullptr)
-              : data(data),
-                parent(parent),
-                rhs(nullptr),
-                lhs(nullptr),
-                balance(0)
-              {
-                 computeBalance();
-              }
+			 explicit node(T *data, node *parent = nullptr)
+					 : data(data),
+					   parent(parent),
+					   rhs(nullptr),
+					   lhs(nullptr),
+					   balance(0) {
+				 computeBalance();
+			 }
 
-              ~node() {
-             	delete data;
-             }
+			 ~node() {
+				 delete data;
+			 }
 
-             /**
-              * @brief compute the depth of a node recursivly
-              * by descending to all child of the node
-              * @return the depth
-              */
-             int    getDepth() {
-                 if (!rhs && !lhs)
-                     return 0;
-                 if (!rhs)
-                     return lhs->getDepth() + 1;
-                 else if (!lhs)
-                     return rhs->getDepth() + 1;
-                 else {
-                     int    x = lhs->getDepth() + 1;
-                     int    y = rhs->getDepth() + 1;
-                     return x > y ? x : y;
-                 }
-             }
+			 /**
+			  * @brief compute the depth of a node recursivly
+			  * by descending to all child of the node
+			  * @return the depth
+			  */
+			 int getDepth() {
+				 if (!rhs && !lhs)
+					 return 0;
+				 if (!rhs)
+					 return lhs->getDepth() + 1;
+				 else if (!lhs)
+					 return rhs->getDepth() + 1;
+				 else {
+					 int x = lhs->getDepth() + 1;
+					 int y = rhs->getDepth() + 1;
+					 return x > y ? x : y;
+				 }
+			 }
 
-             /**
-              * @brief compute the balance of the node
-              */
-             void   computeBalance() {
-                 int    x = rhs ? rhs->getDepth() : -1;
-                 int    y = lhs ? lhs->getDepth() : -1;
-                 balance = x - y;
-                 if (parent)
-                 	parent->computeBalance();
-             }
+			 /**
+			  * @brief compute the balance of the node
+			  */
+			 void computeBalance() {
+				 int x = rhs ? rhs->getDepth() : -1;
+				 int y = lhs ? lhs->getDepth() : -1;
+				 balance = x - y;
+				 if (balance == 2 || balance == -2)
+					 balanceTree(); // will call computeBalance again
+				 else if (parent)
+					 parent->computeBalance();
+			 }
 
-             int    balance;
-             node   *parent;
-             node   *rhs;
-             node   *lhs;
-             T  	*data;
-         };
+			 void balanceTree() {
+				 if (balance == 2) { // case 1 or 3
+					 if (rhs->balance == 1) { // case 1
+					 	rotateLeft(this);
+					 } else if (rhs->balance == -1) { // case 3
+					 	rotateRight(this->rhs);
+					 	rotateLeft(this);
+					 }
+				 } else if (balance == -2) { // case 2 or 4
+					 if (lhs->balance == -1) { // case 2
+					 	rotateRight(this);
+					 } else if (lhs->balance == 1) { // case 4
+					 	rotateLeft(this->lhs);
+					 	rotateRight(this);
+					 }
+				 } // last issue balance are wrong here we must set them correctly
+			 }
 
+			 node *rotateRight(node *subtree) {
+			 	node *new_root = subtree->left;
+				new_root->parent = subtree->parent;
+				subtree->parent = new_root;
+				node *tmp_subRight = new_root->rhs;
+				new_root->rhs = subtree;
+				subtree->lhs = tmp_subRight;
+				if (new_root->parent) {
+					if (new_root->parent->rhs == subtree)
+						new_root->parent->rhs = new_root;
+					else if (new_root->parent->lhs == subtree)
+						new_root->parent->lhs = new_root;
+				}
+				return new_root; // no balance recomputing at this point
+			 }
+
+			 node *rotateLeft(node *subtree) {
+				 node *new_root = subtree->right;
+				 new_root->parent = subtree->parent;
+				 subtree->parent = new_root;
+				 node *tmp_subLeft = new_root->lhs;
+				 new_root->lhs = subtree;
+				 subtree->rhs = tmp_subLeft;
+				if (new_root->parent) {
+					if (new_root->parent->rhs == subtree)
+						new_root->parent->rhs = new_root;
+					else if (new_root->parent->lhs == subtree)
+						new_root->parent->lhs = new_root;
+				}
+				return new_root; // no balance recomputing at this point
+			 }
+
+			 int balance;
+			 node *parent;
+			 node *rhs;
+			 node *lhs;
+			 T *data;
+		 };
      public:
      	/**
      	 * @brief iterator for the container to be compatible
@@ -269,9 +319,9 @@
          		}
 			} // end regular case context
 			// Now we can balance thing here
-			if (new_root)
+			if (new_root) // if a sub tree is returned, start balancing here
 				new_root->computeBalance();
-			else if (parent)
+			else if (parent) // if no subtree is returned start balancing at parent, if parent is null do nothing
 				parent->computeBalance();
 
          }
