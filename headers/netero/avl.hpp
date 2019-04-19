@@ -267,14 +267,14 @@
      	: root(nullptr) {};
 
      	// copy ctor, not efficient
-     	explicit avl(const avl<T> &copy) {
+     	explicit avl(const avl<T> &copy) : root(nullptr) {
      	    copy.inOrder([&] (const auto &value) {
      	        this->add(value);
      	    });
      	}
 
      	// move ctor
-     	explicit avl(avl<T> &&move) {
+     	explicit avl(avl<T> &&move) : root(nullptr) {
      	    this->root = move.root;
      	    move.root = nullptr;
      	}
