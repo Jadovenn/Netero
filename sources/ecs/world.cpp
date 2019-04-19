@@ -4,6 +4,7 @@
  */
 
 #include <algorithm>
+#include <iostream>
 #include "netero/ecs/world.hpp"
 
 namespace netero::ecs {
@@ -95,6 +96,10 @@ namespace netero::ecs {
 			_localWorldCache.generate(_entities);
 		}
 		else {
+		    for(auto &system: _systems) {
+		        std::cout << "system update" << std::endl;
+		        system.second->exec();
+		    }
 			_localWorldCache.collectGarbage();
 		}
 	}

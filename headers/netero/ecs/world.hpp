@@ -61,7 +61,7 @@ namespace netero {
 			
 			template<typename T, typename ...Args>
 			void	addSystem(Args ...args) {
-				static_assert(std::is_base_of<BaseSystem, T>::value, "System not base on BaseSystem, your system must inherite from netero::system<>");
+				static_assert(std::is_base_of<BaseSystem, T>::value, "System not base on BaseSystem, your system must inherit from netero::system<>");
 				T	*data = new (std::nothrow) T(std::forward(args)...);
 				if (!data)
 					throw std::bad_alloc();
@@ -71,7 +71,7 @@ namespace netero {
 
 			template<typename T>
 			void	removeSystem() {
-				static_assert(std::is_base_of<BaseSystem, T>::value, "System not base on BaseSystem, your system must inherite from netero::system<>");
+				static_assert(std::is_base_of<BaseSystem, T>::value, "System not base on BaseSystem, your system must inherit from netero::system<>");
 				auto systemIt = _systems.find(netero::TypeID<BaseSystem>::getTypeID<T>());
 				if (systemIt == _systems.end())
 					return;
@@ -85,11 +85,11 @@ namespace netero {
 			void	update();
 		private:
 			void	_deleteEntities();
-			std::mutex						_entityAllocatorLock;
-			std::vector<EntityContainer*>	_entities;
+			std::mutex						            _entityAllocatorLock;
+			std::vector<EntityContainer*>	            _entities;
 			std::map<netero::type_id, BaseSystem*>		_systems;
-			World::Cache					_localWorldCache;
-			World::Statistic				_statistic;
+			World::Cache					            _localWorldCache;
+			World::Statistic				            _statistic;
 		};
 
 	}
