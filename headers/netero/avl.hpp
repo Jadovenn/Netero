@@ -280,7 +280,7 @@
      	}
 
      	// copy operator
-     	const avl<T>   &operator=(const avl<T> &copy) {
+     	avl<T>   &operator=(const avl<T> &copy) {
      	    this->deleteTree(root);
      	    copy.inOrder([&] (const auto &value) {
      	        this->add(value);
@@ -289,7 +289,7 @@
      	}
 
      	// move operator
-        const avl<T>    &operator=(avl<T> &&move) {
+        avl<T>    &operator=(avl<T> &&move) {
             this->deleteTree(root);
      	    this->root = move.root;
      	    move.root = nullptr;
