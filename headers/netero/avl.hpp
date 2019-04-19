@@ -99,7 +99,6 @@
           *          case 4: (-2)(1) the left subtree as a right subtree heavy
           */
          void balanceTree(node *item) {
-             std::cout << "Rotation here: " << *item->data << std::endl;
              if (item->balance == 2) { // case 1 or 3
                  if (item->rhs->balance == 1) { // case 1
                      rotateLeft(item);
@@ -314,7 +313,7 @@
      	 * @brief inOrder traversal of the tree
      	 * @param callback
      	 */
-     	void	inOrder(std::function<void(const T&)> callback) {
+     	void	inOrder(std::function<void(const T&)> callback) const {
      		node	*idx = root;
 			inOrder(callback, idx);
      	} // O(n) = n
@@ -325,7 +324,7 @@
      	 * @param callBack
      	 * @param idx
      	 */
-     	void 	inOrder(std::function<void(const T&)> &callBack, node *idx) {
+     	void 	inOrder(std::function<void(const T&)> &callBack, node *idx) const {
      		if (!idx)
      			return;
      		if (idx->lhs)
