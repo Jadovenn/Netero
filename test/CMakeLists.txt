@@ -1,5 +1,14 @@
 project(Test)
 
+add_executable(test_set test_set.cpp)
+target_include_directories(test_set PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_set Netero)
+add_test(NAME test_set COMMAND ./test_set)
+set_target_properties(test_set
+        PROPERTIES
+        LINKER_LANGUAGE CXX
+        CXX_STANDARD 17)
+
 add_executable(test_avl test_avl.cpp)
 target_include_directories(test_avl PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(test_avl Netero)

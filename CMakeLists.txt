@@ -18,7 +18,8 @@ if(CORE)
 			./headers/netero/netero.hpp
 			./headers/netero/core/internal.hpp
 			./headers/netero/core/type_id.hpp
-            ./headers/netero/avl.hpp)
+            ./headers/netero/avl.hpp
+            ./headers/netero/set.hpp)
 endif(CORE)
 
 if(ecs)

@@ -1,0 +1,19 @@
+/**
+ * Netero sources under BSD-3-Clause
+ * see LICENCE.txt
+ */
+
+#include "netero/set.hpp"
+
+int 	main() {
+	netero::set<int>	a{1, 2, 3, 4, 5, 6, 7, 8};
+	netero::set<int>	b{6, 7, 8};
+	std::set<int>		c{4, 5, 6};
+	netero::set<int>	d(c);
+
+	if (b.isSubset(c)) // NOT OK
+		return 1;
+	if (!b.isSubset(a)) // OK
+		return 1;
+	return 0;
+}
