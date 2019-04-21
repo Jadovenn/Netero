@@ -49,7 +49,7 @@ namespace netero::ecs {
 	}
 
 	bool	Entity::valid() const noexcept {
-		return _base ? true : false;
+		return _base != nullptr;
 	}
 
 	void	Entity::enable() {
