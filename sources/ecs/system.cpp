@@ -8,12 +8,5 @@
 namespace netero {
 	namespace ecs {
 
-		void		SystemCache::addEntity(EntityContainer *entity) {
-
-		}
-
-		void		SystemCache::removeEntity(EntityContainer *entity) {
-
-		}
 	}
 }
