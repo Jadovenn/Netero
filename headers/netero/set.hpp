@@ -41,6 +41,8 @@ namespace netero {
 			iterator		it_this_end = this->end();
 			iterator		it_other = other.begin();
 			iterator		it_other_end = other.end();
+			if (other.size() == 0)
+				return false;
 			while (it_this != it_this_end) {
 				while (*it_this != *it_other) {
 					it_other++;
