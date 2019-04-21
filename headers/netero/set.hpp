@@ -50,5 +50,7 @@ namespace netero {
 			}
 			return true;
 		} // O(n) = n, where n is size of other
+		// TODO: union
+		// TODO: inter
 	};
 }
