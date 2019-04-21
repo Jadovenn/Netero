@@ -17,14 +17,18 @@ namespace netero {
 	template <typename value_type>
 	class set : public std::set<value_type> {
 	public:
+		set() = default;
+
 		// construct from a initializer list
 		set(std::initializer_list<value_type> __il) {
 			this->insert(__il.begin(), __il.end());
 		}
 
-		set(const std::set<value_type> &__copy) {
+		// copy constructor from std::ste
+		explicit set(const std::set<value_type> &__copy) {
 			this->insert(__copy.begin(), __copy.end());
 		}
+
 		/**
 		 * @brief check if the actual set is a subset of the given set
 		 * @note the given set does not need to be a netero::set
