@@ -16,6 +16,6 @@ namespace netero {
 
 		};
 
-		using CompoentTypeID = netero::TypeID<Component>;
+		using ComponentTypeID = netero::TypeID<Component>;
 	}
 }

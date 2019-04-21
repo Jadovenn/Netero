@@ -28,14 +28,14 @@ namespace netero {
             template<typename Last>
             static void		decomposer(netero::set<netero::type_id> &filter) {
                 static_assert(std::is_base_of<Component, Last>(), "Elem is not based on Component");
-                filter.insert(CompoentTypeID::getTypeID<Last>());
+                filter.insert(ComponentTypeID::getTypeID<Last>());
             }
 
             template<typename First, typename Second, typename ...Rest>
             static void 	decomposer(netero::set<netero::type_id> &filter) {
                 static_assert(std::is_base_of<Component, First>(), "Elem is not based on Component");
                 decomposer<Second, Rest...>(filter);
-                filter.insert(CompoentTypeID::getTypeID<First>());
+                filter.insert(ComponentTypeID::getTypeID<First>());
             }
 
         public:
