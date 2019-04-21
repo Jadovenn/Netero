@@ -35,7 +35,7 @@ namespace netero {
 		 * @param other - set to compare
 		 * @return true is this is an subset, false otherwise
 		 */
-		bool	isSubsetOf(const std::set<value_type> &other) {
+		bool	isSubsetOf(const std::set<value_type> &other) const {
 			typename std::set<value_type>::iterator		it_this = this->begin();
 			typename std::set<value_type>::iterator		it_this_end = this->end();
 			typename std::set<value_type>::iterator		it_other = other.begin();
