@@ -20,9 +20,8 @@ public:
 
 	virtual ~PathSystem() = default;
 	void	exec() final {
-		/**
-	    std::cout << "I am a system" << std::endl;
-		for (auto entity : getEntities()) {
+		for (auto paire : getEntities()) {
+			netero::ecs::Entity &entity = paire.second;
 			auto &position = entity->getComponent<Position>();
 			auto &path = entity->getComponent<Path<int>>();
 			int next_x = path.points[path.idx].first;
@@ -30,7 +29,18 @@ public:
 			position.x = next_x;
 			position.y = next_y;
 		}
-		 */
+	}
+};
+
+class NameSystem : public ecs::System<ecs::ComponentFilter<Name>> {
+public:
+	virtual ~NameSystem() = default;
+	void	exec() final {
+		for (auto paire: getEntities()) {
+			netero::ecs::Entity &entity = paire.second;
+			auto &name = entity->getComponent<Name>();
+			std::cout << name.name << std::endl;
+		}
 	}
 };
 
@@ -58,10 +68,7 @@ int		main() {
 	fourth->addComponent<Name>("House");
 	fourth.enable();
 
-	world.addSystem<PathSystem>();
+	world.addSystem<NameSystem>();
 	world.update();
-    world.update();
-    world.update();
-	world.removeSystem<PathSystem>();
 	return 0;
 }
