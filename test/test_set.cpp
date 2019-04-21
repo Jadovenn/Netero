@@ -11,9 +11,9 @@ int 	main() {
 	std::set<int>		c{4, 5, 6};
 	netero::set<int>	d(c);
 
-	if (b.isSubset(c)) // NOT OK
+	if (b.isSubsetOf(c)) // NOT OK
 		return 1;
-	if (!b.isSubset(a)) // OK
+	if (!b.isSubsetOf(a)) // OK
 		return 1;
 	return 0;
 }
