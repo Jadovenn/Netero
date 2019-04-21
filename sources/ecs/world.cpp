@@ -62,6 +62,7 @@ namespace netero::ecs {
 		std::lock_guard<std::mutex>	lock(_entityAllocatorLock);
 		auto newEntityContainer = new EntityContainer(this, name);
 		_entities.push_back(newEntityContainer);
+		_register(newEntityContainer);
 		Entity	newEntity(newEntityContainer);
 		return newEntity;
 	}
@@ -75,7 +76,7 @@ namespace netero::ecs {
 			return;
 		entity.disable();
 		entity.unregister();
-		_localWorldCache.killedEntities.push_back(*entIt);
+		delete *entIt;
 		_entities.erase(entIt);
 	}
 
@@ -85,23 +86,13 @@ namespace netero::ecs {
 
 	World::Statistic	&World::getStatistic() {
 		_statistic.size = _entities.size();
-		_statistic.activeEntities = _localWorldCache.activeEntities.size();
-		_statistic.unactiveEntities = _localWorldCache.unactiveEntities.size();
-		_statistic.garbadgeSize = _localWorldCache.killedEntities.size();
 		return _statistic;
 	}
 
 	void	World::update() {
-		if (_localWorldCache.statusFlag) {
-			_localWorldCache.generate(_entities);
-		}
-		else {
-		    for(auto &system: _systems) {
-		        std::cout << "system update" << std::endl;
-		        system.second->exec();
-		    }
-			_localWorldCache.collectGarbage();
-		}
+	    for(auto &system: _systems) {
+	        system.second->exec();
+	    }
 	}
 
 }
