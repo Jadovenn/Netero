@@ -18,6 +18,7 @@ namespace netero {
 	class set : public std::set<value_type> {
 	public:
 		set() = default;
+		typedef typename std::set<value_type>::iterator iterator;
 
 		// construct from a initializer list
 		set(std::initializer_list<value_type> __il) {
@@ -36,10 +37,10 @@ namespace netero {
 		 * @return true is this is an subset, false otherwise
 		 */
 		bool	isSubsetOf(const std::set<value_type> &other) const {
-			typename std::set<value_type>::iterator		it_this = this->begin();
-			typename std::set<value_type>::iterator		it_this_end = this->end();
-			typename std::set<value_type>::iterator		it_other = other.begin();
-			typename std::set<value_type>::iterator		it_other_end = other.end();
+			iterator		it_this = this->begin();
+			iterator		it_this_end = this->end();
+			iterator		it_other = other.begin();
+			iterator		it_other_end = other.end();
 			while (it_this != it_this_end) {
 				while (*it_this != *it_other) {
 					it_other++;

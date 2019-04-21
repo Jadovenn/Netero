@@ -9,6 +9,7 @@
 #include <vector>
 #include "entity.hpp"
 #include "component_filter.hpp"
+#include "netero/set.hpp"
 
 namespace netero {
 	namespace ecs {
@@ -29,7 +30,6 @@ namespace netero {
 			virtual ~BaseSystem() = default;
 
 			virtual void	exec() = 0;
-			virtual void	updateEntitiesCache(std::vector<EntityContainer*> &entities) = 0;
 		protected:
 			SystemCache		_localSystemCache;
 		};
@@ -39,20 +39,22 @@ namespace netero {
 				 typename = std::enable_if<std::is_base_of<ExcludeComponent, BaseComponentFilter>::value>>
 		class System : public BaseSystem {
 		public:
-			System() {
-			}
+			System()
+				: _includeFilterSet(IncludeComponent::getFilter()),
+				  _excludeFilterSet(ExcludeComponent::getFilter())
+				{}
 			virtual ~System() = default;
 
-			void	updateEntitiesCache(std::vector<EntityContainer*> &entities) final {
-
+			void	updateEntitiesCache(Entity	&entities) {
 			}
 
-		protected:
+			const std::vector<Entity>	&getEntities() {
+				return _localSystemCache._localEntities;
+			}
 
-		private:	
-
-			netero::type_id				_includeList;
-			netero::type_id				_excludeList;
+		private:
+			const netero::set<netero::type_id>	&_includeFilterSet;
+			const netero::set<netero::type_id>	&_excludeFilterSet;
 		};
 	}
 }
