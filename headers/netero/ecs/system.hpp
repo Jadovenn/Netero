@@ -18,7 +18,10 @@ namespace netero {
 		class World;
 
 		struct SystemCache {
-			std::map<EntityContainer*, Entity>		_localEntities;
+			std::vector<Entity>		_localEntities;
+			void 	flush() {
+				_localEntities.clear();
+			}
 		};
 
 		class BaseSystem
@@ -33,16 +36,13 @@ namespace netero {
 			virtual ~BaseSystem() = default;
 
 		private:
-			void	registerEntities(EntityContainer	*entity) {
-				if (!entity)
-					return;
-				_localSystemCache._localEntities[entity] = Entity(entity);
-			}
-
-			void 	unregisterEntities(EntityContainer *entity) {
-				if (!entity)
-					return;
-				_localSystemCache._localEntities.erase(entity);
+			void 	generateCache(netero::set<EntityContainer*> &entities) {
+				_cache.flush();
+				for (auto *entity: entities) {
+					if (_includeFilterSet.isSubsetOf(entity->getComponentsFilter())) {
+						_cache._localEntities.emplace_back(Entity(entity));
+					}
+				}
 			}
 
 		public:
@@ -50,7 +50,7 @@ namespace netero {
 			const netero::set<netero::type_id>	&_includeFilterSet;
 			const netero::set<netero::type_id>	&_excludeFilterSet;
 		protected:
-			SystemCache		_localSystemCache;
+			SystemCache		_cache;
 		};
 
 		template<typename IncludeComponent = ComponentFilter<>, typename ExcludeComponent = ComponentFilter<>,
@@ -61,10 +61,10 @@ namespace netero {
 			System()
 				: BaseSystem(IncludeComponent::getFilter(), ExcludeComponent::getFilter())
 				{}
-			virtual ~System() = default;
+			~System() override = default;
 
-			const std::map<EntityContainer*, Entity>	&getEntities() {
-				return _localSystemCache._localEntities;
+			const std::vector<Entity>	&getEntities() {
+				return _cache._localEntities;
 			}
 		};
 	}
