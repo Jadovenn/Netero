@@ -53,7 +53,7 @@ namespace netero {
 			}
 			return true;
 		} // O(n) = n, where n is size of other
-		// TODO: union
+		// TODO: union -> return new set wich is union of two other set
 		// TODO: inter
 	};
 }
