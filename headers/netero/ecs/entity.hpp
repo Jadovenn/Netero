@@ -40,6 +40,7 @@ namespace netero {
 			}
 			bool	status;
 		private:
+
 			explicit EntityContainer(World *world, const std::string &name = "unnamed");
 			World		*_world;
 			id			id;
@@ -89,10 +90,10 @@ namespace netero {
 		public:
 			Entity();
 			Entity(const Entity &rhs);
-			Entity(EntityContainer *entityContainer);
+			explicit Entity(EntityContainer *entityContainer);
 			Entity	&operator=(EntityContainer *rhs);
 			Entity	&operator=(const Entity &rhs);
-			Entity	&operator=(Entity &&rhs);
+			Entity	&operator=(Entity &&rhs) noexcept;
 			bool	operator==(const Entity &rhs);
 			bool	operator==(const EntityContainer *rhs);
 			EntityContainer	*operator->();
