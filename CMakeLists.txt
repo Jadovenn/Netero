@@ -31,10 +31,8 @@ if(ecs)
 			./headers/netero/ecs/system.hpp)
 	list(APPEND SRCS
 			./sources/ecs/world.cpp
-			./sources/ecs/worldCache.cpp
 			./sources/ecs/entity.cpp
-			./sources/ecs/entityContainer.cpp
-			./sources/ecs/system.cpp)
+			./sources/ecs/entityContainer.cpp)
 endif(ecs)
 
 if(OS)
