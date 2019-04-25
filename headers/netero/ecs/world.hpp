@@ -28,18 +28,6 @@ namespace netero {
 	namespace ecs {
 
 		class World {
-			struct Cache {
-				Cache();
-
-				void	tick();
-				void	generate(std::vector<EntityContainer*> &entities);
-				void	collectGarbage();
-				bool							statusFlag;
-				std::vector<EntityContainer*>	activeEntities;
-				std::vector<EntityContainer*>	unactiveEntities;
-				std::vector<EntityContainer*>	killedEntities;
-			};
-
 		public:
 			struct Statistic {
 				size_t	size;
@@ -50,14 +38,16 @@ namespace netero {
 		public:
 			World();
 			~World();
-			World(World &rhs);
-			World(World &&rhs);
-			const World	&operator=(const World& rhs);
-			World	&operator=(World&& rhs);
+			World(World &rhs) = delete;
+			World(World &&rhs) = delete;
+			const World	&operator=(const World& rhs) = delete;
+			World	&operator=(World&& rhs) = delete;
 
 			Entity	createEntity();
 			Entity	createEntity(const std::string &name);
 			void	killEntity(Entity &entity);
+			void 	enableEntity(Entity &entity);
+			void 	disableEntity(Entity &entity);
 			
 			template<typename T, typename ...Args>
 			void	addSystem(Args ...args) {
@@ -66,7 +56,6 @@ namespace netero {
 				if (!data)
 					throw std::bad_alloc();
 				_systems[netero::TypeID<BaseSystem>::getTypeID<T>()] = data;
-				_localWorldCache.tick();
 			}
 
 			template<typename T>
@@ -84,11 +73,12 @@ namespace netero {
 
 			void	update();
 		private:
+			void 	_generateCache();
 			void	_deleteEntities();
 			std::mutex						            _entityAllocatorLock;
-			std::vector<EntityContainer*>	            _entities;
+			netero::set<EntityContainer*>	            _entitiesEnable;
+			netero::set<EntityContainer*>	            _entitiesDisable;
 			std::map<netero::type_id, BaseSystem*>		_systems;
-			World::Cache					            _localWorldCache;
 			World::Statistic				            _statistic;
 		};
 

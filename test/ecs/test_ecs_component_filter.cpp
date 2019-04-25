@@ -3,7 +3,6 @@
  * see LICENCE.txt
  */
 
-#include <algorithm>
 #include "netero/netero.hpp"
 
 struct CompA: public netero::ecs::Component {
@@ -17,22 +16,20 @@ struct CompB : public netero::ecs::Component {
 using	GroupAB = netero::ecs::ComponentFilter<CompA, CompB>;
 using	GroupA = netero::ecs::ComponentFilter<CompA>;
 using	GroupB = netero::ecs::ComponentFilter<CompB>;
+using	GroupC = netero::ecs::ComponentFilter<>;
 
 int	main() {
-	std::list<std::size_t>	types = GroupAB::getTypes();
-	if (std::binary_search(types.begin(), types.end(), 0) != true)
+	const netero::set<std::size_t>	&filterAB = GroupAB::getFilter();
+	const netero::set<std::size_t>	&filterA = GroupA::getFilter();
+	const netero::set<std::size_t>	&filterB = GroupB::getFilter();
+	const netero::set<std::size_t>	&filterC = GroupC::getFilter();
+	if (!filterA.isSubsetOf(filterAB))
 		return 1;
-	if (std::binary_search(types.begin(), types.end(), 1) != true)
-		return 2;
-	types = GroupA::getTypes();
-	if (std::binary_search(types.begin(), types.end(), 0) != true)
-		return 3;
-	if (std::binary_search(types.begin(), types.end(), 1) == true)
-		return 4;
-	types = GroupB::getTypes();
-	if (std::binary_search(types.begin(), types.end(), 0) == true)
-		return 5;
-	if (std::binary_search(types.begin(), types.end(), 1) != true)
-		return 6;
+	if (!filterB.isSubsetOf(filterAB))
+		return 1;
+	if (filterA.isSubsetOf(filterB))
+		return 1;
+	if (filterAB.isSubsetOf(filterA))
+		return 1;
 	return 0;
 }

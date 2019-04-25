@@ -30,7 +30,7 @@ namespace netero::ecs {
 		return *this;
 	}
 
-	Entity	&Entity::operator=(Entity &&rhs) {
+	Entity	&Entity::operator=(Entity &&rhs) noexcept {
 		_base = rhs._base;
 		rhs._base = nullptr;
 		return *this;
@@ -49,15 +49,19 @@ namespace netero::ecs {
 	}
 
 	bool	Entity::valid() const noexcept {
-		return _base ? true : false;
+		return _base != nullptr;
 	}
 
 	void	Entity::enable() {
-		_base->status = true;
+		if (_base) {
+			_base->getWorld()->enableEntity(*this);
+		}
 	}
 
 	void	Entity::disable() {
-		_base->status = false;
+		if (_base) {
+			_base->getWorld()->disableEntity(*this);
+		}
 	}
 	
 	void	Entity::unregister() {

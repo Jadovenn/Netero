@@ -24,19 +24,11 @@ int	entityLocalScope() {
 	auto stat = world.getStatistic();
 	if (stat.size != 1)
 		return 2;
-	if (stat.garbadgeSize != 1)
-		return 3;
-	if (stat.activeEntities != 1 || stat.unactiveEntities != 0)
-		return 4;
 	std::cout << "ecs_entity: update world" << std::endl;
 	world.update();
 	stat = world.getStatistic();
 	if (stat.size != 1)
 		return 5;
-	if (stat.garbadgeSize != 0)
-		return 6;
-	if (stat.activeEntities != 1 || stat.unactiveEntities != 0)
-		return 7;
 	return 0;
 }
 

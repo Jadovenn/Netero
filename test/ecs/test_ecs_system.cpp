@@ -8,29 +8,38 @@
 
 namespace ecs = netero::ecs;
 
-// Will get all the enabled entities
-struct Alltest : public ecs::System<> {
-
-};
-
 // this system will change position depending to the path of entities that contains a Path<int> and Position component
-class PathSystem : public ecs::System<ecs::ComponentFilter<Path<int>, Position>>
+class PathSystem : public ecs::System< ecs::ComponentFilter<Path<int>, Position>>
 {
 public:
 
-	virtual ~PathSystem() = default;
+	~PathSystem() override = default;
 	void	exec() final {
-		/**
-	    std::cout << "I am a system" << std::endl;
-		for (auto entity : getEntities()) {
+		for (auto entity : getEntities()) { // getEntities return only entity that belong to this system
 			auto &position = entity->getComponent<Position>();
 			auto &path = entity->getComponent<Path<int>>();
+			auto &name = entity->getComponent<Name>(); // unsafe because it is not specified in the componentFilter
 			int next_x = path.points[path.idx].first;
 			int next_y = path.points[path.idx].second;
 			position.x = next_x;
 			position.y = next_y;
+			path.idx += 1;
+			if (path.idx == path.size)
+				path.idx = 0;
+			std::cout << name.name << " move to : " << position.x << ", " << position.y << std::endl;
 		}
-		 */
+	}
+};
+
+class NameSystem : public ecs::System<ecs::ComponentFilter<Name>> {
+public:
+	~NameSystem() override = default;
+	void	exec() final {
+		std::cout << "enumerate entity with name:" << std::endl;
+		for (auto entity: getEntities()) {
+			auto &name = entity->getComponent<Name>();
+			std::cout << name.name << std::endl;
+		}
 	}
 };
 
@@ -58,10 +67,15 @@ int		main() {
 	fourth->addComponent<Name>("House");
 	fourth.enable();
 
+	world.addSystem<NameSystem>();
 	world.addSystem<PathSystem>();
 	world.update();
-    world.update();
-    world.update();
+	world.removeSystem<NameSystem>();
+	world.update();
+	world.update();
+	world.update();
 	world.removeSystem<PathSystem>();
+	world.addSystem<NameSystem>();
+	world.update();
 	return 0;
 }

@@ -10,6 +10,7 @@
 #include <list>
 #include "component.hpp"
 #include "component_filter.hpp"
+#include "netero/set.hpp"
 
 namespace netero {
 
@@ -22,29 +23,42 @@ namespace netero {
         template <typename ...Args>
         class ComponentFilter: public BaseComponentFilter
         {
-        public:
-
-            static const std::list<netero::type_id> &getTypes() {
-                static std::list<netero::type_id> filter = decomposer<Args...>();
-                return filter;
-            }
-
         private:
+
             template<typename Last>
-            static std::list<netero::type_id>	decomposer() {
-                std::list<netero::type_id>	filter;
+            static void		decomposer(netero::set<netero::type_id> &filter) {
                 static_assert(std::is_base_of<Component, Last>(), "Elem is not based on Component");
-                filter.push_back(CompoentTypeID::getTypeID<Last>());
-                return filter;
+                filter.insert(ComponentTypeID::getTypeID<Last>());
             }
 
             template<typename First, typename Second, typename ...Rest>
-            static std::list<netero::type_id>	decomposer() {
+            static void 	decomposer(netero::set<netero::type_id> &filter) {
                 static_assert(std::is_base_of<Component, First>(), "Elem is not based on Component");
-                auto list = decomposer<Second, Rest...>();
-                list.push_back(CompoentTypeID::getTypeID<First>());
-                return list;
+                decomposer<Second, Rest...>(filter);
+                filter.insert(ComponentTypeID::getTypeID<First>());
             }
+
+        public:
+
+            static const netero::set<netero::type_id> &getFilter() {
+				static netero::set<netero::type_id>	filter;
+				static bool 						isDecomposed = false;
+				if (!isDecomposed) {
+					decomposer<Args...>(filter);
+					isDecomposed = true;
+				}
+                return filter;
+            }
+
+        };
+
+        template <>
+        class ComponentFilter<>: public BaseComponentFilter {
+		public:
+			static const netero::set<netero::type_id> &getFilter() {
+				static netero::set<netero::type_id>	filter;
+				return filter;
+			}
         };
     }
 }

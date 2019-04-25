@@ -20,40 +20,21 @@ namespace netero::ecs {
 		}
 	}
 
-	World::World(World &rhs) {
-		_deleteEntities();
-		_entities = rhs._entities;
-	}
-
-	World::World(World &&rhs) {
-		_deleteEntities();
-		_entities = rhs._entities;
-		rhs._entities.clear();
-	}
-	
-	const World	&World::operator=(const World& rhs) {
-		_deleteEntities();
-		_entities = rhs._entities;
-		return *this;
-	}
-
-	World	&World::operator=(World&& rhs) {
-		_deleteEntities();
-		_entities = rhs._entities;
-		return *this;
-	}
-
 	void	World::_deleteEntities() {
-		for (auto *e : _entities) {
+		for (auto *e : _entitiesDisable) {
 			delete e;
 		}
-		_entities.clear();
+		for (auto *e : _entitiesEnable) {
+			delete e;
+		}
+		_entitiesDisable.clear();
+		_entitiesEnable.clear();
 	}
 
 	Entity	World::createEntity() {
 		std::lock_guard<std::mutex>	lock(_entityAllocatorLock);
 		auto newEntityContainer = new EntityContainer(this);
-		_entities.push_back(newEntityContainer);
+		_entitiesDisable.insert(newEntityContainer);
 		Entity	newEntity(newEntityContainer);
 		return newEntity;
 	}
@@ -61,47 +42,62 @@ namespace netero::ecs {
 	Entity	World::createEntity(const std::string &name) {
 		std::lock_guard<std::mutex>	lock(_entityAllocatorLock);
 		auto newEntityContainer = new EntityContainer(this, name);
-		_entities.push_back(newEntityContainer);
+		_entitiesDisable.insert(newEntityContainer);
 		Entity	newEntity(newEntityContainer);
 		return newEntity;
 	}
 
 	void	World::killEntity(Entity &entity) {
 		std::lock_guard<std::mutex>	lock(_entityAllocatorLock);
-		auto entIt = std::find_if(_entities.begin(), _entities.end(), [&entity] (EntityContainer *ent) {
+		entity.disable();
+		auto entIt = std::find_if(_entitiesDisable.begin(), _entitiesDisable.end(), [&entity] (EntityContainer *ent) {
 			return entity == ent;
 		});
-		if (entIt == _entities.end())
+		if (entIt == _entitiesDisable.end())
 			return;
-		entity.disable();
+		delete *entIt;
+		_entitiesDisable.erase(*entIt);
 		entity.unregister();
-		_localWorldCache.killedEntities.push_back(*entIt);
-		_entities.erase(entIt);
+	}
+
+	void 	World::enableEntity(netero::ecs::Entity &entity) {
+		auto findIt = _entitiesDisable.find(entity.operator->()); // TODO : create method to access the container properly
+		if (findIt == _entitiesDisable.end())
+			return;
+		_entitiesDisable.erase(*findIt);
+		_entitiesEnable.insert(*findIt);
+		entity->status = true;
+	}
+
+	void 	World::disableEntity(netero::ecs::Entity &entity) {
+		auto findIt = _entitiesEnable.find(entity.operator->()); // TODO : create method to access the container properly
+		if (findIt == _entitiesEnable.end())
+			return;
+		_entitiesEnable.erase(*findIt);
+		_entitiesDisable.insert(*findIt);
+		entity->status = false;
 	}
 
 	std::size_t	World::size() {
-		return _entities.size();
+		return _entitiesDisable.size();
 	}
 
 	World::Statistic	&World::getStatistic() {
-		_statistic.size = _entities.size();
-		_statistic.activeEntities = _localWorldCache.activeEntities.size();
-		_statistic.unactiveEntities = _localWorldCache.unactiveEntities.size();
-		_statistic.garbadgeSize = _localWorldCache.killedEntities.size();
+		_statistic.size = _entitiesEnable.size();
 		return _statistic;
 	}
 
+	void 	World::_generateCache() {
+	    for(auto &system: _systems) {
+	        system.second->generateCache(_entitiesEnable);
+	    }
+	}
+
 	void	World::update() {
-		if (_localWorldCache.statusFlag) {
-			_localWorldCache.generate(_entities);
-		}
-		else {
-		    for(auto &system: _systems) {
-		        std::cout << "system update" << std::endl;
-		        system.second->exec();
-		    }
-			_localWorldCache.collectGarbage();
-		}
+		_generateCache();
+	    for(auto &system: _systems) {
+	        system.second->exec();
+	    }
 	}
 
 }
