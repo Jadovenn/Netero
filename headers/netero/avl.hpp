@@ -282,6 +282,7 @@
      	// copy operator
      	avl<T>   &operator=(const avl<T> &copy) {
      	    this->deleteTree(root);
+			root = nullptr;
      	    copy.inOrder([&] (const auto &value) {
      	        this->add(value);
      	    });
@@ -307,7 +308,10 @@
      	}
 
      	// destructor
-     	~avl() { deleteTree(root); }
+     	~avl() { 
+			deleteTree(root);
+			root = nullptr;
+		}
 
      	/**
      	 * @brief inOrder traversal of the tree
