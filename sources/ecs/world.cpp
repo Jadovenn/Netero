@@ -64,8 +64,8 @@ namespace netero::ecs {
 		auto findIt = _entitiesDisable.find(entity.operator->()); // TODO : create method to access the container properly
 		if (findIt == _entitiesDisable.end())
 			return;
-		_entitiesDisable.erase(*findIt);
 		_entitiesEnable.insert(*findIt);
+		_entitiesDisable.erase(*findIt);
 		entity->status = true;
 	}
 
@@ -73,8 +73,8 @@ namespace netero::ecs {
 		auto findIt = _entitiesEnable.find(entity.operator->()); // TODO : create method to access the container properly
 		if (findIt == _entitiesEnable.end())
 			return;
-		_entitiesEnable.erase(*findIt);
 		_entitiesDisable.insert(*findIt);
+		_entitiesEnable.erase(*findIt);
 		entity->status = false;
 	}
 
