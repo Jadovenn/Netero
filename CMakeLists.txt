@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.8)
-project(Netero)
+project(ntlibs)
 
 # Modules declaration
 OPTION(CORE "netero Core, contain internal stuff" ON)
@@ -43,10 +43,10 @@ endif(OBSERVER)
 
 # Target
 
-add_library(Netero ${SRCS} ${PUBLIC_HEADER})
-target_include_directories(Netero PUBLIC headers)
+add_library(${PROJECT_NAME} ${SRCS} ${PUBLIC_HEADER})
+target_include_directories(${PROJECT_NAME} PUBLIC headers)
 
-set_target_properties(Netero
+set_target_properties(${PROJECT_NAME}
     PROPERTIES
 	PUBLIC_HEADER "${PUBLIC_HEADER}"
 	LINKER_LANGUAGE CXX
