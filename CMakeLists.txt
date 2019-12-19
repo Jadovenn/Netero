@@ -3,8 +3,9 @@ project(ntlibs)
 
 # Modules declaration
 OPTION(CORE "netero Core, contain internal stuff" ON)
-OPTION(ecs "netero ecs, contain Entity Component System architecture" ON)
-OPTION(OBSERVER "netero Observer, contain a Qt signals/slots like, implementation" OFF)
+OPTION(ECS "netero ecs, contain Entity Component System architecture" ON)
+OPTION(POOL "netero pool, async containers" ON)
+OPTION(OBSERVER "netero Observer, contain a Qt signals/slots like, implementation" ON)
 OPTION(OS " netero Os, contain Operating System ressources encapsulation and abstraction" OFF)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -19,10 +20,12 @@ if(CORE)
 			./headers/netero/core/internal.hpp
 			./headers/netero/core/type_id.hpp
             ./headers/netero/avl.hpp
-            ./headers/netero/set.hpp)
+            ./headers/netero/set.hpp
+            ./headers/netero/exception.hpp
+            ./headers/netero/exception/slots.hpp)
 endif(CORE)
 
-if(ecs)
+if(ECS)
 	list(APPEND PUBLIC_HEADER
 			./headers/netero/ecs/world.hpp
 			./headers/netero/ecs/entity.hpp
@@ -33,12 +36,23 @@ if(ecs)
 			./sources/ecs/world.cpp
 			./sources/ecs/entity.cpp
 			./sources/ecs/entityContainer.cpp)
-endif(ecs)
+endif(ECS)
+
+if(POOL)
+    list(APPEND PUBLIC_HEADER
+            ./headers/netero/pool/worker.hpp)
+    list(APPEND SRCS
+            ./sources/pool/worker.cpp)
+endif(POOL)
 
 if(OS)
 endif(OS)
 
 if(OBSERVER)
+    list(APPEND PUBLIC_HEADER
+            ./headers/netero/observer/IObserverDelegate.hpp
+            headers/netero/observer/signals.hpp
+            ./headers/netero/observer/slot.hpp)
 endif(OBSERVER)
 
 # Target
