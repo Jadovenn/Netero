@@ -44,6 +44,7 @@ public:
 };
 
 int		main() {
+
 	// Set up first entity
 	first->addComponent<Position>(10, 4);
 	first->addComponent<Name>("PNJ-1");

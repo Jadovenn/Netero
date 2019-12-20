@@ -25,7 +25,7 @@ namespace netero {
 			this->insert(__il.begin(), __il.end());
 		}
 
-		// copy constructor from std::ste
+		// copy constructor from std::set
 		explicit set(const std::set<value_type> &__copy) {
 			this->insert(__copy.begin(), __copy.end());
 		}

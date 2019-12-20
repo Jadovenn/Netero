@@ -2,6 +2,45 @@ project(Test)
 
 set(NETERO_LINK_LIBRARY ntlibs)
 
+## Observer test
+
+add_executable(test_slot_ref observer/test_slot_ref.cpp)
+target_include_directories(test_slot_ref PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_slot_ref ${NETERO_LINK_LIBRARY})
+add_test(NAME test_slot_ref COMMAND ./test_slot_ref)
+set_target_properties(test_slot_ref
+        PROPERTIES
+        LINKER_LANGUAGE CXX
+        CXX_STANDARD 17)
+
+add_executable(test_signals observer/test_signals.cpp)
+target_include_directories(test_signals PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_signals ${NETERO_LINK_LIBRARY})
+add_test(NAME test_signals COMMAND ./test_signals)
+set_target_properties(test_signals
+        PROPERTIES
+        LINKER_LANGUAGE CXX
+        CXX_STANDARD 17)
+
+add_executable(test_slot_class_call observer/test_class_call.cpp)
+target_include_directories(test_slot_class_call PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_slot_class_call ${NETERO_LINK_LIBRARY})
+add_test(NAME test_slot_class_call COMMAND ./test_slot_class_call)
+set_target_properties(test_slot_class_call
+        PROPERTIES
+        LINKER_LANGUAGE CXX
+        CXX_STANDARD 17)
+
+add_executable(test_slot_func_call observer/test_func_call.cpp)
+target_include_directories(test_slot_func_call PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_slot_func_call ${NETERO_LINK_LIBRARY})
+add_test(NAME test_slot_func_call COMMAND ./test_slot_func_call)
+set_target_properties(test_slot_func_call
+        PROPERTIES
+        LINKER_LANGUAGE CXX
+        CXX_STANDARD 17)
+
+## set Test
 add_executable(test_set test_set.cpp)
 target_include_directories(test_set PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(test_set ${NETERO_LINK_LIBRARY})
@@ -11,6 +50,7 @@ set_target_properties(test_set
         LINKER_LANGUAGE CXX
         CXX_STANDARD 17)
 
+## AVL Test
 add_executable(test_avl test_avl.cpp)
 target_include_directories(test_avl PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(test_avl ${NETERO_LINK_LIBRARY})
