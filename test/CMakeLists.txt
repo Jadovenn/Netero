@@ -1,6 +1,6 @@
 project(Test)
 
-set(NETERO_LINK_LIBRARY ntlibs)
+set(NETERO_LINK_LIBRARY netero)
 
 ## Observer test
 

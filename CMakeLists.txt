@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.8)
-project(ntlibs)
+project(netero)
 
 # Modules declaration
 OPTION(CORE "netero Core, contain internal stuff" ON)
