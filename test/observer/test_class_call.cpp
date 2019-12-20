@@ -1,4 +1,4 @@
-#include <netero/observer/slot.hpp>
+#include <netero/observer/slots.hpp>
 #include <netero/observer/IObserverDelegate.hpp>
 
 /**

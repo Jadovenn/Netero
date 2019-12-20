@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#include "netero/observer/slot.hpp"
+#include "netero/observer/slots.hpp"
 
 class	Number {
 public:

@@ -11,7 +11,7 @@
 #include <type_traits>
 
 #include "IObserverDelegate.hpp"
-#include "slot.hpp"
+#include "slots.hpp"
 
 namespace netero {
 
