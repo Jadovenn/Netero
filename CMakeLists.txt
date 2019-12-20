@@ -52,7 +52,7 @@ if(OBSERVER)
     list(APPEND PUBLIC_HEADER
             ./headers/netero/observer/IObserverDelegate.hpp
             headers/netero/observer/signals.hpp
-            ./headers/netero/observer/slot.hpp)
+            ./headers/netero/observer/slots.hpp)
 endif(OBSERVER)
 
 # Target
