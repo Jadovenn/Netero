@@ -36,7 +36,7 @@ namespace netero {
 		 * @param other - set to compare
 		 * @return true if this is an subset, false otherwise
 		 */
-		bool	isSubsetOf(const std::set<__Type> &other) const {
+		[[nodiscard]] bool	isSubsetOf(const std::set<__Type> &other) const {
 			iterator		it_this = this->begin();
 			iterator		it_this_end = this->end();
 			if (other.size() == 0)
@@ -58,7 +58,7 @@ namespace netero {
 		 * @param other - set to compare
 		 * @return true if their is a set which is a subset of both sets, false otherwise
 		 */
-		bool	interWith(const std::set<__Type>& other) {
+		[[nodiscard]] bool	interWith(const std::set<__Type>& other) const {
 			iterator		it_this = this->begin();
 			iterator		it_this_end = this->end();
 			if (other.size() == 0) {
