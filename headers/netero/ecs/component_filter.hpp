@@ -8,9 +8,9 @@
 #include <type_traits>
 #include <cstddef>
 #include <list>
-#include "component.hpp"
-#include "component_filter.hpp"
-#include "netero/set.hpp"
+#include <netero/ecs/component.hpp>
+#include <netero/ecs/component_filter.hpp>
+#include <netero/set.hpp>
 
 namespace netero {
 

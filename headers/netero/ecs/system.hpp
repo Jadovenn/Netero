@@ -8,9 +8,9 @@
 #include <type_traits>
 #include <vector>
 #include <map>
-#include "entity.hpp"
-#include "component_filter.hpp"
-#include "netero/set.hpp"
+#include <netero/ecs/entity.hpp>
+#include <netero/ecs/component_filter.hpp>
+#include <netero/set.hpp>
 
 namespace netero {
 	namespace ecs {

@@ -4,4 +4,4 @@
 
 #pragma once
 
-#include "exception/slots.hpp"
+#include <netero/exception/slots.hpp>

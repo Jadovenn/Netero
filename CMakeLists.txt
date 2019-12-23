@@ -6,7 +6,7 @@ OPTION(CORE "netero Core, contain internal stuff" ON)
 OPTION(ECS "netero ecs, contain Entity Component System architecture" ON)
 OPTION(POOL "netero pool, async containers" ON)
 OPTION(OBSERVER "netero Observer, contain a Qt signals/slots like, implementation" ON)
-OPTION(OS " netero Os, contain Operating System ressources encapsulation and abstraction" OFF)
+OPTION(OS "netero Os, contain Operating System ressources encapsulation and abstraction" OFF)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

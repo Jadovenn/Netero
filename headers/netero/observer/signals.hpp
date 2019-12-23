@@ -10,8 +10,8 @@
 #include <functional>
 #include <type_traits>
 
-#include "IObserverDelegate.hpp"
-#include "slots.hpp"
+#include <netero/observer/IObserverDelegate.hpp>
+#include <netero/observer/slots.hpp>
 
 namespace netero {
 

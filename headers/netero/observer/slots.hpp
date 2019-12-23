@@ -11,8 +11,8 @@
 #include <exception>
 
 
-#include "IObserverDelegate.hpp"
-#include "netero/exception.hpp"
+#include <netero/observer/IObserverDelegate.hpp>
+#include <netero/exception.hpp>
 
 /**
  * @brief Slots

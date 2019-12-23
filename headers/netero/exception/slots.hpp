@@ -1,5 +1,6 @@
 /**
- *  Created by Jean-Adrien DOMAGE on 14/12/2019.
+ * Netero sources under BSD-3-Clause
+ * see LICENCE.txt
  */
 
 #pragma once
