@@ -15,10 +15,10 @@ public:
 
 	~PathSystem() override = default;
 	void	exec() final {
-		for (auto entity : getEntities()) { // getEntities return only entity that belong to this system
+		for (auto entity : getActiveEntities()) { // getActiveEntities return only active entity that belong to this system
 			auto &position = entity->getComponent<Position>();
 			auto &path = entity->getComponent<Path<int>>();
-			auto &name = entity->getComponent<Name>(); // unsafe because it is not specified in the componentFilter
+			auto &name = entity->getComponent<Name>(); // unsafe because it is not specified in the componentFilter, so don't do that
 			int next_x = path.points[path.idx].first;
 			int next_y = path.points[path.idx].second;
 			position.x = next_x;
@@ -36,7 +36,7 @@ public:
 	~NameSystem() override = default;
 	void	exec() final {
 		std::cout << "enumerate entity with name:" << std::endl;
-		for (auto entity: getEntities()) {
+		for (auto entity: getActiveEntities()) {
 			auto &name = entity->getComponent<Name>();
 			std::cout << name.name << std::endl;
 		}
