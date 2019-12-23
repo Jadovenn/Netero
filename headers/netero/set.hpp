@@ -53,7 +53,8 @@ namespace netero {
 
 		/**
 		 * @brief check if two sets has an intersection
-		 * @note the given set does not need to be a netero::set
+		 * @note the given set does not need to be a netero::set, in contraste
+		 * to isSubsetOf, interWith will stop at the first common element found
 		 * @param other - set to compare
 		 * @return true if their is a set which is a subset of both sets, false otherwise
 		 */
