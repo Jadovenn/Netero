@@ -100,65 +100,10 @@ private:
 
 public:
 	void	thread_handle() {
-		HRESULT result;
-		// fill first buffer using callback
-		BYTE* buffer = nullptr;
-		result = _audio_rendering->GetBuffer(_frameCount, &buffer);
-		if (FAILED(result)) {
-			_state.store(state::ERR, std::memory_order_release);
-			return;
-		}
-		_cb(reinterpret_cast<float*>(buffer), _frameCount);
-		result = _audio_rendering->ReleaseBuffer(_frameCount, 0);
-		if (FAILED(result)) {
-			_state.store(state::ERR, std::memory_order_release);
-			return;
-		}
-		DWORD taskIndex = 0;
-		_task = AvSetMmThreadCharacteristics(TEXT("Pro Audio"), &taskIndex);
-		if (!_task) {
-			_state.store(state::ERR, std::memory_order_release);
-			return;
-		}
-		result = _audio_client->Start();
-		if (FAILED(result)) {
-			_state.store(state::ERR, std::memory_order_release);
-			return;
-		}
-
-		_state.store(state::RUNNING, std::memory_order_release);
 		while (_state.load(std::memory_order_acquire) == state::RUNNING) {
-			DWORD ret = WaitForSingleObject(_event, 2000);
-			if (ret != WAIT_OBJECT_0) { // Timeout
-				_audio_client->Stop();
-				_state.store(state::TIMEOUT, std::memory_order_release);
-				break;
-			}
-			result = _audio_rendering->GetBuffer(_frameCount, &buffer);
-			if (FAILED(result)) {
-				_state.store(state::ERR, std::memory_order_release);
-				break;
-			}
-			_cb(reinterpret_cast<float*>(buffer), _frameCount);
-			result = _audio_rendering->ReleaseBuffer(_frameCount, 0);
-			if (FAILED(result)) {
-				_state.store(state::ERR, std::memory_order_release);
-				break;
-			}
+			poll();
 		}
-		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
-		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count() < _latency / 10000) {
-			std::this_thread::yield();
-		}
-		result = _audio_client->Stop();
-		if (FAILED(result)) {
-			_state.store(state::ERR, std::memory_order_release);
-			return;
-		}
-		if (_task) {
-			AvRevertMmThreadCharacteristics(_task);
-			_task = nullptr;
-		}
+		stop();
 	}
 
 public:
@@ -167,7 +112,8 @@ public:
 		HRESULT	result;
 
 		// Initialize COM library in the current thread
-		result = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+		//result = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+		result = CoInitialize(nullptr);
 		test_result(result);
 
 		// Create COM device enumerator object
@@ -302,12 +248,14 @@ public:
 		if (FAILED(result)) {
 			return ERR_NATIVE;
 		}
+		return OK;
 	}
 
 	netero::audio::RtCode	async_start() {
 		if (!_cb) {
 			return ERR_MISSING_CALLBACK;
 		}
+		_state.store(state::RUNNING, std::memory_order_release);
 		_thread = std::make_unique<std::thread>(std::bind(&netero::audio::engine::impl::thread_handle, this));
 		return OK;
 	}

@@ -44,11 +44,10 @@ endif(ENGINE)
 
 if(AUDIO)
 	list(APPEND PUBLIC_HEADER
-			${HEADERS_DIRECTORY_PATH}/audio/audio.hpp)
+			${HEADERS_DIRECTORY_PATH}/audio/audio.hpp
+			${HEADERS_DIRECTORY_PATH}/audio/engine.hpp)
 	list(APPEND SRCS
-			${HEADERS_DIRECTORY_PATH}/audio/engine.hpp
-			audio/WASAPI.cpp
-			audio/audio.cpp)
+			audio/WASAPI.cpp)
 	list(APPEND LIBRARIES
 		avrt)
 endif(AUDIO)

@@ -11,7 +11,7 @@
 
 namespace netero::audio {
 
-	class engine: public netero::audio::IEngine {
+	class engine {
 	private:
 		class impl;
 		std::unique_ptr<impl>	pImpl;
@@ -19,9 +19,9 @@ namespace netero::audio {
 
 		engine();
 		~engine();
-		void	registerCB(std::function<void(float*, size_t)> cb) final;
-		RtCode	stop() final;
-		RtCode	start() final;
-		RtCode	poll() final;
+		void	registerCB(std::function<void(float*, size_t)> cb);
+		RtCode	stop();
+		RtCode	start();
+		RtCode	poll();
 	};
 }

@@ -5,11 +5,11 @@ set(NETERO_LINK_LIBRARY netero)
 
 ## Audio test
 
-add_executable(test_audio_event audio/test_audio_event.cpp)
-target_include_directories(test_audio_event PUBLIC NETERO_INCLUDE_DIR)
-target_link_libraries(test_audio_event ${NETERO_LINK_LIBRARY})
-add_test(NAME test_audio_event COMMAND ./test_audio_event)
-set_target_properties(test_audio_event
+add_executable(test_audio_poll audio/test_audio_poll.cpp)
+target_include_directories(test_audio_poll PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_audio_poll ${NETERO_LINK_LIBRARY})
+add_test(NAME test_audio_poll COMMAND ./test_audio_poll)
+set_target_properties(test_audio_poll
         PROPERTIES
         LINKER_LANGUAGE CXX
         CXX_STANDARD 17)
