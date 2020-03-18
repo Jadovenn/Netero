@@ -204,7 +204,7 @@ void	audio_release_buffer(AudioInterface* audio_interface) {
 }
 
 // ----------------------------------
-// Sinusoid program function and class
+// Sinusoid program function
 // ----------------------------------
 
 int	main() {
@@ -214,7 +214,7 @@ int	main() {
 	WAVEFORMATEXTENSIBLE* head = (WAVEFORMATEXTENSIBLE*)audio_interface.wfx;
 
 	// amplitude de 1, a 440 Hz avec une frequence de reference de 48kH et une phase de 0
-	netero::signals::Sinusoidal<double>	a_minor { 0.5, 440, 48000, 0};
+	netero::signals::Sinusoidal<double>	a_minor { 1, 440, 48000, 0};
 	// values will be in [-1,1]
 
 	BYTE *byte_buffer = audio_get_buffer(&audio_interface);

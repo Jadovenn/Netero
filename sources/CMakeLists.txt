@@ -49,10 +49,15 @@ if(AUDIO)
 			${HEADERS_DIRECTORY_PATH}/audio/engine.hpp
 			audio/WASAPI.cpp
 			audio/audio.cpp)
+	list(APPEND LIBRARIES
+		avrt)
 endif(AUDIO)
 
 add_library(netero ${SRCS} ${PUBLIC_HEADER})
 target_include_directories(netero PUBLIC ../headers)
+if(LIBRARIES)
+	target_link_libraries(netero avrt)
+endif(LIBRARIES)
 
 set_target_properties(${PROJECT_NAME}
     PROPERTIES

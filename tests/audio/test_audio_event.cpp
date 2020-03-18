@@ -5,11 +5,23 @@
 
 #include <netero/signals.hpp>
 #include <netero/audio/audio.hpp>
+#include <Windows.h>
 
-static netero::signals::Sinusoidal	e_minor { 1, 440, 48000, 0 };
+static netero::signals::Sinusoidal<double>	a_minor { 1, 440, 48000, 0 };
 
 void	callback(float* buffer, size_t size) {
-	// fill buffer here
+	int idx = 0;
+	int buffer_idx = 0;
+
+	Sleep(10);
+	while (idx < size) {
+		float current = a_minor(idx);
+		buffer[buffer_idx] = current;
+		buffer_idx += 1;
+		buffer[buffer_idx] = current;
+		buffer_idx += 1;
+		idx += 1;
+	}
 }
 
 int	main() {
@@ -18,8 +30,11 @@ int	main() {
 		return 1;
 	}
 	audio_engine->registerCB(callback);
-	audio_engine->start();
-	// Sleep(3000);
+	if (audio_engine->start() != netero::audio::OK) {
+		delete audio_engine;
+		return 1;
+	}
+	while (1);
 	audio_engine->stop();
 	delete audio_engine;
 	return 0;
