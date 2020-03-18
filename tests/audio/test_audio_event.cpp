@@ -8,7 +8,7 @@
 
 static netero::signals::Sinusoidal	e_minor { 1, 440, 48000, 0 };
 
-void	callback(float* buffer) {
+void	callback(float* buffer, size_t size) {
 	// fill buffer here
 }
 

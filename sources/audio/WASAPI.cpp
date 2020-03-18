@@ -19,8 +19,9 @@ public:
 
 	}
 
-	void					registerCB(std::function<void(float*)> cb) {
+	void					registerCB(std::function<void(float*)> cb, size_t size) {
 		(void)cb;
+		(void)size;
 	}
 
 	netero::audio::RtCode	start() {
@@ -36,8 +37,8 @@ netero::audio::engine::engine()
 	:	pImpl {std::make_unique<netero::audio::engine::impl>()}
 {}
 
-void					netero::audio::engine::registerCB(std::function<void(float*)> cb) {
-	pImpl->registerCB(cb);
+void					netero::audio::engine::registerCB(std::function<void(float*)> cb, size_t size) {
+	pImpl->registerCB(cb, size);
 }
 
 netero::audio::RtCode	netero::audio::engine::start() {
