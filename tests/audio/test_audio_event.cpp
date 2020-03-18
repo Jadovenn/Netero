@@ -4,8 +4,13 @@
  */
 
 #include <netero/signals.hpp>
-#include <netero/audio/audio.hpp>
+
 #include <Windows.h>
+#include <exception>
+#include <iostream>
+
+#include <netero/audio/audio.hpp>
+#include <netero/audio/engine.hpp>
 
 static netero::signals::Sinusoidal<double>	a_minor { 1, 440, 48000, 0 };
 
@@ -25,18 +30,21 @@ void	callback(float* buffer, size_t size) {
 }
 
 int	main() {
-	netero::audio::IEngine* audio_engine = netero::audio::GetAudioEngine();
-	if (!audio_engine) {
+	try {
+		netero::audio::engine	audio_engine;
+		audio_engine.registerCB(callback);
+		if (audio_engine.start() != netero::audio::OK) {
+			return 1;
+		}
+		while (1)
+			audio_engine.poll();
+		audio_engine.stop();
+		return 0;
+	}
+	catch (const std::exception & e) {
+		std::cout << e.what() << std::endl;
 		return 1;
 	}
-	audio_engine->registerCB(callback);
-	if (audio_engine->start() != netero::audio::OK) {
-		delete audio_engine;
-		return 1;
-	}
-	while (1);
-	audio_engine->stop();
-	delete audio_engine;
 	return 0;
 }
 

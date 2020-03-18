@@ -17,6 +17,7 @@
 #include <mmdeviceapi.h>
 #include <Mmreg.h>
 #include <avrt.h>
+#include <comdef.h>
 
 #include <netero/audio/engine.hpp>
 
@@ -61,8 +62,9 @@ private:
 
 	inline void	test_result(HRESULT result) {
 		if (FAILED(result)) {
+			_com_error	err(result);
 			WASAPI_cleanup();
-			throw std::runtime_error("WASAPI Error: " + result);
+			throw std::runtime_error("WASAPI Error: " + std::string(err.ErrorMessage()));
 		}
 	}
 
@@ -144,7 +146,6 @@ public:
 				break;
 			}
 		}
-exit:
 		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count() < _latency / 10000) {
 			std::this_thread::yield();
@@ -204,7 +205,7 @@ public:
 		// Initialize Audio Client
 		result = _audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
 			AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-			_latency * 100,
+			_latency * 1000,
 			_latency,
 			_wfx,
 			nullptr);
@@ -285,6 +286,24 @@ public:
 		return OK;
 	}
 
+	netero::audio::RtCode	poll() {
+		HRESULT result;
+		BYTE* buffer = nullptr;
+		DWORD ret = WaitForSingleObject(_event, 2000);
+		if (ret != WAIT_OBJECT_0) { // Timeout
+			return stop();
+		}
+		result = _audio_rendering->GetBuffer(_frameCount, &buffer);
+		if (FAILED(result)) {
+			return ERR_NATIVE;
+		}
+		_cb(reinterpret_cast<float*>(buffer), _frameCount);
+		result = _audio_rendering->ReleaseBuffer(_frameCount, 0);
+		if (FAILED(result)) {
+			return ERR_NATIVE;
+		}
+	}
+
 	netero::audio::RtCode	async_start() {
 		if (!_cb) {
 			return ERR_MISSING_CALLBACK;
@@ -317,10 +336,14 @@ void					netero::audio::engine::registerCB(std::function<void(float*, size_t)> c
 }
 
 netero::audio::RtCode	netero::audio::engine::start() {
-	return pImpl->async_start();
+	return pImpl->start();
 }
 
 netero::audio::RtCode	netero::audio::engine::stop() {
-	return pImpl->async_stop();
+	return pImpl->stop();
+}
+
+netero::audio::RtCode	netero::audio::engine::poll() {
+	return pImpl->poll();
 }
 

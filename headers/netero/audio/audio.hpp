@@ -20,6 +20,7 @@ namespace netero::audio {
 		virtual void	registerCB(std::function<void(float*, size_t)>) = 0;
 		virtual RtCode	start() = 0;
 		virtual RtCode	stop() = 0;
+		virtual RtCode	poll() = 0;
 	};
 
 	IEngine* GetAudioEngine();
