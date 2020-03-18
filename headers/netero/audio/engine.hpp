@@ -18,7 +18,7 @@ namespace netero::audio {
 	public:
 
 		engine();
-		void	registerCB(std::function<void(float*)> cb, size_t size) final;
+		void	registerCB(std::function<void(float*, size_t)> cb) final;
 		RtCode	stop() final;
 		RtCode	start() final;
 	};
