@@ -4,7 +4,7 @@ set(NETERO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/headers)
 set(NETERO_LINK_LIBRARY netero)
 
 ## Audio test
-
+if (AUDIO)
 add_executable(test_audio_poll audio/test_audio_poll.cpp)
 target_include_directories(test_audio_poll PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(test_audio_poll ${NETERO_LINK_LIBRARY})
@@ -22,6 +22,7 @@ set_target_properties(test_audio
         PROPERTIES
         LINKER_LANGUAGE CXX
         CXX_STANDARD 17)
+endif(AUDIO)
 
 ## Observer test
 
