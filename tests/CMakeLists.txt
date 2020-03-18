@@ -1,6 +1,27 @@
-project(Test)
+project(Tests)
 
+set(NETERO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/headers)
 set(NETERO_LINK_LIBRARY netero)
+
+## Audio test
+
+add_executable(test_audio_event audio/test_audio_event.cpp)
+target_include_directories(test_audio_event PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_audio_event ${NETERO_LINK_LIBRARY})
+add_test(NAME test_audio_event COMMAND ./test_audio_event)
+set_target_properties(test_audio_event
+        PROPERTIES
+        LINKER_LANGUAGE CXX
+        CXX_STANDARD 17)
+
+add_executable(test_audio audio/test_audio.cpp)
+target_include_directories(test_audio PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_audio ${NETERO_LINK_LIBRARY})
+add_test(NAME test_audio COMMAND ./test_audio)
+set_target_properties(test_audio
+        PROPERTIES
+        LINKER_LANGUAGE CXX
+        CXX_STANDARD 17)
 
 ## Observer test
 

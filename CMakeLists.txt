@@ -1,71 +1,42 @@
-cmake_minimum_required (VERSION 3.8)
-project(netero)
+cmake_minimum_required (VERSION 3.11...3.16)
+project(netero
+	VERSION 1.0
+	DESCRIPTION "Real time utility library"
+	LANGUAGES CXX)
+
+# Only if this is the main project, not included threw add_subdirectory
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+
+	set(CMAKE_CXX_EXTENTIONS OFF)
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+	include(CTest)
+	enable_testing()
+
+    find_package(Doxygen)
+    if(Doxygen_FOUND)
+		add_subdirectory(docs)
+    else()
+		message(STATUS "Doxygen not found, not building docs")
+    endif()
+
+endif()
+
+# FetchContent added in CMake 3.11, downloads during the configure step
+include(FetchContent)
+# FetchContent_MakeAvailable was not added until CMake 3.14
+if(${CMAKE_VERSION} VERSION_LESS 3.14)
+    include(cmake/add_FetchContent_MakeAvailable.cmake)
+endif()
 
 # Modules declaration
-OPTION(CORE "netero Core, contain internal stuff" ON)
-OPTION(ECS "netero ecs, contain Entity Component System architecture" ON)
-OPTION(POOL "netero pool, async containers" ON)
-OPTION(OBSERVER "netero Observer, contain a Qt signals/slots like, implementation" ON)
-OPTION(OS "netero Os, contain Operating System ressources encapsulation and abstraction" OFF)
+OPTION(ECS "ecs, contain Entity Component System architecture" ON)
+OPTION(ENGINE "Engine, is a 3D engine using vulkan as backend" OFF)
+OPTION(POOL "Pool, async containers" ON)
+OPTION(OBSERVER "Observer, contain a Qt signals/slots like, implementation" ON)
+OPTION(AUDIO "Audio engine" ON)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-##set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+add_subdirectory(sources)
 
-# Modules definitions
-
-if(CORE)
-	list(APPEND PUBLIC_HEADER
-			headers/netero/netero.hpp
-			headers/netero/core/internal.hpp
-			headers/netero/core/type_id.hpp
-            headers/netero/avl.hpp
-            headers/netero/set.hpp
-            headers/netero/exception.hpp
-            headers/netero/exception/slots.hpp)
-endif(CORE)
-
-if(ECS)
-	list(APPEND PUBLIC_HEADER
-			headers/netero/ecs/world.hpp
-			headers/netero/ecs/entity.hpp
-			headers/netero/ecs/component.hpp
-			headers/netero/ecs/component_filter.hpp
-			headers/netero/ecs/system.hpp)
-	list(APPEND SRCS
-			sources/ecs/world.cpp
-			sources/ecs/entity.cpp
-			sources/ecs/entityContainer.cpp)
-endif(ECS)
-
-if(POOL)
-    list(APPEND PUBLIC_HEADER
-            headers/netero/pool/worker.hpp)
-    list(APPEND SRCS
-            sources/pool/worker.cpp)
-endif(POOL)
-
-if(OS)
-endif(OS)
-
-if(OBSERVER)
-    list(APPEND PUBLIC_HEADER
-            headers/netero/observer/IObserverDelegate.hpp
-            headers/netero/observer/signals.hpp
-            headers/netero/observer/slots.hpp)
-endif(OBSERVER)
-
-# Target
-
-add_library(${PROJECT_NAME} ${SRCS} ${PUBLIC_HEADER})
-target_include_directories(${PROJECT_NAME} PUBLIC headers)
-
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES
-	PUBLIC_HEADER "${PUBLIC_HEADER}"
-	LINKER_LANGUAGE CXX
-	CXX_STANDARD 17)
-
-set(NETERO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/headers)
-enable_testing()
-add_subdirectory("test")
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
