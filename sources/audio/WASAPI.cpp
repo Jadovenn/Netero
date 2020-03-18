@@ -205,7 +205,7 @@ public:
 		// Initialize Audio Client
 		result = _audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
 			AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-			_latency * 1000,
+			_latency * 100,
 			_latency,
 			_wfx,
 			nullptr);

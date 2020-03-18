@@ -18,7 +18,6 @@ void	callback(float* buffer, size_t size) {
 	int idx = 0;
 	int buffer_idx = 0;
 
-	Sleep(10);
 	while (idx < size) {
 		float current = a_minor(idx);
 		buffer[buffer_idx] = current;
