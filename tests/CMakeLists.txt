@@ -5,20 +5,20 @@ set(NETERO_LINK_LIBRARY netero)
 
 ## Audio test
 if (AUDIO)
-add_executable(test_audio_poll audio/test_audio_poll.cpp)
-target_include_directories(test_audio_poll PUBLIC NETERO_INCLUDE_DIR)
-target_link_libraries(test_audio_poll ${NETERO_LINK_LIBRARY})
-add_test(NAME test_audio_poll COMMAND ./test_audio_poll)
-set_target_properties(test_audio_poll
+add_executable(test_audio_engine_poll audio/test_audio_engine_poll.cpp)
+target_include_directories(test_audio_engine_poll PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_audio_engine_poll ${NETERO_LINK_LIBRARY})
+add_test(NAME test_audio_engine_poll COMMAND ./test_audio_poll)
+set_target_properties(test_audio_engine_poll
         PROPERTIES
         LINKER_LANGUAGE CXX
         CXX_STANDARD 17)
 
-add_executable(test_audio_async audio/test_audio_async.cpp)
-target_include_directories(test_audio_async PUBLIC NETERO_INCLUDE_DIR)
-target_link_libraries(test_audio_async ${NETERO_LINK_LIBRARY})
-add_test(NAME test_audio_async COMMAND ./test_audio_async)
-set_target_properties(test_audio_async
+add_executable(test_audio_engine_async audio/test_audio_engine_async.cpp)
+target_include_directories(test_audio_engine_async PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_audio_engine_async ${NETERO_LINK_LIBRARY})
+add_test(NAME test_audio_engine_async COMMAND ./test_audio_engine_async)
+set_target_properties(test_audio_engine_async
         PROPERTIES
         LINKER_LANGUAGE CXX
         CXX_STANDARD 17)
