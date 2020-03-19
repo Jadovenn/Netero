@@ -22,6 +22,8 @@ namespace netero::audio {
 		void	registerCB(std::function<void(float*, size_t)> cb);
 		RtCode	stop();
 		RtCode	start();
+		RtCode	async_start();
+		RtCode	async_stop();
 		RtCode	poll();
 	};
 }

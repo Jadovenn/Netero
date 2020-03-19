@@ -35,7 +35,7 @@ int	main() {
 		netero::audio::engine	audio_engine;
 		netero::audio::RtCode	result;
 		audio_engine.registerCB(callback);
-		result = audio_engine.start();
+		result = audio_engine.async_start();
 		if (result != netero::audio::OK) {
 			return 1;
 		}
@@ -44,7 +44,7 @@ int	main() {
 		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() <= 3) {
 			std::this_thread::yield();
 		}
-		audio_engine.stop();
+		audio_engine.async_stop();
 		return 0;
 	}
 	catch (const std::exception & e) {

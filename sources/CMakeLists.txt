@@ -48,7 +48,11 @@ if(AUDIO)
 			${HEADERS_DIRECTORY_PATH}/audio/engine.hpp)
 	if(WIN32)
 		list(APPEND SRCS
-			audio/WASAPI.cpp)
+			audio/win32/WASAPI.hpp
+			audio/win32/WASAPI.cpp
+			audio/win32/WASAPI_init.cpp
+			audio/win32/WASAPI_poll.cpp
+			audio/win32/WASAPI_async.cpp)
 		list(APPEND LIBRARIES
 			avrt)
 	endif(WIN32)
