@@ -9,7 +9,7 @@
 
 namespace netero::audio {
 
-	enum RtCode {
+	enum class RtCode {
 		OK = 0,
 		ERR_MISSING_CALLBACK = 1,
 		ERR_NATIVE = 2,

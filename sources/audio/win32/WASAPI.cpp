@@ -21,6 +21,11 @@ netero::audio::engine::impl::~impl() {
 // Proxy methode from netero::engine class
 // ----------------------------------------
 
+netero::audio::engine& netero::audio::engine::GetInstance() {
+	engine	*audio_engine = new engine();
+	return *audio_engine;
+}
+
 netero::audio::engine::engine()
 	:	pImpl {std::make_unique<netero::audio::engine::impl>()}
 {}

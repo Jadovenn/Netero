@@ -8,11 +8,11 @@
 
 netero::audio::RtCode   netero::audio::engine::impl::async_start() {
     if (!_cb) {
-        return ERR_MISSING_CALLBACK;
+        return RtCode::ERR_MISSING_CALLBACK;
     }
     _state.store(state::RUNNING, std::memory_order_release);
     _thread = std::make_unique<std::thread>(std::bind(&netero::audio::engine::impl::handle, this));
-    return OK;
+    return RtCode::OK;
 }
 
 netero::audio::RtCode   netero::audio::engine::impl::async_stop() {
@@ -20,7 +20,7 @@ netero::audio::RtCode   netero::audio::engine::impl::async_stop() {
     _thread->join();
     _thread.reset();
     _state.store(state::OFF, std::memory_order_release);
-    return OK;
+    return RtCode::OK;
 }
 
 void    netero::audio::engine::impl::handle() {

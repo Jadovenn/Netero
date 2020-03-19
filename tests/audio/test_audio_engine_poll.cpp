@@ -30,7 +30,7 @@ void	callback(float* buffer, size_t size) {
 
 int	main() {
 	try {
-		netero::audio::engine	audio_engine;
+		netero::audio::engine	&audio_engine = netero::audio::engine::GetInstance();
 		audio_engine.registerCB(callback);
 		if (audio_engine.start() != netero::audio::OK) {
 			return 1;

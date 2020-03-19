@@ -10,29 +10,29 @@
 netero::audio::RtCode   netero::audio::engine::impl::start() {
 	HRESULT result;
 	if (!_cb) {
-		return ERR_MISSING_CALLBACK;
+		return RtCode::ERR_MISSING_CALLBACK;
 	}
 	// fill first buffer using callback
 	BYTE* buffer = nullptr;
 	result = _audio_rendering->GetBuffer(_frameCount, &buffer);
 	if (FAILED(result)) {
-		return ERR_NATIVE;
+		return RtCode::ERR_NATIVE;
 	}
 	_cb(reinterpret_cast<float*>(buffer), _frameCount);
 	result = _audio_rendering->ReleaseBuffer(_frameCount, 0);
 	if (FAILED(result)) {
-		return ERR_NATIVE;
+		return RtCode::ERR_NATIVE;
 	}
 	DWORD taskIndex = 0;
 	_task = AvSetMmThreadCharacteristics(TEXT("Pro Audio"), &taskIndex);
 	if (!_task) {
-		return ERR_NATIVE;
+		return RtCode::ERR_NATIVE;
 	}
 	result = _audio_client->Start();
 	if (FAILED(result)) {
-		return ERR_NATIVE;
+		return RtCode::ERR_NATIVE;
 	}
-	return OK;
+	return RtCode::OK;
 }
 
 netero::audio::RtCode   netero::audio::engine::impl::stop() {
@@ -44,13 +44,13 @@ netero::audio::RtCode   netero::audio::engine::impl::stop() {
 
 	result = _audio_client->Stop();
 	if (FAILED(result)) {
-		return ERR_NATIVE;
+		return RtCode::ERR_NATIVE;
 	}
 	if (_task) {
 		AvRevertMmThreadCharacteristics(_task);
 		_task = nullptr;
 	}
-	return OK;
+	return RtCode::OK;
 }
 
 netero::audio::RtCode   netero::audio::engine::impl::poll() {
@@ -62,13 +62,13 @@ netero::audio::RtCode   netero::audio::engine::impl::poll() {
 	}
 	result = _audio_rendering->GetBuffer(_frameCount, &buffer);
 	if (FAILED(result)) {
-		return ERR_NATIVE;
+		return RtCode::ERR_NATIVE;
 	}
 	_cb(reinterpret_cast<float*>(buffer), _frameCount);
 	result = _audio_rendering->ReleaseBuffer(_frameCount, 0);
 	if (FAILED(result)) {
-		return ERR_NATIVE;
+		return RtCode::ERR_NATIVE;
 	}
-	return OK;
+	return RtCode::OK;
 }
 

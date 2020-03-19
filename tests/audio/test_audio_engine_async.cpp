@@ -32,11 +32,11 @@ void	callback(float* buffer, size_t size) {
 
 int	main() {
 	try {
-		netero::audio::engine	audio_engine;
+		netero::audio::engine	&audio_engine = netero::audio::engine::GetInstance();
 		netero::audio::RtCode	result;
 		audio_engine.registerCB(callback);
 		result = audio_engine.async_start();
-		if (result != netero::audio::OK) {
+		if (result != netero::audio::RtCode::OK) {
 			return 1;
 		}
 
