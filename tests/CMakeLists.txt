@@ -14,6 +14,15 @@ set_target_properties(test_audio_poll
         LINKER_LANGUAGE CXX
         CXX_STANDARD 17)
 
+add_executable(test_audio_async audio/test_audio_async.cpp)
+target_include_directories(test_audio_async PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_audio_async ${NETERO_LINK_LIBRARY})
+add_test(NAME test_audio_async COMMAND ./test_audio_async)
+set_target_properties(test_audio_async
+        PROPERTIES
+        LINKER_LANGUAGE CXX
+        CXX_STANDARD 17)
+
 add_executable(test_audio audio/test_audio.cpp)
 target_include_directories(test_audio PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(test_audio ${NETERO_LINK_LIBRARY})
