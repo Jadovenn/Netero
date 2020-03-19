@@ -10,7 +10,6 @@
 #include <iostream>
 #include <chrono>
 
-#include <netero/audio/audio.hpp>
 #include <netero/audio/engine.hpp>
 
 static netero::signals::Sinusoidal<double>	a_minor { 5, 440, 48000, 0 };
@@ -36,17 +35,19 @@ int	main() {
 		if (audio_engine.start() != netero::audio::OK) {
 			return 1;
 		}
-
 		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() <= 3) {
 			audio_engine.poll();
 		}
 		audio_engine.stop();
-		return 0;
 	}
 	catch (const std::exception & e) {
 		std::cout << e.what() << std::endl;
 		return 1;
+	}
+	catch (...) {
+		std::cout << "Unknown exception" << std::endl;
+		return 2;
 	}
 	return 0;
 }
