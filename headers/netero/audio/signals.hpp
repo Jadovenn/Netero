@@ -15,7 +15,7 @@
 namespace netero::audio::signals {
 	class sinusoid: public AudioStream {
 	public:
-		sinusoid();
+		sinusoid(double amplitude = 0.1, double frequency = 50, double phase = 0);
 		virtual ~sinusoid() = default;
 
 		void    setFormat(WaveFormat&) override;

@@ -5,10 +5,10 @@
 
 #include <netero/audio/signals.hpp>
 
-netero::audio::signals::sinusoid::sinusoid()
-    :   _amplitude(0.1),
-        _frequency(50),
-        _phase(0),
+netero::audio::signals::sinusoid::sinusoid(double amplitude, double frequency, double phase)
+    :   _amplitude(amplitude),
+        _frequency(frequency),
+        _phase(phase),
         _samplingFrequency(0),
         _pan(0),
         _pulsation(0),
