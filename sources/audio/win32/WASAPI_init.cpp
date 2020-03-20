@@ -98,3 +98,11 @@ void    netero::audio::engine::impl::WASAPI_init() {
 		reinterpret_cast<void**>(&_audio_rendering));
 	test_result(result);
 }
+
+netero::audio::WaveFormat	netero::audio::engine::impl::getFormat() {
+	WaveFormat	format {};
+
+	format.channels = _wfx->nChannels;
+	format.samplePerSecond = _wfx->nSamplesPerSec;
+	return format;
+}

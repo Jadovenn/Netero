@@ -31,8 +31,8 @@ void	callback(float* buffer, size_t size) {
 int	main() {
 	try {
 		netero::audio::engine	&audio_engine = netero::audio::engine::GetInstance();
-		audio_engine.registerCB(callback);
-		if (audio_engine.start() != netero::audio::OK) {
+		audio_engine.registerHandle(callback);
+		if (audio_engine.start() != netero::audio::RtCode::OK) {
 			return 1;
 		}
 		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();

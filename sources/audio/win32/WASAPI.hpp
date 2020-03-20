@@ -82,10 +82,11 @@ public:
 	impl();
 	~impl();
 
-	void	registerCB(std::function<void(float*, size_t)> cb) {
+	void	registerHandle(std::function<void(float*, size_t)> cb) {
 		_cb = cb;
 	}
 
+	WaveFormat	getFormat();
 	RtCode	start();
 	RtCode	stop();
 	RtCode	poll();

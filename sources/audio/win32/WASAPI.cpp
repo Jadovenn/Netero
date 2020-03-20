@@ -32,8 +32,12 @@ netero::audio::engine::engine()
 
 netero::audio::engine::~engine() = default;
 
-void					netero::audio::engine::registerCB(std::function<void(float*, size_t)> cb) {
-	pImpl->registerCB(cb);
+void					netero::audio::engine::registerHandle(std::function<void(float*, size_t)> cb) {
+	pImpl->registerHandle(cb);
+}
+
+netero::audio::WaveFormat	netero::audio::engine::getFormat() {
+	return pImpl->getFormat();
 }
 
 netero::audio::RtCode	netero::audio::engine::start() {

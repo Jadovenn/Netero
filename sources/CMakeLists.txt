@@ -7,7 +7,7 @@ list(APPEND PUBLIC_HEADER
 		${HEADERS_DIRECTORY_PATH}/core/type_id.hpp
         ${HEADERS_DIRECTORY_PATH}/avl.hpp
         ${HEADERS_DIRECTORY_PATH}/set.hpp
-        ${HEADERS_DIRECTORY_PATH}/signals.hpp
+        ##${HEADERS_DIRECTORY_PATH}/signals.hpp
         ${HEADERS_DIRECTORY_PATH}/exception.hpp
         ${HEADERS_DIRECTORY_PATH}/exception/slots.hpp)
 
@@ -45,7 +45,14 @@ endif(ENGINE)
 if(AUDIO)
 	list(APPEND PUBLIC_HEADER
 			${HEADERS_DIRECTORY_PATH}/audio/audio.hpp
-			${HEADERS_DIRECTORY_PATH}/audio/engine.hpp)
+			${HEADERS_DIRECTORY_PATH}/audio/engine.hpp
+			${HEADERS_DIRECTORY_PATH}/audio/mixer.hpp
+			${HEADERS_DIRECTORY_PATH}/audio/rootMixer.hpp
+			${HEADERS_DIRECTORY_PATH}/audio/signals.hpp)
+	list(APPEND SRCS
+			audio/mixer.cpp
+			audio/rootMixer.cpp
+			audio/signals/sinusoid.cpp)
 	if(WIN32)
 		list(APPEND SRCS
 			audio/win32/WASAPI.hpp

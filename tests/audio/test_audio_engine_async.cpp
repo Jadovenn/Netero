@@ -34,13 +34,16 @@ int	main() {
 	try {
 		netero::audio::engine	&audio_engine = netero::audio::engine::GetInstance();
 		netero::audio::RtCode	result;
-		audio_engine.registerCB(callback);
+		audio_engine.registerHandle(callback);
 		result = audio_engine.async_start();
 		if (result != netero::audio::RtCode::OK) {
 			return 1;
 		}
 
 		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
+		netero::audio::WaveFormat format = audio_engine.getFormat();
+		std::cout << "Number of channels: " << format.channels << std::endl;
+		std::cout << "Frequence of the device: " << format.samplePerSecond << " Hz" << std::endl;
 		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() <= 3) {
 			std::this_thread::yield();
 		}
