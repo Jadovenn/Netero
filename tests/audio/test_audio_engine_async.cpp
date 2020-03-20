@@ -31,7 +31,7 @@ public:
 	double phase;
 };
 
-static Sinusoidal a_minor{ 5, 440, 48000, 0 };
+static Sinusoidal a_minor{ 0.005, 440, 48000, 0 };
 
 void	callback(float* buffer, size_t size) {
 	int idx = 0;
@@ -61,7 +61,7 @@ int	main() {
 		netero::audio::WaveFormat format = audio_engine.getFormat();
 		std::cout << "Number of channels: " << format.channels << std::endl;
 		std::cout << "Frequence of the device: " << format.samplePerSecond << " Hz" << std::endl;
-		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() <= 3) {
+		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() <= 10) {
 			std::this_thread::yield();
 		}
 		audio_engine.async_stop();

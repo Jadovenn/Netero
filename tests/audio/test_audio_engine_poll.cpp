@@ -30,7 +30,7 @@ public:
 	double phase;
 };
 
-static Sinusoidal	a_minor { 5, 440, 48000, 0 };
+static Sinusoidal	a_minor { 0.005, 440, 48000, 0 };
 
 void	callback(float* buffer, size_t size) {
 	int idx = 0;
@@ -57,7 +57,7 @@ int	main() {
 		std::cout << "Number of channels: " << format.channels << std::endl;
 		std::cout << "Frequence of the device: " << format.samplePerSecond << " Hz" << std::endl;
 		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
-		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() <= 3) {
+		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() <= 10) {
 			audio_engine.poll();
 		}
 		audio_engine.stop();
