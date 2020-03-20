@@ -5,6 +5,16 @@ set(NETERO_LINK_LIBRARY netero)
 
 ## Audio test
 if (AUDIO)
+
+add_executable(test_audio_mixer audio/test_audio_mixer.cpp)
+target_include_directories(test_audio_mixer PUBLIC NETERO_INCLUDE_DIR)
+target_link_libraries(test_audio_mixer ${NETERO_LINK_LIBRARY})
+add_test(NAME test_audio_mixer COMMAND ./test_audio_mixer)
+set_target_properties(test_audio_mixer
+        PROPERTIES
+        LINKER_LANGUAGE CXX
+        CXX_STANDARD 17)
+
 add_executable(test_audio_engine_poll audio/test_audio_engine_poll.cpp)
 target_include_directories(test_audio_engine_poll PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(test_audio_engine_poll ${NETERO_LINK_LIBRARY})
@@ -19,15 +29,6 @@ target_include_directories(test_audio_engine_async PUBLIC NETERO_INCLUDE_DIR)
 target_link_libraries(test_audio_engine_async ${NETERO_LINK_LIBRARY})
 add_test(NAME test_audio_engine_async COMMAND ./test_audio_engine_async)
 set_target_properties(test_audio_engine_async
-        PROPERTIES
-        LINKER_LANGUAGE CXX
-        CXX_STANDARD 17)
-
-add_executable(test_audio audio/test_audio.cpp)
-target_include_directories(test_audio PUBLIC NETERO_INCLUDE_DIR)
-target_link_libraries(test_audio ${NETERO_LINK_LIBRARY})
-add_test(NAME test_audio COMMAND ./test_audio)
-set_target_properties(test_audio
         PROPERTIES
         LINKER_LANGUAGE CXX
         CXX_STANDARD 17)

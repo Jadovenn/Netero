@@ -46,11 +46,11 @@ if(AUDIO)
 			${HEADERS_DIRECTORY_PATH}/audio/audio.hpp
 			${HEADERS_DIRECTORY_PATH}/audio/engine.hpp
 			${HEADERS_DIRECTORY_PATH}/audio/mixer.hpp
-			${HEADERS_DIRECTORY_PATH}/audio/rootMixer.hpp
+			${HEADERS_DIRECTORY_PATH}/audio/device.hpp
 			${HEADERS_DIRECTORY_PATH}/audio/signals.hpp)
 	list(APPEND SRCS
 			audio/mixer.cpp
-			audio/rootMixer.cpp
+			audio/device.cpp
 			audio/signals/sinusoid.cpp)
 	if(WIN32)
 		list(APPEND SRCS
