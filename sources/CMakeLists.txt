@@ -7,7 +7,6 @@ list(APPEND PUBLIC_HEADER
 		${HEADERS_DIRECTORY_PATH}/core/type_id.hpp
         ${HEADERS_DIRECTORY_PATH}/avl.hpp
         ${HEADERS_DIRECTORY_PATH}/set.hpp
-        ##${HEADERS_DIRECTORY_PATH}/signals.hpp
         ${HEADERS_DIRECTORY_PATH}/exception.hpp
         ${HEADERS_DIRECTORY_PATH}/exception/slots.hpp)
 

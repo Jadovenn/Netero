@@ -3,18 +3,35 @@
  * see LICENCE.txt
  */
 
-#include <netero/signals.hpp>
-
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <type_traits>
 #include <Windows.h>
 #include <exception>
 #include <iostream>
 #include <chrono>
 #include <thread>
 
-#include <netero/audio/audio.hpp>
 #include <netero/audio/engine.hpp>
 
-static netero::signals::Sinusoidal<double>	a_minor{ 5, 440, 48000, 0 };
+class Sinusoidal {
+public:
+	Sinusoidal(double amplitude, double pulsation, double freq, double phase)
+		: amplitude(amplitude),
+		pulsation((2 * M_PI * pulsation) / freq),
+		phase(phase)
+	{}
+
+	double	operator()(double t) {
+		return amplitude * sin(pulsation * t + phase);
+	}
+
+	double amplitude;
+	double pulsation;
+	double phase;
+};
+
+static Sinusoidal a_minor{ 5, 440, 48000, 0 };
 
 void	callback(float* buffer, size_t size) {
 	int idx = 0;
