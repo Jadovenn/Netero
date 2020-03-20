@@ -82,14 +82,11 @@ public:
 	impl();
 	~impl();
 
-	void	registerHandle(std::function<void(float*, size_t)> cb) {
-		_cb = cb;
-	}
-
 	WaveFormat	getFormat();
 	RtCode	start();
 	RtCode	stop();
 	RtCode	poll();
+	void	registerHandle(const std::function<void(float*, size_t)>&);
 
 	RtCode	async_start();
 	RtCode	async_stop();

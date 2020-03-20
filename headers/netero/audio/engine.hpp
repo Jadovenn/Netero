@@ -20,7 +20,7 @@ namespace netero::audio {
 
 		static engine& GetInstance();
 		~engine();
-		void	registerHandle(std::function<void(float*, size_t)> cb);
+		void	registerHandle(const std::function<void(float*, size_t)> &cb);
 		WaveFormat	getFormat();
 		RtCode	stop();
 		RtCode	start();

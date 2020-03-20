@@ -3,6 +3,7 @@
  * see LICENCE.txt
  */
 
+#include <memory>
 #include "WASAPI.hpp"
 
 // ----------------------------------
@@ -17,22 +18,26 @@ netero::audio::engine::impl::~impl() {
 	WASAPI_cleanup();
 }
 
+void	netero::audio::engine::impl::registerHandle(const std::function<void(float*, size_t)> &cb) {
+	_cb = cb;
+}
+
 // ----------------------------------------
 // Proxy methode from netero::engine class
 // ----------------------------------------
 
 netero::audio::engine& netero::audio::engine::GetInstance() {
-	engine	*audio_engine = new engine();
+	static std::unique_ptr<engine>	audio_engine(new engine());
 	return *audio_engine;
 }
 
 netero::audio::engine::engine()
-	:	pImpl {std::make_unique<netero::audio::engine::impl>()}
+	:	pImpl(std::make_unique<netero::audio::engine::impl>())
 {}
 
 netero::audio::engine::~engine() = default;
 
-void					netero::audio::engine::registerHandle(std::function<void(float*, size_t)> cb) {
+void					netero::audio::engine::registerHandle(const std::function<void(float*, size_t)> &cb) {
 	pImpl->registerHandle(cb);
 }
 
