@@ -32,6 +32,7 @@ namespace netero::audio::signals {
 		float _samplingFrequency;
 		float _pan;
 		float _pulsation;
+		float _delta;
 		size_t _samplesCount;
 		float *_buffer;
 		audio::WaveFormat _format;

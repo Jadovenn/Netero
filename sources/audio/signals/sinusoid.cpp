@@ -12,6 +12,7 @@ netero::audio::signals::sinusoid::sinusoid(double amplitude, double frequency, d
         _samplingFrequency(0),
         _pan(0),
         _pulsation(0),
+        _delta(0),
         _samplesCount(0),
         _buffer(nullptr),
         _format{},
@@ -57,7 +58,14 @@ void    netero::audio::signals::sinusoid::setFormat(netero::audio::WaveFormat &f
 }
 
 void  netero::audio::signals::sinusoid::render(float *buffer, size_t size) {
-    std::memcpy(buffer, _buffer, (size_t)_format.framesCount * (size_t)_format.bytesPerFrame);
+    for (int idx = 0; idx < size * 2; idx++, _delta++) {
+        float value = _amplitude * sin(_pulsation * (_delta / _format.channels) + _phase);
+        buffer[idx] = value;
+        if (_delta > 500 && value == 0) {
+            _delta = 0;
+        }
+    }
+    //std::memcpy(buffer, _buffer, (size_t)_format.framesCount * (size_t)_format.bytesPerFrame);
 }
 
 void    netero::audio::signals::sinusoid::play() {
