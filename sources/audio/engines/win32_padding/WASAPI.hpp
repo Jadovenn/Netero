@@ -39,10 +39,6 @@ private:
 	unsigned _bufferFrameCount = 0;
 	size_t	_bufferSize = 0;
 	size_t	_WASAPIBufferSize = 0;
-	size_t _flushing_idx = 0;
-	size_t _rendering_idx = 0;
-	float* _buffer = nullptr;
-
 	std::function<void(float*, size_t)> _cb;
 
 	enum state {
@@ -83,9 +79,6 @@ private:
 
 	void WASAPI_init();
 	void WASAPI_cleanup();
-	void alloc_buffer(unsigned frames);
-	void buffer_flush(BYTE *dest, unsigned frames);
-	void buffer_render(unsigned frames);
 
 public:
 	impl();
@@ -102,6 +95,5 @@ public:
 	RtCode	async_start();
 	RtCode	async_stop();
 	void	handle();
-
 };
 

@@ -79,8 +79,6 @@ void    netero::audio::engine::impl::WASAPI_init() {
 	result = _audio_client->GetBufferSize(&_frameCount);
 	test_result(result);
 
-	alloc_buffer(_frameCount);
-
 	// Get the rendering client
 	result = _audio_client->GetService(IID_IAudioRenderClient,
 		reinterpret_cast<void**>(&_audio_rendering));
