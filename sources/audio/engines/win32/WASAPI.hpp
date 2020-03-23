@@ -35,8 +35,10 @@ private:
 	HANDLE _event = nullptr;
 	HANDLE _task = nullptr;
 	REFERENCE_TIME _latency;
-	unsigned _frameCount;
-
+	unsigned _frameCount = 0;
+	unsigned _bufferFrameCount = 0;
+	size_t	_bufferSize = 0;
+	size_t	_WASAPIBufferSize = 0;
 	std::function<void(float*, size_t)> _cb;
 
 	enum state {
@@ -93,6 +95,5 @@ public:
 	RtCode	async_start();
 	RtCode	async_stop();
 	void	handle();
-
 };
 

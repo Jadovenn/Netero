@@ -12,7 +12,8 @@ netero::audio::RtCode   netero::audio::engine::impl::start() {
 	if (!_cb) {
 		return RtCode::ERR_MISSING_CALLBACK;
 	}
-	// fill first buffer using callback
+
+	// now grab the audio buffer and load first segment
 	BYTE* buffer = nullptr;
 	result = _audio_rendering->GetBuffer(_frameCount, &buffer);
 	if (FAILED(result)) {
@@ -38,7 +39,7 @@ netero::audio::RtCode   netero::audio::engine::impl::start() {
 netero::audio::RtCode   netero::audio::engine::impl::stop() {
 	HRESULT result;
 	std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
-	while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count() < _latency / 10000) {
+	while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count() < _latency) {
 		std::this_thread::yield();
 	}
 
@@ -53,20 +54,23 @@ netero::audio::RtCode   netero::audio::engine::impl::stop() {
 	return RtCode::OK;
 }
 
-
 netero::audio::RtCode   netero::audio::engine::impl::poll() {
 	HRESULT result;
 	BYTE* buffer = nullptr;
-	DWORD ret = WaitForSingleObject(_event, 2000);
-	if (ret != WAIT_OBJECT_0) { // Timeout
-		return stop();
-	}
-	result = _audio_rendering->GetBuffer(_frameCount, &buffer);
+	unsigned padding = 0;
+	unsigned frames = 0;
+
+	result = _audio_client->GetCurrentPadding(&padding);
 	if (FAILED(result)) {
 		return RtCode::ERR_NATIVE;
 	}
-	_cb(reinterpret_cast<float*>(buffer), _frameCount);
-	result = _audio_rendering->ReleaseBuffer(_frameCount, 0);
+	frames = _frameCount - padding;
+	result = _audio_rendering->GetBuffer(frames, &buffer);
+	if (FAILED(result) || buffer == nullptr) {
+		return RtCode::ERR_NATIVE;
+	}
+	_cb(reinterpret_cast<float*>(buffer), frames);
+	result = _audio_rendering->ReleaseBuffer(frames, 0);
 	if (FAILED(result)) {
 		return RtCode::ERR_NATIVE;
 	}

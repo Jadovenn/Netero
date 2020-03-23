@@ -16,10 +16,6 @@ void    netero::audio::engine::impl::WASAPI_cleanup() {
 		_wfx = nullptr;
 		_wfx_ext = nullptr;
 	}
-	if (_event) {
-		CloseHandle(_event);
-		_event = nullptr;
-	}
 	if (_task) {
 		AvRevertMmThreadCharacteristics(_task);
 		_task = nullptr;
@@ -72,8 +68,8 @@ void    netero::audio::engine::impl::WASAPI_init() {
 
 	// Initialize Audio Client
 	result = _audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
-		AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-		_latency * 10,
+		0,
+		0,
 		0,
 		_wfx,
 		nullptr);
@@ -83,16 +79,6 @@ void    netero::audio::engine::impl::WASAPI_init() {
 	result = _audio_client->GetBufferSize(&_frameCount);
 	test_result(result);
 
-	// Create buffer swap event
-	_event = CreateEvent(nullptr, false, false, nullptr);
-	if (!_event) {
-		WASAPI_cleanup();
-		throw std::runtime_error("WASAPI could not init event");
-	}
-	// Set the event to the audio client
-	result = _audio_client->SetEventHandle(_event);
-	test_result(result);
-
 	// Get the rendering client
 	result = _audio_client->GetService(IID_IAudioRenderClient,
 		reinterpret_cast<void**>(&_audio_rendering));
@@ -100,7 +86,7 @@ void    netero::audio::engine::impl::WASAPI_init() {
 }
 
 netero::audio::WaveFormat	netero::audio::engine::impl::getFormat() {
-	WaveFormat	format {};
+	WaveFormat	format{};
 
 	format.framesCount = getBufferSize();
 	format.bytesPerFrame = _wfx->nChannels * (_wfx->wBitsPerSample / 8);
