@@ -20,8 +20,8 @@ int main() {
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
         std::this_thread::yield();
     }
-    _la.stop();
-    _do.stop();
     _mi.play();
+    _do.stop();
+    _la.stop();
     return 0;
 }

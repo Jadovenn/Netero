@@ -25,6 +25,8 @@ netero::audio::WaveFormat& netero::audio::device::getWaveFormat() {
 }
 
 netero::audio::device::~device() {
+	_streams.clear();
+	stop();
 	_engine.async_stop();
 }
 

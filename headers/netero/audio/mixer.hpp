@@ -6,6 +6,7 @@
 #pragma once
 
 #include <list>
+#include <mutex>
 
 #include <netero/audio/audio.hpp>
 
@@ -26,14 +27,15 @@ namespace netero::audio {
         void    disconnect(AudioStream*);
 
     private:
+        std::mutex  _streamsGuard;
         void    alloc_internal_buffer();
         void    free_internal_buffer();
         void    mix(float *__restrict dest, float *__restrict source, size_t min_size);
     protected:
         netero::audio::WaveFormat   _format;
+        std::list<AudioStream*>     _streams;
     private:
         size_t                      _samplesCount;
         float                       *_sourceBuffer;
-        std::list<AudioStream*>     _streams;
     };
 }

@@ -66,7 +66,7 @@ netero::audio::RtCode   netero::audio::engine::impl::poll() {
 	}
 	frames = _frameCount - padding;
 	result = _audio_rendering->GetBuffer(frames, &buffer);
-	if (FAILED(result)) {
+	if (FAILED(result) || buffer == nullptr) {
 		return RtCode::ERR_NATIVE;
 	}
 	_cb(reinterpret_cast<float*>(buffer), frames);

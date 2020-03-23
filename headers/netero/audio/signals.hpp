@@ -34,13 +34,9 @@ namespace netero::audio::signals {
 		float _pulsation;
 		float _delta;
 		size_t _samplesCount;
-		float *_buffer;
 		audio::WaveFormat _format;
 		audio::device& _audio_device;
 
-		void	alloc_internal_buffer();
-		void	free_internal_buffer();
-		void	generate_signal();
 	public:
 		void			setAmplitude(double val) { _amplitude = val; }
 		const double	getAmplitude() const { return _amplitude; }
