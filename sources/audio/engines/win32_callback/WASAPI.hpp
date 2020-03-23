@@ -35,13 +35,7 @@ private:
 	HANDLE _event = nullptr;
 	HANDLE _task = nullptr;
 	REFERENCE_TIME _latency;
-	unsigned _frameCount = 0;
-	unsigned _bufferFrameCount = 0;
-	size_t	_bufferSize = 0;
-	size_t	_WASAPIBufferSize = 0;
-	size_t _flushing_idx = 0;
-	size_t _rendering_idx = 0;
-	float* _buffer = nullptr;
+	unsigned _frameCount;
 
 	std::function<void(float*, size_t)> _cb;
 
@@ -83,9 +77,6 @@ private:
 
 	void WASAPI_init();
 	void WASAPI_cleanup();
-	void alloc_buffer(unsigned frames);
-	void buffer_flush(BYTE *dest, unsigned frames);
-	void buffer_render(unsigned frames);
 
 public:
 	impl();

@@ -35,7 +35,7 @@ static Sinusoidal	a_minor { 1, 440, 48000, 0 };
 void	callback(float* buffer, size_t size) {
 	int idx = 0;
 
-	while (idx < size) {
+	while (idx < size * 2) {
 		float current = static_cast<float>(a_minor(idx));
 		buffer[idx] = current;
 		buffer[idx + 1] = current;
@@ -52,7 +52,7 @@ int	main() {
 		}
 		netero::audio::WaveFormat format = audio_engine.getFormat();
 		std::cout << "Number of channels: " << format.channels << std::endl;
-		std::cout << "Frequence of the device: " << format.samplePerSecond << " Hz" << std::endl;
+		std::cout << "Frequence of the device: " << format.samplingFrequency << " Hz" << std::endl;
 		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() <= 10) {
 			audio_engine.poll();

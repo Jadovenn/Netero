@@ -12,56 +12,33 @@ netero::audio::signals::sinusoid::sinusoid(double amplitude, double frequency, d
         _samplingFrequency(0),
         _pan(0),
         _pulsation(0),
-        _buffer(nullptr),
+        _delta(0),
+        _samplesCount(0),
         _format{},
         _audio_device(netero::audio::device::GetAudioDevice())
-{}
+{
+    _format = _audio_device.getWaveFormat();
+    _pulsation = ((2 * M_PI * _frequency) / _format.samplingFrequency);
+}
 
 netero::audio::signals::sinusoid::~sinusoid() {
-    stop();
 }
 
 void    netero::audio::signals::sinusoid::setFormat(netero::audio::WaveFormat &format) {
-    if (_format.samplePerSecond == format.samplePerSecond) {
-        return;
-    }
-    _format = format;
-    _samplingFrequency = format.samplePerSecond;
-    _pulsation = ((2 * M_PI * _frequency) / _samplingFrequency);
-    _buffer = new (std::nothrow) float[_format.framesCount];
-    if (!_buffer) {
-        throw std::bad_alloc();
-    }
-    for (int i = 0; i < _format.framesCount; i++) {
-        _buffer[i] = _amplitude * sin(_pulsation * i + _phase);
+    if (_format.samplingFrequency != format.samplingFrequency) {
+        _format = format;
+        _pulsation = ((2 * M_PI * _frequency) / _format.samplingFrequency);
     }
 }
 
-// pan not yet computed
 void  netero::audio::signals::sinusoid::render(float *buffer, size_t size) {
-    for (int i = 0, j =0; i < size / 2; i++, j += 2) {
-        float current = _amplitude * sin(_pulsation * i + _phase);
-        buffer[j] = _amplitude * sin(_pulsation * i + _phase);
-        buffer[j+1] = _amplitude * sin(_pulsation * i + _phase);
-    }
-    return;
-    /**
-    if (!_buffer || _samplingFrequency == 0) {
-        return;
-    }
-    if (_samplingFrequency >= size) {
-        std::memcpy(buffer, _buffer, size * sizeof(float));
-    }
-    else {
-        for (int i = 0; i < size; i += _samplingFrequency) {
-            std::memcpy(buffer, _buffer, (int)_samplingFrequency * sizeof(float));
-            if (i + _samplingFrequency >= size) {
-                size_t last_bytes = (size - i) * sizeof(float);
-                std::memcpy(buffer, _buffer, last_bytes);
-            }
+    for (int idx = 0; idx < size * 2; idx++, _delta++) {
+        float value = _amplitude * sin(_pulsation * (_delta / _format.channels) + _phase);
+        buffer[idx] = value;
+        if (_delta > 500 && value == 0) {
+            _delta = 0;
         }
     }
-    */
 }
 
 void    netero::audio::signals::sinusoid::play() {

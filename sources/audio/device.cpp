@@ -20,7 +20,13 @@ netero::audio::device::device()
 	_engine.async_start();
 }
 
+netero::audio::WaveFormat& netero::audio::device::getWaveFormat() {
+	return _format;
+}
+
 netero::audio::device::~device() {
+	_streams.clear();
+	stop();
 	_engine.async_stop();
 }
 
@@ -30,11 +36,9 @@ netero::audio::device& netero::audio::device::GetAudioDevice() {
 }
 
 void    netero::audio::device::handle(float* buffer, size_t size) {
-	unsigned idx = 0;
-	unsigned buffer_idx = 0;
-
 	//std::chrono::time_point	start = std::chrono::system_clock::now();
 	//std::cout << size << std::endl;
+	std::memset(buffer, 0, size * _format.bytesPerFrame);
 	render(buffer, size);
 	//std::cout << "duration of the loop: " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count() << std::endl;
 }

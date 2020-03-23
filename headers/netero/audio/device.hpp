@@ -18,6 +18,7 @@ namespace netero::audio {
 
 		static device& GetAudioDevice();
 		void	handle(float* buffer, size_t size);
+		WaveFormat& getWaveFormat();
 
 	private:
 		netero::audio::engine& _engine;
