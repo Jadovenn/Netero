@@ -66,15 +66,10 @@ void netero::audio::mixer::mix(float* __restrict dest, float* __restrict source,
 
 void  netero::audio::mixer::render(float* buffer, size_t size) {
     if (!_streams.empty()) {
-        if (_streams.size() == 1) {
-            _streams.front()->render(buffer, size);
-        }
-        else {
-            for (auto* stream : _streams) {
-                std::memset(_sourceBuffer, 0, _samplesCount * _format.bytesPerSample);
-                stream->render(_sourceBuffer, size);
-                mix(buffer, _sourceBuffer, _samplesCount);
-            }
+        for (auto* stream : _streams) {
+            std::memset(_sourceBuffer, 0, _samplesCount * _format.bytesPerSample);
+            stream->render(_sourceBuffer, size);
+            mix(buffer, _sourceBuffer, _samplesCount);
         }
     }
 }
