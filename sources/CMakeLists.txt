@@ -54,11 +54,11 @@ if(AUDIO)
 			audio/signals/sinusoid.cpp)
 	if(WIN32)
 		list(APPEND SRCS
-			audio/win32/WASAPI.hpp
-			audio/win32/WASAPI.cpp
-			audio/win32/WASAPI_init.cpp
-			audio/win32/WASAPI_poll.cpp
-			audio/win32/WASAPI_async.cpp)
+			audio/engines/win32_padding/WASAPI.hpp
+			audio/engines/win32_padding/WASAPI.cpp
+			audio/engines/win32_padding/WASAPI_init.cpp
+			audio/engines/win32_padding/WASAPI_poll.cpp
+			audio/engines/win32_padding/WASAPI_async.cpp)
 		list(APPEND LIBRARIES
 			avrt)
 	endif(WIN32)

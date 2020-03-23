@@ -15,16 +15,21 @@ namespace netero::audio {
 		ERR_NATIVE = 2,
 	};
 
+	/**
+	 * framesCount: nb of frame in the shared buffer with the hardware
+	 * channels: number of channel
+	 * samplePerSecond: nb of sample processed per second
+	 */
 	struct WaveFormat {
+		unsigned	framesCount;
 		unsigned	channels;
-		unsigned	nBlocks;
 		unsigned	samplePerSecond;
 	};
 
 	class AudioStream {
 	public:
 		virtual void setFormat(WaveFormat &) = 0;
-		virtual double render(int delta, int channel) = 0;
+		virtual void render(float *buffer, size_t size) = 0;
 
 		virtual void	play() = 0;
 		virtual void	pause() = 0;

@@ -53,6 +53,7 @@ netero::audio::RtCode   netero::audio::engine::impl::stop() {
 	return RtCode::OK;
 }
 
+
 netero::audio::RtCode   netero::audio::engine::impl::poll() {
 	HRESULT result;
 	BYTE* buffer = nullptr;

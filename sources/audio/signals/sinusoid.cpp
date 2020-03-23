@@ -12,30 +12,60 @@ netero::audio::signals::sinusoid::sinusoid(double amplitude, double frequency, d
         _samplingFrequency(0),
         _pan(0),
         _pulsation(0),
-        _isRunning(false)
+        _buffer(nullptr),
+        _format{},
+        _audio_device(netero::audio::device::GetAudioDevice())
 {}
 
+netero::audio::signals::sinusoid::~sinusoid() {
+    stop();
+}
+
 void    netero::audio::signals::sinusoid::setFormat(netero::audio::WaveFormat &format) {
+    if (_format.samplePerSecond == format.samplePerSecond) {
+        return;
+    }
+    _format = format;
     _samplingFrequency = format.samplePerSecond;
     _pulsation = ((2 * M_PI * _frequency) / _samplingFrequency);
+    _buffer = new (std::nothrow) float[_format.framesCount];
+    if (!_buffer) {
+        throw std::bad_alloc();
+    }
+    for (int i = 0; i < _format.framesCount; i++) {
+        _buffer[i] = _amplitude * sin(_pulsation * i + _phase);
+    }
 }
 
 // pan not yet computed
-double  netero::audio::signals::sinusoid::render(int delta, int channel) {
-    static double last_result = 0;
-    if (_isRunning.load(std::memory_order_acquire) == false) {
-        if (last_result != 0) {
-            last_result = last_result > 0 ? last_result - 0.1 : last_result + 0.1;
-        }
+void  netero::audio::signals::sinusoid::render(float *buffer, size_t size) {
+    for (int i = 0, j =0; i < size / 2; i++, j += 2) {
+        float current = _amplitude * sin(_pulsation * i + _phase);
+        buffer[j] = _amplitude * sin(_pulsation * i + _phase);
+        buffer[j+1] = _amplitude * sin(_pulsation * i + _phase);
+    }
+    return;
+    /**
+    if (!_buffer || _samplingFrequency == 0) {
+        return;
+    }
+    if (_samplingFrequency >= size) {
+        std::memcpy(buffer, _buffer, size * sizeof(float));
     }
     else {
-        last_result = _amplitude * sin(_pulsation * delta + _phase);
+        for (int i = 0; i < size; i += _samplingFrequency) {
+            std::memcpy(buffer, _buffer, (int)_samplingFrequency * sizeof(float));
+            if (i + _samplingFrequency >= size) {
+                size_t last_bytes = (size - i) * sizeof(float);
+                std::memcpy(buffer, _buffer, last_bytes);
+            }
+        }
     }
-    return last_result;
+    */
 }
 
 void    netero::audio::signals::sinusoid::play() {
-    _isRunning.store(true, std::memory_order_release);
+    _audio_device.connect(this);
 }
 
 void    netero::audio::signals::sinusoid::pause() {
@@ -43,6 +73,6 @@ void    netero::audio::signals::sinusoid::pause() {
 }
 
 void    netero::audio::signals::sinusoid::stop() {
-    _isRunning.store(false, std::memory_order_release);
+    _audio_device.disconnect(this);
 }
 

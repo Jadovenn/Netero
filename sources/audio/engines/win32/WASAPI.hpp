@@ -88,6 +88,8 @@ public:
 	RtCode	poll();
 	void	registerHandle(const std::function<void(float*, size_t)>&);
 
+	size_t getBufferSize();
+
 	RtCode	async_start();
 	RtCode	async_stop();
 	void	handle();

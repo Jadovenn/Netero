@@ -10,16 +10,15 @@
 #include <thread>
 
 int main() {
-    netero::audio::device& audio_device = netero::audio::device::GetAudioDevice();
-    netero::audio::signals::sinusoid    a_minor(0.006, 440, 0);
-
-    audio_device.connect(&a_minor);
+    netero::audio::signals::sinusoid    a_minor(0.4, 440, 0);
+    //netero::audio::signals::sinusoid    e_minor(0.4, 650, 0);
     a_minor.play();
+    //e_minor.play();
     std::chrono::time_point start = std::chrono::system_clock::now();
-    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 3) {
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
         std::this_thread::yield();
     }
     a_minor.stop();
-    audio_device.disconnect(&a_minor);
+    //e_minor.stop();
     return 0;
 }

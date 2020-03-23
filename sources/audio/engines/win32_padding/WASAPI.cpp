@@ -15,11 +15,26 @@ netero::audio::engine::impl::impl() {
 }
 
 netero::audio::engine::impl::~impl() {
+	delete _buffer;
 	WASAPI_cleanup();
 }
 
 void	netero::audio::engine::impl::registerHandle(const std::function<void(float*, size_t)> &cb) {
 	_cb = cb;
+}
+
+void	netero::audio::engine::impl::alloc_buffer(unsigned frames) {
+	_bufferFrameCount = frames * 10;
+	_bufferSize = _bufferFrameCount * sizeof(float);
+	_WASAPIBufferSize = frames * sizeof(float);
+	_buffer = new (std::nothrow) float[_bufferFrameCount];
+	if (!_buffer) {
+		WASAPI_cleanup();
+		throw std::bad_alloc();
+	}
+	else {
+		std::memset(_buffer, _bufferFrameCount, 0);
+	}
 }
 
 // ----------------------------------------
@@ -63,5 +78,9 @@ netero::audio::RtCode	netero::audio::engine::async_start() {
 
 netero::audio::RtCode	netero::audio::engine::async_stop() {
 	return pImpl->async_stop();
+}
+
+size_t	netero::audio::engine::getBufferSize() {
+	return  pImpl->getBufferSize();
 }
 

@@ -73,10 +73,14 @@ void    netero::audio::engine::impl::WASAPI_init() {
 	// Initialize Audio Client
 	result = _audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
 		AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-		_latency * 100,
+		0,
 		0,
 		_wfx,
 		nullptr);
+	test_result(result);
+
+	// Get buffer size
+	result = _audio_client->GetBufferSize(&_frameCount);
 	test_result(result);
 
 	// Create buffer swap event
@@ -87,10 +91,6 @@ void    netero::audio::engine::impl::WASAPI_init() {
 	}
 	// Set the event to the audio client
 	result = _audio_client->SetEventHandle(_event);
-	test_result(result);
-
-	// Get buffer size
-	result = _audio_client->GetBufferSize(&_frameCount);
 	test_result(result);
 
 	// Get the rendering client
@@ -104,5 +104,13 @@ netero::audio::WaveFormat	netero::audio::engine::impl::getFormat() {
 
 	format.channels = _wfx->nChannels;
 	format.samplePerSecond = _wfx->nSamplesPerSec;
+	format.framesCount = getBufferSize();
 	return format;
+}
+
+size_t	netero::audio::engine::impl::getBufferSize() {
+	HRESULT	result;
+	unsigned size;
+	result = _audio_client->GetBufferSize(&size);
+	return size;
 }

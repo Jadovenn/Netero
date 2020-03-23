@@ -27,5 +27,8 @@ namespace netero::audio {
 		RtCode	async_start();
 		RtCode	async_stop();
 		RtCode	poll();
+
+		size_t	getBufferSize();
+
 	};
 }

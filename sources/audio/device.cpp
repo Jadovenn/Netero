@@ -3,6 +3,8 @@
  * see LICENCE.txt
  */
 
+#include <iostream>
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <netero/audio/device.hpp>
@@ -28,18 +30,12 @@ netero::audio::device& netero::audio::device::GetAudioDevice() {
 }
 
 void    netero::audio::device::handle(float* buffer, size_t size) {
-	int	idx = 0;
-	int buffer_idx = 0;
-	float current = 0;
+	unsigned idx = 0;
+	unsigned buffer_idx = 0;
 
-	while (idx < size) {
-		current = static_cast<float>(render(idx, 0));
-		buffer[buffer_idx] = current;
-		buffer_idx += 1;
-		current = static_cast<float>(render(idx, 1));
-		buffer[buffer_idx] = current;
-		buffer_idx += 1;
-		idx += 1;
-	}
+	//std::chrono::time_point	start = std::chrono::system_clock::now();
+	//std::cout << size << std::endl;
+	render(buffer, size);
+	//std::cout << "duration of the loop: " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count() << std::endl;
 }
 

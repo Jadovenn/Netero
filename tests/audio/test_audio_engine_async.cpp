@@ -43,7 +43,7 @@ void	callback(float* buffer, size_t size) {
 		buffer_idx += 1;
 		buffer[buffer_idx] = current;
 		buffer_idx += 1;
-		idx += 1;
+		idx += 2;
 	}
 }
 

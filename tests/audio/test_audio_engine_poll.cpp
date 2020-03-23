@@ -30,19 +30,16 @@ public:
 	double phase;
 };
 
-static Sinusoidal	a_minor { 0.005, 440, 48000, 0 };
+static Sinusoidal	a_minor { 1, 440, 48000, 0 };
 
 void	callback(float* buffer, size_t size) {
 	int idx = 0;
-	int buffer_idx = 0;
 
 	while (idx < size) {
 		float current = static_cast<float>(a_minor(idx));
-		buffer[buffer_idx] = current;
-		buffer_idx += 1;
-		buffer[buffer_idx] = current;
-		buffer_idx += 1;
-		idx += 1;
+		buffer[idx] = current;
+		buffer[idx + 1] = current;
+		idx += 2;
 	}
 }
 

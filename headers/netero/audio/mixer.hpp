@@ -17,7 +17,7 @@ namespace netero::audio {
         virtual ~mixer() = default;
 
         void    setFormat(WaveFormat&) override;
-        double  render(int delta, int channel) override;
+        void    render(float* buffer, size_t size) override;
         void    play() override;
         void    pause() override;
         void    stop() override;
@@ -26,11 +26,13 @@ namespace netero::audio {
         void    disconnect(AudioStream*);
 
     private:
-        double  mix(int n, std::vector<double>& values);
+        void  mix(float *__restrict dest, float *__restrict source, size_t min_size);
     protected:
         netero::audio::WaveFormat   _format;
     private:
+        float                       *_mixBuffer;
+        float                       *_sourceBuffer;
         std::list<AudioStream*>     _streams;
-        std::vector<double>         _pist;
+        std::vector<float>         _pist;
     };
 }
