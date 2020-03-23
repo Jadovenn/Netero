@@ -5,15 +5,15 @@
 
 #include <iostream>
 #include <numeric>
+#include <algorithm>
 #include <netero/audio/mixer.hpp>
-#include <netero/audio/device.hpp>
+#include <netero/audio/engine.hpp>
 
 netero::audio::mixer::mixer()
     :   _samplesCount(0),
-        _sourceBuffer(nullptr),
-        _audio_device(netero::audio::device::GetAudioDevice())
+        _sourceBuffer(nullptr)
 {
-    _format = _audio_device.getWaveFormat();
+    _format = netero::audio::engine::GetInstance().getFormat();
     alloc_internal_buffer();
 }
 
@@ -48,11 +48,19 @@ void    netero::audio::mixer::free_internal_buffer() {
     _sourceBuffer = nullptr;
 }
 
+/**
 void netero::audio::mixer::mix(float *__restrict dest, float *__restrict source, size_t sampleCount) {
     for (int i = 0; i < sampleCount; i++) {
         float avg = (dest[i] + source[i]) / 2;
         float signe = avg < 0 ? -1 : 1;
         dest[i] = signe * (1 - std::pow(1 - signe * avg, 2));
+    }
+}
+*/
+
+void netero::audio::mixer::mix(float* __restrict dest, float* __restrict source, size_t sampleCount) {
+    for (int i = 0; i < sampleCount; i++) {
+        dest[i] = std::min<float>(1.0 , std::max<float>(-1.0, dest[i] + source[i]));
     }
 }
 

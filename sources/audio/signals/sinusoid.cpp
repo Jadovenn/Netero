@@ -19,6 +19,7 @@ netero::audio::signals::sinusoid::sinusoid(double amplitude, double frequency, d
 {
     _format = _audio_device.getWaveFormat();
     alloc_internal_buffer();
+    generate_signal();
 }
 
 netero::audio::signals::sinusoid::~sinusoid() {

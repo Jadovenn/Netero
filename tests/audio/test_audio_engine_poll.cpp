@@ -35,7 +35,7 @@ static Sinusoidal	a_minor { 1, 440, 48000, 0 };
 void	callback(float* buffer, size_t size) {
 	int idx = 0;
 
-	while (idx < size) {
+	while (idx < size * 2) {
 		float current = static_cast<float>(a_minor(idx));
 		buffer[idx] = current;
 		buffer[idx + 1] = current;

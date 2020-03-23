@@ -11,9 +11,6 @@
 
 namespace netero::audio {
 
-    // Forward declaration of singleton device
-    class device;
-
     class mixer: public AudioStream {
     public:
         mixer();
@@ -37,7 +34,6 @@ namespace netero::audio {
     private:
         size_t                      _samplesCount;
         float                       *_sourceBuffer;
-        netero::audio::device       &_audio_device;
         std::list<AudioStream*>     _streams;
     };
 }
