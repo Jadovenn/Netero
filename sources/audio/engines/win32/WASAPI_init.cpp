@@ -73,7 +73,7 @@ void    netero::audio::engine::impl::WASAPI_init() {
 	// Initialize Audio Client
 	result = _audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
 		AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-		10000000,
+		_latency,
 		0,
 		_wfx,
 		nullptr);
