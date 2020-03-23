@@ -11,10 +11,13 @@
 
 namespace netero::audio {
 
+    // Forward declaration of singleton device
+    class device;
+
     class mixer: public AudioStream {
     public:
         mixer();
-        virtual ~mixer() = default;
+        virtual ~mixer();
 
         void    setFormat(WaveFormat&) override;
         void    render(float* buffer, size_t size) override;
@@ -26,13 +29,15 @@ namespace netero::audio {
         void    disconnect(AudioStream*);
 
     private:
-        void  mix(float *__restrict dest, float *__restrict source, size_t min_size);
+        void    alloc_internal_buffer();
+        void    free_internal_buffer();
+        void    mix(float *__restrict dest, float *__restrict source, size_t min_size);
     protected:
         netero::audio::WaveFormat   _format;
     private:
-        float                       *_mixBuffer;
+        size_t                      _samplesCount;
         float                       *_sourceBuffer;
+        netero::audio::device       &_audio_device;
         std::list<AudioStream*>     _streams;
-        std::vector<float>         _pist;
     };
 }

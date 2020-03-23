@@ -20,6 +20,10 @@ netero::audio::device::device()
 	_engine.async_start();
 }
 
+netero::audio::WaveFormat& netero::audio::device::getWaveFormat() {
+	return _format;
+}
+
 netero::audio::device::~device() {
 	_engine.async_stop();
 }

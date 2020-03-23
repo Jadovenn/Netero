@@ -52,7 +52,7 @@ int	main() {
 		}
 		netero::audio::WaveFormat format = audio_engine.getFormat();
 		std::cout << "Number of channels: " << format.channels << std::endl;
-		std::cout << "Frequence of the device: " << format.samplePerSecond << " Hz" << std::endl;
+		std::cout << "Frequence of the device: " << format.samplingFrequency << " Hz" << std::endl;
 		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() <= 10) {
 			audio_engine.poll();

@@ -16,14 +16,18 @@ namespace netero::audio {
 	};
 
 	/**
-	 * framesCount: nb of frame in the shared buffer with the hardware
-	 * channels: number of channel
-	 * samplePerSecond: nb of sample processed per second
+	 * framesCount: nb of frame of the shared buffer
+	 * bytesPerFrame: size in byte of one frame
+	 * bytesPerSample: size in byte of one sample
+	 * channels: number of samples per channel
+	 * samplingFrequency: sampling rate of the native device in Hz
 	 */
 	struct WaveFormat {
 		unsigned	framesCount;
+		unsigned	bytesPerFrame;
+		unsigned	bytesPerSample;
 		unsigned	channels;
-		unsigned	samplePerSecond;
+		unsigned	samplingFrequency;
 	};
 
 	class AudioStream {
