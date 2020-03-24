@@ -8,7 +8,9 @@
  ###    #### ##########     ###     ########## ###    ###  ########          
 ```
 
-[![CircleCI](https://circleci.com/gh/domage-j/netero.svg?style=svg)](https://circleci.com/gh/domage-j/netero-libs)
+[![CircleCI](https://circleci.com/gh/domage-j/netero.svg?style=svg)](https://circleci.com/gh/domage-j/netero)
+
+Real time utility library. This library help you design application with real-time data treatment and deal with different operating systems.
 
 # Features
 
