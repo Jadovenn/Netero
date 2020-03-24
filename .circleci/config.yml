@@ -5,6 +5,6 @@ jobs:
     - image: rikorose/gcc-cmake # the primary container, where your job's commands are run
     steps:
     - checkout # check out the code in the project directory
-    - run: cmake . # run the `echo` command
+    - run: cmake . -DAUDIO=OFF # run the `echo` command
     - run: make
     - run: make test

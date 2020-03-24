@@ -8,9 +8,9 @@
 #include <type_traits>
 #include <vector>
 #include <map>
-#include "entity.hpp"
-#include "component_filter.hpp"
-#include "netero/set.hpp"
+#include <netero/ecs/entity.hpp>
+#include <netero/ecs/component_filter.hpp>
+#include <netero/set.hpp>
 
 namespace netero {
 	namespace ecs {
@@ -18,9 +18,11 @@ namespace netero {
 		class World;
 
 		struct SystemCache {
-			std::vector<Entity>		_localEntities;
+			std::vector<Entity>		_unactiveEntities;
+			std::vector<Entity>		_activeEntities;
 			void 	flush() {
-				_localEntities.clear();
+				_unactiveEntities.clear();
+				_activeEntities.clear();
 			}
 		};
 
@@ -39,8 +41,16 @@ namespace netero {
 			void 	generateCache(netero::set<EntityContainer*> &entities) {
 				_cache.flush();
 				for (auto *entity: entities) {
-					if (_includeFilterSet.isSubsetOf(entity->getComponentsFilter())) {
-						_cache._localEntities.emplace_back(Entity(entity));
+					auto& entityFiltersSet = entity->getComponentsFilter();
+					if (_includeFilterSet.isSubsetOf(entityFiltersSet)) {
+						if (_excludeFilterSet.interWith(entityFiltersSet)) {
+							if (entity->status) {
+								_cache._activeEntities.emplace_back(entity);
+							}
+							else {
+								_cache._unactiveEntities.emplace_back(entity);
+							}
+						}
 					}
 				}
 			}
@@ -63,8 +73,12 @@ namespace netero {
 				{}
 			~System() override = default;
 
-			const std::vector<Entity>	&getEntities() {
-				return _cache._localEntities;
+			const std::vector<Entity>& getActiveEntities() {
+				return _cache._activeEntities;
+			}
+
+			const std::vector<Entity>& getUnActiveEntities() {
+				return _cache._unactiveEntities;
 			}
 		};
 	}

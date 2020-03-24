@@ -1,4 +1,4 @@
-# Contributing to Netero-libs
+# Contributing to netero
 
 Thanks for taking the time to contribute!
 
