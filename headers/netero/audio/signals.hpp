@@ -20,7 +20,7 @@ namespace netero::audio::signals {
 		virtual ~sinusoid();
 
 		void    setFormat(WaveFormat&) override;
-		void    render(float *buffer, size_t size) override;
+		void    render(float *buffer, size_t frames) override;
 		void    play() override;
 		void    pause() override;
 		void    stop() override;

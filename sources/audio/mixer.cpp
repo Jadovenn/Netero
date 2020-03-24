@@ -22,7 +22,6 @@ netero::audio::mixer::~mixer() {
     free_internal_buffer();
 }
 
-// this might be a very heavy call, sub stream may reallocate too
 void    netero::audio::mixer::setFormat(netero::audio::WaveFormat& format) {
     if (_format.samplingFrequency != format.samplingFrequency) {
         _format = format;
@@ -64,22 +63,13 @@ void netero::audio::mixer::mix(float* __restrict dest, float* __restrict source,
     }
 }
 
-void  netero::audio::mixer::render(float* buffer, size_t size) {
+void  netero::audio::mixer::render(float* buffer, size_t frames) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
     if (!_streams.empty()) {
-        if (size >= _format.framesCount) {
-            for (auto* stream : _streams) {
-                std::memset(_sourceBuffer, 0, _samplesCount * _format.bytesPerSample);
-                stream->render(_sourceBuffer, size);
-                mix(buffer, _sourceBuffer, _samplesCount);
-            }
-        }
-        else {
-            for (auto* stream : _streams) {
-                std::memset(_sourceBuffer, 0, size * _format.bytesPerFrame);
-                stream->render(_sourceBuffer, size);
-                mix(buffer, _sourceBuffer, size *_format.channels);
-            }
+        for (auto* stream : _streams) {
+            std::memset(_sourceBuffer, 0, frames * _format.bytesPerFrame);
+            stream->render(_sourceBuffer, frames);
+            mix(buffer, _sourceBuffer, frames * _format.channels);
         }
     }
 }

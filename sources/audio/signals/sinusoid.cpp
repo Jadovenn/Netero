@@ -31,11 +31,11 @@ void    netero::audio::signals::sinusoid::setFormat(netero::audio::WaveFormat &f
     }
 }
 
-void  netero::audio::signals::sinusoid::render(float *buffer, size_t size) {
-    for (int idx = 0; idx < size * 2; idx++, _delta++) {
+void  netero::audio::signals::sinusoid::render(float *buffer, size_t frames) {
+    for (int idx = 0; idx < frames * _format.channels; idx++, _delta++) {
         float value = _amplitude * sin(_pulsation * (_delta / _format.channels) + _phase);
         buffer[idx] = value;
-        if (_delta > 500 && value == 0) {
+        if (_delta > _format.samplingFrequency / 2 && value == 0) {
             _delta = 0;
         }
     }

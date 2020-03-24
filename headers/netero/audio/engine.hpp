@@ -6,6 +6,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 
 #include <netero/audio/audio.hpp>
 
