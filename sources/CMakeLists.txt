@@ -1,5 +1,5 @@
 
-set(HEADERS_DIRECTORY_PATH ../headers/netero)
+set(HEADERS_DIRECTORY_PATH ${CMAKE_SOURCE_DIR}/include/netero)
 
 list(APPEND PUBLIC_HEADER
 		${HEADERS_DIRECTORY_PATH}/netero.hpp
@@ -69,12 +69,12 @@ add_library(netero_static STATIC ${SRCS} ${PUBLIC_HEADER})
 target_include_directories(netero
 	PUBLIC
 		$<INSTALL_INTERFACE:include>
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../headers>
+		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
 )
 target_include_directories(netero_static
         PUBLIC
             $<INSTALL_INTERFACE:include>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../headers>
+            $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
 )
 
 if(LIBRARIES)
@@ -91,14 +91,15 @@ endif(LIBRARIES)
 target_compile_features(netero PUBLIC cxx_std_17)
 target_compile_features(netero_static PUBLIC cxx_std_17)
 
-source_group(TREE "${PROJECT_SOURCE_DIR}/headers" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
+source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
 
 install(TARGETS netero netero_static
         EXPORT netero-export
+		RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 )
-install(DIRECTORY ../headers/netero
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/include
 		FILES_MATCHING PATTERN "*.hpp")
 install(FILES ../cmake/neteroConfig.cmake
