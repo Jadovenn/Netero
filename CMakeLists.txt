@@ -33,7 +33,7 @@ OPTION(ECS "ecs, contain Entity Component System architecture" ON)
 OPTION(ENGINE "Engine, is a 3D engine using vulkan as backend" ON)
 OPTION(POOL "Pool, async containers" ON)
 OPTION(OBSERVER "Observer, contain a Qt signals/slots like, implementation" ON)
-OPTION(AUDIO "Audio engine" ON)
+OPTION(AUDIO "Audio engine" OFF)
 
 add_subdirectory(sources)
 
