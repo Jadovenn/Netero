@@ -2,9 +2,9 @@ project(Tests)
 
 macro(netero_add_test test_name file_names)
 	add_executable(${test_name} ${file_names})
-	add_dependencies(${test_name} netero)
+	add_dependencies(${test_name} netero_static)
 	target_include_directories(${test_name} PRIVATE ../headers)
-	target_link_libraries(${test_name} netero)
+	target_link_libraries(${test_name} netero_static)
 	set_target_properties(${test_name}
 			PROPERTIES
 			LINKER_LANGUAGE CXX
