@@ -63,6 +63,17 @@ if(AUDIO)
 		list(APPEND LIBRARIES
 			avrt)
 	endif(WIN32)
+    if (APPLE)
+        FIND_LIBRARY(COREAUDIO_LIBRARY CoreAudio)
+        list(APPEND SRCS
+                audio/engines/CoreAudio/CoreAudio.hpp
+                audio/engines/CoreAudio/CoreAudio.cpp
+                audio/engines/CoreAudio/CoreAudio_init.cpp
+                audio/engines/CoreAudio/CoreAudio_poll.cpp
+                audio/engines/CoreAudio/CoreAudio_async.cpp)
+        list(APPEND LIBRARIES
+                ${COREAUDIO_LIBRARY})
+    endif(APPLE)
 endif(AUDIO)
 
 add_library(netero SHARED ${SRCS} ${PUBLIC_HEADER})

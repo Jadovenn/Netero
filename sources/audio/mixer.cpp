@@ -22,7 +22,7 @@ netero::audio::mixer::~mixer() {
     free_internal_buffer();
 }
 
-void    netero::audio::mixer::setFormat(netero::audio::WaveFormat& format) {
+void    netero::audio::mixer::setFormat(const netero::audio::WaveFormat& format) {
     if (_format.samplingFrequency != format.samplingFrequency) {
         _format = format;
         for (auto* stream : _streams) {

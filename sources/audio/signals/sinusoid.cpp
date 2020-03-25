@@ -24,7 +24,7 @@ netero::audio::signals::sinusoid::sinusoid(double amplitude, double frequency, d
 netero::audio::signals::sinusoid::~sinusoid() {
 }
 
-void    netero::audio::signals::sinusoid::setFormat(netero::audio::WaveFormat &format) {
+void    netero::audio::signals::sinusoid::setFormat(const netero::audio::WaveFormat &format) {
     if (_format.samplingFrequency != format.samplingFrequency) {
         _format = format;
         _pulsation = ((2 * M_PI * _frequency) / _format.samplingFrequency);
