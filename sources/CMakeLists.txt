@@ -64,18 +64,37 @@ if(AUDIO)
 	endif(WIN32)
 endif(AUDIO)
 
-add_library(netero ${SRCS} ${PUBLIC_HEADER})
-target_include_directories(netero PUBLIC ../headers)
-if(LIBRARIES)
-	target_link_libraries(netero ${LIBRARIES})
-endif(LIBRARIES)
+add_library(netero STATIC ${SRCS} ${PUBLIC_HEADER})
+target_include_directories(netero
+	PUBLIC
+		$<INSTALL_INTERFACE:../headers>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../headers>
+)
 
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES
-	PUBLIC_HEADER "${PUBLIC_HEADER}"
-	LINKER_LANGUAGE CXX
-	CXX_STANDARD 17)
+if(LIBRARIES)
+	target_link_libraries(netero
+		PRIVATE
+			${LIBRARIES}
+	)
+endif(LIBRARIES)
 
 target_compile_features(netero PUBLIC cxx_std_17)
 
 source_group(TREE "${PROJECT_SOURCE_DIR}/headers" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
+
+install(TARGETS netero
+	EXPORT netero-export
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+install(DIRECTORY "../header"
+		DESTINATION "${CMAKE_INSTALL_LIBDIR}/header"
+		FILES_MATCHING PATTERN "*.hpp")
+install(EXPORT netero-export
+	FILE
+		neteroTargets.cmake
+	NAMESPACE
+		Netero::
+	DESTINATION
+		${CMAKE_INSTALL_LIBDIR}/cmake/netero
+)

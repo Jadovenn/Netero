@@ -3,7 +3,7 @@
  * see LICENCE.txt
  */
 
-#include "netero/netero.hpp"
+#include <netero/netero.hpp>
 
 struct BaseType {};
 struct TypeA : public BaseType {};
