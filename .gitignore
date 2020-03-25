@@ -35,4 +35,4 @@
 # Temporary/Build Directory
 build/
 cmake-build*/
-
+out/
