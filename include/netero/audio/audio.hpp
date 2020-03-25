@@ -52,7 +52,7 @@ namespace netero::audio {
 		 *			to preallocate internal buffer you may use for rendering.
 		 * It is called by a device or a parent node while the waveFormat need to be updated
 		 */
-		virtual void setFormat(WaveFormat &) = 0;
+		virtual void setFormat(const WaveFormat &) = 0;
 
 		/**
 		 * @pure render

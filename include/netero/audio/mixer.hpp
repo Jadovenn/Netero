@@ -28,7 +28,7 @@ namespace netero::audio {
         mixer();
         virtual ~mixer();
 
-        void    setFormat(WaveFormat&) override;
+        void    setFormat(const WaveFormat&) override;
         void    render(float* buffer, size_t frames) override;
         void    play() override;
         void    pause() override;
