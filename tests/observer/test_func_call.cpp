@@ -2,7 +2,7 @@
  *  Created by Jean-Adrien DOMAGE on 12/12/2019.
  */
 
-#include "netero/observer/slots.hpp"
+#include <netero/observer/slots.hpp>
 
 int		add(int a, int b) {
 	return a + b;

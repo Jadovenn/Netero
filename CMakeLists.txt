@@ -30,13 +30,14 @@ endif()
 
 # Modules declaration
 OPTION(ECS "ecs, contain Entity Component System architecture" ON)
-OPTION(ENGINE "Engine, is a 3D engine using vulkan as backend" OFF)
+OPTION(ENGINE "Engine, is a 3D engine using vulkan as backend" ON)
 OPTION(POOL "Pool, async containers" ON)
 OPTION(OBSERVER "Observer, contain a Qt signals/slots like, implementation" ON)
-OPTION(AUDIO "Audio engine" ON)
+OPTION(AUDIO "Audio engine" OFF)
 
 add_subdirectory(sources)
 
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
     add_subdirectory(tests)
 endif()
+

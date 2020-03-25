@@ -1,5 +1,5 @@
 
-set(HEADERS_DIRECTORY_PATH ../headers/netero)
+set(HEADERS_DIRECTORY_PATH ${CMAKE_SOURCE_DIR}/include/netero)
 
 list(APPEND PUBLIC_HEADER
 		${HEADERS_DIRECTORY_PATH}/netero.hpp
@@ -64,18 +64,51 @@ if(AUDIO)
 	endif(WIN32)
 endif(AUDIO)
 
-add_library(netero ${SRCS} ${PUBLIC_HEADER})
-target_include_directories(netero PUBLIC ../headers)
+add_library(netero SHARED ${SRCS} ${PUBLIC_HEADER})
+add_library(netero_static STATIC ${SRCS} ${PUBLIC_HEADER})
+target_include_directories(netero
+	PUBLIC
+		$<INSTALL_INTERFACE:include>
+		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+)
+target_include_directories(netero_static
+        PUBLIC
+            $<INSTALL_INTERFACE:include>
+            $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+)
+
 if(LIBRARIES)
-	target_link_libraries(netero ${LIBRARIES})
+	target_link_libraries(netero
+		PRIVATE
+			${LIBRARIES}
+	)
+    target_link_libraries(netero_static
+            PRIVATE
+                ${LIBRARIES}
+    )
 endif(LIBRARIES)
 
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES
-	PUBLIC_HEADER "${PUBLIC_HEADER}"
-	LINKER_LANGUAGE CXX
-	CXX_STANDARD 17)
-
 target_compile_features(netero PUBLIC cxx_std_17)
+target_compile_features(netero_static PUBLIC cxx_std_17)
 
-source_group(TREE "${PROJECT_SOURCE_DIR}/headers" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
+source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
+
+install(TARGETS netero netero_static
+        EXPORT netero-export
+		RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include
+		DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+		FILES_MATCHING PATTERN "*.hpp")
+install(FILES ../cmake/neteroConfig.cmake
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+install(EXPORT netero-export
+	FILE
+		neteroTargets.cmake
+	NAMESPACE
+		Netero::
+	DESTINATION
+		${CMAKE_INSTALL_PREFIX}/lib/cmake/netero
+)
