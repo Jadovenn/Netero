@@ -1,22 +1,23 @@
 
-set(HEADERS_DIRECTORY_PATH ${CMAKE_SOURCE_DIR}/include/netero)
+set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../include/netero)
 
 list(APPEND PUBLIC_HEADER
-		${HEADERS_DIRECTORY_PATH}/netero.hpp
-		${HEADERS_DIRECTORY_PATH}/core/internal.hpp
-		${HEADERS_DIRECTORY_PATH}/core/type_id.hpp
-        ${HEADERS_DIRECTORY_PATH}/avl.hpp
-        ${HEADERS_DIRECTORY_PATH}/set.hpp
-        ${HEADERS_DIRECTORY_PATH}/exception.hpp
-        ${HEADERS_DIRECTORY_PATH}/exception/slots.hpp)
+		${HEADERS_DIRECTORY}/netero.hpp
+		${HEADERS_DIRECTORY}/core/internal.hpp
+		${HEADERS_DIRECTORY}/core/type_id.hpp
+        ${HEADERS_DIRECTORY}/avl.hpp
+        ${HEADERS_DIRECTORY}/set.hpp
+        ${HEADERS_DIRECTORY}/exception.hpp
+        ${HEADERS_DIRECTORY}/exception/slots.hpp)
 
 if(ECS)
 	list(APPEND PUBLIC_HEADER
-		${HEADERS_DIRECTORY_PATH}/ecs/world.hpp
-		${HEADERS_DIRECTORY_PATH}/ecs/entity.hpp
-		${HEADERS_DIRECTORY_PATH}/ecs/component.hpp
-		${HEADERS_DIRECTORY_PATH}/ecs/component_filter.hpp
-		${HEADERS_DIRECTORY_PATH}/ecs/system.hpp)
+		${HEADERS_DIRECTORY}/ecs/world.hpp
+		${HEADERS_DIRECTORY}/ecs/entity.hpp
+		${HEADERS_DIRECTORY}/ecs/component.hpp
+		${HEADERS_DIRECTORY}/ecs/component_filter.hpp
+		${HEADERS_DIRECTORY}/ecs/system.hpp)
 
 	list(APPEND SRCS
 		ecs/world.cpp
@@ -26,16 +27,16 @@ endif(ECS)
 
 if(POOL)
     list(APPEND PUBLIC_HEADER
-            ${HEADERS_DIRECTORY_PATH}/pool/worker.hpp)
+            ${HEADERS_DIRECTORY}/pool/worker.hpp)
     list(APPEND SRCS
             pool/worker.cpp)
 endif(POOL)
 
 if(OBSERVER)
     list(APPEND PUBLIC_HEADER
-            ${HEADERS_DIRECTORY_PATH}/observer/IObserverDelegate.hpp
-            ${HEADERS_DIRECTORY_PATH}/observer/signals.hpp
-            ${HEADERS_DIRECTORY_PATH}/observer/slots.hpp)
+            ${HEADERS_DIRECTORY}/observer/IObserverDelegate.hpp
+            ${HEADERS_DIRECTORY}/observer/signals.hpp
+            ${HEADERS_DIRECTORY}/observer/slots.hpp)
 endif(OBSERVER)
 
 if(ENGINE)
@@ -43,11 +44,11 @@ endif(ENGINE)
 
 if(AUDIO)
 	list(APPEND PUBLIC_HEADER
-			${HEADERS_DIRECTORY_PATH}/audio/audio.hpp
-			${HEADERS_DIRECTORY_PATH}/audio/engine.hpp
-			${HEADERS_DIRECTORY_PATH}/audio/mixer.hpp
-			${HEADERS_DIRECTORY_PATH}/audio/device.hpp
-			${HEADERS_DIRECTORY_PATH}/audio/signals.hpp)
+			${HEADERS_DIRECTORY}/audio/audio.hpp
+			${HEADERS_DIRECTORY}/audio/engine.hpp
+			${HEADERS_DIRECTORY}/audio/mixer.hpp
+			${HEADERS_DIRECTORY}/audio/device.hpp
+			${HEADERS_DIRECTORY}/audio/signals.hpp)
 	list(APPEND SRCS
 			audio/mixer.cpp
 			audio/device.cpp
@@ -69,12 +70,12 @@ add_library(netero_static STATIC ${SRCS} ${PUBLIC_HEADER})
 target_include_directories(netero
 	PUBLIC
 		$<INSTALL_INTERFACE:include>
-		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+		$<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
 )
 target_include_directories(netero_static
         PUBLIC
             $<INSTALL_INTERFACE:include>
-            $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
 )
 
 if(LIBRARIES)
@@ -99,7 +100,7 @@ install(TARGETS netero netero_static
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 )
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include
+install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/include
 		FILES_MATCHING PATTERN "*.hpp")
 install(FILES ../cmake/neteroConfig.cmake
