@@ -1,9 +1,22 @@
 /**
- *  Created by Jean-Adrien DOMAGE on 25/03/2020.
+ * Netero sources under BSD-3-Clause
+ * see LICENCE.txt
  */
 
 #include <memory>
 #include "CoreAudio.hpp"
+
+netero::audio::engine::impl::impl() {
+	CORE_AUDIO_init();
+}
+
+netero::audio::engine::impl::~impl() {
+	CORE_AUDIO_release();
+}
+
+void netero::audio::engine::impl::registerHandle(const std::function<void(float *, size_t)> &cb) {
+	_cb = cb;
+}
 
 // ----------------------------------------
 // Proxy methode from netero::engine class

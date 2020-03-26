@@ -4,7 +4,10 @@ project(netero
 	DESCRIPTION "Real time utility library"
 	LANGUAGES CXX)
 
-# Only if this is the main project, not included threw add_subdirectory
+##====================================
+##  Init Project if not a dependency
+##====================================
+
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 	set(CMAKE_CXX_EXTENTIONS OFF)
@@ -18,26 +21,51 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     else()
 		message(STATUS "Doxygen not found, not building docs")
     endif()
-
+    source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
 endif()
 
 # FetchContent added in CMake 3.11, downloads during the configure step
 include(FetchContent)
-# FetchContent_MakeAvailable was not added until CMake 3.14
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
     include(cmake/add_FetchContent_MakeAvailable.cmake)
 endif()
 
-# Modules declaration
+##====================================
+##  Modules declaration
+##====================================
+
 OPTION(ECS "ecs, contain Entity Component System architecture" ON)
 OPTION(ENGINE "Engine, is a 3D engine using vulkan as backend" ON)
 OPTION(POOL "Pool, async containers" ON)
 OPTION(OBSERVER "Observer, contain a Qt signals/slots like, implementation" ON)
 OPTION(AUDIO "Audio engine" ON)
 
-add_subdirectory(sources)
+set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
+
+##====================================
+##  Sub-project
+##====================================
+
+add_subdirectory(core)
+if (AUDIO)
+    add_subdirectory(audio)
+endif()
+if (ECS)
+    add_subdirectory(ecs)
+endif()
+
+##====================================
+##  Global install rules
+##====================================
+
+install(FILES cmake/netero-config.cmake
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
+##====================================
+##  Tests
+##====================================
 
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
     add_subdirectory(tests)
 endif()
-

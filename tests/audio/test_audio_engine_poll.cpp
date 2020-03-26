@@ -6,7 +6,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <type_traits>
-#include <Windows.h>
 #include <exception>
 #include <iostream>
 #include <chrono>
