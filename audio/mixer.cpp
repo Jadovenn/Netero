@@ -10,7 +10,8 @@
 #include <netero/audio/engine.hpp>
 
 netero::audio::mixer::mixer()
-    :   _samplesCount(0),
+    :   _format{},
+    	_samplesCount(0),
         _sourceBuffer(nullptr)
 {
     _format = netero::audio::engine::GetInstance().getFormat();
@@ -58,8 +59,8 @@ void netero::audio::mixer::mix(float *__restrict dest, float *__restrict source,
 */
 
 void netero::audio::mixer::mix(float* __restrict dest, float* __restrict source, size_t sampleCount) {
-    for (int i = 0; i < sampleCount; i++) {
-        dest[i] = std::min<float>(1.0 , std::max<float>(-1.0, dest[i] + source[i]));
+    for (size_t idx = 0; idx < sampleCount; idx++) {
+        dest[idx] = std::min<float>(1.0 , std::max<float>(-1.0, dest[idx] + source[idx]));
     }
 }
 
@@ -69,7 +70,7 @@ void  netero::audio::mixer::render(float* buffer, size_t frames) {
         for (auto* stream : _streams) {
             std::memset(_sourceBuffer, 0, frames * _format.bytesPerFrame);
             stream->render(_sourceBuffer, frames);
-            mix(buffer, _sourceBuffer, frames * _format.channels);
+            mixer::mix(buffer, _sourceBuffer, frames * _format.channels);
         }
     }
 }

@@ -57,10 +57,9 @@ namespace netero::audio {
     private:
         void    alloc_internal_buffer();
         void    free_internal_buffer();
-        void    mix(float *__restrict dest, float *__restrict source, size_t min_size);
+        static void    mix(float *__restrict dest, float *__restrict source, size_t min_size);
         std::mutex  _streamsGuard;
         size_t      _samplesCount;
         float       *_sourceBuffer;
     };
 }
-
