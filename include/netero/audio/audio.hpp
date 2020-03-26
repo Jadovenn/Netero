@@ -5,6 +5,9 @@
 
 #pragma once
 
+#include <vector>
+#include <string>
+
 /**
  * @file audio.hpp
  * @brief Default audio declarations
@@ -32,11 +35,14 @@ namespace netero::audio {
 	 * the number of bytes per samples time the number of samples.
 	 */
 	struct WaveFormat {
+		std::string	name; /**< The audio device name. */
+		std::string manufacturer; /**< The audio manufacturer name. */
 		unsigned	framesCount; /**< Number of frames in contained in the shared buffer with the device. */
 		unsigned	bytesPerFrame; /**< Size in byte for one frame. */
 		unsigned	bytesPerSample; /**< Size in byte for one sample. */
 		unsigned	channels; /**< Number of sample per frames */
-		unsigned	samplingFrequency; /**< Sampling frequency of the native audio device. */
+		unsigned	samplingFrequency; /**< Actual sampling frequency of the native audio device. */
+		std::vector<float> supportedSamplingRate; /**< Supported sampling frequency of the native audio device */
 	};
 
 	/**

@@ -9,18 +9,16 @@ project(netero
 ##====================================
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-
-	set(CMAKE_CXX_EXTENTIONS OFF)
-	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	include(CTest)
-	enable_testing()
-
+    set(CMAKE_CXX_EXTENTIONS OFF)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     find_package(Doxygen)
+    include(CTest)
+    enable_testing()
     if(Doxygen_FOUND)
-		add_subdirectory(docs)
+        add_subdirectory(docs)
     else()
-		message(STATUS "Doxygen not found, not building docs")
-    endif()
+        message(STATUS "Doxygen not found, not building docs")
+    endif(Doxygen_FOUND)
     source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
 endif()
 

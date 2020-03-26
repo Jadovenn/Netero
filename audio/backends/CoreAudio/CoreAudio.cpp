@@ -6,8 +6,16 @@
 #include <memory>
 #include "CoreAudio.hpp"
 
-netero::audio::engine::impl::impl() {
+netero::audio::engine::impl::impl()
+{
 	CORE_AUDIO_init();
+	try {
+		_device_id = CORE_AUDIO_get_default_output_device();
+		_is_device_open = true;
+	}
+	catch (...) {
+		_is_device_open = false;
+	}
 }
 
 netero::audio::engine::impl::~impl() {

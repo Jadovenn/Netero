@@ -88,11 +88,14 @@ void    netero::audio::engine::impl::WASAPI_init() {
 netero::audio::WaveFormat	netero::audio::engine::impl::getFormat() {
 	WaveFormat	format{};
 
+	format.manufacturer = "Microsoft Corp.";
+	format.name = "Windows Audio Session Application Programming Interface";
 	format.framesCount = getBufferSize();
 	format.bytesPerFrame = _wfx->nChannels * (_wfx->wBitsPerSample / 8);
 	format.bytesPerSample = (_wfx->wBitsPerSample / 8);
 	format.channels = _wfx->nChannels;
 	format.samplingFrequency = _wfx->nSamplesPerSec;
+	format.supportedSamplingRate.push_back(_wfx->nSamplesPerSec);
 	return format;
 }
 

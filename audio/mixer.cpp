@@ -3,7 +3,6 @@
  * see LICENCE.txt
  */
 
-#include <iostream>
 #include <numeric>
 #include <algorithm>
 #include <netero/audio/mixer.hpp>
@@ -104,4 +103,3 @@ void    netero::audio::mixer::disconnect(AudioStream* stream) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
     _streams.remove(stream);
 }
-

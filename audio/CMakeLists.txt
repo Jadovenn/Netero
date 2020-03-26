@@ -25,11 +25,11 @@ list(APPEND SRCS
 
 if(WIN32)
     list(APPEND SRCS
-            engines/win32/WASAPI.hpp
-            engines/win32/WASAPI.cpp
-            engines/win32/WASAPI_init.cpp
-            engines/win32/WASAPI_poll.cpp
-            engines/win32/WASAPI_async.cpp)
+            backends/Wasapi/WASAPI.hpp
+            backends/Wasapi/WASAPI.cpp
+            backends/Wasapi/WASAPI_init.cpp
+            backends/Wasapi/WASAPI_poll.cpp
+            backends/Wasapi/WASAPI_async.cpp)
     list(APPEND LINK_LIBRARIES
             avrt)
 endif(WIN32)
@@ -39,15 +39,18 @@ endif(WIN32)
 ##====================================
 
 if (APPLE)
+    FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
     FIND_LIBRARY(COREAUDIO_LIBRARY CoreAudio)
     list(APPEND SRCS
-                engines/CoreAudio/CoreAudio.hpp
-                engines/CoreAudio/CoreAudio.cpp
-                engines/CoreAudio/CoreAudio_init.cpp
-                engines/CoreAudio/CoreAudio_poll.cpp
-                engines/CoreAudio/CoreAudio_async.cpp)
+            backends/CoreAudio/CoreAudio.hpp
+            backends/CoreAudio/CoreAudio.cpp
+            backends/CoreAudio/CoreAudio_get_format.cpp
+            backends/CoreAudio/CoreAudio_init.cpp
+            backends/CoreAudio/CoreAudio_poll.cpp
+            backends/CoreAudio/CoreAudio_async.cpp)
         list(APPEND LINK_LIBRARIES
-                ${COREAUDIO_LIBRARY})
+                ${COREAUDIO_LIBRARY}
+                ${COREFOUNDATION_LIBRARY})
 endif(APPLE)
 
 ##====================================
@@ -62,7 +65,7 @@ target_include_directories(netero_audio
         $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>)
 target_link_libraries(netero_audio
         PRIVATE
-            ${LIBRARIES})
+            ${LINK_LIBRARIES})
 
 ##====================================
 ##  Installation
