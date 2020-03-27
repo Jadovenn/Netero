@@ -46,23 +46,15 @@ netero::audio::WaveFormat	netero::audio::engine::getFormat() {
 }
 
 netero::audio::RtCode	netero::audio::engine::start() {
-	return pImpl->start();
+	return pImpl->async_start();
 }
 
 netero::audio::RtCode	netero::audio::engine::stop() {
-	return pImpl->stop();
+	return pImpl->async_stop();
 }
 
 netero::audio::RtCode	netero::audio::engine::poll() {
 	return pImpl->poll();
-}
-
-netero::audio::RtCode	netero::audio::engine::async_start() {
-	return pImpl->async_start();
-}
-
-netero::audio::RtCode	netero::audio::engine::async_stop() {
-	return pImpl->async_stop();
 }
 
 size_t	netero::audio::engine::getBufferSize() {
