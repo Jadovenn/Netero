@@ -4,22 +4,42 @@
  */
 
 #include <memory>
+#include <thread>
+#include <chrono>
 #include "CoreAudio.hpp"
 
 netero::audio::engine::impl::impl()
+	:	_device()
 {
-	CORE_AUDIO_init();
-	try {
-		_device_id = CORE_AUDIO_get_default_output_device();
-		_is_device_open = true;
+	{
+		// Necessary init call to make CoreAudio working properly
+		CFRunLoopRef loop = nullptr;
+		AudioObjectPropertyAddress property = {
+				kAudioHardwarePropertyRunLoop,
+				kAudioObjectPropertyScopeGlobal,
+				kAudioObjectPropertyElementMaster
+		};
+		OSStatus result = AudioObjectSetPropertyData(kAudioObjectSystemObject,
+													 &property,
+													 0,
+													 nullptr,
+													 sizeof(CFRunLoopRef),
+													 &loop);
+		if (result != noErr) {
+			return;
+		}
 	}
-	catch (...) {
-		_is_device_open = false;
-	}
+	CORE_AUDIO_get_default_output_device(_device);
 }
 
 netero::audio::engine::impl::~impl() {
-	CORE_AUDIO_release();
+	if (_device.buffer.callBackId) {
+		std::chrono::time_point	start = std::chrono::system_clock::now();
+		while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count() < _device.format.samplingFrequency) {
+			std::this_thread::yield();
+		}
+		stop();
+	}
 }
 
 void netero::audio::engine::impl::registerHandle(const std::function<void(float *, size_t)> &cb) {
@@ -27,7 +47,7 @@ void netero::audio::engine::impl::registerHandle(const std::function<void(float 
 }
 
 // ----------------------------------------
-// Proxy methode from netero::engine class
+// Proxy method from netero::engine class
 // ----------------------------------------
 
 netero::audio::engine& netero::audio::engine::GetInstance() {
@@ -59,14 +79,6 @@ netero::audio::RtCode	netero::audio::engine::stop() {
 
 netero::audio::RtCode	netero::audio::engine::poll() {
 	return pImpl->poll();
-}
-
-netero::audio::RtCode	netero::audio::engine::async_start() {
-	return pImpl->async_start();
-}
-
-netero::audio::RtCode	netero::audio::engine::async_stop() {
-	return pImpl->async_stop();
 }
 
 size_t	netero::audio::engine::getBufferSize() {

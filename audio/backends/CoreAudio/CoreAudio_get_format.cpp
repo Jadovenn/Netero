@@ -24,59 +24,39 @@ static std::string 	cf_string_to_std_string(CFStringRef &cf_str) {
 }
 
 netero::audio::WaveFormat netero::audio::engine::impl::getFormat() {
-	unsigned device = _device_id;
 	WaveFormat	format{};
 	CFStringRef cf_str;
-
-	//======================================
-	// Check if a device is open
-	//======================================
-	if (!_is_device_open) {
-		return WaveFormat {};
-	}
-
-	//======================================
-	// Get the current device id
-	//======================================
-	unsigned int nDevices = CORE_AUDIO_get_device_count();
-	if ( nDevices == 0 ) {
-		throw std::runtime_error("netero_audio: There is no devices.");
-	}
-
-	if ( device >= nDevices ) {
-		throw std::runtime_error("netero_audio: Wrong device id.");
-	}
-
-	AudioDeviceID deviceList[ nDevices ];
-	UInt32 dataSize = sizeof( AudioDeviceID ) * nDevices;
+	OSStatus result = 0;
+	UInt32 size = 0;
 	AudioObjectPropertyAddress property = {
 			kAudioHardwarePropertyDevices,
 			kAudioObjectPropertyScopeGlobal,
 			kAudioObjectPropertyElementMaster
 	};
-	OSStatus result = AudioObjectGetPropertyData(
-			kAudioObjectSystemObject,
-			&property,
-			0,
-			nullptr,
-			&dataSize,
-			reinterpret_cast<void*>(&deviceList));
-	if (result != noErr) {
-		throw std::runtime_error("netero_audio: Error while retrieving the devices IDs.");
+
+	//======================================
+	// Check if a device is open
+	//======================================
+	if (_device.deviceId == 0) {
+		return format;
 	}
-	AudioDeviceID id = deviceList[ device ];
+
+	//======================================
+	// Get the current device id
+	//======================================
+	AudioDeviceID id = _device.deviceId;
 
 	//======================================
 	// Get the device manufacturer name
 	//======================================
-	dataSize = sizeof(CFStringRef);
+	size = sizeof(CFStringRef);
 	property.mSelector = kAudioObjectPropertyManufacturer;
 	result = AudioObjectGetPropertyData(
 			id,
 			&property,
 			0,
 			nullptr,
-			&dataSize,
+			&size,
 			&cf_str);
 	if ( result != noErr ) {
 		std::string msg("netero_audio: Error("
@@ -96,7 +76,7 @@ netero::audio::WaveFormat netero::audio::engine::impl::getFormat() {
 			&property,
 			0,
 			nullptr,
-			&dataSize,
+			&size,
 			&cf_str);
 	if ( result != noErr ) {
 		std::string msg("netero_audio: Error("
@@ -113,20 +93,20 @@ netero::audio::WaveFormat netero::audio::engine::impl::getFormat() {
 	AudioBufferList	*bufferList = nullptr;
 	property.mSelector = kAudioDevicePropertyStreamConfiguration;
 	property.mScope = kAudioDevicePropertyScopeOutput;
-	dataSize = 0;
+	size = 0;
 	result = AudioObjectGetPropertyDataSize(
 			id,
 			&property,
 			0,
 			nullptr,
-			&dataSize);
-	if (result != noErr || dataSize == 0) {
+			&size);
+	if (result != noErr || size == 0) {
 		std::string msg("netero_audio: Error("
 						+ std::to_string(static_cast<unsigned>(result))
 						+ ") while getting stream configuration");
-		throw std::runtime_error(msg);
+		return format;
 	}
-	bufferList = new (std::nothrow) AudioBufferList[dataSize];
+	bufferList = new (std::nothrow) AudioBufferList[size];
 	if (!bufferList) {
 		throw std::bad_alloc();
 	}
@@ -135,14 +115,14 @@ netero::audio::WaveFormat netero::audio::engine::impl::getFormat() {
 			&property,
 			0,
 			nullptr,
-			&dataSize,
+			&size,
 			bufferList );
-	if ( result != noErr || dataSize == 0 ) {
+	if ( result != noErr || size == 0 ) {
 		delete[] bufferList;
 		std::string msg("netero_audio: Error("
 						+ std::to_string(static_cast<unsigned>(result))
-						+ ") while getting stream configuration for device " + std::to_string(device));
-		throw std::runtime_error(msg);
+						+ ") while getting stream configuration for device " + std::to_string(_device.deviceId));
+		return format;
 	}
 	unsigned nStreams = bufferList->mNumberBuffers;
 	for (unsigned idx = 0; idx < nStreams; idx++) {
@@ -167,26 +147,26 @@ netero::audio::WaveFormat netero::audio::engine::impl::getFormat() {
 			&property,
 			0,
 			nullptr,
-			&dataSize );
-	if ( result != kAudioHardwareNoError || dataSize == 0 ) {
+			&size );
+	if ( result != kAudioHardwareNoError || size == 0 ) {
 		std::string msg("netero_audio: Error("
 						+ std::to_string(static_cast<unsigned>(result))
-						+ ") while getting sampling rate on device " + std::to_string(device));
-		throw std::runtime_error(msg);
+						+ ") while getting sampling rate on device " + std::to_string(_device.deviceId));
+		return format;
 	}
-	UInt32 nRanges = dataSize / sizeof( AudioValueRange );
+	UInt32 nRanges = size / sizeof( AudioValueRange );
 	AudioValueRange rangeList[ nRanges ];
 	result = AudioObjectGetPropertyData(
 			id,
 			&property,
 			0,
 			nullptr,
-			&dataSize,
+			&size,
 			&rangeList);
 	if ( result != kAudioHardwareNoError ) {
 		std::string msg("netero_audio: Error("
 						+ std::to_string(static_cast<unsigned>(result))
-						+ ") while getting sampling rate on device " + std::to_string(device));
+						+ ") while getting sampling rate on device " + std::to_string(_device.deviceId));
 		throw std::runtime_error(msg);
 	}
 	Float64 minimumRate = 1.0, maximumRate = 10000000000.0;
@@ -205,27 +185,34 @@ netero::audio::WaveFormat netero::audio::engine::impl::getFormat() {
 		}
 	}
 	if (haveValueRange) {
-		for (auto samplingRate: _samplingRates) {
+		for (auto samplingRate: SamplingRates) {
 			if (samplingRate >= (unsigned)minimumRate && samplingRate <= (unsigned)maximumRate) {
 				format.supportedSamplingRate.push_back(samplingRate);
 			}
 		}
 	}
-	auto value = std::find_if(std::begin(_samplingRates), std::end(_samplingRates), [] (float val) {
-		return val == 48000;
-	});
-	if (value != std::end(_samplingRates)) {
-		format.samplingFrequency = *value;
+	Float64 nominalRate;
+	size = sizeof( Float64 );
+	property.mSelector = kAudioDevicePropertyNominalSampleRate;
+	result = AudioObjectGetPropertyData(
+			id,
+			&property,
+			0,
+			nullptr,
+			&size,
+			&nominalRate );
+	if ( result != noErr ) {
+		std::string msg ("netero_audio: Error while retrieving the sampling rate.");
+		return format;
 	}
-	else {
-		format.samplingFrequency = *std::max(std::begin(_samplingRates), std::end(_samplingRates));
-	}
+	format.samplingFrequency = nominalRate;
+
 	std::sort( format.supportedSamplingRate.begin(), format.supportedSamplingRate.end() );
 	format.supportedSamplingRate.erase(std::unique(format.supportedSamplingRate.begin(), format.supportedSamplingRate.end()),
 									   format.supportedSamplingRate.end());
 	if (format.supportedSamplingRate.empty()) {
-		std::string msg("netero_audio: Error no supported sampling rate found on device " + std::to_string(device));
-		throw std::runtime_error(msg);
+		std::string msg("netero_audio: Error no supported sampling rate found on device " + std::to_string(_device.deviceId));
+		return format;
 	}
 	return format;
 }

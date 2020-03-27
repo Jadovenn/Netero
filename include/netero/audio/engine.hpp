@@ -25,8 +25,6 @@ namespace netero::audio {
 		WaveFormat	getFormat();
 		RtCode	stop();
 		RtCode	start();
-		RtCode	async_start();
-		RtCode	async_stop();
 		RtCode	poll();
 
 		size_t	getBufferSize();

@@ -3,33 +3,11 @@
  * see LICENCE.txt
  */
 
-#include <iostream>
 #include <exception>
-#include <vector>
 #include <algorithm>
 #include <CoreAudio/AudioHardware.h>
 
 #include "CoreAudio.hpp"
-
-void netero::audio::engine::impl::CORE_AUDIO_init() {
-	// Necessary code to make CoreAudio working properly
-	CFRunLoopRef theRunLoop = nullptr;
-	AudioObjectPropertyAddress property = { kAudioHardwarePropertyRunLoop,
-											kAudioObjectPropertyScopeGlobal,
-											kAudioObjectPropertyElementMaster };
-	OSStatus result = AudioObjectSetPropertyData( kAudioObjectSystemObject,
-			&property,
-			0,
-			nullptr,
-			sizeof(CFRunLoopRef),
-			&theRunLoop);
-	if (result != noErr) {
-		throw std::runtime_error("netero_audio: error setting run loop property!");
-	}
-}
-
-void netero::audio::engine::impl::CORE_AUDIO_release() {
-}
 
 unsigned netero::audio::engine::impl::CORE_AUDIO_get_device_count() {
 	UInt32 size;
@@ -50,10 +28,11 @@ unsigned netero::audio::engine::impl::CORE_AUDIO_get_device_count() {
 	return size / sizeof( AudioDeviceID );
 }
 
-unsigned netero::audio::engine::impl::CORE_AUDIO_get_default_output_device() {
+netero::audio::RtCode netero::audio::engine::impl::CORE_AUDIO_get_default_output_device(Device &buffer) {
 	unsigned devices_count = CORE_AUDIO_get_device_count();
+	buffer.deviceId = 0;
 	if (devices_count <= 1) {
-		return 0;
+		return RtCode::ERR_NATIVE;
 	}
 	AudioDeviceID id;
 	UInt32 audioDeviceSize = sizeof( AudioDeviceID );
@@ -74,7 +53,7 @@ unsigned netero::audio::engine::impl::CORE_AUDIO_get_default_output_device() {
 	}
 
 	audioDeviceSize = sizeof( AudioDeviceID ) * devices_count;
-	AudioDeviceID deviceList[ devices_count ];
+	AudioDeviceID deviceList[devices_count];
 	property.mSelector = kAudioHardwarePropertyDevices;
 	result = AudioObjectGetPropertyData(
 			kAudioObjectSystemObject,
@@ -84,16 +63,20 @@ unsigned netero::audio::engine::impl::CORE_AUDIO_get_default_output_device() {
 			&audioDeviceSize,
 			reinterpret_cast<void*>(&deviceList));
 	if (result != noErr) {
-		throw std::runtime_error("netero_audio: Error retrieving default device");
+		return RtCode::ERR_NATIVE;
 	}
-	for (unsigned idx = 0; idx < devices_count; idx++ ) {
-		if (id == deviceList[idx]) {
-			return idx;
+	for (auto device: deviceList) {
+		if (id == device) {
+			buffer.deviceId = device;
 		}
 	}
-	throw std::runtime_error("netero_audio: No default device found");
+	if (buffer.deviceId == 0) {
+		return RtCode::ERR_NATIVE;
+	}
+	return RtCode::OK;
 }
 
 size_t netero::audio::engine::impl::getBufferSize() {
-	return 0;
+	auto format = getFormat();
+	return format.framesCount;
 }
