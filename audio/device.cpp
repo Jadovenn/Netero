@@ -17,7 +17,7 @@ netero::audio::device::device()
 		std::placeholders::_1,
 		std::placeholders::_2));
 	setFormat(_engine.getFormat());
-	_engine.async_start();
+	_engine.start();
 }
 
 netero::audio::WaveFormat& netero::audio::device::getWaveFormat() {
@@ -27,7 +27,7 @@ netero::audio::WaveFormat& netero::audio::device::getWaveFormat() {
 netero::audio::device::~device() {
 	_streams.clear();
 	stop();
-	_engine.async_stop();
+	_engine.stop();
 }
 
 netero::audio::device& netero::audio::device::GetAudioDevice() {

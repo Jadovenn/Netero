@@ -5,6 +5,9 @@
 
 #pragma once
 
+#include <vector>
+#include <string>
+
 /**
  * @file audio.hpp
  * @brief Default audio declarations
@@ -17,26 +20,32 @@ namespace netero::audio {
 	 * @brief Return code for native audio interfaces.
 	 */
 	enum class RtCode {
-		OK = 0, /**< Success. Issued if native call sucess. */
+		OK = 0, /**< Success. Issued if native call success. */
 		ERR_MISSING_CALLBACK = 1, /**< Audio callback is missing. You forget to setup the audio callback. */
 		ERR_NATIVE = 2, /**< Native error. Issued while native call failed. */
-		NOT_SUPPORTED = 3, /**< Functionality not supported. Issued while the native device does not support the call. */
+		ABILITY_NOT_SUPPORTED = 3, /**< Functionality not supported. Issued while the native device does not support the call. */
+		FORMAT_NOT_SUPPORTED = 4, /**< The native device does not support the requested format. */
+		DEVICE_TIMEOUT = 5, /**< The time out while accessing/getting device's ressource. The device is probably busy, try later. */
+		ERR_ALREADY_RUNNING = 6, /**< You already have start the device */
 	};
 
 	/**
 	 * @struct WaveFormat
 	 * @brief Hold information relative to the audio native device.
-	 * The buffer is constituate of Frames each frame containe samples.
+	 * The buffer is a set of Frames, each frames contains samples.
 	 * The number of samples per frame is defined by the number of channels.
 	 * The size in byte of the buffer is determinate by
 	 * the number of bytes per samples time the number of samples.
 	 */
 	struct WaveFormat {
+		std::string	name; /**< The audio device name. */
+		std::string manufacturer; /**< The audio manufacturer name. */
 		unsigned	framesCount; /**< Number of frames in contained in the shared buffer with the device. */
 		unsigned	bytesPerFrame; /**< Size in byte for one frame. */
 		unsigned	bytesPerSample; /**< Size in byte for one sample. */
 		unsigned	channels; /**< Number of sample per frames */
-		unsigned	samplingFrequency; /**< Sampling frequency of the native audio device. */
+		unsigned	samplingFrequency; /**< Actual sampling frequency of the native audio device. */
+		std::vector<float> supportedSamplingRate; /**< Supported sampling frequency of the native audio device */
 	};
 
 	/**
@@ -52,7 +61,7 @@ namespace netero::audio {
 		 *			to preallocate internal buffer you may use for rendering.
 		 * It is called by a device or a parent node while the waveFormat need to be updated
 		 */
-		virtual void setFormat(WaveFormat &) = 0;
+		virtual void setFormat(const WaveFormat &) = 0;
 
 		/**
 		 * @pure render

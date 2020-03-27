@@ -28,7 +28,7 @@ namespace netero::audio {
         mixer();
         virtual ~mixer();
 
-        void    setFormat(WaveFormat&) override;
+        void    setFormat(const WaveFormat&) override;
         void    render(float* buffer, size_t frames) override;
         void    play() override;
         void    pause() override;
@@ -57,10 +57,9 @@ namespace netero::audio {
     private:
         void    alloc_internal_buffer();
         void    free_internal_buffer();
-        void    mix(float *__restrict dest, float *__restrict source, size_t min_size);
+        static void    mix(float *__restrict dest, float *__restrict source, size_t min_size);
         std::mutex  _streamsGuard;
         size_t      _samplesCount;
         float       *_sourceBuffer;
     };
 }
-

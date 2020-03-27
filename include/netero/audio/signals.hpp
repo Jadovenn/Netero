@@ -19,7 +19,7 @@ namespace netero::audio::signals {
 		sinusoid(double amplitude = 0.1, double frequency = 50, double phase = 0);
 		virtual ~sinusoid();
 
-		void    setFormat(WaveFormat&) override;
+		void    setFormat(const WaveFormat&) override;
 		void    render(float *buffer, size_t frames) override;
 		void    play() override;
 		void    pause() override;

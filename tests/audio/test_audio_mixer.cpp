@@ -4,7 +4,6 @@
  */
 
 #include <netero/audio/signals.hpp>
-#include <netero/audio/device.hpp>
 
 #include <chrono>
 #include <thread>
