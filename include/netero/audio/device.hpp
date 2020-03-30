@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <netero/audio/engine.hpp>
+#include <netero/audio/backend.hpp>
 #include <netero/audio/mixer.hpp>
 
 /**
@@ -35,7 +35,7 @@ namespace netero::audio {
 		WaveFormat&	getWaveFormat();
 
 	private:
-		netero::audio::engine& _engine;
+		netero::audio::backend& _engine;
 	};
 
 }

@@ -10,7 +10,7 @@
 #include <netero/audio/device.hpp>
 
 netero::audio::device::device()
-    :  _engine(netero::audio::engine::GetInstance())
+    :  _engine(netero::audio::backend::GetInstance())
 {
 	_engine.registerHandle(std::bind(&netero::audio::device::handle,
 		this,

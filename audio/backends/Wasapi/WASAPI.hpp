@@ -22,9 +22,9 @@
 #include <comdef.h>
 
 #include <netero/audio/audio.hpp>
-#include <netero/audio/engine.hpp>
+#include <netero/audio/backend.hpp>
 
-class netero::audio::engine::impl {
+class netero::audio::backend::impl {
 private:
 	IMMDeviceEnumerator* _d_enumerator = nullptr;
 	IMMDevice* _device = nullptr;

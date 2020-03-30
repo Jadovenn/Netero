@@ -10,7 +10,7 @@ static const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 static const IID IID_IAudioClient = __uuidof(IAudioClient);
 static const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
 
-void    netero::audio::engine::impl::WASAPI_cleanup() {
+void    netero::audio::backend::impl::WASAPI_cleanup() {
 	if (_wfx) {
 		CoTaskMemFree(_wfx);
 		_wfx = nullptr;
@@ -27,7 +27,7 @@ void    netero::audio::engine::impl::WASAPI_cleanup() {
 	CoUninitialize();
 }
 
-void    netero::audio::engine::impl::WASAPI_init() {
+void    netero::audio::backend::impl::WASAPI_init() {
 	HRESULT	result;
 
 	// Initialize COM library in the current thread
@@ -85,7 +85,7 @@ void    netero::audio::engine::impl::WASAPI_init() {
 	test_result(result);
 }
 
-netero::audio::WaveFormat	netero::audio::engine::impl::getFormat() {
+netero::audio::WaveFormat	netero::audio::backend::impl::getFormat() {
 	WaveFormat	format{};
 
 	format.manufacturer = "Microsoft Corp.";
@@ -99,7 +99,7 @@ netero::audio::WaveFormat	netero::audio::engine::impl::getFormat() {
 	return format;
 }
 
-size_t	netero::audio::engine::impl::getBufferSize() {
+size_t	netero::audio::backend::impl::getBufferSize() {
 	HRESULT	result;
 	unsigned size;
 	result = _audio_client->GetBufferSize(&size);

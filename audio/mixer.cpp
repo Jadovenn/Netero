@@ -6,14 +6,14 @@
 #include <numeric>
 #include <algorithm>
 #include <netero/audio/mixer.hpp>
-#include <netero/audio/engine.hpp>
+#include <netero/audio/backend.hpp>
 
 netero::audio::mixer::mixer()
     :   _format{},
     	_samplesCount(0),
         _sourceBuffer(nullptr)
 {
-    _format = netero::audio::engine::GetInstance().getFormat();
+    _format = netero::audio::backend::GetInstance().getFormat();
     alloc_internal_buffer();
 }
 

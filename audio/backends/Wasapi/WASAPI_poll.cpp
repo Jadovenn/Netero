@@ -7,7 +7,7 @@
 
 #include "WASAPI.hpp"
 
-netero::audio::RtCode   netero::audio::engine::impl::start() {
+netero::audio::RtCode   netero::audio::backend::impl::start() {
 	HRESULT result;
 	if (!_cb) {
 		return RtCode::ERR_MISSING_CALLBACK;
@@ -36,7 +36,7 @@ netero::audio::RtCode   netero::audio::engine::impl::start() {
 	return RtCode::OK;
 }
 
-netero::audio::RtCode   netero::audio::engine::impl::stop() {
+netero::audio::RtCode   netero::audio::backend::impl::stop() {
 	HRESULT result;
 	std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 	while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count() < _latency) {
@@ -54,7 +54,7 @@ netero::audio::RtCode   netero::audio::engine::impl::stop() {
 	return RtCode::OK;
 }
 
-netero::audio::RtCode   netero::audio::engine::impl::poll() {
+netero::audio::RtCode   netero::audio::backend::impl::poll() {
 	HRESULT result;
 	BYTE* buffer = nullptr;
 	unsigned padding = 0;
