@@ -23,7 +23,7 @@ namespace netero::audio {
      * Mixer is the back-bones of the audio management, it servers as node
      * where AudioStream can connect. The audio rendering process can be see as a general tree.
      */
-    class mixer: public AudioStream {
+    class mixer: public AudioOutStream {
     public:
         mixer();
         virtual ~mixer();
@@ -40,7 +40,7 @@ namespace netero::audio {
          * render immediately by the mixer.
          * @param[in] stream Stream to register in.
          */
-        void    connect(AudioStream *stream);
+        void    connect(AudioOutStream *stream);
 
         /**
          * @methode disconnect
@@ -48,11 +48,11 @@ namespace netero::audio {
          * will not rendered by the mixer anymore.
          * @param[in] stream Stream to register in
          */
-        void    disconnect(AudioStream *stream);
+        void    disconnect(AudioOutStream *stream);
 
     protected:
         netero::audio::WaveFormat   _format;
-        std::list<AudioStream*>     _streams;
+        std::list<AudioOutStream*>     _streams;
 
     private:
         void    alloc_internal_buffer();

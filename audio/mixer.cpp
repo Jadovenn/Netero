@@ -94,12 +94,12 @@ void    netero::audio::mixer::stop() {
     }
 }
 
-void    netero::audio::mixer::connect(AudioStream* stream) {
+void    netero::audio::mixer::connect(AudioOutStream* stream) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
     _streams.push_back(stream);
 }
 
-void    netero::audio::mixer::disconnect(AudioStream* stream) {
+void    netero::audio::mixer::disconnect(AudioOutStream* stream) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
     _streams.remove(stream);
 }

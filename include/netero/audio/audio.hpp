@@ -49,10 +49,10 @@ namespace netero::audio {
 	};
 
 	/**
-	 * @interface AudioStream
+	 * @interface AudioOutStream
 	 * @brief For any audio stream capable of generating a signal.
 	 */
-	class AudioStream {
+	class AudioOutStream {
 	public:
 		/**
 		 * @pure setFormat
@@ -97,6 +97,38 @@ namespace netero::audio {
 		 * The offset may not be saved and be reseted.
 		 */
 		virtual void stop() = 0;
+	};
+
+	/**
+	 * @interface AudioOutStream
+	 * @brief for any input audio stream
+	 */
+	class AudioInStream {
+	public:
+		/**
+		 * @pure capture
+		 * @warning This methode is called by a parent node in a seperate thread.
+		 *			You must not perform any allocation nor blocking call or it might
+		 *			impact severly the audio rendering of your application.
+		 * @warning Becarfull, the buffer size may differ between call. Do not assume
+					that it is the same as the shared size provided threw WaveFormat struct.
+		 * @param[in] buffer The rendering buffer.
+		 * @param[in] frames The number of frames the buffer contain.
+		 */
+		virtual void capture(const float* buffer, const size_t frames) = 0;
+
+		/**
+		 * @pure play
+		 * Allow the audio stream to recive a signal.
+		 */
+		virtual void startRecord() = 0;
+
+		/**
+		 * @pure stop
+		 * Stop reciving a signal from the stream.
+		 */
+		virtual void stopRecord() = 0;
+
 	};
 }
 
