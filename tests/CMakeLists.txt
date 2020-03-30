@@ -65,14 +65,14 @@ endif(OBSERVER)
 ##====================================
 
 if(ECS)
-    add_project_test(NAME test_ecs_world SOURCES ecs/test_ecs_world.cpp DEPENDS netero_ecs_static)
-    add_project_test(NAME test_ecs_entity SOURCES ecs/test_ecs_entity.cpp DEPENDS netero_ecs_static)
-    add_project_test(NAME test_ecs_component SOURCES ecs/test_ecs_component.cpp DEPENDS netero_ecs_static)
-    add_project_test(NAME test_ecs_component_filter SOURCES ecs/test_ecs_component_filter.cpp DEPENDS netero_ecs_static)
+    add_project_test(NAME test_ecs_world SOURCES ecs/test_ecs_world.cpp DEPENDS netero_ecs)
+    add_project_test(NAME test_ecs_entity SOURCES ecs/test_ecs_entity.cpp DEPENDS netero_ecs)
+    add_project_test(NAME test_ecs_component SOURCES ecs/test_ecs_component.cpp DEPENDS netero_ecs)
+    add_project_test(NAME test_ecs_component_filter SOURCES ecs/test_ecs_component_filter.cpp DEPENDS netero_ecs)
     add_project_test(NAME test_ecs_system
             SOURCES
                 ecs/test_ecs_system.cpp
                 ecs/test_ecs_dataset.hpp
             DEPENDS
-                netero_ecs_static)
+                netero_ecs)
 endif(ECS)

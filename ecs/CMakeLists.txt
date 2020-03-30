@@ -25,15 +25,9 @@ list(APPEND SRCS
 ##  Target
 ##====================================
 
-add_library(netero_ecs SHARED ${SRCS} ${PUBLIC_HEADER})
-add_library(netero_ecs_static STATIC ${SRCS} ${PUBLIC_HEADER})
+add_library(netero_ecs STATIC ${SRCS} ${PUBLIC_HEADER})
 target_compile_features(netero_ecs PUBLIC cxx_std_17)
-target_compile_features(netero_ecs_static PUBLIC cxx_std_17)
 target_include_directories(netero_ecs
-        PUBLIC
-            $<INSTALL_INTERFACE:include>
-            $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>)
-target_include_directories(netero_ecs_static
         PUBLIC
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>)
@@ -42,7 +36,7 @@ target_include_directories(netero_ecs_static
 ##  Installation
 ##====================================
 
-install(TARGETS netero_ecs netero_ecs_static
+install(TARGETS netero_ecs
         EXPORT ecs-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
