@@ -33,10 +33,8 @@ endif()
 ##====================================
 
 OPTION(ECS "ecs, contain Entity Component System architecture" ON)
-OPTION(ENGINE "Engine, is a 3D engine using vulkan as backend" ON)
-OPTION(POOL "Pool, async containers" ON)
-OPTION(OBSERVER "Observer, contain a Qt signals/slots like, implementation" ON)
 OPTION(AUDIO "Audio engine" ON)
+OPTION(ENGINE "Rendering engine based on vulkan" OFF)
 
 set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
@@ -48,10 +46,16 @@ set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
 add_subdirectory(core)
 if (AUDIO)
     add_subdirectory(audio)
-endif()
+endif(AUDIO)
 if (ECS)
     add_subdirectory(ecs)
-endif()
+endif(ECS)
+if(ENGINE)
+    if(NOT ECS)
+        message(FATAL_ERROR "ENGINE rely on ECS, ECS must be activated")
+    endif(NOT ECS)
+    add_subdirectory(engine)
+endif(ENGINE)
 
 ##====================================
 ##  Global install rules
