@@ -4,6 +4,8 @@ project(Tests
         DESCRIPTION "Netero unit test."
         LANGUAGES CXX)
 
+message(STATUS "Configure Tests")
+
 ##====================================
 ##  Macro add_project_test
 ##====================================

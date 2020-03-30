@@ -4,6 +4,8 @@ project(netero_core
         DESCRIPTION "Real time utility library"
         LANGUAGES CXX)
 
+message(STATUS "Configure CORE features")
+
 ##====================================
 ##  Core Sources
 ##====================================

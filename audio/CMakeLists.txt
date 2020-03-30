@@ -4,6 +4,8 @@ project(netero_audio
         DESCRIPTION "Netero audio submodule"
         LANGUAGES CXX)
 
+message(STATUS "Configure AUDIO submodule")
+
 ##====================================
 ##  Generic core
 ##====================================

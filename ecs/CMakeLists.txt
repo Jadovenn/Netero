@@ -4,6 +4,8 @@ project(netero_ecs
         DESCRIPTION "Netero ecs submodule"
         LANGUAGES CXX)
 
+message(STATUS "Configure ECS submodule")
+
 ##====================================
 ##  Generic core
 ##====================================
