@@ -11,7 +11,6 @@
 #include <type_traits>
 #include <atomic>
 #include <netero/audio/audio.hpp>
-#include <netero/audio/device.hpp>
 
 namespace netero::audio::signals {
 	class sinusoid: public AudioOutStream {
@@ -19,8 +18,8 @@ namespace netero::audio::signals {
 		sinusoid(double amplitude = 0.1, double frequency = 50, double phase = 0);
 		virtual ~sinusoid();
 
-		void    setFormat(const WaveFormat&) override;
-		void    render(float *buffer, size_t frames) override;
+		void    onFormatChange(const WaveFormat&) override;
+		void    renderStream(float *buffer, size_t frames) override;
 		void    play() override;
 		void    pause() override;
 		void    stop() override;
@@ -35,7 +34,6 @@ namespace netero::audio::signals {
 		float _delta;
 		size_t _samplesCount;
 		audio::WaveFormat _format;
-		audio::device& _audio_device;
 
 	public:
 		void			setAmplitude(double val) { _amplitude = val; }

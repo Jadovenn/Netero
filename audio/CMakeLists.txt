@@ -7,22 +7,22 @@ project(netero_audio
 message(STATUS "Configure AUDIO submodule")
 
 ##====================================
-##  Generic core
+##  Generic audio sources
 ##====================================
 
 list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/audio/audio.hpp
+        ${HEADERS_DIRECTORY}/audio/backend.hpp
         ${HEADERS_DIRECTORY}/audio/engine.hpp
         ${HEADERS_DIRECTORY}/audio/mixer.hpp
-        ${HEADERS_DIRECTORY}/audio/device.hpp
         ${HEADERS_DIRECTORY}/audio/signals.hpp)
 list(APPEND SRCS
         mixer.cpp
-        device.cpp
+        engine.cpp
         signals/sinusoid.cpp)
 
 ##====================================
-##  Windows core
+##  Windows sources
 ##====================================
 
 if(WIN32)
@@ -30,14 +30,16 @@ if(WIN32)
             backends/Wasapi/WASAPI.hpp
             backends/Wasapi/WASAPI.cpp
             backends/Wasapi/WASAPI_init.cpp
-            backends/Wasapi/WASAPI_poll.cpp
-            backends/Wasapi/WASAPI_async.cpp)
+            backends/Wasapi/WASAPI_get_devices.cpp
+            backends/Wasapi/WASAPI_set_device.cpp
+            backends/Wasapi/WASAPI_render.cpp
+            backends/Wasapi/WASAPI_capture.cpp)
     list(APPEND LINK_LIBRARIES
             avrt)
 endif(WIN32)
 
 ##====================================
-##  APPLE core
+##  APPLE sources
 ##====================================
 
 if (APPLE)

@@ -16,13 +16,11 @@ void    netero::audio::backend::impl::WASAPI_cleanup() {
 		_wfx = nullptr;
 		_wfx_ext = nullptr;
 	}
-	if (_task) {
-		AvRevertMmThreadCharacteristics(_task);
-		_task = nullptr;
-	}
-	WASAPI_release<IMMDeviceEnumerator>(&_d_enumerator);
-	WASAPI_release<IMMDevice>(&_device);
-	WASAPI_release<IAudioClient>(&_audio_client);
+	WASAPI_release<IMMDeviceEnumerator>(&_device_enumerator);
+	WASAPI_release<IMMDevice>(&_render_device);
+	WASAPI_release<IMMDevice>(&_capture_device);
+	WASAPI_release<IAudioClient>(&_render_client);
+	WASAPI_release<IAudioClient>(&_capture_client);
 	WASAPI_release<IAudioRenderClient>(&_audio_rendering);
 	CoUninitialize();
 }
@@ -39,35 +37,40 @@ void    netero::audio::backend::impl::WASAPI_init() {
 		nullptr,
 		CLSCTX_ALL,
 		IID_IMMDeviceEnumerator,
-		reinterpret_cast<void**>(&_d_enumerator));
+		reinterpret_cast<void**>(&_device_enumerator));
 	test_result(result);
 
-	// Get the default audio device
-	result = _d_enumerator->GetDefaultAudioEndpoint(eRender,
+	// Get the default rendering audio device
+	result = _device_enumerator->GetDefaultAudioEndpoint(eRender,
 		eConsole,
-		&_device);
+		&_render_device);
+	test_result(result);
+
+	// Get the default capturing audio device
+	result = _device_enumerator->GetDefaultAudioEndpoint(
+		eCapture, eConsole, &_capture_device);
 	test_result(result);
 
 	// Activate the audio device and get the audio client
-	result = _device->Activate(IID_IAudioClient,
+	result = _render_device->Activate(IID_IAudioClient,
 		CLSCTX_ALL,
 		nullptr,
-		reinterpret_cast<void**>(&_audio_client));
+		reinterpret_cast<void**>(&_render_client));
 	test_result(result);
 
 	// Retrieve Mix Format
-	result = _audio_client->GetMixFormat(&_wfx);
+	result = _render_client->GetMixFormat(&_wfx);
 	test_result(result);
 	if (_wfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
 		_wfx_ext = reinterpret_cast<WAVEFORMATEXTENSIBLE*>(_wfx);
 	}
 
 	// Get device latency
-	result = _audio_client->GetDevicePeriod(nullptr, &_latency);
+	result = _render_client->GetDevicePeriod(nullptr, &_latency);
 	test_result(result);
 
 	// Initialize Audio Client
-	result = _audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
+	result = _render_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
 		0,
 		0,
 		0,
@@ -76,21 +79,27 @@ void    netero::audio::backend::impl::WASAPI_init() {
 	test_result(result);
 
 	// Get buffer size
-	result = _audio_client->GetBufferSize(&_frameCount);
+	result = _render_client->GetBufferSize(&_frameCount);
 	test_result(result);
 
 	// Get the rendering client
-	result = _audio_client->GetService(IID_IAudioRenderClient,
+	result = _render_client->GetService(IID_IAudioRenderClient,
 		reinterpret_cast<void**>(&_audio_rendering));
 	test_result(result);
 }
 
-netero::audio::WaveFormat	netero::audio::backend::impl::getFormat() {
+netero::audio::WaveFormat	netero::audio::backend::impl::getOutputFormat() {
+	HRESULT	result;
 	WaveFormat	format{};
 
-	format.manufacturer = "Microsoft Corp.";
-	format.name = "Windows Audio Session Application Programming Interface";
-	format.framesCount = getBufferSize();
+	if (!_render_client) {
+		return format;
+	}
+
+	result = _render_client->GetBufferSize(&format.framesCount);
+	if (result != S_OK) {
+		format.framesCount = 0;
+	}
 	format.bytesPerFrame = _wfx->nChannels * (_wfx->wBitsPerSample / 8);
 	format.bytesPerSample = (_wfx->wBitsPerSample / 8);
 	format.channels = _wfx->nChannels;
@@ -99,9 +108,7 @@ netero::audio::WaveFormat	netero::audio::backend::impl::getFormat() {
 	return format;
 }
 
-size_t	netero::audio::backend::impl::getBufferSize() {
-	HRESULT	result;
-	unsigned size;
-	result = _audio_client->GetBufferSize(&size);
-	return size;
+netero::audio::WaveFormat	netero::audio::backend::impl::getInputFormat() {
+	return WaveFormat{};
 }
+

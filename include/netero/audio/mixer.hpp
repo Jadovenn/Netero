@@ -8,7 +8,9 @@
 #include <list>
 #include <mutex>
 
+#include <netero/audio/engine.hpp>
 #include <netero/audio/audio.hpp>
+#include <netero/observer/slots.hpp>
 
 /**
  * @file mixer.hpp
@@ -26,10 +28,13 @@ namespace netero::audio {
     class mixer: public AudioOutStream {
     public:
         mixer();
+        explicit mixer(engine&);
+        explicit mixer(AudioOutStream&);
         virtual ~mixer();
 
-        void    setFormat(const WaveFormat&) override;
-        void    render(float* buffer, size_t frames) override;
+        netero::slot<void(const WaveFormat&)> onFormatChangeSlot;
+        void    onFormatChange(const WaveFormat&) override;
+        void    renderStream(float* buffer, size_t frames) override;
         void    play() override;
         void    pause() override;
         void    stop() override;
@@ -52,7 +57,7 @@ namespace netero::audio {
 
     protected:
         netero::audio::WaveFormat   _format;
-        std::list<AudioOutStream*>     _streams;
+        std::list<AudioOutStream*>  _streams;
 
     private:
         void    alloc_internal_buffer();

@@ -5,29 +5,35 @@
 
 #pragma once
 
-#include <memory>
-#include <functional>
-
+#include <vector>
 #include <netero/audio/audio.hpp>
+#include <netero/audio/backend.hpp>
+#include <netero/observer/signals.hpp>
 
 namespace netero::audio {
 
-	class engine {
-	private:
-		class impl;
-		std::unique_ptr<impl>	pImpl;
-		engine();
-	public:
+    enum class InitStrategy {
+        DEFAULT,
+        NO_DEVICE
+    };
 
-		static engine& GetInstance();
-		~engine();
-		void	registerHandle(const std::function<void(float*, size_t)> &cb);
-		WaveFormat	getFormat();
-		RtCode	stop();
-		RtCode	start();
-		RtCode	poll();
+    class engine {
+    public:
+        explicit engine(const InitStrategy strategy = InitStrategy::DEFAULT);
+        ~engine();
 
-		size_t	getBufferSize();
 
-	};
+        netero::signals<void(const WaveFormat&)> formatChangeSig;
+        const std::vector<device>   &getOutDevices();
+        const std::vector<device>   &getInDevices();
+		WaveFormat					getOutputFormat();
+        RtCode                      setOutputDevice(const device&);
+		RtCode						setRenderCallback(const backend::RenderCallback&);
+        RtCode						startRender();
+        RtCode						stopRender();
+
+    private:
+        backend& _backend;
+    };
 }
+

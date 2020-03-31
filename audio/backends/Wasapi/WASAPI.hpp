@@ -20,27 +20,13 @@
 #include <Mmreg.h>
 #include <avrt.h>
 #include <comdef.h>
+#include <Functiondiscoverykeys_devpkey.h>
 
 #include <netero/audio/audio.hpp>
 #include <netero/audio/backend.hpp>
 
 class netero::audio::backend::impl {
-private:
-	IMMDeviceEnumerator* _d_enumerator = nullptr;
-	IMMDevice* _device = nullptr;
-	IAudioClient* _audio_client = nullptr;
-	IAudioRenderClient* _audio_rendering = nullptr;
-	WAVEFORMATEX* _wfx = nullptr;
-	WAVEFORMATEXTENSIBLE* _wfx_ext = nullptr;
-	HANDLE _event = nullptr;
-	HANDLE _task = nullptr;
-	REFERENCE_TIME _latency;
-	unsigned _frameCount = 0;
-	unsigned _bufferFrameCount = 0;
-	size_t	_bufferSize = 0;
-	size_t	_WASAPIBufferSize = 0;
-	std::function<void(float*, size_t)> _cb;
-
+public:
 	enum state {
 		OFF,
 		STOP,
@@ -49,12 +35,28 @@ private:
 		ERR,
 	};
 
-	std::atomic<state>	_state = state::OFF;
-	std::unique_ptr<std::thread>	_thread;
+	std::string			lastError;
+	RenderCallback		renderingCallback;
+	CaptureCallback		capturingCallback;
+	std::atomic<state>	renderingState = state::OFF;
+	std::atomic<state>	capturingState = state::OFF;
+	std::unique_ptr<std::thread>	renderingThread;
+	std::unique_ptr<std::thread>	capturingThread;
 
-	//--------------------
-	// Helpers
-	//--------------------
+private:
+	IMMDeviceEnumerator* _device_enumerator = nullptr;
+	IMMDevice* _render_device = nullptr;
+	IMMDevice* _capture_device = nullptr;
+	IAudioClient* _render_client = nullptr;
+	IAudioClient* _capture_client = nullptr;
+	IAudioRenderClient* _audio_rendering = nullptr;
+	WAVEFORMATEX* _wfx = nullptr;
+	WAVEFORMATEXTENSIBLE* _wfx_ext = nullptr;
+	REFERENCE_TIME _latency;
+	unsigned _frameCount = 0;
+	unsigned _bufferFrameCount = 0;
+	size_t	_bufferSize = 0;
+	size_t	_WASAPIBufferSize = 0;
 
 	void	test_result(HRESULT result) {
 		if (FAILED(result)) {
@@ -73,27 +75,34 @@ private:
 		}
 	}
 
-	//--------------------
-	//	WASAPI
-	//--------------------
-
 	void WASAPI_init();
 	void WASAPI_cleanup();
+	RtCode	WASAPI_get_struct_Device(IMMDevice*, device&);
+	IMMDevice* WASAPI_get_device(EDataFlow flow, const netero::audio::device& device);
 
+
+	std::vector<netero::audio::device> _inDevices;
+	std::vector<netero::audio::device> _outDevices;
 public:
+
 	impl();
 	~impl();
 
-	WaveFormat	getFormat();
-	RtCode	start();
-	RtCode	stop();
-	RtCode	poll();
-	void	registerHandle(const std::function<void(float*, size_t)>&);
+	const std::vector<device>   &getOutputDevices();
+	RtCode						setOutputDevice(const device&);
+	WaveFormat					getOutputFormat();
+	void						renderingThreadHandle();
+	RtCode						startRender();
+	RtCode						stopRender();
 
-	size_t getBufferSize();
 
-	RtCode	async_start();
-	RtCode	async_stop();
-	void	handle();
+	const std::vector<device>   &getInputDevices();
+	RtCode						setInputDevice(const device&);
+	WaveFormat					getInputFormat();
+	void						capturingThreadHandle();
+	RtCode						startCapture();
+	RtCode						stopCapture();
+
+	const std::string&			getLastError();
 };
 

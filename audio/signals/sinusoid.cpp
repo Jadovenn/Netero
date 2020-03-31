@@ -14,24 +14,22 @@ netero::audio::signals::sinusoid::sinusoid(double amplitude, double frequency, d
         _pulsation(0),
         _delta(0),
         _samplesCount(0),
-        _format{},
-        _audio_device(netero::audio::device::GetAudioDevice())
+        _format{}
 {
-    _format = _audio_device.getWaveFormat();
     _pulsation = ((2 * M_PI * _frequency) / _format.samplingFrequency);
 }
 
 netero::audio::signals::sinusoid::~sinusoid() {
 }
 
-void    netero::audio::signals::sinusoid::setFormat(const netero::audio::WaveFormat &format) {
+void    netero::audio::signals::sinusoid::onFormatChange(const netero::audio::WaveFormat &format) {
     if (_format.samplingFrequency != format.samplingFrequency) {
         _format = format;
         _pulsation = ((2 * M_PI * _frequency) / _format.samplingFrequency);
     }
 }
 
-void  netero::audio::signals::sinusoid::render(float *buffer, size_t frames) {
+void  netero::audio::signals::sinusoid::renderStream(float *buffer, size_t frames) {
     for (int idx = 0; idx < frames * _format.channels; idx++, _delta++) {
         float value = _amplitude * sin(_pulsation * (_delta / _format.channels) + _phase);
         buffer[idx] = value;
@@ -42,7 +40,9 @@ void  netero::audio::signals::sinusoid::render(float *buffer, size_t frames) {
 }
 
 void    netero::audio::signals::sinusoid::play() {
-    _audio_device.connect(this);
+    if (_amplitude == 0.0F) {
+        _amplitude = 0.01;
+    }
 }
 
 void    netero::audio::signals::sinusoid::pause() {
@@ -50,6 +50,6 @@ void    netero::audio::signals::sinusoid::pause() {
 }
 
 void    netero::audio::signals::sinusoid::stop() {
-    _audio_device.disconnect(this);
+    _amplitude = 0.01;
 }
 

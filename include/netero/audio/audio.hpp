@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-/**
+/**!
  * @file audio.hpp
  * @brief Default audio declarations
  */
@@ -27,6 +27,9 @@ namespace netero::audio {
 		FORMAT_NOT_SUPPORTED = 4, /**< The native device does not support the requested format. */
 		DEVICE_TIMEOUT = 5, /**< The time out while accessing/getting device's ressource. The device is probably busy, try later. */
 		ERR_ALREADY_RUNNING = 6, /**< You already have start the device */
+		ERR_ALTER_RUNNING = 7, /**< You try to change a device or a handler while the device is running. stop the device before. */
+		ERR_NO_SUCH_DEVICE = 8, /**< You reffer to an unknown device. */
+		ERR_DEVICE_NOT_RUNNING = 9, /**< You try to stop the device but it is not running. You can safly igniore this error. */
 	};
 
 	/**
@@ -48,6 +51,12 @@ namespace netero::audio {
 		std::vector<float> supportedSamplingRate; /**< Supported sampling frequency of the native audio device */
 	};
 
+	struct device {
+		std::string id;
+		std::string name;
+		std::string manufacturer;
+	};
+
 	/**
 	 * @interface AudioOutStream
 	 * @brief For any audio stream capable of generating a signal.
@@ -61,10 +70,10 @@ namespace netero::audio {
 		 *			to preallocate internal buffer you may use for rendering.
 		 * It is called by a device or a parent node while the waveFormat need to be updated
 		 */
-		virtual void setFormat(const WaveFormat &) = 0;
+		virtual void onFormatChange(const WaveFormat &) = 0;
 
 		/**
-		 * @pure render
+		 * @pure renderStream
 		 * @warning This methode is called by a parent node in a seperate thread.
 		 *			You must not perform any allocation nor blocking call or it might
 		 *			impact severly the audio rendering of your application.
@@ -73,7 +82,7 @@ namespace netero::audio {
 		 * @param[in] buffer The rendering buffer.
 		 * @param[in] frames The number of frames the buffer contain.
 		 */
-		virtual void render(float *buffer, size_t frames) = 0;
+		virtual void renderStream(float *buffer, size_t frames) = 0;
 
 		/**
 		 * @pure play

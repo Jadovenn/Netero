@@ -10,7 +10,32 @@
 
 int     main() {
     netero::audio::backend& audio_backend = netero::audio::backend::GetInstance();
-    netero::audio::WaveFormat   format = audio_backend.getFormat();
+
+    auto outDevices = audio_backend.getOutputDevices();
+    if (outDevices.empty()) {
+        std::cout << "No audio devices found" << std::endl;
+    }
+    std::cout << "Audio output devices:" << std::endl;
+    for (auto& device : outDevices) {
+        std::cout << "\t" << device.name << std::endl;
+        std::cout << "\t\tid: " << device.id << std::endl;
+        std::cout << "\t\tmanufacturer: " << device.manufacturer << std::endl;
+    }
+    std::cout << std::endl;
+
+    auto inDevices = audio_backend.getInputDevices();
+    if (outDevices.empty()) {
+        std::cout << "No in audio devices found" << std::endl;
+    }
+    std::cout << "Audio input devices:" << std::endl;
+    for (auto& device : inDevices) {
+        std::cout << "\t" << device.name << std::endl;
+        std::cout << "\t\tid: " << device.id << std::endl;
+        std::cout << "\t\tmanufacturer: " << device.manufacturer << std::endl;
+    }
+    std::cout << std::endl;
+
+    netero::audio::WaveFormat   format = audio_backend.getOutputFormat();
     std::cout << "Device name: " << format.name << std::endl;
 	std::cout << "Device manufacturer: " << format.manufacturer << std::endl;
 	std::cout << "Number of channels: " << format.channels << std::endl;
