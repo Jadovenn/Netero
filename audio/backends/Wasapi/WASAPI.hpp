@@ -121,7 +121,6 @@ public:
 	RtCode						startRender();
 	RtCode						stopRender();
 
-
 	const std::vector<device>   &getInputDevices();
 	RtCode						setInputDevice(const device&);
 	WaveFormat					getInputFormat();
