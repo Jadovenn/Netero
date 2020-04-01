@@ -41,8 +41,6 @@ namespace netero::audio {
 	 * the number of bytes per samples time the number of samples.
 	 */
 	struct WaveFormat {
-		std::string	name; /**< The audio device name. */
-		std::string manufacturer; /**< The audio manufacturer name. */
 		unsigned	framesCount; /**< Number of frames in contained in the shared buffer with the device. */
 		unsigned	bytesPerFrame; /**< Size in byte for one frame. */
 		unsigned	bytesPerSample; /**< Size in byte for one sample. */
@@ -106,6 +104,7 @@ namespace netero::audio {
 		 * The offset may not be saved and be reseted.
 		 */
 		virtual void stop() = 0;
+
 	};
 
 	/**

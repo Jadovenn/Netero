@@ -35,9 +35,8 @@ int     main() {
     }
     std::cout << std::endl;
 
+    std::cout << "Default Output device format:" << std::endl;
     netero::audio::WaveFormat   format = audio_backend.getOutputFormat();
-    std::cout << "Device name: " << format.name << std::endl;
-	std::cout << "Device manufacturer: " << format.manufacturer << std::endl;
 	std::cout << "Number of channels: " << format.channels << std::endl;
     std::cout << "Supported Sampling frequency:" << std::endl;
     for (float freq: format.supportedSamplingRate) {
@@ -47,6 +46,21 @@ int     main() {
     std::cout << "Totals number of frame in buffer: " << format.framesCount << std::endl;
     std::cout << "Byte per frame: " << format.bytesPerFrame << std::endl;
     std::cout << "Byte per sample: " << format.bytesPerSample << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "Default Output device format:" << std::endl;
+    format = audio_backend.getInputFormat();
+	std::cout << "Number of channels: " << format.channels << std::endl;
+    std::cout << "Supported Sampling frequency:" << std::endl;
+    for (float freq: format.supportedSamplingRate) {
+    	std::cout << "\t" << freq << " Hz" << std::endl;
+    }
+    std::cout << "Sampling frequency: " << format.samplingFrequency << "Hz" << std::endl;
+    std::cout << "Totals number of frame in buffer: " << format.framesCount << std::endl;
+    std::cout << "Byte per frame: " << format.bytesPerFrame << std::endl;
+    std::cout << "Byte per sample: " << format.bytesPerSample << std::endl;
+    std::cout << std::endl;
+
     return 0;
 }
 

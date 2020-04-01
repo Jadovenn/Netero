@@ -7,11 +7,34 @@
 #include "WASAPI.hpp"
 
 // ----------------------------------
+// Global const uuid of win32 api
+// ----------------------------------
+
+const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
+const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
+const IID IID_IAudioClient = __uuidof(IAudioClient);
+const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
+const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
+
+// ----------------------------------
 // WASAPI ctor, dtor
 // ----------------------------------
 
 netero::audio::backend::impl::impl() {
-	WASAPI_init();
+	HRESULT	result;
+	// Initialize COM library in the current thread
+	result = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	test_result(result);
+
+	// Create COM device enumerator object
+	result = CoCreateInstance(CLSID_MMDeviceEnumerator,
+		nullptr,
+		CLSCTX_ALL,
+		IID_IMMDeviceEnumerator,
+		reinterpret_cast<void**>(&_device_enumerator));
+	test_result(result);
+	_render_device = WASAPI_get_default_device(eRender);
+	_capture_device = WASAPI_get_default_device(eCapture);
 }
 
 netero::audio::backend::impl::~impl() {
@@ -19,7 +42,7 @@ netero::audio::backend::impl::~impl() {
 		renderingThread->join();
 		renderingThread.reset();
 	}
-	WASAPI_cleanup();
+	CoUninitialize();
 }
 
 // ----------------------------------------

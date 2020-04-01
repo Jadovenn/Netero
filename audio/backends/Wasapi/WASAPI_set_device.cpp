@@ -6,6 +6,54 @@
 #include <algorithm>
 #include "WASAPI.hpp"
 
+std::unique_ptr<WASAPI_device>  netero::audio::backend::impl::WASAPI_init_device(IMMDevice* device, bool isLoopback) {
+    HRESULT     result;
+    std::unique_ptr<WASAPI_device> wDevice = std::make_unique<WASAPI_device>();
+
+    if (!_device_enumerator || !device) {
+        return nullptr;
+    }
+    wDevice->device = device;
+    wDevice->isLoopBackDevice = isLoopback;
+
+    result = wDevice->device->Activate(IID_IAudioClient,
+        CLSCTX_ALL,
+        nullptr,
+        reinterpret_cast<void**>(&wDevice->audio_client));
+    if (FAILED(result)) { return nullptr; }
+    result = wDevice->audio_client->GetMixFormat(&wDevice->wfx);
+    if (FAILED(result)) { return nullptr; }
+    if (wDevice->wfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
+        wDevice->wfx_ext = reinterpret_cast<WAVEFORMATEXTENSIBLE*>(wDevice->wfx);
+    }
+    result = wDevice->audio_client->GetDevicePeriod(nullptr, &wDevice->latency);
+    if (FAILED(result)) { return nullptr; }
+    if (wDevice->isLoopBackDevice) {
+		result = wDevice->audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
+			AUDCLNT_STREAMFLAGS_LOOPBACK,
+			0,
+			0,
+			wDevice->wfx,
+			nullptr);
+		if (FAILED(result)) { return nullptr; }
+    }
+    else {
+        result = wDevice->audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
+            0,
+            0,
+            0,
+            wDevice->wfx,
+            nullptr);
+        if (FAILED(result)) { return nullptr; }
+    }
+    result = wDevice->audio_client->GetBufferSize(&wDevice->framesCount);
+    if (FAILED(result)) { return nullptr; }
+    result = wDevice->audio_client->GetService(IID_IAudioRenderClient,
+        reinterpret_cast<void**>(&wDevice->render_client));
+    if (FAILED(result)) { return nullptr; }
+    return std::move(wDevice);
+}
+
 IMMDevice* netero::audio::backend::impl::WASAPI_get_device(EDataFlow flow, const netero::audio::device& device) {
     HRESULT result;
     IMMDeviceCollection* pCollection = nullptr;
@@ -46,85 +94,40 @@ exit_error:
 
 netero::audio::RtCode   netero::audio::backend::impl::setInputDevice(const netero::audio::device& device) {
     HRESULT result;
-
-    auto item = std::find_if(_outDevices.begin(), _outDevices.end(), [device] (netero::audio::device &listed_device) {
-        return device.id == listed_device.id;
-    });
-    if (item == _outDevices.end()) {
-        return RtCode::ERR_NO_SUCH_DEVICE;
-    }
     IMMDevice* endpoint = nullptr;
+
     endpoint = WASAPI_get_device(eRender, device);
     if (!endpoint) {
         return RtCode::ERR_NO_SUCH_DEVICE;
     }
-    _render_client->Reset();
-    WASAPI_release<IAudioClient>(&_render_client);
-	WASAPI_release<IAudioRenderClient>(&_audio_rendering);
-    WASAPI_release<IMMDevice>(&_render_device);
-    if (_wfx) {
-        CoTaskMemFree(_wfx);
-        _wfx = nullptr;
-        _wfx_ext = nullptr;
+    std::unique_ptr<WASAPI_device> new_device = WASAPI_init_device(endpoint);
+    if (!new_device) {
+        return RtCode::ERR_NATIVE;
     }
-    _render_device = endpoint;
-    result = _render_device->Activate(IID_IAudioClient,
-        CLSCTX_ALL,
-        nullptr,
-        reinterpret_cast<void**>(&_render_client));
-    if (FAILED(result)) {
-        lastError = "Could not activate selected device";
-        goto exit_error;
-    }
-    result = _render_client->GetMixFormat(&_wfx);
-    if (FAILED(result)) {
-        lastError = "Could not retrieve new device format";
-        goto exit_error;
-    }
-    if (_wfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
-        _wfx_ext = reinterpret_cast<WAVEFORMATEXTENSIBLE*>(_wfx);
-    }
-    result = _render_client->GetDevicePeriod(nullptr, &_latency);
-    test_result(result);
-    if (FAILED(result)) {
-        lastError = "Could not retrieve new device periode";
-        goto exit_error;
-    }
-    result = _render_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
-        0,
-        0,
-        0,
-        _wfx,
-        nullptr);
-    if (FAILED(result)) {
-        lastError = "Could not Initialize new device.";
-        goto exit_error;
-    }
-    result = _render_client->GetDevicePeriod(nullptr, &_latency);
-    if (FAILED(result)) {
-        lastError = "Could not retrieve new device frames count.";
-        goto exit_error;
-    }
-    result = _render_client->GetService(IID_IAudioRenderClient,
-        reinterpret_cast<void**>(&_audio_rendering));
-    if (FAILED(result)) {
-        lastError = "Could not retrieve rendering service for new device.";
-        goto exit_error;
-    }
+    _render_device.reset();
+    _render_device = std::move(new_device);
     return RtCode::OK;
-exit_error:
-    if (_wfx) {
-        CoTaskMemFree(_wfx);
-        _wfx = nullptr;
-        _wfx_ext = nullptr;
-    }
-    WASAPI_release<IAudioClient>(&_render_client);
-	WASAPI_release<IAudioRenderClient>(&_audio_rendering);
-    WASAPI_release<IAudioRenderClient>(&_audio_rendering);
-    return RtCode::ERR_NATIVE;
 }
 
 netero::audio::RtCode   netero::audio::backend::impl::setOutputDevice(const netero::audio::device& device) {
+    HRESULT     result;
+    IMMDevice*  endpoint = nullptr;
+    bool        isLoopback = false;
+
+    endpoint = WASAPI_get_device(eCapture, device);
+    if (!endpoint) {
+        endpoint = WASAPI_get_device(eRender, device);
+        if (!endpoint) {
+            return RtCode::ERR_NO_SUCH_DEVICE;
+        }
+        isLoopback = true;
+    }
+    std::unique_ptr<WASAPI_device> new_device = WASAPI_init_device(endpoint, isLoopback);
+    if (!new_device) {
+        return RtCode::ERR_NATIVE;
+    }
+    _capture_device.reset();
+    _capture_device = std::move(new_device);
     return RtCode::OK;
 }
 

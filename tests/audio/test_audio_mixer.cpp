@@ -25,6 +25,6 @@ int main() {
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
         std::this_thread::yield();
     }
-    //audio_engine.stopRender();
+    audio_engine.stopRender();
     return 0;
 }

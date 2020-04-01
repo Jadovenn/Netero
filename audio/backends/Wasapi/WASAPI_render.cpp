@@ -12,7 +12,7 @@ void   netero::audio::backend::impl::renderingThreadHandle() {
 	HANDLE	task = nullptr;
 	BYTE* buffer = nullptr;
 	DWORD taskIndex = 0;
-	const size_t bytePerFrames = _wfx->nChannels * (_wfx->wBitsPerSample / (size_t)8);
+	const size_t bytePerFrames = _render_device->wfx->nChannels * (_render_device->wfx->wBitsPerSample / (size_t)8);
 	UINT32 padding = 0;
 	size_t availaleFrames = 0;
 	task = AvSetMmThreadCharacteristics(TEXT("Pro Audio"), &taskIndex);
@@ -22,22 +22,22 @@ void   netero::audio::backend::impl::renderingThreadHandle() {
 		renderingState.store(state::ERR, std::memory_order_release);
 		goto exit;
 	}
-	result = _render_client->Start();
+	result = _render_device->audio_client->Start();
 	if (FAILED(result)) {
 		renderingState.store(state::ERR, std::memory_order_release);
 		lastError = "Could not start the device.";
 		goto exit;
 	}
 	while (renderingState.load(std::memory_order_acquire) == state::RUNNING) {
-		result = _render_client->GetCurrentPadding(&padding);
+		result = _render_device->audio_client->GetCurrentPadding(&padding);
 		if (FAILED(result)) {
 			renderingState.store(state::ERR, std::memory_order_release);
 			lastError = "Could not retrieve buffer padding";
 			goto exit;
 		}
-		if (padding != _frameCount) { // process signal
-			availaleFrames = _frameCount - padding;
-			result = _audio_rendering->GetBuffer(availaleFrames, &buffer);
+		if (padding != _render_device->framesCount) { // process signal
+			availaleFrames = _render_device->framesCount - padding;
+			result = _render_device->render_client->GetBuffer(availaleFrames, &buffer);
 			if (FAILED(result) || buffer == nullptr) {
 				renderingState.store(state::ERR, std::memory_order_release);
 				lastError = "Could not retrieve device buffer.";
@@ -45,7 +45,7 @@ void   netero::audio::backend::impl::renderingThreadHandle() {
 			}
 			std::memset(buffer, 0, availaleFrames * bytePerFrames);
 			renderingCallback(reinterpret_cast<float*>(buffer), availaleFrames);
-			result = _audio_rendering->ReleaseBuffer(availaleFrames, 0);
+			result = _render_device->render_client->ReleaseBuffer(availaleFrames, 0);
 			if (FAILED(result)) {
 				renderingState.store(state::ERR, std::memory_order_release);
 				lastError = "Could not release device buffer, device stuck.";
@@ -56,7 +56,7 @@ void   netero::audio::backend::impl::renderingThreadHandle() {
 			std::this_thread::yield();
 		}
 	}
-	result = _render_client->Stop();
+	result = _render_device->audio_client->Stop();
 	if (FAILED(result)) {
 		renderingState.store(state::ERR, std::memory_order_release);
 		lastError = "Could not stop, device stuck.";
@@ -73,16 +73,15 @@ netero::audio::RtCode   netero::audio::backend::impl::startRender() {
 	BYTE* buffer = nullptr;
 	HRESULT result;
 
-	if (!renderingCallback) {
-		return RtCode::ERR_MISSING_CALLBACK;
-	}
-	result = _audio_rendering->GetBuffer(_frameCount, &buffer);
+	if (!_render_device) { return RtCode::ERR_NO_SUCH_DEVICE; }
+	if (!renderingCallback) { return RtCode::ERR_MISSING_CALLBACK; }
+	result = _render_device->render_client->GetBuffer(_render_device->framesCount, &buffer);
 	if (FAILED(result)) {
 		lastError = "Could not retrieve rendering buffer while start.";
 		return RtCode::ERR_NATIVE;
 	}
-	renderingCallback(reinterpret_cast<float*>(buffer), _frameCount);
-	result = _audio_rendering->ReleaseBuffer(_frameCount, 0);
+	renderingCallback(reinterpret_cast<float*>(buffer), _render_device->framesCount);
+	result = _render_device->render_client->ReleaseBuffer(_render_device->framesCount, 0);
 	if (FAILED(result)) {
 		lastError = "Could not release rendering buffer, device stuck.";
 		return RtCode::ERR_NATIVE;
@@ -96,11 +95,14 @@ netero::audio::RtCode   netero::audio::backend::impl::startRender() {
 }
 
 netero::audio::RtCode   netero::audio::backend::impl::stopRender() {
+	if (!_render_device) {
+		return RtCode::ERR_NO_SUCH_DEVICE;
+	}
 	if (renderingState.load(std::memory_order_acquire) != state::RUNNING) {
 		return RtCode::ERR_DEVICE_NOT_RUNNING;
 	}
 	std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
-	while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count() < _latency) {
+	while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count() < _render_device->latency) {
 		std::this_thread::yield();
 	}
 	renderingState.store(state::STOP, std::memory_order_release);

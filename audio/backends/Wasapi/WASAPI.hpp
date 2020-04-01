@@ -25,6 +25,44 @@
 #include <netero/audio/audio.hpp>
 #include <netero/audio/backend.hpp>
 
+extern const CLSID CLSID_MMDeviceEnumerator;
+extern const IID IID_IMMDeviceEnumerator;
+extern const IID IID_IAudioClient;
+extern const IID IID_IAudioRenderClient;
+extern const IID IID_IAudioCaptureClient;
+
+struct WASAPI_device {
+	IMMDevice*				device = nullptr;
+	IAudioClient*			audio_client = nullptr;
+	IAudioRenderClient*		render_client = nullptr;
+	IAudioCaptureClient*	capture_client = nullptr;
+	WAVEFORMATEX*			wfx = nullptr;
+	WAVEFORMATEXTENSIBLE*	wfx_ext = nullptr;
+	REFERENCE_TIME			latency = 0;
+	UINT32					framesCount = 0;
+	bool					isLoopBackDevice = false;
+
+	template<class T,
+		typename = std::enable_if<std::is_base_of<IUnknown, T>::value>>
+	inline void release(T** ptr) {
+		if (*ptr) {
+			(*ptr)->Release();
+			*ptr = nullptr;
+		}
+	}
+
+	~WASAPI_device() {
+		release<IMMDevice>(&device);
+		release<IAudioClient>(&audio_client);
+		release<IAudioRenderClient>(&render_client);
+		if (wfx) {
+			CoTaskMemFree(wfx);
+			wfx = nullptr;
+			wfx_ext = nullptr;
+		}
+	}
+};
+
 class netero::audio::backend::impl {
 public:
 	enum state {
@@ -45,23 +83,12 @@ public:
 
 private:
 	IMMDeviceEnumerator* _device_enumerator = nullptr;
-	IMMDevice* _render_device = nullptr;
-	IMMDevice* _capture_device = nullptr;
-	IAudioClient* _render_client = nullptr;
-	IAudioClient* _capture_client = nullptr;
-	IAudioRenderClient* _audio_rendering = nullptr;
-	WAVEFORMATEX* _wfx = nullptr;
-	WAVEFORMATEXTENSIBLE* _wfx_ext = nullptr;
-	REFERENCE_TIME _latency;
-	unsigned _frameCount = 0;
-	unsigned _bufferFrameCount = 0;
-	size_t	_bufferSize = 0;
-	size_t	_WASAPIBufferSize = 0;
+	std::unique_ptr<WASAPI_device> _render_device;
+	std::unique_ptr<WASAPI_device> _capture_device;
 
 	void	test_result(HRESULT result) {
 		if (FAILED(result)) {
 			_com_error	err(result);
-			WASAPI_cleanup();
 			throw std::runtime_error("WASAPI Error: " + std::string(err.ErrorMessage()));
 		}
 	}
@@ -75,11 +102,10 @@ private:
 		}
 	}
 
-	void WASAPI_init();
-	void WASAPI_cleanup();
-	RtCode	WASAPI_get_struct_Device(IMMDevice*, device&);
-	IMMDevice* WASAPI_get_device(EDataFlow flow, const netero::audio::device& device);
-
+	std::unique_ptr<WASAPI_device>	WASAPI_get_default_device(EDataFlow dataFlow);
+	std::unique_ptr<WASAPI_device>	WASAPI_init_device(IMMDevice*, bool isLoopback = false);
+	IMMDevice*						WASAPI_get_device(EDataFlow flow, const netero::audio::device& device);
+	RtCode							WASAPI_get_struct_Device(IMMDevice*, device&);
 
 	std::vector<netero::audio::device> _inDevices;
 	std::vector<netero::audio::device> _outDevices;
