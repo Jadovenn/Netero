@@ -21,7 +21,8 @@ list(APPEND PUBLIC_HEADER
 
 list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/avl.hpp
-        ${HEADERS_DIRECTORY}/set.hpp)
+        ${HEADERS_DIRECTORY}/set.hpp
+        ${HEADERS_DIRECTORY}/circular_buffer.hpp)
 
 ##====================================
 ##  Exceptions Sources
