@@ -5,9 +5,10 @@
 
 #pragma once
 
-#include <map>
 #include <algorithm>
 #include <functional>
+#include <map>
+#include <mutex>
 #include <type_traits>
 
 #include <netero/observer/IObserverDelegate.hpp>
@@ -24,23 +25,27 @@ namespace netero {
 		using Signature = _rType(_ArgsType...);
 
 		~signals() override {
+			std::scoped_lock<std::mutex>	lock(_slotsMutex);
 			for (netero::slot<Signature >*slot: _slots) {
 				slot->disconnect(this);
 			}
 		};
 
 		void    operator()(_ArgsType... args) {
+			std::scoped_lock<std::mutex>	lock(_slotsMutex);
 			for (netero::slot<_rType(_ArgsType...)> *slot: _slots) {
 				(*slot)(args...);
 			}
 		}
 
 		void 	connect(IObserverDelegate *connectable) final {
+			std::scoped_lock<std::mutex>	lock(_slotsMutex);
 			_slots.push_back(reinterpret_cast<netero::slot<Signature>*>(connectable));
 			connectable->connect(this);
 		}
 
 		void 	disconnect(IObserverDelegate *connectable) final {
+			std::scoped_lock<std::mutex>	lock(_slotsMutex);
 			auto slot = reinterpret_cast<netero::slot<Signature>*>(connectable);
 			auto it = std::find_if(_slots.begin(), _slots.end(), [slot] (auto* item) {
 				return slot == item;
@@ -51,6 +56,8 @@ namespace netero {
 		}
 
 	private:
+		std::mutex									_slotsMutex;
 		std::vector<slot<_rType(_ArgsType...)>*>	_slots;
 	};
 }
+

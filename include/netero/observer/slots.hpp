@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include <functional>
 #include <algorithm>
-#include <vector>
+#include <functional>
+#include <mutex>
 #include <exception>
-
+#include <vector>
 
 #include <netero/observer/IObserverDelegate.hpp>
 #include <netero/exception.hpp>
@@ -53,12 +53,14 @@ namespace netero {
 		{}
 
 		~slot() override {
+			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			for (auto *signal: _signals) {
 				signal->disconnect(this);
 			}
 		}
 
 		virtual _rType    operator()(_ArgsType... args) {
+			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			if (_function) {
 				return _function(std::forward<_ArgsType>(args)...);
 			}
@@ -66,6 +68,7 @@ namespace netero {
 		}
 
 		void disconnect(IObserverDelegate *delegate) override {
+			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			auto it = std::find_if(_signals.begin(),
 					_signals.end(),
 					[delegate] (auto *item) {
@@ -77,10 +80,12 @@ namespace netero {
 		}
 
 		void connect(IObserverDelegate *delegate) override {
+			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			_signals.push_back(delegate);
 		}
 
 	private:
+		std::mutex								_sigMutex;
 		std::function<_rType(_ArgsType...)>		_function;
 		std::vector<netero::IObserverDelegate*>	_signals;
 	};
