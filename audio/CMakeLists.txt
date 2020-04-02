@@ -16,11 +16,12 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/audio/engine.hpp
         ${HEADERS_DIRECTORY}/audio/mixer.hpp
         ${HEADERS_DIRECTORY}/audio/signals.hpp
-        ${HEADERS_DIRECTORY}/audio/waveFormat.hpp)
+        ${HEADERS_DIRECTORY}/audio/format/wave.hpp
+        ${HEADERS_DIRECTORY}/audio/format/waveRecorder.hpp)
 list(APPEND SRCS
         mixer.cpp
         engine.cpp
-        waveFormat.cpp
+        format/waveRecorder.cpp
         signals/sinusoid.cpp)
 
 ##====================================

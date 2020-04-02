@@ -3,10 +3,10 @@
  * see LICENCE.txt
  */
 
-#include <netero/audio/waveFormat.hpp>
+#include <netero/audio/format/waveRecorder.hpp>
 
 netero::audio::waveRecorder::waveRecorder(const std::string& name)
-    :   _fileName(name),
+    :   _fileName(name + ".wav"),
         captureStreamSlot(&netero::audio::waveRecorder::captureStream, this),
         onFormatChangeSlot(&netero::audio::waveRecorder::onFormatChange, this)
 {
@@ -25,8 +25,8 @@ netero::audio::waveRecorder::operator bool() {
 void    netero::audio::waveRecorder::onFormatChange(const WaveFormat &format) {
     _format = format;
     _waveFileHeader.header.FileSize = sizeof(WaveHeader) - 8;
-    _waveFileHeader.format.AudioFormat = 1;
     _waveFileHeader.format.ChannelNbr = _format.channels;
+    _waveFileHeader.format.AudioFormat = WaveAudioFormat::IEEE_FLOAT;
     _waveFileHeader.format.Frequence = _format.samplingFrequency;
     _waveFileHeader.format.BytePerSec = _format.samplingFrequency * _format.bytesPerFrame;
     _waveFileHeader.format.BytePerBlock = _format.bytesPerFrame;
@@ -39,7 +39,7 @@ void    netero::audio::waveRecorder::connect(netero::audio::engine& audio_engine
     audio_engine.captureFormatChangeSig.connect(&onFormatChangeSlot);
     _format = audio_engine.getOutputFormat();
     _waveFileHeader.header.FileSize = sizeof(WaveHeader) - 8;
-    _waveFileHeader.format.AudioFormat = 1;
+    _waveFileHeader.format.AudioFormat = WaveAudioFormat::IEEE_FLOAT;
     _waveFileHeader.format.ChannelNbr = _format.channels;
     _waveFileHeader.format.Frequence = _format.samplingFrequency;
     _waveFileHeader.format.BytePerSec = _format.samplingFrequency * _format.bytesPerFrame;
@@ -91,7 +91,7 @@ void    netero::audio::waveRecorder::record() {
         return;
     }
     _fileStream.seekp(0);
-    //_fileStream.write(reinterpret_cast<char *>(&_waveFileHeader), sizeof(_waveFileHeader));
+    _fileStream.write(reinterpret_cast<char *>(&_waveFileHeader), sizeof(_waveFileHeader));
     _state.store(state::RECORDING, std::memory_order_release);
     _recordingResult = std::async(std::launch::async,
         &netero::audio::waveRecorder::captureAsyncHandler,
@@ -107,7 +107,7 @@ void    netero::audio::waveRecorder::stop() {
     int written_size = _recordingResult.get();
     _waveFileHeader.header.FileSize = written_size * sizeof(float) + sizeof(WaveHeader) - 8;
     _waveFileHeader.data.DataSize = written_size * sizeof(float);
-    //_fileStream.seekp(0);
-    //_fileStream.write(reinterpret_cast<char *>(&_waveFileHeader), sizeof(_waveFileHeader));
+    _fileStream.seekp(0);
+    _fileStream.write(reinterpret_cast<char *>(&_waveFileHeader), sizeof(_waveFileHeader));
 }
 

@@ -25,7 +25,7 @@ int    select_recording_device(netero::audio::engine& engine) {
         idx += 1;
     }
     std::cout << "Choose a device: ";
-    int device_idx;
+    int device_idx = -1;
     std::cin >> device_idx;
     if (device_idx < 0 || device_idx > idx) {
         std::cout << "Choosen idx out of bound!" << std::endl;
@@ -39,10 +39,9 @@ int    select_recording_device(netero::audio::engine& engine) {
     return 0;
 }
 
-
 int     main() {
     netero::audio::engine                   audio_engine;
-    netero::audio::waveRecorder             wave_recorder("test_record.wav");
+    netero::audio::waveRecorder             wave_recorder("test_record");
     netero::slot<void(const std::string&)>  captureErrorSlot(&errorCallback);
 
     if (select_recording_device(audio_engine) != 0) {
