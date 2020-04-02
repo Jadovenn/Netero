@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "WASAPI.hpp"
 
-std::unique_ptr<WASAPI_device>  netero::audio::backend::impl::WASAPI_init_device(IMMDevice* device, bool isLoopback) {
+std::unique_ptr<WASAPI_device>  netero::audio::backend::impl::WASAPI_init_device(EDataFlow dataFlow, IMMDevice* device, bool isLoopback) {
     HRESULT     result;
     std::unique_ptr<WASAPI_device> wDevice = std::make_unique<WASAPI_device>();
 
@@ -48,9 +48,16 @@ std::unique_ptr<WASAPI_device>  netero::audio::backend::impl::WASAPI_init_device
     }
     result = wDevice->audio_client->GetBufferSize(&wDevice->framesCount);
     if (FAILED(result)) { return nullptr; }
-    result = wDevice->audio_client->GetService(IID_IAudioRenderClient,
-        reinterpret_cast<void**>(&wDevice->render_client));
-    if (FAILED(result)) { return nullptr; }
+    if (dataFlow == eRender) {
+        result = wDevice->audio_client->GetService(IID_IAudioRenderClient,
+            reinterpret_cast<void**>(&wDevice->render_client));
+        if (FAILED(result)) { return nullptr; }
+    }
+    else if (dataFlow == eCapture) {
+        result = wDevice->audio_client->GetService(IID_IAudioCaptureClient,
+            reinterpret_cast<void**>(&wDevice->capture_client));
+        if (FAILED(result)) { return nullptr; }
+    }
     return std::move(wDevice);
 }
 
@@ -100,7 +107,7 @@ netero::audio::RtCode   netero::audio::backend::impl::setInputDevice(const neter
     if (!endpoint) {
         return RtCode::ERR_NO_SUCH_DEVICE;
     }
-    std::unique_ptr<WASAPI_device> new_device = WASAPI_init_device(endpoint);
+    std::unique_ptr<WASAPI_device> new_device = WASAPI_init_device(eRender, endpoint);
     if (!new_device) {
         return RtCode::ERR_NATIVE;
     }
@@ -122,7 +129,7 @@ netero::audio::RtCode   netero::audio::backend::impl::setOutputDevice(const nete
         }
         isLoopback = true;
     }
-    std::unique_ptr<WASAPI_device> new_device = WASAPI_init_device(endpoint, isLoopback);
+    std::unique_ptr<WASAPI_device> new_device = WASAPI_init_device(eCapture, endpoint, isLoopback);
     if (!new_device) {
         return RtCode::ERR_NATIVE;
     }

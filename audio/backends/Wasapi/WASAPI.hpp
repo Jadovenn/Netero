@@ -81,6 +81,7 @@ public:
 	std::unique_ptr<std::thread>	renderingThread;
 	std::unique_ptr<std::thread>	capturingThread;
 
+	std::function<void(const std::string&)>	_captureErrorHandler;
 private:
 	IMMDeviceEnumerator* _device_enumerator = nullptr;
 	std::unique_ptr<WASAPI_device> _render_device;
@@ -103,7 +104,7 @@ private:
 	}
 
 	std::unique_ptr<WASAPI_device>	WASAPI_get_default_device(EDataFlow dataFlow);
-	std::unique_ptr<WASAPI_device>	WASAPI_init_device(IMMDevice*, bool isLoopback = false);
+	std::unique_ptr<WASAPI_device>	WASAPI_init_device(EDataFlow flow, IMMDevice*, bool isLoopback = false);
 	IMMDevice*						WASAPI_get_device(EDataFlow flow, const netero::audio::device& device);
 	RtCode							WASAPI_get_struct_Device(IMMDevice*, device&);
 

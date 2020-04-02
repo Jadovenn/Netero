@@ -41,12 +41,12 @@ namespace netero::audio {
 	 * the number of bytes per samples time the number of samples.
 	 */
 	struct WaveFormat {
-		unsigned	framesCount; /**< Number of frames in contained in the shared buffer with the device. */
-		unsigned	bytesPerFrame; /**< Size in byte for one frame. */
-		unsigned	bytesPerSample; /**< Size in byte for one sample. */
-		unsigned	channels; /**< Number of sample per frames */
-		unsigned	samplingFrequency; /**< Actual sampling frequency of the native audio device. */
-		std::vector<float> supportedSamplingRate; /**< Supported sampling frequency of the native audio device */
+		unsigned	framesCount = 0; /**< Number of frames in contained in the shared buffer with the device. */
+		unsigned	bytesPerFrame = 0; /**< Size in byte for one frame. */
+		unsigned	bytesPerSample = 0; /**< Size in byte for one sample. */
+		unsigned	channels = 0; /**< Number of sample per frames */
+		unsigned	samplingFrequency = 0; /**< Actual sampling frequency of the native audio device. */
+		std::vector<float> supportedSamplingRate = {}; /**< Supported sampling frequency of the native audio device */
 	};
 
 	struct device {
@@ -123,19 +123,19 @@ namespace netero::audio {
 		 * @param[in] buffer The rendering buffer.
 		 * @param[in] frames The number of frames the buffer contain.
 		 */
-		virtual void capture(const float* buffer, const size_t frames) = 0;
+		virtual void captureStream(const float* buffer, const size_t frames) = 0;
 
 		/**
-		 * @pure play
-		 * Allow the audio stream to recive a signal.
+		 * @pure record
+		 * Allow the audion- stream to recive a signal.
 		 */
-		virtual void startRecord() = 0;
+		virtual void record() = 0;
 
 		/**
 		 * @pure stop
 		 * Stop reciving a signal from the stream.
 		 */
-		virtual void stopRecord() = 0;
+		virtual void stop() = 0;
 
 	};
 }

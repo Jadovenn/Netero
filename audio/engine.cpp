@@ -7,10 +7,19 @@
 
 netero::audio::engine::engine(const InitStrategy strategy)
     : _backend(netero::audio::backend::GetInstance())
-{}
+{
+    _backend.setCaptureCallback(std::bind(&netero::audio::engine::captureHandler,
+        this,
+        std::placeholders::_1,
+        std::placeholders::_2));
+    _backend.setCaptureErrorCallback(std::bind(&netero::audio::engine::captureErrorHandler,
+        this,
+        std::placeholders::_1));
+}
 
 netero::audio::engine::~engine() {
     _backend.stopRender();
+    _backend.stopCapture();
 }
 
 const std::vector<netero::audio::device> &netero::audio::engine::getOutDevices() {
@@ -43,5 +52,22 @@ netero::audio::RtCode   netero::audio::engine::startRender() {
 
 netero::audio::RtCode   netero::audio::engine::stopRender() {
     return _backend.stopRender();
+}
+
+void    netero::audio::engine::captureHandler(const float* buffer, const size_t frames) {
+    captureStreamSig(buffer, frames);
+}
+
+void    netero::audio::engine::captureErrorHandler(const std::string& error) {
+    captureErrorSig(error);
+}
+
+netero::audio::RtCode   netero::audio::engine::startCapture() {
+
+    return _backend.startCapture();
+}
+
+netero::audio::RtCode   netero::audio::engine::stopCapture() {
+    return _backend.stopCapture();
 }
 

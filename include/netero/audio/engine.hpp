@@ -22,17 +22,26 @@ namespace netero::audio {
         explicit engine(const InitStrategy strategy = InitStrategy::DEFAULT);
         ~engine();
 
-
         netero::signals<void(const WaveFormat&)> formatChangeSig;
-        const std::vector<device>   &getOutDevices();
         const std::vector<device>   &getInDevices();
-		WaveFormat					getOutputFormat();
-        RtCode                      setOutputDevice(const device&);
 		RtCode						setRenderCallback(const backend::RenderCallback&);
         RtCode						startRender();
         RtCode						stopRender();
 
+        netero::signals<void(const WaveFormat&)>            captureFormatChangeSig;
+        netero::signals<void(const std::string&)>           captureErrorSig;
+        netero::signals<void(const float*, const size_t)>   captureStreamSig;
+        RtCode                      startCapture();
+        RtCode                      stopCapture();
+        RtCode                      setCaptureCallback(const backend::CaptureCallback&);
+        const std::vector<device>   &getOutDevices();
+        RtCode                      setOutputDevice(const device&);
+		WaveFormat					getOutputFormat();
+
+
     private:
+        void    captureErrorHandler(const std::string &);
+        void    captureHandler(const float*, const size_t);
         backend& _backend;
     };
 }

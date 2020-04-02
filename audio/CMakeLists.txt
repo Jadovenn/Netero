@@ -15,10 +15,12 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/audio/backend.hpp
         ${HEADERS_DIRECTORY}/audio/engine.hpp
         ${HEADERS_DIRECTORY}/audio/mixer.hpp
-        ${HEADERS_DIRECTORY}/audio/signals.hpp)
+        ${HEADERS_DIRECTORY}/audio/signals.hpp
+        ${HEADERS_DIRECTORY}/audio/waveFormat.hpp)
 list(APPEND SRCS
         mixer.cpp
         engine.cpp
+        waveFormat.cpp
         signals/sinusoid.cpp)
 
 ##====================================

@@ -37,6 +37,7 @@ namespace netero::audio {
 		RtCode						capturingThreadHandle();
 		RtCode						startCapture();
 		RtCode						stopCapture();
+		RtCode						setCaptureErrorCallback(const std::function<void(const std::string&)>&);
 		RtCode						setCaptureCallback(const CaptureCallback &);
 	};
 }
