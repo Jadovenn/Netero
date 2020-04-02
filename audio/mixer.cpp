@@ -27,7 +27,7 @@ netero::audio::mixer::mixer(netero::audio::engine& engine)
         std::placeholders::_2));
     if (code == RtCode::OK) {
         engine.formatChangeSig.connect(&onFormatChangeSlot);
-        _format = engine.getOutputFormat();
+        _format = engine.getRenderFormat();
         alloc_internal_buffer();
     }
 }

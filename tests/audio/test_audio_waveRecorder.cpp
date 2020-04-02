@@ -16,8 +16,8 @@ void    errorCallback(const std::string& error) {
 }
 
 int    select_recording_device(netero::audio::engine& engine) {
-    auto devices = engine.getOutDevices();
-    auto device_in = engine.getInDevices();
+    auto devices = engine.getRenderDevices();
+    auto device_in = engine.getCaptureDevices();
     devices.insert(devices.end(), device_in.begin(), device_in.end());
     int idx = 0;
     for (auto& device : devices) {
@@ -31,11 +31,22 @@ int    select_recording_device(netero::audio::engine& engine) {
         std::cout << "Choosen idx out of bound!" << std::endl;
         return 1;
     }
-    netero::audio::RtCode code = engine.setOutputDevice(devices[device_idx]);
+    netero::audio::RtCode code = engine.setCaptureDevice(devices[device_idx]);
     if (code != netero::audio::RtCode::OK) {
         std::cout << "Error while setting up the device: " << devices[device_idx].name << std::endl;
         return 1;
     }
+    auto format = engine.getCaptureFormat();
+    std::cout << "Number of channels: " << format.channels << std::endl;
+    std::cout << "Supported Sampling frequency:" << std::endl;
+    for (float freq : format.supportedSamplingRate) {
+        std::cout << "\t" << freq << " Hz" << std::endl;
+    }
+    std::cout << "Sampling frequency: " << format.samplingFrequency << "Hz" << std::endl;
+    std::cout << "Totals number of frame in buffer: " << format.framesCount << std::endl;
+    std::cout << "Byte per frame: " << format.bytesPerFrame << std::endl;
+    std::cout << "Byte per sample: " << format.bytesPerSample << std::endl;
+    std::cout << std::endl;
     return 0;
 }
 

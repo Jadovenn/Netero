@@ -37,7 +37,7 @@ void    netero::audio::waveRecorder::onFormatChange(const WaveFormat &format) {
 void    netero::audio::waveRecorder::connect(netero::audio::engine& audio_engine) {
     audio_engine.captureStreamSig.connect(&captureStreamSlot);
     audio_engine.captureFormatChangeSig.connect(&onFormatChangeSlot);
-    _format = audio_engine.getOutputFormat();
+    _format = audio_engine.getRenderFormat();
     _waveFileHeader.header.FileSize = sizeof(WaveHeader) - 8;
     _waveFileHeader.format.AudioFormat = WaveAudioFormat::IEEE_FLOAT;
     _waveFileHeader.format.ChannelNbr = _format.channels;

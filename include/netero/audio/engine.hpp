@@ -23,7 +23,7 @@ namespace netero::audio {
         ~engine();
 
         netero::signals<void(const WaveFormat&)> formatChangeSig;
-        const std::vector<device>   &getInDevices();
+        const std::vector<device>   &getRenderDevices();
 		RtCode						setRenderCallback(const backend::RenderCallback&);
         RtCode						startRender();
         RtCode						stopRender();
@@ -34,9 +34,10 @@ namespace netero::audio {
         RtCode                      startCapture();
         RtCode                      stopCapture();
         RtCode                      setCaptureCallback(const backend::CaptureCallback&);
-        const std::vector<device>   &getOutDevices();
-        RtCode                      setOutputDevice(const device&);
-		WaveFormat					getOutputFormat();
+        const std::vector<device>   &getCaptureDevices();
+        RtCode                      setCaptureDevice(const device&);
+		WaveFormat					getRenderFormat();
+		WaveFormat					getCaptureFormat();
 
 
     private:

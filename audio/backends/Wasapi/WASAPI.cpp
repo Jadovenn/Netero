@@ -79,18 +79,18 @@ netero::audio::RtCode	netero::audio::backend::setCaptureErrorCallback(const std:
 	return RtCode::OK;
 }
 
-const std::vector<netero::audio::device>& netero::audio::backend::getOutputDevices() {
+const std::vector<netero::audio::device>& netero::audio::backend::getRenderDevices() {
 	return pImpl->getOutputDevices();
 }
 
-netero::audio::RtCode	netero::audio::backend::setOutputDevice(const device& device) {
+netero::audio::RtCode	netero::audio::backend::setRenderDevice(const device& device) {
 	if (pImpl->renderingState.load(std::memory_order_acquire) != impl::state::OFF) {
 		return RtCode::ERR_ALTER_RUNNING;
 	}
 	return pImpl->setOutputDevice(device);
 }
 
-netero::audio::WaveFormat	netero::audio::backend::getOutputFormat() {
+netero::audio::WaveFormat	netero::audio::backend::getRenderFormat() {
 	return pImpl->getOutputFormat();
 }
 
@@ -114,18 +114,18 @@ netero::audio::RtCode	netero::audio::backend::setRenderCallback(const RenderCall
 	return RtCode::OK;
 }
 
-const std::vector<netero::audio::device>& netero::audio::backend::getInputDevices() {
+const std::vector<netero::audio::device>& netero::audio::backend::getCaptureDevices() {
 	return pImpl->getInputDevices();
 }
 
-netero::audio::RtCode	netero::audio::backend::setInputDevice(const netero::audio::device& device) {
+netero::audio::RtCode	netero::audio::backend::setCaptureDevice(const netero::audio::device& device) {
 	if (pImpl->capturingState.load(std::memory_order_acquire) != impl::state::OFF) {
 		return RtCode::ERR_ALTER_RUNNING;
 	}
 	return pImpl->setInputDevice(device);
 }
 
-netero::audio::WaveFormat	netero::audio::backend::getInputFormat() {
+netero::audio::WaveFormat	netero::audio::backend::getCaptureFormat() {
 	return pImpl->getInputFormat();
 }
 

@@ -24,16 +24,16 @@ namespace netero::audio {
 		static backend& GetInstance();
 		~backend();
 
-		const std::vector<device>&	getOutputDevices();
-		RtCode						setOutputDevice(const device&);
-		WaveFormat					getOutputFormat();
+		const std::vector<device>&	getRenderDevices();
+		RtCode						setRenderDevice(const device&);
+		WaveFormat					getRenderFormat();
 		RtCode						startRender();
 		RtCode						stopRender();
 		RtCode						setRenderCallback(const RenderCallback&);
 
-		const std::vector<device>&	getInputDevices();
-		RtCode						setInputDevice(const device&);
-		WaveFormat					getInputFormat();
+		const std::vector<device>&	getCaptureDevices();
+		RtCode						setCaptureDevice(const device&);
+		WaveFormat					getCaptureFormat();
 		RtCode						capturingThreadHandle();
 		RtCode						startCapture();
 		RtCode						stopCapture();

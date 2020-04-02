@@ -22,22 +22,22 @@ netero::audio::engine::~engine() {
     _backend.stopCapture();
 }
 
-const std::vector<netero::audio::device> &netero::audio::engine::getOutDevices() {
-    return _backend.getOutputDevices();
+const std::vector<netero::audio::device> &netero::audio::engine::getRenderDevices() {
+    return _backend.getRenderDevices();
 }
 
-const std::vector<netero::audio::device> &netero::audio::engine::getInDevices() {
-    return _backend.getInputDevices();
+const std::vector<netero::audio::device> &netero::audio::engine::getCaptureDevices() {
+    return _backend.getCaptureDevices();
 }
 
-netero::audio::WaveFormat   netero::audio::engine::getOutputFormat() {
-    return _backend.getOutputFormat();
+netero::audio::WaveFormat   netero::audio::engine::getRenderFormat() {
+    return _backend.getRenderFormat();
 }
 
-netero::audio::RtCode   netero::audio::engine::setOutputDevice(const netero::audio::device& device) {
-    RtCode code = _backend.setOutputDevice(device);
+netero::audio::RtCode   netero::audio::engine::setCaptureDevice(const netero::audio::device& device) {
+    RtCode code = _backend.setCaptureDevice(device);
     if (code == RtCode::OK) {
-        formatChangeSig(_backend.getOutputFormat());
+        formatChangeSig(_backend.getCaptureFormat());
     }
     return code;
 }
@@ -52,6 +52,10 @@ netero::audio::RtCode   netero::audio::engine::startRender() {
 
 netero::audio::RtCode   netero::audio::engine::stopRender() {
     return _backend.stopRender();
+}
+
+netero::audio::WaveFormat   netero::audio::engine::getCaptureFormat() {
+    return _backend.getCaptureFormat();
 }
 
 void    netero::audio::engine::captureHandler(const float* buffer, const size_t frames) {

@@ -11,7 +11,7 @@
 int     main() {
     netero::audio::backend& audio_backend = netero::audio::backend::GetInstance();
 
-    auto outDevices = audio_backend.getOutputDevices();
+    auto outDevices = audio_backend.getRenderDevices();
     if (outDevices.empty()) {
         std::cout << "No audio devices found" << std::endl;
     }
@@ -23,7 +23,7 @@ int     main() {
     }
     std::cout << std::endl;
 
-    auto inDevices = audio_backend.getInputDevices();
+    auto inDevices = audio_backend.getCaptureDevices();
     if (outDevices.empty()) {
         std::cout << "No in audio devices found" << std::endl;
     }
@@ -36,7 +36,7 @@ int     main() {
     std::cout << std::endl;
 
     std::cout << "Default Output device format:" << std::endl;
-    netero::audio::WaveFormat   format = audio_backend.getOutputFormat();
+    netero::audio::WaveFormat   format = audio_backend.getRenderFormat();
 	std::cout << "Number of channels: " << format.channels << std::endl;
     std::cout << "Supported Sampling frequency:" << std::endl;
     for (float freq: format.supportedSamplingRate) {
@@ -49,7 +49,7 @@ int     main() {
     std::cout << std::endl;
 
     std::cout << "Default Output device format:" << std::endl;
-    format = audio_backend.getInputFormat();
+    format = audio_backend.getCaptureFormat();
 	std::cout << "Number of channels: " << format.channels << std::endl;
     std::cout << "Supported Sampling frequency:" << std::endl;
     for (float freq: format.supportedSamplingRate) {
