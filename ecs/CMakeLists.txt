@@ -32,6 +32,11 @@ target_include_directories(netero_ecs
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>)
 
+if(WIN32)
+    set_property(TARGET netero_ecs PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
+endif(WIN32)
+
 ##====================================
 ##  Installation
 ##====================================
