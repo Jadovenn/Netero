@@ -39,6 +39,7 @@ endmacro(add_project_test)
 add_project_test(NAME test_core_type_id SOURCES core/test_core_type_id.cpp)
 add_project_test(NAME test_avl SOURCES test_avl.cpp)
 add_project_test(NAME test_set SOURCES test_set.cpp)
+add_project_test(NAME test_circular_buffer SOURCES test_circular_buffer.cpp)
 
 ##====================================
 ##  Test Audio
@@ -47,6 +48,7 @@ add_project_test(NAME test_set SOURCES test_set.cpp)
 if (AUDIO)
     add_project_test(NAME test_audio_format SOURCES audio/test_audio_format.cpp DEPENDS netero_audio)
     add_project_test(NAME test_audio_mixer SOURCES audio/test_audio_mixer.cpp DEPENDS netero_audio)
+    add_project_test(NAME test_audio_waveRecorder SOURCES audio/test_audio_waveRecorder.cpp DEPENDS netero_audio)
 endif(AUDIO)
 
 ##====================================
