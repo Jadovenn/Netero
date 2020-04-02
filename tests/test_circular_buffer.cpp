@@ -3,11 +3,11 @@
  * see LICENCE.txt
  */
 
-#include <netero/circular_buffer.hpp>
+#include <netero/buffer.hpp>
 
 int test_full_fill_buffer() {
     int buf[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    netero::shared_circular_buffer<int>  buffer(10);
+    netero::shared_buffer<int>  buffer(10);
     buffer.write(buf, 3);
     buffer.write(buf + 3, 3);
     buffer.write(buf + 6, 4);
@@ -19,7 +19,7 @@ int test_full_fill_buffer() {
 int test_full_read() {
     int buf[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     int outBuf[10] = {};
-    netero::shared_circular_buffer<int>  buffer(10);
+    netero::shared_buffer<int>  buffer(10);
     buffer.write(buf, 10);
     buffer.read(outBuf, 3);
     buffer.read(outBuf + 3, 4);
@@ -32,7 +32,7 @@ int test_full_read() {
 int test_faster_read() {
     int buf[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     int outBuf[10] = {};
-    netero::shared_circular_buffer<int>  buffer(10);
+    netero::shared_buffer<int>  buffer(10);
     if (buffer.write(buf, 3) != 3) {
         return 1;
     }

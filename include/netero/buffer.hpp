@@ -16,9 +16,9 @@ namespace netero {
     template<class T,
         typename = std::enable_if<std::is_copy_assignable<T>::value>,
         typename = std::enable_if<std::is_default_constructible<T>::value>>
-    class shared_circular_buffer {
+    class shared_buffer {
     public:
-        explicit shared_circular_buffer(size_t size = sizeof(T))
+        explicit shared_buffer(size_t size = sizeof(T))
             :   _size(size),
                 _readOffset(-1),
                 _writeOffset(0)
@@ -29,11 +29,11 @@ namespace netero {
             }
         }
 
-        shared_circular_buffer(shared_circular_buffer &copy) {
+        shared_buffer(shared_buffer &copy) {
             *this = copy;
         }
 
-        shared_circular_buffer(shared_circular_buffer&& move) {
+        shared_buffer(shared_buffer&& move) {
             std::scoped_lock(copy._bufferMutex);
             this->_buffer = move._buffer;
             this->_size = more._size;
@@ -46,7 +46,7 @@ namespace netero {
             move._readOffset = 0;
         }
 
-        shared_circular_buffer& operator=(shared_circular_buffer& copy) {
+        shared_buffer& operator=(shared_buffer& copy) {
             std::scoped_lock(copy._bufferMutex);
             this->_size = copy._size;
             _buffer = new (std::nothrow) T[_size];
@@ -59,7 +59,7 @@ namespace netero {
             return *this;
         }
 
-        shared_circular_buffer& operator=(shared_circular_buffer&& move) {
+        shared_buffer& operator=(shared_buffer&& move) {
             std::scoped_lock(copy._bufferMutex);
             delete _buffer;
             this->_buffer = move._buffer;
@@ -74,7 +74,7 @@ namespace netero {
             return *this;
         }
 
-        bool    operator==(const shared_circular_buffer& other) const {
+        bool    operator==(const shared_buffer& other) const {
             return _buffer == other._buffer;
         }
 
@@ -82,7 +82,7 @@ namespace netero {
             return !(_buffer == nullptr);
         }
 
-        ~shared_circular_buffer() {
+        ~shared_buffer() {
             delete _buffer;
         }
 
