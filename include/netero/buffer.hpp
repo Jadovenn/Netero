@@ -34,7 +34,7 @@ namespace netero {
         }
 
         shared_buffer(shared_buffer&& move) {
-            std::scoped_lock(copy._bufferMutex);
+            std::scoped_lock(move._bufferMutex);
             this->_buffer = move._buffer;
             this->_size = more._size;
             this->_readOffset = move._readOffset;
@@ -60,7 +60,7 @@ namespace netero {
         }
 
         shared_buffer& operator=(shared_buffer&& move) {
-            std::scoped_lock(copy._bufferMutex);
+            std::scoped_lock(move._bufferMutex);
             delete _buffer;
             this->_buffer = move._buffer;
             this->_size = more._size;
