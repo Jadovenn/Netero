@@ -64,7 +64,7 @@ namespace netero {
             std::scoped_lock(move._bufferMutex);
             delete _buffer;
             this->_buffer = move._buffer;
-            this->_size = more._size;
+            this->_size = move._size;
             this->_readOffset = move._readOffset;
             this->_writeOffset = move._writeOffset;
             delete move._buffer;
