@@ -5,7 +5,7 @@
 
 #include "WASAPI.hpp"
 
-netero::audio::WaveFormat	netero::audio::backend::impl::getOutputFormat() {
+netero::audio::WaveFormat	netero::audio::backend::impl::getRenderFormat() {
 	HRESULT	result;
 	WaveFormat	format{};
 
@@ -25,7 +25,7 @@ netero::audio::WaveFormat	netero::audio::backend::impl::getOutputFormat() {
 	return format;
 }
 
-netero::audio::WaveFormat	netero::audio::backend::impl::getInputFormat() {
+netero::audio::WaveFormat	netero::audio::backend::impl::getCaptureFormat() {
 	HRESULT	result;
 	WaveFormat	format{};
 

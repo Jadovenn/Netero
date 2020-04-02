@@ -54,7 +54,7 @@ netero::audio::backend::impl::WASAPI_get_struct_Device(IMMDevice *pdevice, neter
     return RtCode::OK;
 }
 
-const std::vector<netero::audio::device>    &netero::audio::backend::impl::getOutputDevices() {
+const std::vector<netero::audio::device>    &netero::audio::backend::impl::getRenderDevices() {
     HRESULT result;
     IMMDeviceCollection* pCollection = nullptr;
     IMMDevice* pEndpoint = nullptr;
@@ -96,7 +96,7 @@ exit_error:
     return _outDevices;
 }
 
-const std::vector<netero::audio::device>   &netero::audio::backend::impl::getInputDevices() {
+const std::vector<netero::audio::device>   &netero::audio::backend::impl::getCaptureDevices() {
     HRESULT result;
     IMMDeviceCollection* pCollection = nullptr;
     IMMDevice* pEndpoint = nullptr;

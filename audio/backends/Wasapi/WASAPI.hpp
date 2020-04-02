@@ -115,16 +115,16 @@ public:
 	impl();
 	~impl();
 
-	const std::vector<device>   &getOutputDevices();
-	RtCode						setOutputDevice(const device&);
-	WaveFormat					getOutputFormat();
+	const std::vector<device>   &getRenderDevices();
+	RtCode						setRenderDevice(const device&);
+	WaveFormat					getRenderFormat();
 	void						renderingThreadHandle();
 	RtCode						startRender();
 	RtCode						stopRender();
 
-	const std::vector<device>   &getInputDevices();
-	RtCode						setInputDevice(const device&);
-	WaveFormat					getInputFormat();
+	const std::vector<device>   &getCaptureDevices();
+	RtCode						setCaptureDevice(const device&);
+	WaveFormat					getCaptureFormat();
 	void						capturingThreadHandle();
 	RtCode						startCapture();
 	RtCode						stopCapture();

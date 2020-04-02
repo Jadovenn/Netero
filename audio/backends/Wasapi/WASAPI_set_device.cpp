@@ -99,7 +99,7 @@ exit_error:
     return nullptr;
 }
 
-netero::audio::RtCode   netero::audio::backend::impl::setInputDevice(const netero::audio::device& device) {
+netero::audio::RtCode   netero::audio::backend::impl::setRenderDevice(const netero::audio::device& device) {
     HRESULT result;
     IMMDevice* endpoint = nullptr;
 
@@ -116,7 +116,7 @@ netero::audio::RtCode   netero::audio::backend::impl::setInputDevice(const neter
     return RtCode::OK;
 }
 
-netero::audio::RtCode   netero::audio::backend::impl::setOutputDevice(const netero::audio::device& device) {
+netero::audio::RtCode   netero::audio::backend::impl::setCaptureDevice(const netero::audio::device& device) {
     HRESULT     result;
     IMMDevice*  endpoint = nullptr;
     bool        isLoopback = false;
