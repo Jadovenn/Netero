@@ -5,6 +5,11 @@
 
 #pragma once
 
+ /**
+  * @file engine.hpp
+  * @brief Audio engine class
+  */
+
 #include <vector>
 #include <netero/audio/audio.hpp>
 #include <netero/audio/backend.hpp>
@@ -22,25 +27,28 @@ namespace netero::audio {
         explicit engine(const InitStrategy strategy = InitStrategy::DEFAULT);
         ~engine();
 
-        netero::signals<void(const WaveFormat&)> formatChangeSig;
+        netero::signals<void(const StreamFormat&)>          renderFormatChangeSig;
+        netero::signals<void(const std::string&)>           renderErrorSig;
+        netero::signals<void(const StreamFormat&)>          captureFormatChangeSig;
+        netero::signals<void(const std::string&)>           captureErrorSig;
+        netero::signals<void(const float*, const size_t)>   captureStreamSig;
+
         const std::vector<device>   &getRenderDevices();
-		RtCode						setRenderCallback(const backend::RenderCallback&);
+		StreamFormat			    getRenderFormat();
+        RtCode                      setRenderDevice(const device&);
+		RtCode						setRenderCallback(const RenderCallback&);
         RtCode						startRender();
         RtCode						stopRender();
 
-        netero::signals<void(const WaveFormat&)>            captureFormatChangeSig;
-        netero::signals<void(const std::string&)>           captureErrorSig;
-        netero::signals<void(const float*, const size_t)>   captureStreamSig;
+        const std::vector<device>   &getCaptureDevices();
+		StreamFormat				getCaptureFormat();
+        RtCode                      setCaptureDevice(const device&);
+        RtCode                      setCaptureCallback(const CaptureCallback&);
         RtCode                      startCapture();
         RtCode                      stopCapture();
-        RtCode                      setCaptureCallback(const backend::CaptureCallback&);
-        const std::vector<device>   &getCaptureDevices();
-        RtCode                      setCaptureDevice(const device&);
-		WaveFormat					getRenderFormat();
-		WaveFormat					getCaptureFormat();
-
 
     private:
+        void    renderErrorHandler(const std::string&);
         void    captureErrorHandler(const std::string &);
         void    captureHandler(const float*, const size_t);
         backend& _backend;

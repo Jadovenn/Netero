@@ -20,7 +20,7 @@
 
 namespace netero::audio {
 
-    class waveRecorder : public AudioInStream {
+    class waveRecorder : public AudioCaptureStream {
         enum class state {
             OFF,
             RECORDING
@@ -34,8 +34,8 @@ namespace netero::audio {
 
         void    connect(netero::audio::engine&);
 
-        netero::slot<void(const WaveFormat&)>  onFormatChangeSlot;
-        void    onFormatChange(const WaveFormat&);
+        netero::slot<void(const StreamFormat&)>  onFormatChangeSlot;
+        void    onFormatChange(const StreamFormat&);
 
         netero::slot<void(const float*, const size_t)>  captureStreamSlot;
         virtual void captureStream(const float* buffer, const size_t frames) final;
@@ -43,13 +43,13 @@ namespace netero::audio {
         virtual void stop() final;
 
     private:
-        int                captureAsyncHandler();
+        netero::shared_buffer<float>   _buffer;
         std::atomic<state>  _state = state::OFF;
         std::future<int>    _recordingResult;
-        WaveFormat          _format;
+        StreamFormat        _format;
         WaveHeader          _waveFileHeader;
         const std::string   _fileName;
         std::fstream        _fileStream;
-        netero::shared_buffer<float>   _buffer;
+        int                 captureAsyncHandler();
     };
 }

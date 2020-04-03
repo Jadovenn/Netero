@@ -9,10 +9,10 @@ std::unique_ptr<WASAPI_device>  netero::audio::backend::impl::WASAPI_get_default
     HRESULT     result;
     std::unique_ptr<WASAPI_device> device = std::make_unique<WASAPI_device>();
 
-    if (!_device_enumerator) {
+    if (!device_enumerator) {
         return nullptr;
     }
-    result = _device_enumerator->GetDefaultAudioEndpoint(dataFlow,
+    result = device_enumerator->GetDefaultAudioEndpoint(dataFlow,
         eConsole,
         &device->device);
     if (FAILED(result)) { return nullptr; }

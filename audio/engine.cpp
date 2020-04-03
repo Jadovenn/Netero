@@ -15,6 +15,9 @@ netero::audio::engine::engine(const InitStrategy strategy)
     _backend.setCaptureErrorCallback(std::bind(&netero::audio::engine::captureErrorHandler,
         this,
         std::placeholders::_1));
+    _backend.setRenderErrorCallback(std::bind(&netero::audio::engine::renderErrorHandler,
+        this,
+        std::placeholders::_1));
 }
 
 netero::audio::engine::~engine() {
@@ -30,19 +33,31 @@ const std::vector<netero::audio::device> &netero::audio::engine::getCaptureDevic
     return _backend.getCaptureDevices();
 }
 
-netero::audio::WaveFormat   netero::audio::engine::getRenderFormat() {
+netero::audio::StreamFormat   netero::audio::engine::getRenderFormat() {
     return _backend.getRenderFormat();
+}
+
+netero::audio::StreamFormat   netero::audio::engine::getCaptureFormat() {
+    return _backend.getCaptureFormat();
+}
+
+netero::audio::RtCode   netero::audio::engine::setRenderDevice(const netero::audio::device& device) {
+    RtCode code = _backend.setRenderDevice(device);
+    if (code == RtCode::OK) {
+        renderFormatChangeSig(_backend.getRenderFormat());
+    }
+    return code;
 }
 
 netero::audio::RtCode   netero::audio::engine::setCaptureDevice(const netero::audio::device& device) {
     RtCode code = _backend.setCaptureDevice(device);
     if (code == RtCode::OK) {
-        formatChangeSig(_backend.getCaptureFormat());
+        captureFormatChangeSig(_backend.getCaptureFormat());
     }
     return code;
 }
 
-netero::audio::RtCode   netero::audio::engine::setRenderCallback(const netero::audio::backend::RenderCallback &callback) {
+netero::audio::RtCode   netero::audio::engine::setRenderCallback(const netero::audio::RenderCallback &callback) {
     return _backend.setRenderCallback(callback);
 }
 
@@ -54,12 +69,12 @@ netero::audio::RtCode   netero::audio::engine::stopRender() {
     return _backend.stopRender();
 }
 
-netero::audio::WaveFormat   netero::audio::engine::getCaptureFormat() {
-    return _backend.getCaptureFormat();
-}
-
 void    netero::audio::engine::captureHandler(const float* buffer, const size_t frames) {
     captureStreamSig(buffer, frames);
+}
+
+void    netero::audio::engine::renderErrorHandler(const std::string& error) {
+    renderErrorSig(error);
 }
 
 void    netero::audio::engine::captureErrorHandler(const std::string& error) {

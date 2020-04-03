@@ -65,6 +65,10 @@ struct WASAPI_device {
 
 class netero::audio::backend::impl {
 public:
+
+	impl();
+	~impl();
+
 	enum state {
 		OFF,
 		STOP,
@@ -80,12 +84,23 @@ public:
 	std::atomic<state>	capturingState = state::OFF;
 	std::unique_ptr<std::thread>	renderingThread;
 	std::unique_ptr<std::thread>	capturingThread;
+	std::function<void(const std::string&)>	renderErrorHandler;
+	std::function<void(const std::string&)>	captureErrorHandler;
 
-	std::function<void(const std::string&)>	_captureErrorHandler;
-private:
-	IMMDeviceEnumerator* _device_enumerator = nullptr;
-	std::unique_ptr<WASAPI_device> _render_device;
-	std::unique_ptr<WASAPI_device> _capture_device;
+	IMMDeviceEnumerator*			device_enumerator = nullptr;
+	std::unique_ptr<WASAPI_device>	render_device = nullptr;
+	std::unique_ptr<WASAPI_device>	capture_device = nullptr;
+
+	std::vector<netero::audio::device> renderDevices = {};
+	std::vector<netero::audio::device> captureDevices = {};
+
+	void						renderingThreadHandle();
+	void						capturingThreadHandle();
+
+	std::unique_ptr<WASAPI_device>	WASAPI_get_default_device(EDataFlow dataFlow);
+	std::unique_ptr<WASAPI_device>	WASAPI_init_device(EDataFlow flow, IMMDevice*, bool isLoopback = false);
+	IMMDevice*						WASAPI_get_device(EDataFlow flow, const netero::audio::device& device);
+	RtCode							WASAPI_get_struct_Device(IMMDevice*, device&);
 
 	void	test_result(HRESULT result) {
 		if (FAILED(result)) {
@@ -96,39 +111,11 @@ private:
 
 	template<class T,
 		typename = std::enable_if<std::is_base_of<IUnknown, T>::value>>
-		inline void WASAPI_release(T** ptr) {
+	inline void WASAPI_release(T** ptr) {
 		if (*ptr) {
 			(*ptr)->Release();
 			*ptr = nullptr;
 		}
 	}
-
-	std::unique_ptr<WASAPI_device>	WASAPI_get_default_device(EDataFlow dataFlow);
-	std::unique_ptr<WASAPI_device>	WASAPI_init_device(EDataFlow flow, IMMDevice*, bool isLoopback = false);
-	IMMDevice*						WASAPI_get_device(EDataFlow flow, const netero::audio::device& device);
-	RtCode							WASAPI_get_struct_Device(IMMDevice*, device&);
-
-	std::vector<netero::audio::device> _inDevices;
-	std::vector<netero::audio::device> _outDevices;
-public:
-
-	impl();
-	~impl();
-
-	const std::vector<device>   &getRenderDevices();
-	RtCode						setRenderDevice(const device&);
-	WaveFormat					getRenderFormat();
-	void						renderingThreadHandle();
-	RtCode						startRender();
-	RtCode						stopRender();
-
-	const std::vector<device>   &getCaptureDevices();
-	RtCode						setCaptureDevice(const device&);
-	WaveFormat					getCaptureFormat();
-	void						capturingThreadHandle();
-	RtCode						startCapture();
-	RtCode						stopCapture();
-
-	const std::string&			getLastError();
 };
 

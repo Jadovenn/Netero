@@ -10,7 +10,7 @@ std::unique_ptr<WASAPI_device>  netero::audio::backend::impl::WASAPI_init_device
     HRESULT     result;
     std::unique_ptr<WASAPI_device> wDevice = std::make_unique<WASAPI_device>();
 
-    if (!_device_enumerator || !device) {
+    if (!device_enumerator || !device) {
         return nullptr;
     }
     wDevice->device = device;
@@ -66,7 +66,7 @@ IMMDevice* netero::audio::backend::impl::WASAPI_get_device(EDataFlow flow, const
     IMMDeviceCollection* pCollection = nullptr;
     IMMDevice* pEndpoint = nullptr;
 
-    result = _device_enumerator->EnumAudioEndpoints(flow,
+    result = device_enumerator->EnumAudioEndpoints(flow,
         DEVICE_STATE_ACTIVE,
         &pCollection);
     if (FAILED(result)) {
@@ -99,42 +99,48 @@ exit_error:
     return nullptr;
 }
 
-netero::audio::RtCode   netero::audio::backend::impl::setRenderDevice(const netero::audio::device& device) {
-    HRESULT result;
-    IMMDevice* endpoint = nullptr;
+netero::audio::RtCode   netero::audio::backend::setRenderDevice(const netero::audio::device& device) {
+    HRESULT     result;
+    IMMDevice*  endpoint = nullptr;
 
-    endpoint = WASAPI_get_device(eRender, device);
+    if (pImpl->renderingState.load(std::memory_order_acquire) != impl::state::OFF) {
+        return RtCode::ERR_ALTER_RUNNING;
+    }
+    endpoint = pImpl->WASAPI_get_device(eRender, device);
     if (!endpoint) {
         return RtCode::ERR_NO_SUCH_DEVICE;
     }
-    std::unique_ptr<WASAPI_device> new_device = WASAPI_init_device(eRender, endpoint);
+    std::unique_ptr<WASAPI_device> new_device = pImpl->WASAPI_init_device(eRender, endpoint);
     if (!new_device) {
         return RtCode::ERR_NATIVE;
     }
-    _render_device.reset();
-    _render_device = std::move(new_device);
+    pImpl->render_device.reset();
+    pImpl->render_device = std::move(new_device);
     return RtCode::OK;
 }
 
-netero::audio::RtCode   netero::audio::backend::impl::setCaptureDevice(const netero::audio::device& device) {
+netero::audio::RtCode   netero::audio::backend::setCaptureDevice(const netero::audio::device& device) {
     HRESULT     result;
     IMMDevice*  endpoint = nullptr;
     bool        isLoopback = false;
 
-    endpoint = WASAPI_get_device(eCapture, device);
+    if (pImpl->capturingState.load(std::memory_order_acquire) != impl::state::OFF) {
+        return RtCode::ERR_ALTER_RUNNING;
+    }
+    endpoint = pImpl->WASAPI_get_device(eCapture, device);
     if (!endpoint) {
-        endpoint = WASAPI_get_device(eRender, device);
+        endpoint = pImpl->WASAPI_get_device(eRender, device);
         if (!endpoint) {
             return RtCode::ERR_NO_SUCH_DEVICE;
         }
         isLoopback = true;
     }
-    std::unique_ptr<WASAPI_device> new_device = WASAPI_init_device(eCapture, endpoint, isLoopback);
+    std::unique_ptr<WASAPI_device> new_device = pImpl->WASAPI_init_device(eCapture, endpoint, isLoopback);
     if (!new_device) {
         return RtCode::ERR_NATIVE;
     }
-    _capture_device.reset();
-    _capture_device = std::move(new_device);
+    pImpl->capture_device.reset();
+    pImpl->capture_device = std::move(new_device);
     return RtCode::OK;
 }
 

@@ -8,36 +8,48 @@
 #include <memory>
 #include <functional>
 
+ /**
+  * @file backend.hpp
+  * @brief Declaration for audio backend implementation
+  * You should never refer directly to any backend container.
+  * @see netero::audio::engine
+  */
+
 #include <netero/audio/audio.hpp>
 
 namespace netero::audio {
 
+	/**
+	 * @brief backend
+	 * The bakcend class is the API to implement
+	 * for any specific operating system audio API.
+	 */
 	class backend {
-	public:
-		using RenderCallback = std::function<void(float*, size_t)>;
-		using CaptureCallback = std::function<void(const float*, const size_t)>;
-	private:
-		class impl;
-		std::unique_ptr<impl>	pImpl;
-		backend();
 	public:
 		static backend& GetInstance();
 		~backend();
 
 		const std::vector<device>&	getRenderDevices();
 		RtCode						setRenderDevice(const device&);
-		WaveFormat					getRenderFormat();
+		StreamFormat				getRenderFormat();
+		RtCode						setRenderCallback(const RenderCallback&);
+		RtCode						setRenderErrorCallback(const MessageCallback&);
 		RtCode						startRender();
 		RtCode						stopRender();
-		RtCode						setRenderCallback(const RenderCallback&);
 
 		const std::vector<device>&	getCaptureDevices();
 		RtCode						setCaptureDevice(const device&);
-		WaveFormat					getCaptureFormat();
-		RtCode						capturingThreadHandle();
+		StreamFormat				getCaptureFormat();
+		RtCode						setCaptureCallback(const CaptureCallback &);
+		RtCode						setCaptureErrorCallback(const MessageCallback&);
 		RtCode						startCapture();
 		RtCode						stopCapture();
-		RtCode						setCaptureErrorCallback(const std::function<void(const std::string&)>&);
-		RtCode						setCaptureCallback(const CaptureCallback &);
+		RtCode						capturingThreadHandle();
+
+		const std::string&			getLastError();
+	private:
+		backend();
+		class impl;
+		std::unique_ptr<impl>	pImpl;
 	};
 }

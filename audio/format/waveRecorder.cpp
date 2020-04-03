@@ -22,7 +22,7 @@ netero::audio::waveRecorder::operator bool() {
     return _fileStream.is_open();
 }
 
-void    netero::audio::waveRecorder::onFormatChange(const WaveFormat &format) {
+void    netero::audio::waveRecorder::onFormatChange(const StreamFormat &format) {
     _format = format;
     _waveFileHeader.header.FileSize = sizeof(WaveHeader) - 8;
     _waveFileHeader.format.ChannelNbr = _format.channels;

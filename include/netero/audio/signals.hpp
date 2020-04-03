@@ -13,12 +13,12 @@
 #include <netero/audio/audio.hpp>
 
 namespace netero::audio::signals {
-	class sinusoid: public AudioOutStream {
+	class sinusoid: public AudioRenderStream {
 	public:
 		sinusoid(double amplitude = 0.1, double frequency = 50, double phase = 0);
 		virtual ~sinusoid();
 
-		void    onFormatChange(const WaveFormat&) override;
+		void    onFormatChange(const StreamFormat&) override;
 		void    renderStream(float *buffer, size_t frames) override;
 		void    play() override;
 		void    pause() override;
@@ -33,7 +33,7 @@ namespace netero::audio::signals {
 		float _pulsation;
 		float _delta;
 		size_t _samplesCount;
-		audio::WaveFormat _format;
+		audio::StreamFormat _format;
 
 	public:
 		void			setAmplitude(double val) { _amplitude = val; }

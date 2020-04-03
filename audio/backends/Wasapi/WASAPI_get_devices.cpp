@@ -54,25 +54,25 @@ netero::audio::backend::impl::WASAPI_get_struct_Device(IMMDevice *pdevice, neter
     return RtCode::OK;
 }
 
-const std::vector<netero::audio::device>    &netero::audio::backend::impl::getRenderDevices() {
-    HRESULT result;
-    IMMDeviceCollection* pCollection = nullptr;
-    IMMDevice* pEndpoint = nullptr;
+const std::vector<netero::audio::device>    &netero::audio::backend::getRenderDevices() {
+    HRESULT                 result;
+    IMMDeviceCollection*    pCollection = nullptr;
+    IMMDevice*              pEndpoint = nullptr;
+    UINT                    count = 0;
 
-    _outDevices.clear();
-    result = _device_enumerator->EnumAudioEndpoints(eRender,
+    pImpl->renderDevices.clear();
+    result = pImpl->device_enumerator->EnumAudioEndpoints(eRender,
         DEVICE_STATE_ACTIVE,
         &pCollection);
     if (FAILED(result)) {
         goto exit_error;
     }
 
-    UINT  count;
     result = pCollection->GetCount(&count);
     if (FAILED(result) || count == 0) {
         goto exit_error;
     }
-    _outDevices.reserve(count);
+    pImpl->renderDevices.reserve(count);
 
     for (ULONG idx = 0; idx < count; idx++) {
         netero::audio::device device;
@@ -80,41 +80,41 @@ const std::vector<netero::audio::device>    &netero::audio::backend::impl::getRe
         if (FAILED(result)) {
             goto exit_error;
         }
-        RtCode code = WASAPI_get_struct_Device(pEndpoint, device);
+        RtCode code = pImpl->WASAPI_get_struct_Device(pEndpoint, device);
         if (code != RtCode::OK) {
             goto exit_error;
         }
-        _outDevices.push_back(device);
-        WASAPI_release<IMMDevice>(&pEndpoint);
+        pImpl->renderDevices.push_back(device);
+        pImpl->WASAPI_release<IMMDevice>(&pEndpoint);
     }
 
-    return _outDevices;
+    pImpl->WASAPI_release<IMMDeviceCollection>(&pCollection);
+    return pImpl->renderDevices;
 exit_error:
-    _outDevices.clear();
-    WASAPI_release<IMMDeviceCollection>(&pCollection);
-    WASAPI_release<IMMDevice>(&pEndpoint);
-    return _outDevices;
+    pImpl->renderDevices.clear();
+    pImpl->WASAPI_release<IMMDevice>(&pEndpoint);
+    return pImpl->renderDevices;
 }
 
-const std::vector<netero::audio::device>   &netero::audio::backend::impl::getCaptureDevices() {
-    HRESULT result;
-    IMMDeviceCollection* pCollection = nullptr;
-    IMMDevice* pEndpoint = nullptr;
+const std::vector<netero::audio::device>   &netero::audio::backend::getCaptureDevices() {
+    HRESULT                 result;
+    IMMDeviceCollection*    pCollection = nullptr;
+    IMMDevice*              pEndpoint = nullptr;
+    UINT                    count = 0;
 
-    _inDevices.clear();
-    result = _device_enumerator->EnumAudioEndpoints(eCapture,
+    pImpl->captureDevices.clear();
+    result = pImpl->device_enumerator->EnumAudioEndpoints(eCapture,
         DEVICE_STATE_ACTIVE,
         &pCollection);
     if (FAILED(result)) {
         goto exit_error;
     }
 
-    UINT  count;
     result = pCollection->GetCount(&count);
     if (FAILED(result)) {
         goto exit_error;
     }
-    _outDevices.reserve(count);
+    pImpl->captureDevices.reserve(count);
    
     for (ULONG idx = 0; idx < count; idx++) {
         netero::audio::device device;
@@ -122,19 +122,20 @@ const std::vector<netero::audio::device>   &netero::audio::backend::impl::getCap
         if (FAILED(result)) {
             goto exit_error;
         }
-        RtCode code = WASAPI_get_struct_Device(pEndpoint, device);
+        RtCode code = pImpl->WASAPI_get_struct_Device(pEndpoint, device);
         if (code != RtCode::OK) {
             goto exit_error;
         }
-        _inDevices.push_back(device);
-        WASAPI_release<IMMDevice>(&pEndpoint);
+        pImpl->captureDevices.push_back(device);
+        pImpl->WASAPI_release<IMMDevice>(&pEndpoint);
     }
 
-    return _inDevices;
+    pImpl->WASAPI_release<IMMDeviceCollection>(&pCollection);
+    return pImpl->captureDevices;
 exit_error:
-    _outDevices.clear();
-    WASAPI_release<IMMDeviceCollection>(&pCollection);
-    WASAPI_release<IMMDevice>(&pEndpoint);
-    return _inDevices;
+    pImpl->captureDevices.clear();
+    pImpl->WASAPI_release<IMMDeviceCollection>(&pCollection);
+    pImpl->WASAPI_release<IMMDevice>(&pEndpoint);
+    return pImpl->captureDevices;
 }
 
