@@ -5,12 +5,34 @@
 
 #include <netero/audio/format/waveRecorder.hpp>
 
-netero::audio::waveRecorder::waveRecorder(const std::string& name)
-    :   _fileName(name + ".wav"),
-        captureStreamSlot(&netero::audio::waveRecorder::captureStream, this),
-        onFormatChangeSlot(&netero::audio::waveRecorder::onFormatChange, this)
+netero::audio::waveRecorder::waveRecorder(netero::audio::engine& engine,
+    const netero::audio::device& device,
+    const std::string& name)
+    :   CaptureStream(engine, device),
+        _fileName(name + ".wav")
 {
+    onFormatChangeSlot.set(&netero::audio::waveRecorder::onFormatChange, this);
+    captureSlot.set(&netero::audio::waveRecorder::captureStream, this);
     _fileStream.open(_fileName, std::ios::out | std::ios::trunc | std::ios::binary);
+    _waveFileHeader.header.FileSize = sizeof(WaveHeader) - 8;
+    _waveFileHeader.format.ChannelNbr = _device.format.channels;
+    _waveFileHeader.format.AudioFormat = WaveAudioFormat::IEEE_FLOAT;
+    _waveFileHeader.format.Frequence = _device.format.samplingFrequency;
+    _waveFileHeader.format.BytePerSec = _device.format.samplingFrequency * _device.format.bytesPerFrame;
+    _waveFileHeader.format.BytePerBlock = _device.format.bytesPerFrame;
+    _waveFileHeader.format.BitsPerSample = _device.format.bytesPerSample * 8;
+    _buffer.reset(_waveFileHeader.format.BytePerSec);
+}
+
+netero::audio::waveRecorder::waveRecorder(netero::audio::engine& engine,
+    const std::string& name)
+    :   CaptureStream(engine),
+        _fileName(name + ".wav")
+{
+    onFormatChangeSlot.set(&netero::audio::waveRecorder::onFormatChange, this);
+    captureSlot.set(&netero::audio::waveRecorder::captureStream, this);
+    _fileStream.open(_fileName, std::ios::out | std::ios::trunc | std::ios::binary);
+
 }
 
 netero::audio::waveRecorder::~waveRecorder() {
@@ -23,34 +45,20 @@ netero::audio::waveRecorder::operator bool() {
 }
 
 void    netero::audio::waveRecorder::onFormatChange(const StreamFormat &format) {
-    _format = format;
+    _device.format = format;
     _waveFileHeader.header.FileSize = sizeof(WaveHeader) - 8;
-    _waveFileHeader.format.ChannelNbr = _format.channels;
+    _waveFileHeader.format.ChannelNbr = _device.format.channels;
     _waveFileHeader.format.AudioFormat = WaveAudioFormat::IEEE_FLOAT;
-    _waveFileHeader.format.Frequence = _format.samplingFrequency;
-    _waveFileHeader.format.BytePerSec = _format.samplingFrequency * _format.bytesPerFrame;
-    _waveFileHeader.format.BytePerBlock = _format.bytesPerFrame;
-    _waveFileHeader.format.BitsPerSample = _format.bytesPerSample * 8;
-    _buffer.reset(_waveFileHeader.format.BytePerSec); // Pre allocate 1sc buffer
-}
-
-void    netero::audio::waveRecorder::connect(netero::audio::engine& audio_engine) {
-    audio_engine.captureStreamSig.connect(&captureStreamSlot);
-    audio_engine.captureFormatChangeSig.connect(&onFormatChangeSlot);
-    _format = audio_engine.getRenderFormat();
-    _waveFileHeader.header.FileSize = sizeof(WaveHeader) - 8;
-    _waveFileHeader.format.AudioFormat = WaveAudioFormat::IEEE_FLOAT;
-    _waveFileHeader.format.ChannelNbr = _format.channels;
-    _waveFileHeader.format.Frequence = _format.samplingFrequency;
-    _waveFileHeader.format.BytePerSec = _format.samplingFrequency * _format.bytesPerFrame;
-    _waveFileHeader.format.BytePerBlock = _format.bytesPerFrame;
-    _waveFileHeader.format.BitsPerSample = _format.bytesPerSample * 8;
-    _buffer.reset(_waveFileHeader.format.BytePerSec); // Pre allocate 1sc buffer
+    _waveFileHeader.format.Frequence = _device.format.samplingFrequency;
+    _waveFileHeader.format.BytePerSec = _device.format.samplingFrequency * _device.format.bytesPerFrame;
+    _waveFileHeader.format.BytePerBlock = _device.format.bytesPerFrame;
+    _waveFileHeader.format.BitsPerSample = _device.format.bytesPerSample * 8;
+    _buffer.reset(_waveFileHeader.format.BytePerSec);
 }
 
 void    netero::audio::waveRecorder::captureStream(const float* buffer, const size_t frames) {
     size_t writtenBlocks = 0;
-    const size_t blocks = frames * _format.channels;
+    const size_t blocks = frames * _device.format.channels;
 
     if (_state.load(std::memory_order_acquire) == state::RECORDING) {
         while (writtenBlocks != blocks) {

@@ -25,10 +25,7 @@ namespace netero {
 		using Signature = _rType(_ArgsType...);
 
 		~signals() override {
-			std::scoped_lock<std::mutex>	lock(_slotsMutex);
-			for (netero::slot<Signature >*slot: _slots) {
-				slot->disconnect(this);
-			}
+			flush();
 		};
 
 		void    operator()(_ArgsType... args) {
@@ -52,6 +49,17 @@ namespace netero {
 			});
 			if (it != _slots.end()) {
 				_slots.erase(it);
+			}
+		}
+
+		int		size() {
+			return _slots.size();
+		}
+
+		void	flush() {
+			std::scoped_lock<std::mutex>	lock(_slotsMutex);
+			for (netero::slot<Signature >* slot : _slots) {
+				slot->disconnect(this);
 			}
 		}
 

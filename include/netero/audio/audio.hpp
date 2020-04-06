@@ -5,9 +5,10 @@
 
 #pragma once
 
-#include <functional>
 #include <vector>
 #include <string>
+
+#include <netero/observer/signals.hpp>
 
 /**
  * @file audio.hpp
@@ -15,21 +16,6 @@
  */
 
 namespace netero::audio {
-
-	/**
-	 * @typedef MessageCallback
-	 * @brief Signature for message signal.
-	 * This is the callback signature for message signal transmission
-	 * from the engine to high level container to notify some events and/or errors.
-	 */
-	using MessageCallback = std::function<void(const std::string&)>;
-
-	/**
-	 * @typedef RenderCallback
-	 * @brief 
-	 */
-	using RenderCallback = std::function<void(float*, const size_t)>;
-	using CaptureCallback = std::function<void(const float*, const size_t)>;
 
 	/**
 	 * @enum RtCode
@@ -65,97 +51,13 @@ namespace netero::audio {
 		std::vector<float> supportedSamplingRate = {}; /**< Supported sampling frequency of the native audio device */
 	};
 
-	/**
-	 * @struct device
-	 * @brief Hold information of all available Capture and Render devices.
-	 */
-	struct device {
-		std::string id; /**< Device Id. Exact same stringify id given by the audio backend. */
-		std::string name; /**< Device Name. Device name given by the audio backend */
-		std::string manufacturer; /**< Device manufacturer name. May be "Unknown" if not provided by the audio backend*/
-	};
-
-	/**
-	 * @interface AudioCaptureStream
-	 * @brief For any audio stream capable of rendering an audio signal.
-	 */
-	class AudioRenderStream {
-	public:
-		/**
-		 * @pure setFormat
-		 * @see netero::audio::engine
-		 * @remarks You can retrieve the format in ctor via a netero::audio::engine's methode
-		 *			to preallocate internal buffer you may use for rendering.
-		 * This methode is called by a parent node while the StreamFormat change
-		 * and need to be updated in your container.
-		 */
-		virtual void onFormatChange(const StreamFormat &) = 0;
-
-		/**
-		 * @pure renderStream
-		 * @warning This methode is called by a parent node in a seperate thread.
-		 *			You must not perform any allocation nor blocking operation or it might
-		 *			impact severly the audio rendering performence of your application.
-		 * @warning Becarfull, the buffer size may differ between call. Do not assume
-		 *			that it is the same as the shared size provided threw StreamFormat struct.
-		 * @param[in] buffer The rendering buffer to write samples to.
-		 * @param[in] frames The number of frames the buffer contain.
-		 */
-		virtual void renderStream(float *buffer, size_t frames) = 0;
-
-		/**
-		 * @pure play
-		 * @see pause
-		 * Allow the audio stream to produce a signal.
-		 * In case of previous call of stop the stream should start at
-		 * a previously saved offset.
-		 */
-		virtual void play() = 0;
-
-		/**
-		 * @pure pause
-		 * Stop the signal generation from the stream and save the offset.
-		 * If play() is called again the stream must start again from the saved offset.
-		 */
-		virtual void pause() = 0;
-
-		/**
-		 * @pure stop
-		 * Stop the signal generation from the stream.
-		 * The offset may not be saved and be reseted.
-		 */
-		virtual void stop() = 0;
-	};
-
-	/**
-	 * @interface AudioCaptureStream
-	 * @brief For any audio container that capture a stream
-	 */
-	class AudioCaptureStream {
-	public:
-		/**
-		 * @pure captureStream
-		 * @warning This methode is called by a parent node in a seperate thread.
-		 *			You must not perform any allocation nor blocking call or it might
-		 *			impact severly the audio rendering of your application.
-		 * @warning Becarfull, the buffer size may differ between call. Do not assume
-					that it is the same as the shared size provided threw WaveFormat struct.
-		 * @param[in] buffer The rendering buffer.
-		 * @param[in] frames The number of frames the buffer contain.
-		 */
-		virtual void captureStream(const float* buffer, const size_t frames) = 0;
-
-		/**
-		 * @pure record
-		 * Allow the audio stream to recive a signal.
-		 */
-		virtual void record() = 0;
-
-		/**
-		 * @pure stop
-		 * Stop reciving a signal from the stream.
-		 */
-		virtual void stop() = 0;
-	};
+	using RenderSignal = netero::signals<void(float*, const size_t)>;
+	using RenderSlot = netero::slot<void(float*, const size_t)>;
+	using CaptureSignal = netero::signals<void(const float*, const size_t)>;
+	using CaptureSlot = netero::slot<void(const float*, const size_t)>;
+	using OnStreamChangeSignal = netero::signals<void(const StreamFormat&)>;
+	using OnStreamChangeSlot = netero::slot<void(const StreamFormat&)>;
+	using DeviceErrorSignal = netero::signals<void(const std::string&)>;
+	using DeviceErrorSlot = netero::slot<void(const std::string&)>;
 }
 

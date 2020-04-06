@@ -16,6 +16,7 @@
   */
 
 #include <netero/audio/audio.hpp>
+#include <netero/audio/device.hpp>
 
 namespace netero::audio {
 
@@ -29,27 +30,23 @@ namespace netero::audio {
 		static backend& GetInstance();
 		~backend();
 
-		const std::vector<device>&	getRenderDevices();
-		RtCode						setRenderDevice(const device&);
-		StreamFormat				getRenderFormat();
-		RtCode						setRenderCallback(const RenderCallback&);
-		RtCode						setRenderErrorCallback(const MessageCallback&);
-		RtCode						startRender();
-		RtCode						stopRender();
+		const std::vector<device>	getRenderDevices();
+		const device&				getDefaultRenderDevice();
+		const std::vector<device>	getCaptureDevices();
+		const device&				getDefaultCaptureDevice();
 
-		const std::vector<device>&	getCaptureDevices();
-		RtCode						setCaptureDevice(const device&);
-		StreamFormat				getCaptureFormat();
-		RtCode						setCaptureCallback(const CaptureCallback &);
-		RtCode						setCaptureErrorCallback(const MessageCallback&);
-		RtCode						startCapture();
-		RtCode						stopCapture();
-		RtCode						capturingThreadHandle();
+		device::events& getDeviceEvents(const device&); // may throw
 
+		RtCode						deviceStartRendering(const device&);
+		RtCode						deviceStopRendering(const device&);
+		RtCode						deviceStartRecording(const device&);
+		RtCode						deviceStopRecording(const device&);
 		const std::string&			getLastError();
+
 	private:
 		backend();
 		class impl;
 		std::unique_ptr<impl>	pImpl;
 	};
 }
+

@@ -12,8 +12,8 @@
 
 #include <vector>
 #include <netero/audio/audio.hpp>
+#include <netero/audio/device.hpp>
 #include <netero/audio/backend.hpp>
-#include <netero/observer/signals.hpp>
 
 namespace netero::audio {
 
@@ -27,30 +27,17 @@ namespace netero::audio {
         explicit engine(const InitStrategy strategy = InitStrategy::DEFAULT);
         ~engine();
 
-        netero::signals<void(const StreamFormat&)>          renderFormatChangeSig;
-        netero::signals<void(const std::string&)>           renderErrorSig;
-        netero::signals<void(const StreamFormat&)>          captureFormatChangeSig;
-        netero::signals<void(const std::string&)>           captureErrorSig;
-        netero::signals<void(const float*, const size_t)>   captureStreamSig;
+        const std::vector<device>	getRenderDevices();
+        const std::vector<device>	getCaptureDevices();
+        const device& getDefaultRenderDevice();
+        const device& getDefaultCaptureDevice();
+        netero::audio::device::events& getDeviceEvents(const netero::audio::device&); // may throw
+        RtCode  deviceStartRendering(const device&);
+        RtCode  deviceStopRendering(const device&);
 
-        const std::vector<device>   &getRenderDevices();
-		StreamFormat			    getRenderFormat();
-        RtCode                      setRenderDevice(const device&);
-		RtCode						setRenderCallback(const RenderCallback&);
-        RtCode						startRender();
-        RtCode						stopRender();
-
-        const std::vector<device>   &getCaptureDevices();
-		StreamFormat				getCaptureFormat();
-        RtCode                      setCaptureDevice(const device&);
-        RtCode                      setCaptureCallback(const CaptureCallback&);
-        RtCode                      startCapture();
-        RtCode                      stopCapture();
-
+        RtCode  deviceStartRecording(const device&);
+        RtCode  deviceStopRecording(const device&);
     private:
-        void    renderErrorHandler(const std::string&);
-        void    captureErrorHandler(const std::string &);
-        void    captureHandler(const float*, const size_t);
         backend& _backend;
     };
 }

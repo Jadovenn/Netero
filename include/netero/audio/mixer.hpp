@@ -8,8 +8,7 @@
 #include <list>
 #include <mutex>
 
-#include <netero/audio/engine.hpp>
-#include <netero/audio/audio.hpp>
+#include <netero/audio/renderStream.hpp>
 #include <netero/observer/slots.hpp>
 
 /**
@@ -25,14 +24,12 @@ namespace netero::audio {
      * Mixer is the back-bones of the audio management, it servers as node
      * where AudioStream can connect. The audio rendering process can be see as a general tree.
      */
-    class mixer: public AudioRenderStream {
+    class mixer: public RenderStream {
     public:
-        mixer();
-        explicit mixer(engine&);
-        explicit mixer(AudioRenderStream&);
+        mixer(netero::audio::engine&);
+        mixer(netero::audio::engine&, const netero::audio::device& device);
         virtual ~mixer();
 
-        netero::slot<void(const StreamFormat&)> onFormatChangeSlot;
         void    onFormatChange(const StreamFormat&) override;
         void    renderStream(float* buffer, size_t frames) override;
         void    play() override;
@@ -45,7 +42,7 @@ namespace netero::audio {
          * render immediately by the mixer.
          * @param[in] stream Stream to register in.
          */
-        void    connect(AudioRenderStream *stream);
+        void    add(RenderStream *stream);
 
         /**
          * @methode disconnect
@@ -53,11 +50,10 @@ namespace netero::audio {
          * will not rendered by the mixer anymore.
          * @param[in] stream Stream to register in
          */
-        void    disconnect(AudioRenderStream *stream);
+        void    remove(RenderStream *stream);
 
     protected:
-        netero::audio::StreamFormat     _format;
-        std::list<AudioRenderStream*>   _streams;
+        std::list<RenderStream*>        _streams;
 
     private:
         void    alloc_internal_buffer();

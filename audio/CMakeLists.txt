@@ -14,13 +14,18 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/audio/audio.hpp
         ${HEADERS_DIRECTORY}/audio/backend.hpp
         ${HEADERS_DIRECTORY}/audio/engine.hpp
+        ${HEADERS_DIRECTORY}/audio/renderStream.hpp
+        ${HEADERS_DIRECTORY}/audio/captureStream.hpp
+        ${HEADERS_DIRECTORY}/audio/device.hpp
         ${HEADERS_DIRECTORY}/audio/mixer.hpp
         ${HEADERS_DIRECTORY}/audio/signals.hpp
         ${HEADERS_DIRECTORY}/audio/format/wave.hpp
         ${HEADERS_DIRECTORY}/audio/format/waveRecorder.hpp)
 list(APPEND SRCS
-        mixer.cpp
         engine.cpp
+        mixer.cpp
+        renderStream.cpp
+        captureStream.cpp
         format/waveRecorder.cpp
         signals/sinusoid.cpp)
 
@@ -32,10 +37,10 @@ if(WIN32)
     list(APPEND SRCS
             backends/Wasapi/WASAPI.hpp
             backends/Wasapi/WASAPI.cpp
-            backends/Wasapi/WASAPI_get_format.cpp
+            ##backends/Wasapi/WASAPI_get_format.cpp
             backends/Wasapi/WASAPI_default_devices.cpp
             backends/Wasapi/WASAPI_get_devices.cpp
-            backends/Wasapi/WASAPI_set_device.cpp
+            ##backends/Wasapi/WASAPI_set_device.cpp
             backends/Wasapi/WASAPI_render.cpp
             backends/Wasapi/WASAPI_capture.cpp)
     list(APPEND LINK_LIBRARIES
@@ -98,3 +103,4 @@ install(EXPORT audio-export
 install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/audio
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")
+

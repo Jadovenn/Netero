@@ -80,7 +80,7 @@ namespace netero {
         }
 
         operator bool() const {
-            return !(_buffer == nullptr);
+            return !(_buffer == nullptr || _size == 0);
         }
 
         ~shared_buffer() {
@@ -92,10 +92,13 @@ namespace netero {
         }
 
         int getPadding() {
-            if (_writeOffset == -1) {
+            if (_size == 0) {
+                return 0;
+            }
+            else if (_writeOffset == -1) {
                 return _size - _readOffset;
             }
-            else if (_readOffset == -1) {
+            else if (_readOffset == -1 && _writeOffset > -1) {
                 return _writeOffset;
             }
             if (_readOffset < _writeOffset) {
@@ -120,7 +123,7 @@ namespace netero {
             int readCount = 0;
 
             std::scoped_lock(_bufferMutex);
-            if (!_buffer || blocks == 0 || _readOffset == _writeOffset - 1) {
+            if (!_buffer || _size == 0 || blocks == 0 || _readOffset == _writeOffset - 1) {
                 return 0;
             }
             if (_readOffset == -1) {
@@ -155,7 +158,7 @@ namespace netero {
         int     write(const T* __restrict inBuffer, size_t blocks) {
             int writeCount = 0;
             std::scoped_lock(_bufferMutex);
-            if (!_buffer || blocks == 0 || _readOffset == _writeOffset) {
+            if (!_buffer || _size == 0 || blocks == 0 || _readOffset == _writeOffset) {
                 return 0;
             }
             if (_writeOffset < _readOffset) {

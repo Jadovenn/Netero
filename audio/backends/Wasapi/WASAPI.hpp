@@ -24,6 +24,7 @@
 
 #include <netero/audio/audio.hpp>
 #include <netero/audio/backend.hpp>
+#include <netero/audio/device.hpp>
 
 extern const CLSID CLSID_MMDeviceEnumerator;
 extern const IID IID_IMMDeviceEnumerator;
@@ -31,7 +32,21 @@ extern const IID IID_IAudioClient;
 extern const IID IID_IAudioRenderClient;
 extern const IID IID_IAudioCaptureClient;
 
+enum class DataFlow {
+	eRender = EDataFlow::eRender,
+	eCapture = EDataFlow::eCapture,
+	eAll = EDataFlow::eAll,
+};
+
 struct WASAPI_device {
+	enum class state {
+		OFF,
+		STOP,
+		RUNNING,
+		TIMEOUT,
+		ERR,
+	};
+
 	IMMDevice*				device = nullptr;
 	IAudioClient*			audio_client = nullptr;
 	IAudioRenderClient*		render_client = nullptr;
@@ -42,6 +57,13 @@ struct WASAPI_device {
 	UINT32					framesCount = 0;
 	bool					isLoopBackDevice = false;
 
+	DataFlow							deviceFlow = DataFlow::eAll;
+	netero::audio::device				clientDevice;
+	std::unique_ptr<std::thread>		renderingThread;
+	std::unique_ptr<std::thread>		capturingThread;
+	std::atomic<state>					renderingState = state::OFF;
+	std::atomic<state>					capturingState = state::OFF;
+
 	template<class T,
 		typename = std::enable_if<std::is_base_of<IUnknown, T>::value>>
 	inline void release(T** ptr) {
@@ -51,10 +73,30 @@ struct WASAPI_device {
 		}
 	}
 
+	void reset() {
+		release<IAudioRenderClient>(&render_client);
+		release<IAudioCaptureClient>(&capture_client);
+	}
+
 	~WASAPI_device() {
+		if (renderingThread) {
+			renderingState.store(state::OFF, std::memory_order_release);
+			renderingThread->join();
+			renderingThread.reset();
+		}
+		if (capturingThread) {
+			capturingState.store(state::OFF, std::memory_order_release);
+			capturingThread->join();
+			capturingThread.reset();
+		}
+		clientDevice.signals.captureStreamSig.flush();
+		clientDevice.signals.renderStreamSig.flush();
+		clientDevice.signals.deviceStreamForamtChangeSig.flush();
+		clientDevice.signals.deviceErrorSig.flush();
 		release<IMMDevice>(&device);
 		release<IAudioClient>(&audio_client);
 		release<IAudioRenderClient>(&render_client);
+		release<IAudioCaptureClient>(&capture_client);
 		if (wfx) {
 			CoTaskMemFree(wfx);
 			wfx = nullptr;
@@ -78,8 +120,6 @@ public:
 	};
 
 	std::string			lastError;
-	RenderCallback		renderingCallback;
-	CaptureCallback		capturingCallback;
 	std::atomic<state>	renderingState = state::OFF;
 	std::atomic<state>	capturingState = state::OFF;
 	std::unique_ptr<std::thread>	renderingThread;
@@ -91,16 +131,23 @@ public:
 	std::unique_ptr<WASAPI_device>	render_device = nullptr;
 	std::unique_ptr<WASAPI_device>	capture_device = nullptr;
 
+	std::list<std::shared_ptr<WASAPI_device>>	_renderDevices;
+	std::list<std::shared_ptr<WASAPI_device>>	_captureDevices;
+	netero::audio::device						nullDevice;
+
 	std::vector<netero::audio::device> renderDevices = {};
 	std::vector<netero::audio::device> captureDevices = {};
 
-	void						renderingThreadHandle();
-	void						capturingThreadHandle();
+	std::shared_ptr<WASAPI_device>	WASAPI_alloc_device(IMMDevice*, DataFlow);
+	PROPVARIANT						WASAPI_get_device_property(IMMDevice*, const PROPERTYKEY);
+	LPWSTR							WASAPI_get_device_ID(IMMDevice*);
+	const std::string				WASAPI_get_default_device_ID(DataFlow);
+	std::shared_ptr<WASAPI_device>	WASAPI_get_device(const audio::device&);
 
-	std::unique_ptr<WASAPI_device>	WASAPI_get_default_device(EDataFlow dataFlow);
-	std::unique_ptr<WASAPI_device>	WASAPI_init_device(EDataFlow flow, IMMDevice*, bool isLoopback = false);
-	IMMDevice*						WASAPI_get_device(EDataFlow flow, const netero::audio::device& device);
-	RtCode							WASAPI_get_struct_Device(IMMDevice*, device&);
+	//std::unique_ptr<WASAPI_device>	WASAPI_init_device(EDataFlow flow, IMMDevice*, bool isLoopback = false);
+	//IMMDevice*						WASAPI_get_device(EDataFlow flow, const netero::audio::device& device);
+
+	static std::string wstring_to_string(LPWSTR str);
 
 	void	test_result(HRESULT result) {
 		if (FAILED(result)) {

@@ -33,6 +33,8 @@ namespace netero {
 	class slot<_rType(_ArgsType...)>: public IObserverDelegate {
 	public:
 
+		slot() = default;
+
 		explicit slot(_rType(*func_ptr)(_ArgsType...))
 			:	_function(func_ptr)
 		{}
@@ -59,6 +61,22 @@ namespace netero {
 			}
 		}
 
+		template <typename _Base>
+		void	set(_rType(_Base::* methode)(_ArgsType...), _Base* base) {
+			std::scoped_lock<std::mutex>	lock(_sigMutex);
+			_function = [methode, base] (_ArgsType ...args) -> _rType {
+				return (base->*methode)(std::forward<_ArgsType>(args)...);
+			};
+		}
+
+		void	set(_rType(*function_ptr)(_ArgsType...)) {
+			_function(function_ptr);
+		}
+
+		void	set(const std::function<_rType(_ArgsType...)> &functor) {
+			_function = functor;
+		}
+
 		virtual _rType    operator()(_ArgsType... args) {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			if (_function) {
@@ -66,6 +84,11 @@ namespace netero {
 			}
 			throw netero::bad_slot_call();
 		}
+
+		operator bool() {
+			return (_function);
+		}
+
 
 		void disconnect(IObserverDelegate *delegate) override {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);

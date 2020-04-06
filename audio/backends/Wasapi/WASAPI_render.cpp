@@ -7,125 +7,136 @@
 #include <chrono>
 #include "WASAPI.hpp"
 
-void   netero::audio::backend::impl::renderingThreadHandle() {
+static
+void   renderingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 	HRESULT	result;
 	HANDLE	task = nullptr;
 	BYTE*	buffer = nullptr;
 	DWORD	taskIndex = 0;
-	const size_t bytePerFrames = render_device->wfx->nChannels * (render_device->wfx->wBitsPerSample / (size_t)8);
 	UINT32	padding = 0;
 	size_t	availaleFrames = 0;
 
+	auto nativeDevice = device.lock();
+	if (!nativeDevice) { return; }
+	const size_t bytePerFrames = nativeDevice->wfx->nChannels * (nativeDevice->wfx->wBitsPerSample / (size_t)8);
 	task = AvSetMmThreadCharacteristics(TEXT("Pro Audio"), &taskIndex);
 	if (!task) {
 		task = nullptr;
-		lastError = "Could not elevate thread priority.";
-		renderingState.store(state::ERR, std::memory_order_release);
-		goto exit_on_error;
+		nativeDevice->clientDevice.signals.deviceErrorSig("Could not elevate thread priority.");
+		goto exit;
 	}
-	result = render_device->audio_client->Start();
+	result = nativeDevice->audio_client->Start();
 	if (FAILED(result)) {
-		renderingState.store(state::ERR, std::memory_order_release);
-		lastError = "Could not start the device.";
-		goto exit_on_error;
+		nativeDevice->clientDevice.signals.deviceErrorSig("Could not start the device.");
+		goto exit;
 	}
-	while (renderingState.load(std::memory_order_acquire) == state::RUNNING) {
-		result = render_device->audio_client->GetCurrentPadding(&padding);
+	while (nativeDevice->renderingState.load(std::memory_order_acquire) == WASAPI_device::state::RUNNING) {
+		nativeDevice.reset();
+		nativeDevice = device.lock();
+		if (!nativeDevice) { return; }
+		result = nativeDevice->audio_client->GetCurrentPadding(&padding);
 		if (FAILED(result)) {
-			renderingState.store(state::ERR, std::memory_order_release);
-			lastError = "Could not retrieve buffer padding";
-			goto exit_on_error;
+			nativeDevice->clientDevice.signals.deviceErrorSig("Could not retrieve buffer padding.");
+			goto exit;
 		}
-		else if (padding != render_device->framesCount) { // process signal
-			availaleFrames = render_device->framesCount - padding;
-			result = render_device->render_client->GetBuffer(availaleFrames, &buffer);
+		else if (padding != nativeDevice->framesCount) {
+			availaleFrames = nativeDevice->framesCount - padding;
+			result = nativeDevice->render_client->GetBuffer(availaleFrames, &buffer);
 			if (FAILED(result) || buffer == nullptr) {
-				renderingState.store(state::ERR, std::memory_order_release);
-				lastError = "Could not retrieve device buffer.";
-				goto exit_on_error;
+				nativeDevice->clientDevice.signals.deviceErrorSig("Could not retrieve buffer padding.");
+				goto exit;
 			}
 			std::memset(buffer, 0, availaleFrames * bytePerFrames);
-			renderingCallback(reinterpret_cast<float*>(buffer), availaleFrames);
-			result = render_device->render_client->ReleaseBuffer(availaleFrames, 0);
+			nativeDevice->clientDevice.signals.renderStreamSig(reinterpret_cast<float*>(buffer), availaleFrames);
+			result = nativeDevice->render_client->ReleaseBuffer(availaleFrames, 0);
 			if (FAILED(result)) {
-				renderingState.store(state::ERR, std::memory_order_release);
-				lastError = "Could not release device buffer, device stuck.";
-				goto exit_on_error;
+				nativeDevice->clientDevice.signals.deviceErrorSig("Could not release buffer.");
+				goto exit;
 			}
 		}
-		else { // going to fast, yield()
+		else {
 			std::this_thread::yield();
 		}
 	}
-	result = render_device->audio_client->Stop();
+	result = nativeDevice->audio_client->Stop();
 	if (FAILED(result)) {
-		renderingState.store(state::ERR, std::memory_order_release);
-		lastError = "Could not stop, device stuck.";
-		goto exit_on_error;
+		nativeDevice->clientDevice.signals.deviceErrorSig("Could not stop, device stuck.");
 	}
-	renderingState.store(state::OFF, std::memory_order_release);
-	if (task) { AvRevertMmThreadCharacteristics(task); }
-	return;
-exit_on_error:
-	if (renderErrorHandler) { renderErrorHandler(lastError); }
+exit:
+	nativeDevice->renderingState.store(WASAPI_device::state::OFF, std::memory_order_release);
+	nativeDevice.reset();
 	if (task) { AvRevertMmThreadCharacteristics(task); }
 }
 
-netero::audio::RtCode   netero::audio::backend::startRender() {
+netero::audio::RtCode   netero::audio::backend::deviceStartRendering(const netero::audio::device &device) {
 	BYTE*	buffer = nullptr;
 	HRESULT result;
 
-	if (!pImpl->render_device) { return RtCode::ERR_NO_SUCH_DEVICE; }
-	if (!pImpl->renderingCallback) { return RtCode::ERR_MISSING_CALLBACK; }
-	if (pImpl->renderingState.load(std::memory_order_acquire) == impl::state::RUNNING) {
+	auto nativeDevice = pImpl->WASAPI_get_device(device);
+	if (!nativeDevice) { return RtCode::ERR_NO_SUCH_DEVICE; }
+	if (nativeDevice->deviceFlow != DataFlow::eRender) { return RtCode::ABILITY_NOT_SUPPORTED; }
+	if (nativeDevice->render_client) { return RtCode::ERR_ALREADY_RUNNING; }
+	if (nativeDevice->renderingState.load(std::memory_order_acquire) != WASAPI_device::state::OFF) {
 		return RtCode::ERR_ALREADY_RUNNING;
 	}
-	result = pImpl->render_device->render_client->GetBuffer(pImpl->render_device->framesCount, &buffer);
+
+	result = nativeDevice->audio_client->GetService(IID_IAudioRenderClient,
+		reinterpret_cast<void**>(&nativeDevice->render_client));
 	if (FAILED(result)) {
-		pImpl->lastError = "Could not retrieve rendering buffer while start.";
+		_com_error	err(result);
+		nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
+		nativeDevice->reset();
 		return RtCode::ERR_NATIVE;
 	}
-	pImpl->renderingCallback(reinterpret_cast<float*>(buffer), pImpl->render_device->framesCount);
-	result = pImpl->render_device->render_client->ReleaseBuffer(pImpl->render_device->framesCount, 0);
+	result = nativeDevice->render_client->GetBuffer(nativeDevice->framesCount, &buffer);
 	if (FAILED(result)) {
-		pImpl->lastError = "Could not release rendering buffer, device stuck.";
+		_com_error	err(result);
+		nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
+		nativeDevice->reset();
 		return RtCode::ERR_NATIVE;
 	}
-	pImpl->renderingState.store(impl::state::RUNNING, std::memory_order_release);
-	pImpl->renderingThread = std::make_unique<std::thread>(&netero::audio::backend::impl::renderingThreadHandle, pImpl.get());
+	std::memset(buffer, 0, nativeDevice->framesCount * nativeDevice->clientDevice.format.bytesPerFrame);
+	nativeDevice->clientDevice.signals.renderStreamSig(reinterpret_cast<float*>(buffer), nativeDevice->framesCount);
+	result = nativeDevice->render_client->ReleaseBuffer(nativeDevice->framesCount, 0);
+	if (FAILED(result)) {
+		_com_error	err(result);
+		nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
+		nativeDevice->reset();
+		return RtCode::ERR_NATIVE;
+	}
 
-	// TODO: wait one sampleFrequency cycle to catch init thread error
-
+	nativeDevice->renderingState.store(WASAPI_device::state::RUNNING, std::memory_order_release);
+	nativeDevice->renderingThread = std::make_unique<std::thread>(std::bind(renderingThreadHandle, nativeDevice));
 	return RtCode::OK;
 }
 
-netero::audio::RtCode   netero::audio::backend::stopRender() {
-	if (!pImpl->render_device) {
-		return RtCode::ERR_NO_SUCH_DEVICE;
-	}
-	if (pImpl->renderingState.load(std::memory_order_acquire) != impl::state::RUNNING) {
+netero::audio::RtCode   netero::audio::backend::deviceStopRendering(const netero::audio::device &device) {
+	auto nativeDevice = pImpl->WASAPI_get_device(device);
+	if (!nativeDevice) { return RtCode::ERR_NO_SUCH_DEVICE; }
+	if (nativeDevice->renderingState.load(std::memory_order_acquire) != WASAPI_device::state::RUNNING) {
 		return RtCode::ERR_DEVICE_NOT_RUNNING;
 	}
 	std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
-	while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count() < pImpl->render_device->latency) {
+	while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count() < nativeDevice->latency) {
 		std::this_thread::yield();
 	}
-	pImpl->renderingState.store(impl::state::STOP, std::memory_order_release);
+	nativeDevice->renderingState.store(WASAPI_device::state::STOP, std::memory_order_release);
 	start = std::chrono::system_clock::now();
 	std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
 	while (std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() < 500) {
-		if (pImpl->renderingState.load(std::memory_order_acquire) == impl::state::OFF) {
+		if (nativeDevice->renderingState.load(std::memory_order_acquire) == WASAPI_device::state::OFF) {
 			break;
 		}
 		end = std::chrono::system_clock::now();
 	}
 	if (std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() > 500) {
-		pImpl->renderingThread->detach();
-		pImpl->renderingThread.reset();
+		nativeDevice->renderingThread->detach();
+		nativeDevice->renderingThread.reset();
 		return RtCode::DEVICE_TIMEOUT;
 	}
-	pImpl->renderingThread->join();
-	pImpl->renderingThread.reset();
+	nativeDevice->renderingThread->join();
+	nativeDevice->renderingThread.reset();
+	nativeDevice.reset();
 	return RtCode::OK;
 }
 

@@ -55,7 +55,7 @@ namespace netero::audio {
 
 #pragma pack(pop)
 
-    class waveRecorder: public AudioCaptureStream {
+    class waveRecorder: public CaptureStream {
         enum class state {
             OFF,
             RECORDING

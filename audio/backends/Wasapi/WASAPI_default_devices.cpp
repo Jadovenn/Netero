@@ -5,49 +5,35 @@
 
 #include "WASAPI.hpp"
 
-std::unique_ptr<WASAPI_device>  netero::audio::backend::impl::WASAPI_get_default_device(EDataFlow dataFlow) {
+const std::string  netero::audio::backend::impl::WASAPI_get_default_device_ID(DataFlow dataFlow) {
     HRESULT     result;
-    std::unique_ptr<WASAPI_device> device = std::make_unique<WASAPI_device>();
+    IMMDevice*  device = nullptr;
+    LPWSTR      wstrID = nullptr;
+    std::string stringID;
 
     if (!device_enumerator) {
         return nullptr;
     }
-    result = device_enumerator->GetDefaultAudioEndpoint(dataFlow,
-        eConsole,
-        &device->device);
-    if (FAILED(result)) { return nullptr; }
-
-    result = device->device->Activate(IID_IAudioClient,
-        CLSCTX_ALL,
-        nullptr,
-        reinterpret_cast<void**>(&device->audio_client));
-    if (FAILED(result)) { return nullptr; }
-    result = device->audio_client->GetMixFormat(&device->wfx);
-    if (FAILED(result)) { return nullptr; }
-    if (device->wfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
-        device->wfx_ext = reinterpret_cast<WAVEFORMATEXTENSIBLE*>(device->wfx);
+    if (dataFlow == DataFlow::eRender) {
+        result = device_enumerator->GetDefaultAudioEndpoint(eRender,
+            eConsole,
+            &device);
+            if (FAILED(result)) { return stringID; }
     }
-    result = device->audio_client->GetDevicePeriod(nullptr, &device->latency);
-    if (FAILED(result)) { return nullptr; }
-    result = device->audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED,
-        0,
-        0,
-        0,
-        device->wfx,
-        nullptr);
-    if (FAILED(result)) { return nullptr; }
-    result = device->audio_client->GetBufferSize(&device->framesCount);
-    if (FAILED(result)) { return nullptr; }
-    if (dataFlow == eRender) {
-        result = device->audio_client->GetService(IID_IAudioRenderClient,
-            reinterpret_cast<void**>(&device->render_client));
-        if (FAILED(result)) { return nullptr; }
+    else if (dataFlow == DataFlow::eCapture) {
+        result = device_enumerator->GetDefaultAudioEndpoint(eCapture,
+            eConsole,
+            &device);
+            if (FAILED(result)) { return stringID; }
     }
-    else if (dataFlow == eCapture) {
-        result = device->audio_client->GetService(IID_IAudioCaptureClient,
-            reinterpret_cast<void**>(&device->capture_client));
-        if (FAILED(result)) { return nullptr; }
+    else {
+        return stringID;
     }
-    return std::move(device);
+    wstrID = WASAPI_get_device_ID(device);
+    if (!wstrID) { return stringID; }
+    stringID = wstring_to_string(wstrID);
+    CoTaskMemFree(wstrID);
+    WASAPI_release<IMMDevice>(&device);
+    return stringID;
 }
 

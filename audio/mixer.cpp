@@ -8,36 +8,24 @@
 #include <netero/audio/mixer.hpp>
 #include <netero/audio/backend.hpp>
 
-netero::audio::mixer::mixer()
-    :   onFormatChangeSlot(&netero::audio::mixer::onFormatChange, this),
-        _format{},
+netero::audio::mixer::mixer(netero::audio::engine &engine)
+    :   RenderStream(engine),
     	_samplesCount(0),
         _sourceBuffer(nullptr)
-{}
+{
+    onStreamChangeSlot.set(&netero::audio::mixer::onFormatChange, this);
+    renderSlot.set(&netero::audio::mixer::renderStream, this);
+}
 
-netero::audio::mixer::mixer(netero::audio::engine& engine)
-    :   onFormatChangeSlot(&netero::audio::mixer::onFormatChange, this),
-        _format{},
+netero::audio::mixer::mixer(netero::audio::engine& engine, const netero::audio::device &device)
+    :   RenderStream(engine, device),
         _samplesCount(0),
         _sourceBuffer(nullptr)
 {
-    RtCode code = engine.setRenderCallback(std::bind(&netero::audio::mixer::renderStream,
-        this,
-        std::placeholders::_1,
-        std::placeholders::_2));
-    if (code == RtCode::OK) {
-        engine.renderFormatChangeSig.connect(&onFormatChangeSlot);
-        _format = engine.getRenderFormat();
-        alloc_internal_buffer();
-    }
+    onStreamChangeSlot.set(&netero::audio::mixer::onFormatChange, this);
+    renderSlot.set(&netero::audio::mixer::renderStream, this);
+    alloc_internal_buffer();
 }
-
-netero::audio::mixer::mixer(netero::audio::AudioRenderStream &)
-    :   onFormatChangeSlot(&netero::audio::mixer::onFormatChange, this),
-        _format{},
-        _samplesCount(0),
-        _sourceBuffer(nullptr)
-{}
 
 netero::audio::mixer::~mixer() {
     stop();
@@ -45,27 +33,27 @@ netero::audio::mixer::~mixer() {
 }
 
 void    netero::audio::mixer::onFormatChange(const netero::audio::StreamFormat& format) {
-    if (_format.samplingFrequency != format.samplingFrequency) {
+    if (_device.format.samplingFrequency != format.samplingFrequency) {
         free_internal_buffer();
-        _format = format;
+        _device.format = format;
         alloc_internal_buffer();
         for (auto* stream : _streams) {
-            stream->onFormatChange(_format);
+            stream->onFormatChange(_device.format);
         }
     }
 }
 
 void    netero::audio::mixer::alloc_internal_buffer() {
-    _samplesCount = (size_t)_format.framesCount * (size_t)_format.channels;
+    _samplesCount = (size_t)_device.format.framesCount * (size_t)_device.format.channels;
     _sourceBuffer = new (std::nothrow) float[_samplesCount];
     if (!_samplesCount) {
         throw std::bad_alloc();
     }
-    std::memset(_sourceBuffer, 0, _samplesCount * _format.bytesPerSample);
+    std::memset(_sourceBuffer, 0, _samplesCount * _device.format.bytesPerSample);
 }
 
 void    netero::audio::mixer::free_internal_buffer() {
-    delete _sourceBuffer;
+    delete[] _sourceBuffer;
     _sourceBuffer = nullptr;
 }
 
@@ -89,9 +77,9 @@ void  netero::audio::mixer::renderStream(float* buffer, size_t frames) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
     if (!_streams.empty()) {
         for (auto* stream : _streams) {
-            std::memset(_sourceBuffer, 0, frames * _format.bytesPerFrame);
+            std::memset(_sourceBuffer, 0, frames * _device.format.bytesPerFrame);
             stream->renderStream(_sourceBuffer, frames);
-            mixer::mix(buffer, _sourceBuffer, frames * _format.channels);
+            mixer::mix(buffer, _sourceBuffer, frames * _device.format.channels);
         }
     }
 }
@@ -117,13 +105,13 @@ void    netero::audio::mixer::stop() {
     }
 }
 
-void    netero::audio::mixer::connect(AudioRenderStream* stream) {
+void    netero::audio::mixer::add(RenderStream* stream) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
-    stream->onFormatChange(_format);
+    stream->onFormatChange(_device.format);
     _streams.push_back(stream);
 }
 
-void    netero::audio::mixer::disconnect(AudioRenderStream* stream) {
+void    netero::audio::mixer::remove(RenderStream* stream) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
     _streams.remove(stream);
 }

@@ -33,8 +33,8 @@ netero::audio::backend::impl::impl() {
 		IID_IMMDeviceEnumerator,
 		reinterpret_cast<void**>(&device_enumerator));
 	test_result(result);
-	render_device = WASAPI_get_default_device(eRender);
-	capture_device = WASAPI_get_default_device(eCapture);
+	//render_device = WASAPI_get_default_device(eRender);
+	//capture_device = WASAPI_get_default_device(eCapture);
 }
 
 netero::audio::backend::impl::~impl() {
@@ -70,29 +70,11 @@ const std::string& netero::audio::backend::getLastError() {
 	return pImpl->lastError;
 }
 
-netero::audio::RtCode	netero::audio::backend::setCaptureErrorCallback(const std::function<void(const std::string&)>& cb) {
-	pImpl->captureErrorHandler = cb;
-	return RtCode::OK;
-}
-
-netero::audio::RtCode	netero::audio::backend::setRenderErrorCallback(const std::function<void(const std::string&)>& cb) {
-	pImpl->renderErrorHandler = cb;
-	return RtCode::OK;
-}
-
-netero::audio::RtCode	netero::audio::backend::setRenderCallback(const RenderCallback& callback) {
-	if (pImpl->renderingState.load(std::memory_order_acquire) != impl::state::OFF) {
-		return RtCode::ERR_ALTER_RUNNING;
+netero::audio::device::events& netero::audio::backend::getDeviceEvents(const netero::audio::device& device) {
+	auto nativeDevice = pImpl->WASAPI_get_device(device);
+	if (!nativeDevice) {
+		throw std::runtime_error("No such device");
 	}
-	pImpl->renderingCallback = callback;
-	return RtCode::OK;
-}
-
-netero::audio::RtCode	netero::audio::backend::setCaptureCallback(const CaptureCallback& callback) {
-	if (pImpl->capturingState.load(std::memory_order_acquire) != impl::state::OFF) {
-		return RtCode::ERR_ALTER_RUNNING;
-	}
-	pImpl->capturingCallback = callback;
-	return RtCode::OK;
+	return nativeDevice->clientDevice.signals;
 }
 

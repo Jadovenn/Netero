@@ -11,11 +11,16 @@
 #include <type_traits>
 #include <atomic>
 #include <netero/audio/audio.hpp>
+#include <netero/audio/renderStream.hpp>
+#include <netero/audio/mixer.hpp>
 
 namespace netero::audio::signals {
-	class sinusoid: public AudioRenderStream {
+	class sinusoid: public RenderStream {
 	public:
-		sinusoid(double amplitude = 0.1, double frequency = 50, double phase = 0);
+		explicit sinusoid(netero::audio::mixer& mixer,
+			double amplitude = 0.1,
+			double frequency = 50,
+			double phase = 0);
 		virtual ~sinusoid();
 
 		void    onFormatChange(const StreamFormat&) override;
@@ -25,6 +30,7 @@ namespace netero::audio::signals {
 		void    stop() override;
 
 	private:
+		netero::audio::mixer& _mixer;
 		float _amplitude;
 		float _frequency;
 		float _phase;

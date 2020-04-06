@@ -5,8 +5,13 @@
 
 #include <netero/audio/signals.hpp>
 
-netero::audio::signals::sinusoid::sinusoid(double amplitude, double frequency, double phase)
-    :   _amplitude(amplitude),
+netero::audio::signals::sinusoid::sinusoid(netero::audio::mixer &mixer,
+    double amplitude,
+    double frequency,
+    double phase)
+    :   RenderStream(mixer.getEngine()),
+        _mixer(mixer),
+        _amplitude(amplitude),
         _frequency(frequency),
         _phase(phase),
         _samplingFrequency(0),
@@ -17,9 +22,11 @@ netero::audio::signals::sinusoid::sinusoid(double amplitude, double frequency, d
         _format{}
 {
     _pulsation = ((2 * M_PI * _frequency) / _format.samplingFrequency);
+    _mixer.add(this);
 }
 
 netero::audio::signals::sinusoid::~sinusoid() {
+    _mixer.remove(this);
 }
 
 void    netero::audio::signals::sinusoid::onFormatChange(const netero::audio::StreamFormat &format) {
@@ -50,6 +57,6 @@ void    netero::audio::signals::sinusoid::pause() {
 }
 
 void    netero::audio::signals::sinusoid::stop() {
-    _amplitude = 0.01;
+    _amplitude = 0.0F;
 }
 
