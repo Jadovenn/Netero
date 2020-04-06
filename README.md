@@ -9,6 +9,7 @@
 ```
 
 [![CircleCI](https://circleci.com/gh/domage-j/netero.svg?style=svg)](https://circleci.com/gh/domage-j/netero)
+[![Documentation](https://codedocs.xyz/domage-j/netero.svg)](https://codedocs.xyz/domage-j/netero/)
 
 This library help you create application with real-time problematics, events managements and deal with shared ressources.
 
