@@ -5,24 +5,24 @@
 
 #pragma once
 
+/**
+ * @file mixer.hpp
+ * @brief Containe audio mixer declaration
+ */
+
 #include <list>
 #include <mutex>
 
 #include <netero/audio/renderStream.hpp>
 #include <netero/observer/slots.hpp>
 
-/**
- * @file mixer.hpp
- * @brief Containe audio mixer declaration
- */
-
 namespace netero::audio {
 
     /**
      * @class mixer
-     * @brief Mix different AudioStream into a single one.
+     * @brief Mix different RenderStream into a single one.
      * Mixer is the back-bones of the audio management, it servers as node
-     * where AudioStream can connect. The audio rendering process can be see as a general tree.
+     * where RenderStream can connect. The audio rendering process can be see as a general tree.
      */
     class mixer: public RenderStream {
     public:
