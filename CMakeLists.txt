@@ -14,7 +14,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     find_package(Doxygen)
     include(CTest)
     enable_testing()
-    add_library(coverage_config INTERFACE)
     if(Doxygen_FOUND)
         add_subdirectory(docs)
     else()
@@ -36,13 +35,14 @@ endif()
 OPTION(ECS "ecs, contain Entity Component System architecture" ON)
 OPTION(AUDIO "Audio engine" ON)
 OPTION(ENGINE "Rendering engine based on vulkan" OFF)
-option(CODE_COVERAGE "Enable coverage reporting" OFF)
+OPTION(CODE_COVERAGE "Enable coverage reporting" OFF)
 
 set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
 
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Add required flags (GCC & LLVM/Clang)
+    add_library(coverage_config INTERFACE)
     target_compile_options(coverage_config INTERFACE
             -O0        # no optimization
             -g         # generate debug info
