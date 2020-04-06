@@ -1,10 +1,10 @@
 /**
- *  Created by Jean-Adrien DOMAGE on 19/12/2019.
- */
+* Netero sources under BSD-3-Clause
+* see LICENCE.txt
+*/
 
 #include <memory>
-
-#include "netero/observer/slots.hpp"
+#include <netero/observer/slot.hpp>
 
 class	Number {
 public:

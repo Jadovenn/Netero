@@ -3,7 +3,8 @@
  * see LICENCE.txt
  */
 
-#include "netero/netero.hpp"
+#include <netero/ecs/component.hpp>
+#include <netero/ecs/component_filter.hpp>
 
 struct CompA: public netero::ecs::Component {
 	int	data;

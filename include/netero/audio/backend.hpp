@@ -22,7 +22,7 @@ namespace netero::audio {
 
 	/**
 	 * @brief backend
-	 * The bakcend class is the API to implement
+	 * The backend class is the API to implement
 	 * for any specific operating system audio API.
 	 */
 	class backend {

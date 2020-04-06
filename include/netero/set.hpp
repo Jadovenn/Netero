@@ -5,13 +5,17 @@
 
 #pragma once
 
+/**
+ * @file set.hpp
+ * @brief Set container header file.
+ */
+
 #include <set>
 
 namespace netero {
 
 	/**
-	 * @brief a set container that follow the math definition
-	 * base of the std::set
+	 * @brief Std set with subset comparison
 	 * @tparam value_type - type holder
 	 */
 	template <typename __Type>

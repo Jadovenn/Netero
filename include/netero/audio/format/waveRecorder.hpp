@@ -13,7 +13,7 @@
 #include <atomic>
 
 #include <netero/buffer.hpp>
-#include <netero/observer/slots.hpp>
+#include <netero/observer/slot.hpp>
 #include <netero/audio/audio.hpp>
 #include <netero/audio/format/wave.hpp>
 #include <netero/audio/captureStream.hpp>

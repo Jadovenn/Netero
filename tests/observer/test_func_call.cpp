@@ -1,8 +1,9 @@
 /**
- *  Created by Jean-Adrien DOMAGE on 12/12/2019.
- */
+* Netero sources under BSD-3-Clause
+* see LICENCE.txt
+*/
 
-#include <netero/observer/slots.hpp>
+#include <netero/observer/slot.hpp>
 
 int		add(int a, int b) {
 	return a + b;
