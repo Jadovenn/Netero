@@ -1,10 +1,17 @@
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.2
 jobs:
   build:
     docker: # use the docker executor type; machine and macos executors are also supported
-    - image: rikorose/gcc-cmake # the primary container, where your job's commands are run
+    - image: tatsy/ubuntu-cxx:default # the primary container, where your job's commands are run
     steps:
     - checkout # check out the code in the project directory
-    - run: cmake . -DAUDIO=OFF # run the `echo` command
+    - run: cmake . -DAUDIO=OFF -DCODE_COVERAGE=ON # run the `echo` command
     - run: make
     - run: make test
+    - lcov --capture --directory . --output-file coverage.info
+    - lcov --remove coverage.info '/usr/*' --output-file coverage.info
+    - lcov --list coverage.info
+    - codcov/upload:
+        file: coverage.info

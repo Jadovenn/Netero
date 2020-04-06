@@ -36,7 +36,7 @@ endif()
 OPTION(ECS "ecs, contain Entity Component System architecture" ON)
 OPTION(AUDIO "Audio engine" ON)
 OPTION(ENGINE "Rendering engine based on vulkan" OFF)
-option(CODE_COVERAGE "Enable coverage reporting" ON)
+option(CODE_COVERAGE "Enable coverage reporting" OFF)
 
 set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
