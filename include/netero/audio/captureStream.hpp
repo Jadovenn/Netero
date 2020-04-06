@@ -5,20 +5,43 @@
 
 #pragma once
 
+/**
+ * @file captureStream.hpp
+ * @brief Header containing capture interface declaration.
+ */
+
 #include <netero/audio/engine.hpp>
 #include <netero/audio/device.hpp>
 
 namespace netero::audio {
 	/**
-	 * @interface AudioCaptureStream
-	 * @brief For any audio container that capture a stream
+	 * @interface CaptureStream
+	 * @brief Parent interface for any capture container.
 	 */
 	class CaptureStream {
 	public:
+		/**
+		 * @brief Constructor, init engine, connect slot to device.
+		 * Initialize the engine, and connect all relevent slot to the given device.
+		 */
 		CaptureStream(netero::audio::engine& engine, 
 			const netero::audio::device& device);
+
+		/**
+		 * @brief Constructor, only initialize the engine.
+		 * The stream while not capture anything until the client
+		 * manually connect to a device.
+		 */
 		CaptureStream(netero::audio::engine& engine);
+
+		/**
+		 * @brief Destructor, disconnect any pending signal connection.
+		 */
 		~CaptureStream();
+
+		/**
+		 * @brief Getter of the audio engine refered by the stream
+		 */
 		netero::audio::engine& getEngine();
 
 		/**
@@ -30,7 +53,9 @@ namespace netero::audio {
 		 * and need to be updated in your container.
 		 */
 		virtual void onFormatChange(const netero::audio::StreamFormat&) = 0;
-		netero::audio::OnStreamChangeSlot	onFormatChangeSlot;
+
+		netero::audio::OnFormatChangeSlot
+			onFormatChangeSlot; /**< Slot to be set by the client want to be notified in case the device's format change. */
 
 		/**
 		 * @pure captureStream
@@ -43,7 +68,8 @@ namespace netero::audio {
 		 * @param[in] frames The number of frames the buffer contain.
 		 */
 		virtual void captureStream(const float* buffer, const size_t frames) = 0;
-		netero::audio::CaptureSlot			captureSlot;
+		netero::audio::CaptureSlot
+			captureSlot; /**< Slot to be set by the client to be notified in case the buffer is ready to be read. */
 
 		/**
 		 * @pure record

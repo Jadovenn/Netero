@@ -48,38 +48,48 @@ int    select_recording_device(netero::audio::engine& engine, netero::audio::dev
 }
 
 int     main() {
-    netero::audio::engine                   audio_engine;
+    netero::audio::engine                   audioEngine;
     netero::audio::device                   recordDevice;
     netero::audio::device                   silenceDevice;
 
-
-
-    if (select_recording_device(audio_engine, recordDevice, silenceDevice) != 0) {
+    // Select the device to record from
+    if (select_recording_device(audioEngine, recordDevice, silenceDevice) != 0) {
         return 1;
     }
-    // Set device error handler, to be notify if some errors happened
+
+    // Set device error handler, to be notify if some errors happen
     netero::audio::DeviceErrorSlot          deviceErrorSlot(&errorCallback);
     try {
-        auto& deviceEvent = audio_engine.getDeviceEvents(silenceDevice);
+        auto& deviceEvent = audioEngine.getDeviceEvents(silenceDevice);
         deviceEvent.deviceErrorSig.connect(&deviceErrorSlot);
     }
-    catch(...) {}
-
-    netero::audio::waveRecorder             wave_recorder(audio_engine, recordDevice, std::to_string(recordDevice.format.samplingFrequency) + "hz_float32");
-    if (silenceDevice) {
-        audio_engine.deviceStartRendering(silenceDevice);
+    catch(...) {
+        // The device is invalide
+        return 1;
     }
-    audio_engine.deviceStartRecording(recordDevice);
+
+    // If it is a loop back device play silence to make sure to record something
+    if (silenceDevice) {
+        audioEngine.deviceStartRendering(silenceDevice);
+    }
+
+    // Start the recording to a wave file
+    netero::audio::waveRecorder             wave_recorder(audioEngine, recordDevice, std::to_string(recordDevice.format.samplingFrequency) + "hz_float32");
+    audioEngine.deviceStartRecording(recordDevice);
     wave_recorder.record();
 
+    // Wait 10 seconds
     std::chrono::time_point start = std::chrono::system_clock::now();
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
         std::this_thread::yield();
     }
+    
+    // Stop recording
     wave_recorder.stop();
-    audio_engine.deviceStopRecording(recordDevice);
+    audioEngine.deviceStopRecording(recordDevice);
     if (silenceDevice) {
-        audio_engine.deviceStopRendering(silenceDevice);
+        audioEngine.deviceStopRendering(silenceDevice);
     }
     return 0;
 }
+

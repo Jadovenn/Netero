@@ -25,8 +25,8 @@ namespace netero::audio {
 		OK = 0, /**< Success. Issued if native call success. */
 		ABILITY_NOT_SUPPORTED = 1, /**< Functionality not supported. Issued while the native device does not support the call. */
 		FORMAT_NOT_SUPPORTED = 2, /**< The native device does not support the requested format. */
-		DEVICE_TIMEOUT = 3, /**< The time out while accessing/getting device's ressource. The device is probably busy, try later. */
-		ERR_NATIVE = 4, /**< Native error. Issued while native call failed, usually the lasterror msg is set or a message signal is issued. */
+		DEVICE_TIMEOUT = 3, /**< Time out while accessing/getting device's ressource. The device is probably busy, try later. */
+		ERR_NATIVE = 4, /**< Native error. Issued while native call failed, usually the lasterror msg is set or an deviceError signal is issued. */
 		ERR_MISSING_CALLBACK = 5, /**< Audio callback is missing. You forgot to setup the audio callback. */
 		ERR_ALREADY_RUNNING = 6, /**< You already have start the device. */
 		ERR_DEVICE_NOT_RUNNING = 7, /**< You try to stop the device but it is not running. */
@@ -46,18 +46,73 @@ namespace netero::audio {
 		unsigned	framesCount = 0; /**< Number of frames in contained in the shared buffer with the device. */
 		unsigned	bytesPerFrame = 0; /**< Size in byte for one frame. */
 		unsigned	bytesPerSample = 0; /**< Size in byte for one sample. */
-		unsigned	channels = 0; /**< Number of sample per frames */
+		unsigned	channels = 0; /**< Number of sample per frames. */
 		unsigned	samplingFrequency = 0; /**< Actual sampling frequency of the native audio device. */
-		std::vector<float> supportedSamplingRate = {}; /**< Supported sampling frequency of the native audio device */
+		std::vector<float> supportedSamplingRate = {}; /**< Supported sampling frequency of the native audio device. */
 	};
 
+	/**
+	 * @typedef RenderSignal
+	 * @brief Render buffer event signal.
+	 * This type is used by the engine to declare a signal emitted by a device
+	 * while the buffer is available for writting operation. 
+	 */
 	using RenderSignal = netero::signals<void(float*, const size_t)>;
+
+	/**
+	 * @typedef RenderSlot
+	 * @brief Render buffer event slot signature.
+	 * This type is used by the client to declare a slot to handle a buffer
+	 * render event emitted by a device.
+	 */
 	using RenderSlot = netero::slot<void(float*, const size_t)>;
+
+	/**
+	 * @typedef CaptureSignal
+	 * @brief Capture buffer event signal signature.
+	 * This type is used by the engine to declare a signal emitted by a device
+	 * while the buffer is available for capture.
+	 */
 	using CaptureSignal = netero::signals<void(const float*, const size_t)>;
+
+	/**
+	 * @typedef CaptureSlot
+	 * @brief Capture buffer slot signature.
+	 * This type is used by the client to declare a slot to handle a buffer
+	 * capture event emitted by a device.
+	 */
 	using CaptureSlot = netero::slot<void(const float*, const size_t)>;
-	using OnStreamChangeSignal = netero::signals<void(const StreamFormat&)>;
-	using OnStreamChangeSlot = netero::slot<void(const StreamFormat&)>;
+
+	/**
+	 * @typedef OnFormatChangeSignal
+	 * @brief Format change event signal signature.
+	 * This type is used by the engine to declare a signal emittend
+	 * by a device while it stream format change.
+	 */
+	using OnFormatChangeSignal = netero::signals<void(const StreamFormat&)>;
+
+	/**
+	 * @typedef OnFormatChangeSlot
+	 * @brief Format change event slot signature.
+	 * This type is used by the client to declare a slot to handle the format
+	 * change event emitted by a device.
+	 */
+	using OnFormatChangeSlot = netero::slot<void(const StreamFormat&)>;
+
+	/**
+	 * @typedef DeviceErrorSignal
+	 * @brief Device error signal signature
+	 * This type is used by the engine to declare a signal emitted
+	 * while an error occure during a device operation.
+	 */
 	using DeviceErrorSignal = netero::signals<void(const std::string&)>;
+
+	/**
+	 * @typedef DeviceErrorSlot
+	 * @brief Device error slot signature.
+	 * This type is used by the client to declare a slot to connect
+	 * with an error signal from a device.
+	 */
 	using DeviceErrorSlot = netero::slot<void(const std::string&)>;
 }
 

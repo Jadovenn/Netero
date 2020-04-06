@@ -5,6 +5,11 @@
 
 #pragma once
 
+/**
+ * @file renderStream.hpp
+ * @brief Header containing render interface declaration.
+ */
+
 #include <netero/audio/engine.hpp>
 #include <netero/audio/device.hpp>
 
@@ -15,13 +20,31 @@ namespace netero::audio {
 	 */
 	class RenderStream {
 	public:
-		RenderStream(netero::audio::engine& engine, const netero::audio::device& device);
+		/**
+		 * @brief Constructor, init engine, connect slot to device.
+		 * Initialize the engine, and connect all relevent slot to the given device.
+		 */
+		RenderStream(netero::audio::engine& engine,
+			const netero::audio::device& device);
+
+		/**
+		 * @brief Constructor, only initialize the engine.
+		 * The stream will not render anything until the client
+		 * manually connect to a device.
+		 */
 		RenderStream(netero::audio::engine& engine);
+
+		/**
+		 * @brief Destructor, disconnect any pending signal connection.
+		 */
 		~RenderStream();
+
+		/**
+		 * @brief Getter of the audio engine refered by the stream
+		 */
 		netero::audio::engine& getEngine();
 
 		/**
-		 * @pure setFormat
 		 * @see netero::audio::engine
 		 * @remarks You can retrieve the format in ctor via a netero::audio::engine's methode
 		 *			to preallocate internal buffer you may use for rendering.
@@ -29,7 +52,8 @@ namespace netero::audio {
 		 * and need to be updated in your container.
 		 */
 		virtual void onFormatChange(const netero::audio::StreamFormat&) = 0;
-		netero::audio::OnStreamChangeSlot	onStreamChangeSlot;
+		netero::audio::OnFormatChangeSlot
+			onFormatChangeSlot;/**< Slot to set if the client want to be notified in case the device's format change. */
 
 		/**
 		 * @pure renderStream
@@ -42,7 +66,8 @@ namespace netero::audio {
 		 * @param[in] frames The number of frames the buffer contain.
 		 */
 		virtual void renderStream(float* buffer, const size_t frames) = 0;
-		netero::audio::RenderSlot	renderSlot;
+		netero::audio::RenderSlot
+			renderSlot; /**< Slot to be set by the client to be notified in case the buffer is ready to receive data. */
 
 		/**
 		 * @pure play

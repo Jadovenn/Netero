@@ -13,7 +13,7 @@ netero::audio::mixer::mixer(netero::audio::engine &engine)
     	_samplesCount(0),
         _sourceBuffer(nullptr)
 {
-    onStreamChangeSlot.set(&netero::audio::mixer::onFormatChange, this);
+    onFormatChangeSlot.set(&netero::audio::mixer::onFormatChange, this);
     renderSlot.set(&netero::audio::mixer::renderStream, this);
 }
 
@@ -22,7 +22,7 @@ netero::audio::mixer::mixer(netero::audio::engine& engine, const netero::audio::
         _samplesCount(0),
         _sourceBuffer(nullptr)
 {
-    onStreamChangeSlot.set(&netero::audio::mixer::onFormatChange, this);
+    onFormatChangeSlot.set(&netero::audio::mixer::onFormatChange, this);
     renderSlot.set(&netero::audio::mixer::renderStream, this);
     alloc_internal_buffer();
 }
