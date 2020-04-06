@@ -54,15 +54,16 @@ endif(WIN32)
 if (APPLE)
     FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
     FIND_LIBRARY(COREAUDIO_LIBRARY CoreAudio)
-    list(APPEND SRCS
-            backends/CoreAudio/CoreAudio.hpp
-            backends/CoreAudio/CoreAudio.cpp
-            backends/CoreAudio/CoreAudio_get_format.cpp
-            backends/CoreAudio/CoreAudio_default_device.cpp
-            backends/CoreAudio/CoreAudio_start_stop.cpp)
-        list(APPEND LINK_LIBRARIES
-                ${COREAUDIO_LIBRARY}
-                ${COREFOUNDATION_LIBRARY})
+    ## TODO: refactor CoreAudio impl for new netero::audio API
+    ##list(APPEND SRCS
+    ##        backends/CoreAudio/CoreAudio.hpp
+    ##        backends/CoreAudio/CoreAudio.cpp
+    ##        backends/CoreAudio/CoreAudio_get_format.cpp
+    ##        backends/CoreAudio/CoreAudio_default_device.cpp
+    ##        backends/CoreAudio/CoreAudio_start_stop.cpp)
+    ##    list(APPEND LINK_LIBRARIES
+    ##            ${COREAUDIO_LIBRARY}
+    ##            ${COREFOUNDATION_LIBRARY})
 endif(APPLE)
 
 ##====================================
