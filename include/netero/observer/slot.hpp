@@ -141,10 +141,20 @@ namespace netero {
 			throw netero::bad_slot_call();
 		}
 
+		/**
+		 * @brief Test if the slot is callable.
+		 * @return true if the internal functor is callable, false otherwise
+		 */
 		explicit operator bool() {
 			return (_function);
 		}
 
+		/**
+		 * @brief Disconnect the slot from the given signal.
+		 * @param delegate Notifier that emit signals.
+		 * This will disconnect the slot to the given notifier.
+		 * Then the slot will stop receiving emitted signal.
+		 */
 		void disconnect(IObserverDelegate *delegate) override {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			auto it = std::find_if(_signals.begin(),
@@ -157,6 +167,12 @@ namespace netero {
 			}
 		}
 
+		/**
+		 * @brief Connect slot to a notifier.
+		 * @param delegate Notifier that emit signals.
+		 * This while connect the slot to the given signals. Then the
+		 * slot could receive signal.
+		 */
 		void connect(IObserverDelegate *delegate) override {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			_signals.push_back(delegate);
