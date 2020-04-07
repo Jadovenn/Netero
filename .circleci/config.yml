@@ -29,3 +29,12 @@ jobs:
       - run: lcov --list coverage.info
       - codecov/upload:
           file: coverage.info
+
+workflows:
+  version: 2
+  ci_workflow:
+    jobs:
+      - config
+      - build
+      - test
+      - coverage
