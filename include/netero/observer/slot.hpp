@@ -76,7 +76,7 @@ namespace netero {
 		 * This will also copy signal connection.
 		 */
 		slot(slot<_rType(_ArgsType...)> &copy)
-			:	_function(copy._func_ptr)
+			:	_function(copy._function)
 		{
 				std::scoped_lock	lock(copy._sigMutex);
 				for (auto signal: copy._signals) {
