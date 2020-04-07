@@ -7,7 +7,7 @@ jobs:
     - image: jadomage/ci-gcc-nasm-cmake-lcov:0.0.2 # the primary container, where your job's commands are run
     steps:
     - checkout # check out the code in the project directory
-    - run: cmake . -DAUDIO=OFF -DCODE_COVERAGE=ON # run the `echo` command
+    - run: cmake . -DAUDIO=OFF -DENGINE=OFF -DCODE_COVERAGE=ON # run the `echo` command
     - run: make
     - run: make test
     - run: lcov --capture --directory . --output-file coverage.info
