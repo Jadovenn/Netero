@@ -17,7 +17,7 @@ const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
 const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
 // ----------------------------------
-// WASAPI ctor, dtor
+// Backend::impl ctor, dtor
 // ----------------------------------
 
 netero::audio::backend::impl::impl() {
@@ -33,21 +33,9 @@ netero::audio::backend::impl::impl() {
 		IID_IMMDeviceEnumerator,
 		reinterpret_cast<void**>(&device_enumerator));
 	test_result(result);
-	//render_device = WASAPI_get_default_device(eRender);
-	//capture_device = WASAPI_get_default_device(eCapture);
 }
 
 netero::audio::backend::impl::~impl() {
-	if (renderingThread) {
-		renderingState.store(state::OFF, std::memory_order_release);
-		renderingThread->join();
-		renderingThread.reset();
-	}
-	if (capturingThread) {
-		capturingState.store(state::OFF, std::memory_order_release);
-		capturingThread->join();
-		capturingThread.reset();
-	}
 	CoUninitialize();
 }
 

@@ -95,7 +95,7 @@ netero::audio::RtCode   netero::audio::backend::deviceStartRendering(const neter
 		nativeDevice->reset();
 		return RtCode::ERR_NATIVE;
 	}
-	std::memset(buffer, 0, nativeDevice->framesCount * nativeDevice->clientDevice.format.bytesPerFrame);
+	std::memset(buffer, 0, nativeDevice->framesCount * (size_t)nativeDevice->clientDevice.format.bytesPerFrame);
 	nativeDevice->clientDevice.signals.renderStreamSig(reinterpret_cast<float*>(buffer), nativeDevice->framesCount);
 	result = nativeDevice->render_client->ReleaseBuffer(nativeDevice->framesCount, 0);
 	if (FAILED(result)) {

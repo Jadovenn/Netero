@@ -23,7 +23,7 @@ namespace netero::audio {
         struct events {
 			netero::signals<void(float*, const size_t)>         renderStreamSig;
 			netero::signals<void(const float*, const size_t)>   captureStreamSig;
-			netero::signals<void(const StreamFormat&)>          deviceStreamForamtChangeSig;
+			netero::signals<void(const StreamFormat&)>          deviceStreamFormatChangeSig;
 			netero::signals<void(const std::string&)>           deviceErrorSig;
         };
         events  signals;

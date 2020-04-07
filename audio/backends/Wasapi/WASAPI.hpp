@@ -91,7 +91,7 @@ struct WASAPI_device {
 		}
 		clientDevice.signals.captureStreamSig.flush();
 		clientDevice.signals.renderStreamSig.flush();
-		clientDevice.signals.deviceStreamForamtChangeSig.flush();
+		clientDevice.signals.deviceStreamFormatChangeSig.flush();
 		clientDevice.signals.deviceErrorSig.flush();
 		release<IMMDevice>(&device);
 		release<IAudioClient>(&audio_client);
@@ -120,32 +120,20 @@ public:
 	};
 
 	std::string			lastError;
-	std::atomic<state>	renderingState = state::OFF;
-	std::atomic<state>	capturingState = state::OFF;
-	std::unique_ptr<std::thread>	renderingThread;
-	std::unique_ptr<std::thread>	capturingThread;
-	std::function<void(const std::string&)>	renderErrorHandler;
-	std::function<void(const std::string&)>	captureErrorHandler;
 
 	IMMDeviceEnumerator*			device_enumerator = nullptr;
-	std::unique_ptr<WASAPI_device>	render_device = nullptr;
-	std::unique_ptr<WASAPI_device>	capture_device = nullptr;
-
 	std::list<std::shared_ptr<WASAPI_device>>	_renderDevices;
 	std::list<std::shared_ptr<WASAPI_device>>	_captureDevices;
 	netero::audio::device						nullDevice;
 
-	std::vector<netero::audio::device> renderDevices = {};
-	std::vector<netero::audio::device> captureDevices = {};
+	//std::vector<netero::audio::device> renderDevices = {};
+	//std::vector<netero::audio::device> captureDevices = {};
 
 	std::shared_ptr<WASAPI_device>	WASAPI_alloc_device(IMMDevice*, DataFlow);
 	PROPVARIANT						WASAPI_get_device_property(IMMDevice*, const PROPERTYKEY);
 	LPWSTR							WASAPI_get_device_ID(IMMDevice*);
 	const std::string				WASAPI_get_default_device_ID(DataFlow);
 	std::shared_ptr<WASAPI_device>	WASAPI_get_device(const audio::device&);
-
-	//std::unique_ptr<WASAPI_device>	WASAPI_init_device(EDataFlow flow, IMMDevice*, bool isLoopback = false);
-	//IMMDevice*						WASAPI_get_device(EDataFlow flow, const netero::audio::device& device);
 
 	static std::string wstring_to_string(LPWSTR str);
 
