@@ -32,10 +32,14 @@ endif()
 ##  Modules declaration
 ##====================================
 
+## Submodule config
 OPTION(ECS "ecs, contain Entity Component System architecture" ON)
 OPTION(AUDIO "Audio engine" ON)
-OPTION(ENGINE "Rendering engine based on vulkan" OFF)
-OPTION(CODE_COVERAGE "Enable coverage reporting" ON)
+OPTION(ENGINE "Rendering engine based on vulkan" ON)
+
+## Build config
+OPTION(WIN32_STATIC "Link staticaly with win32's dll" OFF)
+OPTION(CODE_COVERAGE "Enable coverage reporting" OFF)
 
 set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)

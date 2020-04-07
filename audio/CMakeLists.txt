@@ -78,10 +78,10 @@ target_link_libraries(netero_audio
         PRIVATE
             ${LINK_LIBRARIES})
 
-if(WIN32)
+if(WIN32 AND WIN32_STATIC)
     set_property(TARGET netero_audio PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
-endif(WIN32)
+endif()
 
 ##====================================
 ##  Installation
