@@ -65,9 +65,8 @@ endif(AUDIO)
 ##====================================
 
 add_project_test(NAME test_slot SOURCES observer/test_slot_ref.cpp DEPENDS netero)
-add_project_test(NAME test_signals SOURCES observer/test_signals.cpp DEPENDS netero)
-add_project_test(NAME test_slot_class_call SOURCES observer/test_class_call.cpp DEPENDS netero)
-add_project_test(NAME test_slot_func_call SOURCES observer/test_func_call.cpp DEPENDS netero)
+add_project_test(NAME test_signal_container SOURCES observer/test_signal_container.cpp DEPENDS netero)
+add_project_test(NAME test_slot_container SOURCES observer/test_slot_container.cpp DEPENDS netero)
 
 ##====================================
 ##  Test ECS
