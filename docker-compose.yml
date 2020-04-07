@@ -3,7 +3,7 @@ version: '3'
 services:
   ci:
     container_name: netero-ci
-    image: rpgillespie6/fastcov:latest
+    image: jadomage/ci-gcc-nasm-cmake-lcov:0.0.3
     volumes:
       - .:/opt/netero
     command: bash -c "

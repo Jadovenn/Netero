@@ -1,7 +1,9 @@
-FROM alpine:3.11
 
-RUN echo http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories
-RUN echo http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
-RUN echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
-RUN apk add --update && \
-    apk add --no-cache git openssh-client tar gzip ca-certificates gcc g++ nasm make cmake lcov curl
+FROM ubuntu:disco
+
+RUN apt-get update && \
+    apt-get install -y g++ curl nasm python3 python3-pip cmake ninja-build lcov && \
+    pip3 install pytest pytest-cov
+
+#This layer will go away when GCC 9+ becomes default
+RUN apt-get install -y gcc-9 g++-9
