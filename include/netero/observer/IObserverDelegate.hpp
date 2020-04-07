@@ -5,8 +5,14 @@
 
 #pragma once
 
+/**
+ * @file IObserverDelegate.hpp
+ * @brief Observer delegate interface.
+ */
+
 namespace netero {
 	/**
+	 * @interface IObserverDelegate
 	 * @brief Connectable delegate object
 	 */
 	class IObserverDelegate {

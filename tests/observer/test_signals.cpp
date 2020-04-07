@@ -4,8 +4,7 @@
 */
 
 #include <iostream>
-
-#include "netero/observer/signals.hpp"
+#include <netero/observer/signal.hpp>
 
 class	Subject {
 public:
@@ -18,7 +17,7 @@ public:
 		return _age;
 	}
 
-	netero::signals<void(std::string, int)>	birthday;
+	netero::signal<void(std::string, int)>	birthday;
 private:
 	const std::string	&_name;
 	int 				_age;

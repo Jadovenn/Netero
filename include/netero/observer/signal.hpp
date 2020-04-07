@@ -12,19 +12,27 @@
 #include <type_traits>
 
 #include <netero/observer/IObserverDelegate.hpp>
-#include <netero/observer/slots.hpp>
+#include <netero/observer/slot.hpp>
 
 namespace netero {
 
 	template<class T>
-	class signals;
+	class signal;
 
+	/**
+	 * @class signal
+	 * @see netero::slot
+	 * @brief Event container that could emit signals.
+	 * @tparam _rType Return type of the signals.
+	 * @tparam _ArgsType Variadic types of arguments of the signal.
+	 * The signal container propagate a function call to multiple slot
+	 */
 	template<class _rType, class ..._ArgsType>
-	class signals<_rType(_ArgsType...)>:  public IObserverDelegate {
+	class signal<_rType(_ArgsType...)>:  public IObserverDelegate {
 	public:
 		using Signature = _rType(_ArgsType...);
 
-		~signals() override {
+		~signal() override {
 			flush();
 		};
 

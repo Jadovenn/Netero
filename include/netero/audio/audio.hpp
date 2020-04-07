@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-#include <netero/observer/signals.hpp>
+#include <netero/observer/signal.hpp>
 
 /**
  * @file audio.hpp
@@ -57,7 +57,7 @@ namespace netero::audio {
 	 * This type is used by the engine to declare a signal emitted by a device
 	 * while the buffer is available for writting operation. 
 	 */
-	using RenderSignal = netero::signals<void(float*, const size_t)>;
+	using RenderSignal = netero::signal<void(float*, const size_t)>;
 
 	/**
 	 * @typedef RenderSlot
@@ -73,7 +73,7 @@ namespace netero::audio {
 	 * This type is used by the engine to declare a signal emitted by a device
 	 * while the buffer is available for capture.
 	 */
-	using CaptureSignal = netero::signals<void(const float*, const size_t)>;
+	using CaptureSignal = netero::signal<void(const float*, const size_t)>;
 
 	/**
 	 * @typedef CaptureSlot
@@ -89,7 +89,7 @@ namespace netero::audio {
 	 * This type is used by the engine to declare a signal emittend
 	 * by a device while it stream format change.
 	 */
-	using OnFormatChangeSignal = netero::signals<void(const StreamFormat&)>;
+	using OnFormatChangeSignal = netero::signal<void(const StreamFormat&)>;
 
 	/**
 	 * @typedef OnFormatChangeSlot
@@ -105,7 +105,7 @@ namespace netero::audio {
 	 * This type is used by the engine to declare a signal emitted
 	 * while an error occure during a device operation.
 	 */
-	using DeviceErrorSignal = netero::signals<void(const std::string&)>;
+	using DeviceErrorSignal = netero::signal<void(const std::string&)>;
 
 	/**
 	 * @typedef DeviceErrorSlot

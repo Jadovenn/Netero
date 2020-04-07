@@ -42,12 +42,12 @@ list(APPEND SRCS
         pool/worker.cpp)
 
 ##====================================
-##  Pool sources
+##  Oberver sources
 ##====================================
 list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/observer/IObserverDelegate.hpp
-        ${HEADERS_DIRECTORY}/observer/signals.hpp
-        ${HEADERS_DIRECTORY}/observer/slots.hpp)
+        ${HEADERS_DIRECTORY}/observer/signal.hpp
+        ${HEADERS_DIRECTORY}/observer/slot.hpp)
 
 ##====================================
 ##  Targets

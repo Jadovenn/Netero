@@ -8,7 +8,8 @@
 #include <string>
 #include <type_traits>
 #include <vector>
-#include "netero/netero.hpp"
+#include <netero/ecs/world.hpp>
+#include <netero/ecs/component.hpp>
 
 netero::ecs::World	world;
 netero::ecs::Entity	first = world.createEntity();

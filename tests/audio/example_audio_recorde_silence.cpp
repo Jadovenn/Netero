@@ -6,7 +6,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <netero/observer/slots.hpp>
+#include <netero/observer/slot.hpp>
 #include <netero/audio/format/waveRecorder.hpp>
 
 void    errorCallback(const std::string& message) {

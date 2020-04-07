@@ -35,9 +35,25 @@ endif()
 OPTION(ECS "ecs, contain Entity Component System architecture" ON)
 OPTION(AUDIO "Audio engine" ON)
 OPTION(ENGINE "Rendering engine based on vulkan" OFF)
+OPTION(CODE_COVERAGE "Enable coverage reporting" ON)
 
 set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
+
+if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # Add required flags (GCC & LLVM/Clang)
+    add_library(coverage_config INTERFACE)
+    target_compile_options(coverage_config INTERFACE
+            -O0        # no optimization
+            -g         # generate debug info
+            --coverage # sets all required flags
+            )
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
+        target_link_options(coverage_config INTERFACE --coverage)
+    else()
+        target_link_libraries(coverage_config INTERFACE --coverage)
+    endif()
+endif()
 
 ##====================================
 ##  Sub-project

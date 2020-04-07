@@ -14,7 +14,7 @@
 #include <mutex>
 
 #include <netero/audio/renderStream.hpp>
-#include <netero/observer/slots.hpp>
+#include <netero/observer/slot.hpp>
 
 namespace netero::audio {
 

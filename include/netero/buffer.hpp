@@ -122,7 +122,7 @@ namespace netero {
         int     read(T* __restrict outBuffer, size_t blocks) {
             int readCount = 0;
 
-            std::scoped_lock(_bufferMutex);
+            std::scoped_lock	lock(_bufferMutex);
             if (!_buffer || _size == 0 || blocks == 0 || _readOffset == _writeOffset - 1) {
                 return 0;
             }
@@ -157,7 +157,7 @@ namespace netero {
 
         int     write(const T* __restrict inBuffer, size_t blocks) {
             int writeCount = 0;
-            std::scoped_lock(_bufferMutex);
+            std::scoped_lock lock(_bufferMutex);
             if (!_buffer || _size == 0 || blocks == 0 || _readOffset == _writeOffset) {
                 return 0;
             }

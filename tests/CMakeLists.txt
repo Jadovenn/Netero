@@ -33,6 +33,9 @@ macro(add_project_test)
         add_dependencies(${_ADD_PROJECT_TEST_NAME} ${_ADD_PROJECT_TEST_DEPENDS})
         target_link_libraries(${_ADD_PROJECT_TEST_NAME} ${_ADD_PROJECT_TEST_DEPENDS})
     endif()
+    if (CODE_COVERAGE)
+        target_link_libraries(${_ADD_PROJECT_TEST_NAME} coverage_config)
+    endif(CODE_COVERAGE)
 	add_test(NAME ${_ADD_PROJECT_TEST_NAME} COMMAND ./${_ADD_PROJECT_TEST_NAME})
 endmacro(add_project_test)
 
@@ -61,12 +64,10 @@ endif(AUDIO)
 ##  Test Observer
 ##====================================
 
-if(OBSERVER)
-    add_project_test(NAME test_slot SOURCES observer/test_slot_ref.cpp DEPENDS netero)
-    add_project_test(NAME test_signals SOURCES observer/test_signals.cpp DEPENDS netero)
-    add_project_test(NAME test_slot_class_call SOURCES observer/test_class_call.cpp DEPENDS netero)
-    add_project_test(NAME test_slot_func_call SOURCES observer/test_func_call.cpp DEPENDS netero)
-endif(OBSERVER)
+add_project_test(NAME test_slot SOURCES observer/test_slot_ref.cpp DEPENDS netero)
+add_project_test(NAME test_signals SOURCES observer/test_signals.cpp DEPENDS netero)
+add_project_test(NAME test_slot_class_call SOURCES observer/test_class_call.cpp DEPENDS netero)
+add_project_test(NAME test_slot_func_call SOURCES observer/test_func_call.cpp DEPENDS netero)
 
 ##====================================
 ##  Test ECS

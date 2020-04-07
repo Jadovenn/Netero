@@ -6,7 +6,7 @@
 #pragma once
 
 #include <netero/audio/audio.hpp>
-#include <netero/observer/signals.hpp>
+#include <netero/observer/signal.hpp>
 
 namespace netero::audio {
 
@@ -21,10 +21,10 @@ namespace netero::audio {
 		StreamFormat	format; /**< Device stream format. */
 
         struct events {
-			netero::signals<void(float*, const size_t)>         renderStreamSig;
-			netero::signals<void(const float*, const size_t)>   captureStreamSig;
-			netero::signals<void(const StreamFormat&)>          deviceStreamFormatChangeSig;
-			netero::signals<void(const std::string&)>           deviceErrorSig;
+			netero::signal<void(float*, const size_t)>         renderStreamSig;
+			netero::signal<void(const float*, const size_t)>   captureStreamSig;
+			netero::signal<void(const StreamFormat&)>          deviceStreamFormatChangeSig;
+			netero::signal<void(const std::string&)>           deviceErrorSig;
         };
         events  signals;
 
@@ -41,11 +41,11 @@ namespace netero::audio {
             this->format = dev.format;
         }
 
-        operator bool() {
+        explicit operator bool() {
             return !this->id.empty();
         }
 
-        const device &operator=(const device &dev) {
+        device &operator=(const device &dev) {
             this->id = dev.id;
             this->name = dev.name;
             this->manufacturer = dev.manufacturer;
@@ -55,4 +55,3 @@ namespace netero::audio {
 
     };
 }
-
