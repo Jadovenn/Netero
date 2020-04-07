@@ -24,7 +24,7 @@ int		add(int a, int b) {
 void	test_copy_ctor() {
 	TestClass	test;
 	netero::slot<int(int, int)>	slot(&TestClass::add, &test);
-	netero::slot<int(int, int)>	slot_copy(&TestClass::add, &test);
+	netero::slot<int(int, int)>	slot_copy(slot);
 	if (slot(21, 21) != 42) { assert(false); }
 	if (slot_copy(21, 21) != 42) { assert(false); }
 	if (test.nbCall != 2) { assert(false); }
