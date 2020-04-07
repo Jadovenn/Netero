@@ -7,7 +7,8 @@ services:
     volumes:
       - .:/opt/netero
     command: bash -c "
-      mkdir /opt/netero/build
+      rm -rf /opt/netero/build
+      && mkdir /opt/netero/build
       && cd /opt/netero/build
       && cmake .. -DCODE_COVERAGE=ON -DAUDIO=OFF -DENGINE=OFF
       && make

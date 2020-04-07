@@ -54,7 +54,7 @@ namespace netero {
 		 * @param f Standard function object.
 		 */
 		explicit slot(const std::function<_rType(_ArgsType...)> &f) noexcept
-			:	_function(f.target())
+			:	_function(f)
 		{}
 
 		/**
@@ -114,7 +114,7 @@ namespace netero {
 		 * Set the internal functor container to the given function pointer.
 		 */
 		void	set(_rType(*function_ptr)(_ArgsType...)) {
-			_function(function_ptr);
+			_function = function_ptr;
 		}
 
 		/**
@@ -146,7 +146,7 @@ namespace netero {
 		 * @return true if the internal functor is callable, false otherwise
 		 */
 		explicit operator bool() {
-			return (_function);
+			return static_cast<bool>(_function);
 		}
 
 		/**
