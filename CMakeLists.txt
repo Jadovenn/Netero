@@ -38,7 +38,7 @@ OPTION(AUDIO "Audio engine" ON)
 OPTION(ENGINE "Rendering engine based on vulkan" ON)
 
 ## Build config
-OPTION(WIN32_STATIC "Link staticaly with win32's dll" OFF)
+OPTION(WIN32_STATIC "Link staticaly with win32's dll" ON)
 OPTION(CODE_COVERAGE "Enable coverage reporting" OFF)
 
 set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)

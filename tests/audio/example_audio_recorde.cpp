@@ -50,16 +50,33 @@ int     main() {
         return 1;
     }
 
-    netero::audio::waveRecorder             wave_recorder(audio_engine, device, std::to_string(device.format.samplingFrequency) + "hz_float32");
+    // Record 1
+    netero::audio::waveRecorder *wave_recorder = new netero::audio::waveRecorder(audio_engine, device, std::to_string(device.format.samplingFrequency) + "1-hz_float32");
     audio_engine.deviceStartRecording(device);
-    wave_recorder.record();
+    wave_recorder->record();
 
     std::chrono::time_point start = std::chrono::system_clock::now();
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
         std::this_thread::yield();
     }
-    wave_recorder.stop();
+    wave_recorder->stop();
     audio_engine.deviceStopRecording(device);
+    delete wave_recorder;
+
+    // Record 2
+    wave_recorder = new netero::audio::waveRecorder(audio_engine, device, std::to_string(device.format.samplingFrequency) + "2-hz_float32");
+    audio_engine.deviceStartRecording(device);
+    wave_recorder->record();
+
+    start = std::chrono::system_clock::now();
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
+        std::this_thread::yield();
+    }
+    wave_recorder->stop();
+    audio_engine.deviceStopRecording(device);
+    delete wave_recorder;
+
+
     return 0;
 }
 

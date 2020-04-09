@@ -96,6 +96,16 @@ netero::audio::backend::impl::WASAPI_alloc_device(IMMDevice* device, DataFlow da
     if (FAILED(result)) { return nullptr; }
     newDevice->clientDevice.format.framesCount = newDevice->framesCount;
 
+    if (dataFlow == DataFlow::eRender) {
+        result = newDevice->audio_client->GetService(IID_IAudioRenderClient,
+            reinterpret_cast<void**>(&newDevice->render_client));
+        if (FAILED(result)) { return nullptr; }
+    }
+    else {
+        result = newDevice->audio_client->GetService(IID_IAudioCaptureClient,
+            reinterpret_cast<void**>(&newDevice->capture_client));
+        if (FAILED(result)) { return nullptr; }
+    }
     return newDevice;
 }
 

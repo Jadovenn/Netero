@@ -39,11 +39,24 @@ int main() {
 
     // Wait 10 second
     std::chrono::time_point start = std::chrono::system_clock::now();
-    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 2) {
         std::this_thread::yield();
     }
 
     // Stop the device
     audioEngine.deviceStopRendering(defaultDevice);
+
+    start = std::chrono::system_clock::now();
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 1) {
+        std::this_thread::yield();
+    }
+    audioEngine.deviceStartRendering(defaultDevice);
+    start = std::chrono::system_clock::now();
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 2) {
+        std::this_thread::yield();
+    }
+    // Stop the device
+    audioEngine.deviceStopRendering(defaultDevice);
+
     return 0;
 }

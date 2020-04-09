@@ -81,18 +81,10 @@ netero::audio::RtCode   netero::audio::backend::deviceStartRecording(const neter
 
 	auto nativeDevice = pImpl->WASAPI_get_device(device);
 	if (!nativeDevice) { return RtCode::ERR_NO_SUCH_DEVICE; }
-	if (nativeDevice->capture_client) { return RtCode::ERR_ALREADY_RUNNING; }
 	if (nativeDevice->capturingState.load(std::memory_order_acquire) == WASAPI_device::state::RUNNING) {
 		return RtCode::ERR_ALREADY_RUNNING;
 	}
-	result = nativeDevice->audio_client->GetService(IID_IAudioCaptureClient,
-		reinterpret_cast<void**>(&nativeDevice->capture_client));
-	if (FAILED(result)) {
-		_com_error	err(result);
-		nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
-		nativeDevice->reset();
-		return RtCode::ERR_NATIVE;
-	}
+
 
 	nativeDevice->capturingState.store(WASAPI_device::state::RUNNING, std::memory_order_release);
 	nativeDevice->capturingThread = std::make_unique<std::thread>(capturingThreadHandle, nativeDevice);
@@ -102,7 +94,6 @@ netero::audio::RtCode   netero::audio::backend::deviceStartRecording(const neter
 netero::audio::RtCode   netero::audio::backend::deviceStopRecording(const netero::audio::device &device) {
 	auto nativeDevice = pImpl->WASAPI_get_device(device);
 	if (!nativeDevice) { return RtCode::ERR_NO_SUCH_DEVICE; }
-	if (!nativeDevice->capture_client) { return RtCode::ERR_ALREADY_RUNNING; }
 	if (nativeDevice->capturingState.load(std::memory_order_acquire) != WASAPI_device::state::RUNNING) {
 		return RtCode::ERR_DEVICE_NOT_RUNNING;
 	}
@@ -122,7 +113,6 @@ netero::audio::RtCode   netero::audio::backend::deviceStopRecording(const netero
 	//}
 	nativeDevice->capturingThread->join();
 	nativeDevice->capturingThread.reset();
-	nativeDevice.reset();
     return RtCode::OK;
 }
 

@@ -73,11 +73,6 @@ struct WASAPI_device {
 		}
 	}
 
-	void reset() {
-		release<IAudioRenderClient>(&render_client);
-		release<IAudioCaptureClient>(&capture_client);
-	}
-
 	~WASAPI_device() {
 		if (renderingThread) {
 			renderingState.store(state::OFF, std::memory_order_release);

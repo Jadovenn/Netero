@@ -75,34 +75,8 @@ netero::audio::RtCode   netero::audio::backend::deviceStartRendering(const neter
 	auto nativeDevice = pImpl->WASAPI_get_device(device);
 	if (!nativeDevice) { return RtCode::ERR_NO_SUCH_DEVICE; }
 	if (nativeDevice->deviceFlow != DataFlow::eRender) { return RtCode::ABILITY_NOT_SUPPORTED; }
-	if (nativeDevice->render_client) { return RtCode::ERR_ALREADY_RUNNING; }
 	if (nativeDevice->renderingState.load(std::memory_order_acquire) != WASAPI_device::state::OFF) {
 		return RtCode::ERR_ALREADY_RUNNING;
-	}
-
-	result = nativeDevice->audio_client->GetService(IID_IAudioRenderClient,
-		reinterpret_cast<void**>(&nativeDevice->render_client));
-	if (FAILED(result)) {
-		_com_error	err(result);
-		nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
-		nativeDevice->reset();
-		return RtCode::ERR_NATIVE;
-	}
-	result = nativeDevice->render_client->GetBuffer(nativeDevice->framesCount, &buffer);
-	if (FAILED(result)) {
-		_com_error	err(result);
-		nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
-		nativeDevice->reset();
-		return RtCode::ERR_NATIVE;
-	}
-	std::memset(buffer, 0, nativeDevice->framesCount * (size_t)nativeDevice->clientDevice.format.bytesPerFrame);
-	nativeDevice->clientDevice.signals.renderStreamSig(reinterpret_cast<float*>(buffer), nativeDevice->framesCount);
-	result = nativeDevice->render_client->ReleaseBuffer(nativeDevice->framesCount, 0);
-	if (FAILED(result)) {
-		_com_error	err(result);
-		nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
-		nativeDevice->reset();
-		return RtCode::ERR_NATIVE;
 	}
 
 	nativeDevice->renderingState.store(WASAPI_device::state::RUNNING, std::memory_order_release);
@@ -136,7 +110,6 @@ netero::audio::RtCode   netero::audio::backend::deviceStopRendering(const netero
 	}
 	nativeDevice->renderingThread->join();
 	nativeDevice->renderingThread.reset();
-	nativeDevice.reset();
 	return RtCode::OK;
 }
 
