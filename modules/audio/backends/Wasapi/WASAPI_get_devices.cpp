@@ -34,6 +34,9 @@ netero::audio::backend::impl::WASAPI_alloc_device(IMMDevice* device, DataFlow da
     }
     newDevice->device = device;
     newDevice->deviceFlow = dataFlow;
+    if (dataFlow == DataFlow::eAll) {
+        newDevice->isLoopBackDevice = true;
+    }
 
     // Activate the device
     result = newDevice->device->Activate(IID_IAudioClient,
