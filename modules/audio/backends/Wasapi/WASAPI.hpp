@@ -31,6 +31,9 @@ extern const IID IID_IMMDeviceEnumerator;
 extern const IID IID_IAudioClient;
 extern const IID IID_IAudioRenderClient;
 extern const IID IID_IAudioCaptureClient;
+extern const IID IID_IAudioSessionControl;
+
+std::string wstring_to_string(LPCWSTR str);
 
 enum class DataFlow {
 	eRender = EDataFlow::eRender,
@@ -38,7 +41,8 @@ enum class DataFlow {
 	eAll = EDataFlow::eAll,
 };
 
-struct WASAPI_device {
+struct WASAPI_device: public IAudioSessionEvents {
+	~WASAPI_device();
 	enum class state {
 		OFF,
 		STOP,
@@ -47,8 +51,23 @@ struct WASAPI_device {
 		ERR,
 	};
 
+	// IAudioSessionEvent impl related
+	LONG	_cRef = 1;
+	ULONG STDMETHODCALLTYPE		AddRef() final;
+	ULONG STDMETHODCALLTYPE		Release() final;
+	HRESULT STDMETHODCALLTYPE	QueryInterface(REFIID, void**) final;
+	HRESULT STDMETHODCALLTYPE	OnDisplayNameChanged(LPCWSTR, LPCGUID) final;
+	HRESULT STDMETHODCALLTYPE	OnIconPathChanged(LPCWSTR, LPCGUID) final;
+	HRESULT STDMETHODCALLTYPE	OnSimpleVolumeChanged(float, BOOL, LPCGUID) final;
+	HRESULT STDMETHODCALLTYPE	OnChannelVolumeChanged(DWORD, float*, DWORD, LPCGUID) final;
+	HRESULT STDMETHODCALLTYPE	OnGroupingParamChanged(LPCGUID, LPCGUID) final;
+	HRESULT STDMETHODCALLTYPE	OnStateChanged(AudioSessionState) final;
+	HRESULT STDMETHODCALLTYPE	OnSessionDisconnected(AudioSessionDisconnectReason) final;
+
+	// Wasapi device management
 	IMMDevice*				device = nullptr;
 	IAudioClient*			audio_client = nullptr;
+	IAudioSessionControl*	audioSession = nullptr;
 	IAudioRenderClient*		render_client = nullptr;
 	IAudioCaptureClient*	capture_client = nullptr;
 	WAVEFORMATEX*			wfx = nullptr;
@@ -56,7 +75,9 @@ struct WASAPI_device {
 	REFERENCE_TIME			latency = 0;
 	UINT32					framesCount = 0;
 	bool					isLoopBackDevice = false;
+	std::atomic<bool>		isSessionActive = true;
 
+	// Rendering thread related
 	DataFlow							deviceFlow = DataFlow::eAll;
 	netero::audio::device				clientDevice;
 	std::unique_ptr<std::thread>		renderingThread;
@@ -70,42 +91,6 @@ struct WASAPI_device {
 		if (*ptr) {
 			(*ptr)->Release();
 			*ptr = nullptr;
-		}
-	}
-
-	~WASAPI_device() {
-		if (renderingThread) {
-			renderingState.store(state::OFF, std::memory_order_release);
-			if (renderingThread->joinable()) {
-				renderingThread->join();
-			}
-			else {
-				renderingThread->detach();
-			}
-			renderingThread.reset();
-		}
-		if (capturingThread) {
-			capturingState.store(state::OFF, std::memory_order_release);
-			if (capturingThread->joinable()) {
-				capturingThread->join();
-			}
-			else {
-				capturingThread->detach();
-			}
-			capturingThread.reset();
-		}
-		clientDevice.signals.captureStreamSig.flush();
-		clientDevice.signals.renderStreamSig.flush();
-		clientDevice.signals.deviceStreamFormatChangeSig.flush();
-		clientDevice.signals.deviceErrorSig.flush();
-		release<IMMDevice>(&device);
-		release<IAudioClient>(&audio_client);
-		release<IAudioRenderClient>(&render_client);
-		release<IAudioCaptureClient>(&capture_client);
-		if (wfx) {
-			CoTaskMemFree(wfx);
-			wfx = nullptr;
-			wfx_ext = nullptr;
 		}
 	}
 };
@@ -129,10 +114,8 @@ public:
 	IMMDeviceEnumerator*			device_enumerator = nullptr;
 	std::list<std::shared_ptr<WASAPI_device>>	_renderDevices;
 	std::list<std::shared_ptr<WASAPI_device>>	_captureDevices;
+	std::list<std::shared_ptr<WASAPI_device>>	_garbadgeDevices;
 	netero::audio::device						nullDevice;
-
-	//std::vector<netero::audio::device> renderDevices = {};
-	//std::vector<netero::audio::device> captureDevices = {};
 
 	std::shared_ptr<WASAPI_device>	WASAPI_alloc_device(IMMDevice*, DataFlow);
 	PROPVARIANT						WASAPI_get_device_property(IMMDevice*, const PROPERTYKEY);
@@ -140,7 +123,6 @@ public:
 	const std::string				WASAPI_get_default_device_ID(DataFlow);
 	std::shared_ptr<WASAPI_device>	WASAPI_get_device(const audio::device&);
 
-	static std::string wstring_to_string(LPWSTR str);
 
 	void	test_result(HRESULT result) {
 		if (FAILED(result)) {

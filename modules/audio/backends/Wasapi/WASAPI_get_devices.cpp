@@ -5,7 +5,7 @@
 
 #include "WASAPI.hpp"
 
-std::string netero::audio::backend::impl::wstring_to_string(LPWSTR str) {
+std::string wstring_to_string(LPCWSTR str) {
     std::string string;
     size_t converted_char = 0;
     size_t size = wcslen(str);
@@ -99,6 +99,12 @@ netero::audio::backend::impl::WASAPI_alloc_device(IMMDevice* device, DataFlow da
     if (FAILED(result)) { return nullptr; }
     newDevice->clientDevice.format.framesCount = newDevice->framesCount;
 
+    // Get the audio session
+    result = newDevice->audio_client->GetService(IID_IAudioSessionControl,
+        reinterpret_cast<void**>(&newDevice->audioSession));
+    if (FAILED(result)) { return nullptr; }
+
+    // Get the rendering/capturing session
     if (dataFlow == DataFlow::eRender) {
         result = newDevice->audio_client->GetService(IID_IAudioRenderClient,
             reinterpret_cast<void**>(&newDevice->render_client));
@@ -109,6 +115,11 @@ netero::audio::backend::impl::WASAPI_alloc_device(IMMDevice* device, DataFlow da
             reinterpret_cast<void**>(&newDevice->capture_client));
         if (FAILED(result)) { return nullptr; }
     }
+
+    // Set audio session listener
+    result = newDevice->audioSession->RegisterAudioSessionNotification(newDevice.get());
+    if (FAILED(result)) { return nullptr;  }
+
     return newDevice;
 }
 

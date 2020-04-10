@@ -37,6 +37,7 @@ if(WIN32)
     list(APPEND SRCS
             backends/Wasapi/WASAPI.hpp
             backends/Wasapi/WASAPI.cpp
+            backends/Wasapi/WASAPI_device.cpp
             backends/Wasapi/WASAPI_default_devices.cpp
             backends/Wasapi/WASAPI_get_devices.cpp
             backends/Wasapi/WASAPI_render.cpp

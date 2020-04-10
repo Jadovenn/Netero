@@ -38,10 +38,6 @@ void    capturingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 		if (!nativeDevice) { return; }
 		result = nativeDevice->capture_client->GetNextPacketSize(&padding);
 		if (FAILED(result)) {
-			if (result == S_OK) { // This means the device has been disconnected
-				nativeDevice->clientDevice.signals.deviceDisconnectedSig();
-				goto exit;
-			}
 			_com_error	err(result);
 			nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
 			goto exit;
