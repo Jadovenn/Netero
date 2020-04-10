@@ -14,6 +14,7 @@ netero::audio::CaptureStream::CaptureStream(netero::audio::engine& engine,
 		auto& deviceSignals = _engine.getDeviceEvents(_device);
 		deviceSignals.captureStreamSig.connect(&captureSlot);
 		deviceSignals.deviceStreamFormatChangeSig.connect(&onFormatChangeSlot);
+		deviceSignals.deviceDisconnectedSig.connect(&onDisconnectedSlot);
 	}
 	catch (...) {}
 }
@@ -27,6 +28,7 @@ netero::audio::CaptureStream::~CaptureStream() {
 		auto& deviceSignals = _engine.getDeviceEvents(_device);
 		deviceSignals.captureStreamSig.disconnect(&captureSlot);
 		deviceSignals.deviceStreamFormatChangeSig.disconnect(&onFormatChangeSlot);
+		deviceSignals.deviceDisconnectedSig.disconnect(&onDisconnectedSlot);
 	}
 	catch (...) {}
 }

@@ -45,7 +45,6 @@ namespace netero::audio {
 		netero::audio::engine& getEngine();
 
 		/**
-		 * @pure setFormat
 		 * @see netero::audio::engine
 		 * @remarks You can retrieve the format in ctor via a netero::audio::engine's methode
 		 *			to preallocate internal buffer you may use for rendering.
@@ -55,10 +54,19 @@ namespace netero::audio {
 		virtual void onFormatChange(const netero::audio::StreamFormat&) = 0;
 
 		netero::audio::OnFormatChangeSlot
-			onFormatChangeSlot; /**< Slot to be set by the client want to be notified in case the device's format change. */
+			onFormatChangeSlot; /**< Slot to be set by the client to be notified in case the device's format change. */
 
 		/**
-		 * @pure captureStream
+		 * @brief callback for deviceDisconnected event.
+		 * This callback is called by the device while it is disconnected.
+		 * The reference from the engine is still valide untile the end of the scope of the slot.
+		 */
+		virtual void onDisconnected() = 0;
+		netero::audio::OnDisconnectedSlot
+			onDisconnectedSlot; /**< Slot to be set by the client to be notified while the device is disconnected.  */
+
+		/**
+		 * @brief audio capure callback
 		 * @warning This methode is called by a parent node in a seperate thread.
 		 *			You must not perform any allocation nor blocking call or it might
 		 *			impact severly the audio rendering of your application.
@@ -72,13 +80,11 @@ namespace netero::audio {
 			captureSlot; /**< Slot to be set by the client to be notified in case the buffer is ready to be read. */
 
 		/**
-		 * @pure record
 		 * Allow the audio stream to recive a signal.
 		 */
 		virtual void record() = 0;
 
 		/**
-		 * @pure stop
 		 * Stop reciving a signal from the stream.
 		 */
 		virtual void stop() = 0;

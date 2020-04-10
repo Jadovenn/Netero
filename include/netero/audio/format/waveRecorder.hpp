@@ -41,6 +41,7 @@ namespace netero::audio {
 
 
         void    onFormatChange(const StreamFormat&);
+        void    onDisconnected();
 
         virtual void captureStream(const float* buffer, const size_t frames) final;
         virtual void record() final;

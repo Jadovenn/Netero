@@ -38,6 +38,10 @@ void    capturingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 		if (!nativeDevice) { return; }
 		result = nativeDevice->capture_client->GetNextPacketSize(&padding);
 		if (FAILED(result)) {
+			if (result == S_OK) { // This means the device has been disconnected
+				nativeDevice->clientDevice.signals.deviceDisconnectedSig();
+				goto exit;
+			}
 			_com_error	err(result);
 			nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
 			goto exit;
@@ -95,6 +99,10 @@ netero::audio::RtCode   netero::audio::backend::deviceStopRecording(const netero
 	auto nativeDevice = pImpl->WASAPI_get_device(device);
 	if (!nativeDevice) { return RtCode::ERR_NO_SUCH_DEVICE; }
 	if (nativeDevice->capturingState.load(std::memory_order_acquire) != WASAPI_device::state::RUNNING) {
+		if (nativeDevice->capturingThread) {
+			nativeDevice->capturingThread->join();
+			nativeDevice.reset();
+		}
 		return RtCode::ERR_DEVICE_NOT_RUNNING;
 	}
 	nativeDevice->capturingState.store(WASAPI_device::state::STOP, std::memory_order_release);
@@ -105,12 +113,6 @@ netero::audio::RtCode   netero::audio::backend::deviceStopRecording(const netero
 		}
 		end = std::chrono::system_clock::now();
 	}
-	//if (std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() > 1000) {
-		//nativeDevice->capturingThread->detach();
-		//nativeDevice->capturingThread.reset();
-		//nativeDevice->reset();
-		//return RtCode::DEVICE_TIMEOUT;
-	//}
 	nativeDevice->capturingThread->join();
 	nativeDevice->capturingThread.reset();
     return RtCode::OK;

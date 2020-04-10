@@ -44,6 +44,9 @@ netero::audio::waveRecorder::operator bool() {
     return _fileStream.is_open();
 }
 
+void    netero::audio::waveRecorder::onDisconnected() {
+}
+
 void    netero::audio::waveRecorder::onFormatChange(const StreamFormat &format) {
     _device.format = format;
     _waveFileHeader.header.FileSize = sizeof(WaveHeader) - 8;
