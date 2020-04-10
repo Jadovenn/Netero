@@ -101,7 +101,7 @@ netero::audio::RtCode   netero::audio::backend::deviceStopRecording(const netero
 	if (nativeDevice->capturingState.load(std::memory_order_acquire) != WASAPI_device::state::RUNNING) {
 		if (nativeDevice->capturingThread) {
 			nativeDevice->capturingThread->join();
-			nativeDevice.reset();
+			nativeDevice->capturingThread.reset();
 		}
 		return RtCode::ERR_DEVICE_NOT_RUNNING;
 	}
