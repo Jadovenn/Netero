@@ -1,10 +1,10 @@
 cmake_minimum_required (VERSION 3.11...3.16)
-project(netero_audio
+project(netero_graphics
         VERSION 0.1.0
-        DESCRIPTION "Netero engine submodule"
+        DESCRIPTION "Netero graphics submodule"
         LANGUAGES CXX)
 
-message(STATUS "Configure ENGINE submodule")
+message(STATUS "Configure Netero graphics submodule")
 
 ##====================================
 ##  Dependency
@@ -35,15 +35,15 @@ list(APPEND SRCS
 ##  Target
 ##====================================
 
-add_library(netero_engine STATIC ${SRCS} ${PUBLIC_HEADER})
-target_compile_features(netero_engine PUBLIC cxx_std_17)
-target_include_directories(netero_engine
+add_library(netero_graphics STATIC ${SRCS} ${PUBLIC_HEADER})
+target_compile_features(netero_graphics PUBLIC cxx_std_17)
+target_include_directories(netero_graphics
         PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
         $<BUILD_INTERFACE:${Vulkan_INCLUDE_DIRS}>
         $<BUILD_INTERFACE:${glfw_INCLUDE_DIRS}>)
-target_link_libraries(netero_engine
+target_link_libraries(netero_graphics
         PRIVATE
             Vulkan::Vulkan glfw netero_ecs)
 
@@ -51,18 +51,19 @@ target_link_libraries(netero_engine
 ##  Installation
 ##====================================
 
-install(TARGETS netero_engine
+install(TARGETS netero_graphics
         EXPORT engine-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install(EXPORT audio-export
+install(EXPORT graphics-export
         FILE
-            engineTargets.cmake
+            graphicsTargets.cmake
         NAMESPACE
             Netero::
         DESTINATION
             ${CMAKE_INSTALL_PREFIX}/lib/cmake/netero)
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/engine
+install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/graphics
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")
+

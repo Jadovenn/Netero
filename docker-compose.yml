@@ -10,7 +10,7 @@ services:
       rm -rf /opt/netero/build
       && mkdir /opt/netero/build
       && cd /opt/netero/build
-      && cmake .. -DCODE_COVERAGE=ON -DAUDIO=OFF -DENGINE=OFF
+      && cmake .. -D NETERO_AUDIO=OFF -D NETERO_GRAPHICS=OFF -D CODE_COVERAGE=ON
       && make
       && make test
       && lcov --capture --directory . --output-file coverage.info

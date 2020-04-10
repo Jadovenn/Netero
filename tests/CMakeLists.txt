@@ -53,12 +53,12 @@ add_project_test(NAME bug_size_buffer SOURCES bug_size_buffer.cpp)
 ##  Test Audio
 ##====================================
 
-if (AUDIO)
+if (NETERO_AUDIO)
     add_project_test(NAME test_audio_format SOURCES audio/test_audio_format.cpp DEPENDS netero_audio)
     add_project_test(NAME example_audio_render SOURCES audio/example_audio_render.cpp DEPENDS netero_audio)
     add_project_test(NAME example_audio_recorde SOURCES audio/example_audio_recorde.cpp DEPENDS netero_audio)
     add_project_test(NAME example_audio_recorde_silence SOURCES audio/example_audio_recorde_silence.cpp DEPENDS netero_audio)
-endif(AUDIO)
+endif(NETERO_AUDIO)
 
 ##====================================
 ##  Test Observer
@@ -72,7 +72,7 @@ add_project_test(NAME test_slot_container SOURCES observer/test_slot_container.c
 ##  Test ECS
 ##====================================
 
-if(ECS)
+if(NETERO_ECS)
     add_project_test(NAME test_ecs_world SOURCES ecs/test_ecs_world.cpp DEPENDS netero_ecs)
     add_project_test(NAME test_ecs_entity SOURCES ecs/test_ecs_entity.cpp DEPENDS netero_ecs)
     add_project_test(NAME test_ecs_component SOURCES ecs/test_ecs_component.cpp DEPENDS netero_ecs)
@@ -83,4 +83,5 @@ if(ECS)
                 ecs/test_ecs_dataset.hpp
             DEPENDS
                 netero_ecs)
-endif(ECS)
+endif(NETERO_ECS)
+

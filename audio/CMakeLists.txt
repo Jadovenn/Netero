@@ -4,7 +4,7 @@ project(netero_audio
         DESCRIPTION "Netero audio submodule"
         LANGUAGES CXX)
 
-message(STATUS "Configure AUDIO submodule")
+message(STATUS "Configure Netero audio submodule")
 
 ##====================================
 ##  Generic audio sources

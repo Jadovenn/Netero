@@ -33,9 +33,9 @@ endif()
 ##====================================
 
 ## Submodule config
-OPTION(ECS "ecs, contain Entity Component System architecture" ON)
-OPTION(AUDIO "Audio engine" ON)
-OPTION(ENGINE "Rendering engine based on vulkan" ON)
+OPTION(NETERO_ECS "ecs, contain Entity Component System architecture" ON)
+OPTION(NETERO_AUDIO "Audio engine" ON)
+OPTION(NETERO_GRAPHICS "Graphics component based on ecs submodule" ON)
 
 ## Build config
 OPTION(WIN32_STATIC "Link staticaly with win32's dll" OFF)
@@ -64,18 +64,18 @@ endif()
 ##====================================
 
 add_subdirectory(core)
-if (AUDIO)
+if (NETERO_AUDIO)
     add_subdirectory(audio)
-endif(AUDIO)
-if (ECS)
+endif(NETERO_AUDIO)
+if (NETERO_ECS)
     add_subdirectory(ecs)
-endif(ECS)
-if(ENGINE)
-    if(NOT ECS)
-        message(FATAL_ERROR "ENGINE rely on ECS, ECS must be activated")
-    endif(NOT ECS)
-    add_subdirectory(engine)
-endif(ENGINE)
+endif(NETERO_ECS)
+if(NETERO_GRAPHICS)
+    if(NOT NETERO_ECS)
+        message(FATAL_ERROR "GRAPHICS rely on ECS, ECS must be activated")
+    endif(NOT NETERO_ECS)
+    add_subdirectory(graphics)
+endif(NETERO_GRAPHICS)
 
 ##====================================
 ##  Global install rules
@@ -91,3 +91,4 @@ install(FILES cmake/netero-config.cmake
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
     add_subdirectory(tests)
 endif()
+
