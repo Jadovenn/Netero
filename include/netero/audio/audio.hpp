@@ -17,6 +17,8 @@
 
 namespace netero::audio {
 
+	class device;
+
 	/**
 	 * @enum RtCode
 	 * @brief Return code for native audio interfaces.
@@ -114,5 +116,21 @@ namespace netero::audio {
 	 * with an error signal from a device.
 	 */
 	using DeviceErrorSlot = netero::slot<void(const std::string&)>;
+
+	/**
+	 * @typedef DeviceErrorSignal
+	 * @brief Device error signal signature
+	 * This type is used by the engine to declare a signal emitted
+	 * while an error occure during a device operation.
+	 */
+	using DeviceDisconnectedSignal = netero::signal<void(const netero::audio::device&)>;
+
+	/**
+	 * @typedef DeviceErrorSlot
+	 * @brief Device error slot signature.
+	 * This type is used by the client to declare a slot to connect
+	 * with an error signal from a device.
+	 */
+	using DeviceDisconnectedSlot = netero::slot<void(const netero::audio::device&)>;
 }
 

@@ -18,13 +18,15 @@ namespace netero::audio {
 		std::string		id; /**< Device Id. Exact same stringify id given by the audio backend. */
 		std::string		name; /**< Device Name. Device name given by the audio backend */
 		std::string		manufacturer; /**< Device manufacturer name. May be "Unknown" if not provided by the audio backend*/
+        bool            isLoopback = false; /**< This is a loopback device. This flag is set while OS support lp device and it is actually one of them*/
 		StreamFormat	format; /**< Device stream format. */
 
         struct events {
-			netero::signal<void(float*, const size_t)>         renderStreamSig;
-			netero::signal<void(const float*, const size_t)>   captureStreamSig;
-			netero::signal<void(const StreamFormat&)>          deviceStreamFormatChangeSig;
-			netero::signal<void(const std::string&)>           deviceErrorSig;
+			netero::signal<void(float*, const size_t)>          renderStreamSig;
+			netero::signal<void(const float*, const size_t)>    captureStreamSig;
+			netero::signal<void(const StreamFormat&)>           deviceStreamFormatChangeSig;
+			netero::signal<void(const std::string&)>            deviceErrorSig;
+			netero::signal<void(const netero::audio::device&)>  deviceDisconnectedSig;
         };
         events  signals;
 
