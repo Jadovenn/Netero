@@ -26,7 +26,7 @@ namespace netero::audio {
 			netero::signal<void(const float*, const size_t)>    captureStreamSig;
 			netero::signal<void(const StreamFormat&)>           deviceStreamFormatChangeSig;
 			netero::signal<void(const std::string&)>            deviceErrorSig;
-			netero::signal<void()>                              deviceDisconnectedSig;
+			netero::signal<void(const std::string&)>            deviceDisconnectedSig;
         };
         events  signals;
 

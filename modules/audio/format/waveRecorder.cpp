@@ -3,6 +3,7 @@
  * see LICENCE.txt
  */
 
+#include <iostream>
 #include <netero/audio/format/waveRecorder.hpp>
 
 netero::audio::waveRecorder::waveRecorder(netero::audio::engine& engine,
@@ -12,6 +13,7 @@ netero::audio::waveRecorder::waveRecorder(netero::audio::engine& engine,
         _fileName(name + ".wav")
 {
     onFormatChangeSlot.set(&netero::audio::waveRecorder::onFormatChange, this);
+    onDisconnectedSlot.set(&netero::audio::waveRecorder::onDisconnected, this);
     captureSlot.set(&netero::audio::waveRecorder::captureStream, this);
     _fileStream.open(_fileName, std::ios::out | std::ios::trunc | std::ios::binary);
     _waveFileHeader.header.FileSize = sizeof(WaveHeader) - 8;
@@ -44,7 +46,9 @@ netero::audio::waveRecorder::operator bool() {
     return _fileStream.is_open();
 }
 
-void    netero::audio::waveRecorder::onDisconnected() {
+void    netero::audio::waveRecorder::onDisconnected(const std::string& reason) {
+    std::cout << "Audio device disconected: " << reason << std::endl;
+    stop();
 }
 
 void    netero::audio::waveRecorder::onFormatChange(const StreamFormat &format) {

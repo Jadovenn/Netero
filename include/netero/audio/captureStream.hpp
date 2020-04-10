@@ -61,7 +61,7 @@ namespace netero::audio {
 		 * This callback is called by the device while it is disconnected.
 		 * The reference from the engine is still valide untile the end of the scope of the slot.
 		 */
-		virtual void onDisconnected() = 0;
+		virtual void onDisconnected(const std::string &) = 0;
 		netero::audio::OnDisconnectedSlot
 			onDisconnectedSlot; /**< Slot to be set by the client to be notified while the device is disconnected.  */
 

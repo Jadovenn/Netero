@@ -121,7 +121,7 @@ namespace netero::audio {
 	 * This type is used by the engine to declare a signal emitted
 	 * while the related device is disconnected.
 	 */
-	using OnDisconnectedSignal = netero::signal<void()>;
+	using OnDisconnectedSignal = netero::signal<void(const std::string &)>;
 
 	/**
 	 * @typedef onDisconnectedSlot
@@ -130,6 +130,6 @@ namespace netero::audio {
 	 * with an OnDisconnectedSignal from a device.
 	 * @info the device is invalide after the end of the scope of the slot
 	 */
-	using OnDisconnectedSlot = netero::slot<void()>;
+	using OnDisconnectedSlot = netero::slot<void(const std::string &)>;
 }
 
