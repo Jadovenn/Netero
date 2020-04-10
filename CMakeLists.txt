@@ -11,7 +11,7 @@ project(netero
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENTIONS OFF)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-    find_package(Doxygen)
+    ##find_package(Doxygen)
     include(CTest)
     enable_testing()
     if(Doxygen_FOUND)
@@ -63,18 +63,18 @@ endif()
 ##  Sub-project
 ##====================================
 
-add_subdirectory(core)
+add_subdirectory(modules/core)
 if (NETERO_AUDIO)
-    add_subdirectory(audio)
+    add_subdirectory(modules/audio)
 endif(NETERO_AUDIO)
 if (NETERO_ECS)
-    add_subdirectory(ecs)
+    add_subdirectory(modules/ecs)
 endif(NETERO_ECS)
 if(NETERO_GRAPHICS)
     if(NOT NETERO_ECS)
         message(FATAL_ERROR "GRAPHICS rely on ECS, ECS must be activated")
     endif(NOT NETERO_ECS)
-    add_subdirectory(graphics)
+    add_subdirectory(modules/graphics)
 endif(NETERO_GRAPHICS)
 
 ##====================================
