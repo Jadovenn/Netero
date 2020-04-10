@@ -76,12 +76,22 @@ struct WASAPI_device {
 	~WASAPI_device() {
 		if (renderingThread) {
 			renderingState.store(state::OFF, std::memory_order_release);
-			renderingThread->join();
+			if (renderingThread->joinable()) {
+				renderingThread->join();
+			}
+			else {
+				renderingThread->detach();
+			}
 			renderingThread.reset();
 		}
 		if (capturingThread) {
 			capturingState.store(state::OFF, std::memory_order_release);
-			capturingThread->join();
+			if (capturingThread->joinable()) {
+				capturingThread->join();
+			}
+			else {
+				capturingThread->detach();
+			}
 			capturingThread.reset();
 		}
 		clientDevice.signals.captureStreamSig.flush();
