@@ -118,7 +118,10 @@ netero::audio::backend::impl::WASAPI_alloc_device(IMMDevice* device, DataFlow da
 
     // Set audio session listener
     result = newDevice->audioSession->RegisterAudioSessionNotification(newDevice.get());
-    if (FAILED(result)) { return nullptr;  }
+    if (FAILED(result)) { return nullptr; }
+    newDevice->backendDisconnectCallback = std::bind(&impl::WASAPI_disconnect_device,
+        this,
+        std::placeholders::_1);
 
     return newDevice;
 }
@@ -172,7 +175,15 @@ const std::vector<netero::audio::device>    netero::audio::backend::getRenderDev
     IMMDevice*              pEndpoint = nullptr;
     UINT                    count = 0;
 
-
+    pImpl->_garbadgeDevices.clear();
+    pImpl->WASAPI_refresh_devices_list(DataFlow::eRender);
+    devices.reserve(pImpl->_renderDevices.size());
+    for (auto nativeDevice : pImpl->_renderDevices) {
+        devices.push_back(nativeDevice->clientDevice);
+    }
+    devices.shrink_to_fit();
+    return devices;
+    /*
     if (!pImpl->_renderDevices.empty()) {
         for (auto& device : pImpl->_renderDevices) {
             devices.push_back(device->clientDevice);
@@ -213,6 +224,7 @@ exit_error:
     pImpl->_renderDevices.clear();
     devices.shrink_to_fit();
     return devices;
+    */
 }
 
 std::shared_ptr<WASAPI_device>
@@ -237,8 +249,17 @@ const std::vector<netero::audio::device>   netero::audio::backend::getCaptureDev
     IMMDevice*              pEndpoint = nullptr;
     UINT                    count = 0;
 
-
-    if (!pImpl->_captureDevices.empty()) {
+    pImpl->_garbadgeDevices.clear();
+    pImpl->WASAPI_refresh_devices_list(DataFlow::eCapture);
+    pImpl->WASAPI_refresh_devices_list(DataFlow::eAll);
+    devices.reserve(pImpl->_captureDevices.size());
+    for (auto nativeDevice : pImpl->_captureDevices) {
+        devices.push_back(nativeDevice->clientDevice);
+    }
+    devices.shrink_to_fit();
+    return devices;
+    /*
+    if (pImpl->_captureDevices.empty()) {
         for (const auto& device : pImpl->_captureDevices) {
             devices.push_back(device->clientDevice);
         }
@@ -310,6 +331,7 @@ exit_error:
     pImpl->_captureDevices.clear();
     devices.shrink_to_fit();
     return devices;
+    */
 }
 
 const netero::audio::device&    netero::audio::backend::getDefaultRenderDevice() {
@@ -335,3 +357,87 @@ const netero::audio::device& netero::audio::backend::getDefaultCaptureDevice() {
     }
     return pImpl->nullDevice;
 }
+
+// Collect disconnected device, put them in garbadge vector for latter deletion
+void    netero::audio::backend::impl::WASAPI_disconnect_device(const netero::audio::device& device) {
+    const auto nativeDevice = WASAPI_get_device(device);
+    if (!nativeDevice) { return; } // Notify this as an error some where
+    // possible data race on devices vector here
+    if (nativeDevice->deviceFlow == DataFlow::eRender) {
+        _renderDevices.remove(nativeDevice);
+    }
+    else {
+        _captureDevices.remove(nativeDevice);
+    }
+    _garbadgeDevices.push_back(nativeDevice);
+}
+
+void    netero::audio::backend::impl::WASAPI_refresh_devices_list(DataFlow dataFlow) {
+    std::vector<netero::audio::device>   devices;
+    HRESULT                 result;
+    IMMDeviceCollection* pCollection = nullptr;
+    IMMDevice* pEndpoint = nullptr;
+    UINT                    count = 0;
+
+    if (dataFlow == DataFlow::eCapture) {
+        result = device_enumerator->EnumAudioEndpoints(eCapture,
+            DEVICE_STATE_ACTIVE,
+            &pCollection);
+        if (FAILED(result)) { return; }
+    }
+    else {
+        result = device_enumerator->EnumAudioEndpoints(eRender,
+            DEVICE_STATE_ACTIVE,
+            &pCollection);
+        if (FAILED(result)) { return; }
+    }
+
+    result = pCollection->GetCount(&count);
+    if (FAILED(result)) {
+        return;
+    }
+    for (ULONG idx = 0; idx < count; idx++) {
+        result = pCollection->Item(idx, &pEndpoint);
+        if (FAILED(result)) {
+            return;
+        }
+        LPWSTR deviceIDStr = WASAPI_get_device_ID(pEndpoint);
+        if (!deviceIDStr) {
+            WASAPI_release<IMMDevice>(&pEndpoint);
+            continue;
+        }
+        const std::string endpointId = wstring_to_string(deviceIDStr);
+        CoTaskMemFree(deviceIDStr);
+        deviceIDStr = nullptr;
+        if (dataFlow == DataFlow::eRender) {
+            auto it = std::find_if(_renderDevices.begin(), _renderDevices.end(),
+                [endpointId](std::shared_ptr<WASAPI_device> device) -> bool {
+                return endpointId == device->clientDevice.id;
+            });
+            if (it == _renderDevices.end()) {
+                auto device = WASAPI_alloc_device(pEndpoint, dataFlow);
+				if (!device) {
+					WASAPI_release<IMMDevice>(&pEndpoint);
+					continue;
+				}
+                _renderDevices.push_back(device);
+            }
+        }
+        else {
+            auto it = std::find_if(_captureDevices.begin(), _captureDevices.end(),
+                [endpointId](std::shared_ptr<WASAPI_device> device) -> bool {
+                return endpointId == device->clientDevice.id;
+            });
+            if (it == _captureDevices.end()) {
+                auto device = WASAPI_alloc_device(pEndpoint, dataFlow);
+				if (!device) {
+					WASAPI_release<IMMDevice>(&pEndpoint);
+					continue;
+				}
+                _captureDevices.push_back(device);
+            }
+        }
+    }
+    WASAPI_release<IMMDeviceCollection>(&pCollection);
+}
+

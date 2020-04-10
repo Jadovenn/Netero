@@ -76,7 +76,10 @@ int     main() {
     audio_engine.deviceStopRecording(device);
     delete wave_recorder;
 
-
+    auto devices = audio_engine.getCaptureDevices();
+    for (auto& device : devices) {
+        std::cout << ": " << device.name << std::endl;
+    }
     return 0;
 }
 

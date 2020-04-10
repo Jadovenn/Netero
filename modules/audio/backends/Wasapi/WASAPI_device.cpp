@@ -87,7 +87,7 @@ HRESULT WASAPI_device::OnSimpleVolumeChanged(float volume, BOOL isMuted, LPCGUID
 }
 
 HRESULT WASAPI_device::OnChannelVolumeChanged(DWORD /*channelCount*/,
-	float */*channelsArray*/,
+	float * /*channelsArray*/,
 	DWORD /*changedChannelIndex*/,
 	LPCGUID /*eventContext*/) {
 	return S_OK;
@@ -112,6 +112,11 @@ HRESULT WASAPI_device::OnStateChanged(AudioSessionState state) {
 }
 
 HRESULT WASAPI_device::OnSessionDisconnected(AudioSessionDisconnectReason reason) {
+	// Stop the rendering thread
+	capturingState.store(WASAPI_device::state::OFF, std::memory_order_release);
+	// Set device for collection
+	backendDisconnectCallback(clientDevice);
+	// Notify devices slots
 	switch (reason) {
 	case DisconnectReasonDeviceRemoval:
 		clientDevice.signals.deviceDisconnectedSig("device removed");
@@ -132,7 +137,6 @@ HRESULT WASAPI_device::OnSessionDisconnected(AudioSessionDisconnectReason reason
 		clientDevice.signals.deviceDisconnectedSig("exclusive mode override");
 		break;
 	}
-	capturingState.store(WASAPI_device::state::OFF, std::memory_order_release);
 	return S_OK;
 }
 

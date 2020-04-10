@@ -63,6 +63,7 @@ struct WASAPI_device: public IAudioSessionEvents {
 	HRESULT STDMETHODCALLTYPE	OnGroupingParamChanged(LPCGUID, LPCGUID) final;
 	HRESULT STDMETHODCALLTYPE	OnStateChanged(AudioSessionState) final;
 	HRESULT STDMETHODCALLTYPE	OnSessionDisconnected(AudioSessionDisconnectReason) final;
+	std::function<void(const netero::audio::device&)>		backendDisconnectCallback;
 
 	// Wasapi device management
 	IMMDevice*				device = nullptr;
@@ -118,10 +119,13 @@ public:
 	netero::audio::device						nullDevice;
 
 	std::shared_ptr<WASAPI_device>	WASAPI_alloc_device(IMMDevice*, DataFlow);
+	void							WASAPI_refresh_devices_list(DataFlow);
 	PROPVARIANT						WASAPI_get_device_property(IMMDevice*, const PROPERTYKEY);
 	LPWSTR							WASAPI_get_device_ID(IMMDevice*);
 	const std::string				WASAPI_get_default_device_ID(DataFlow);
 	std::shared_ptr<WASAPI_device>	WASAPI_get_device(const audio::device&);
+
+	void							WASAPI_disconnect_device(const audio::device&);
 
 
 	void	test_result(HRESULT result) {
