@@ -1,18 +1,25 @@
 
-![Logo](docs/logo/logo+text.png)
+# Welcome to the Netero's documentation
 
-[![CircleCI](https://circleci.com/gh/domage-j/netero.svg?style=svg)](https://circleci.com/gh/domage-j/netero)
-[![Documentation](https://codedocs.xyz/domage-j/netero.svg)](https://codedocs.xyz/domage-j/netero/)
-[![codecov](https://codecov.io/gh/domage-j/netero/branch/develop/graph/badge.svg)](https://codecov.io/gh/domage-j/netero)
+You will find all needed informations here. If you notice that something is missing,
+please open an issue on github.
 
-Netero's libs help you create application with real-time problematics, events managements and deal with shared ressources.
+## Introduction
 
+Netero help you create application with real time problematics,
+events managment and deal with shared ressources.
+Netero is a set of libraries, each library is considered as a module.
+
+
+The project use cmake to generate and build the solution, it could be integrated
+using FetchContentAdd macro or threw a git submodule in your own solution. If you
+are not using cmake as build system, you can build and install netero seperatly.
+
+# Features & Components 
 
 Netero aims to expose monolithic containers and patterns working beside the STL
-in the most generic way. I tried to make as much as possible Netero features supported
+in the most generic way. We try to make as much as possible Netero features supported
 under Windows, linux based OS and macOs.
-
-You can access to the documentation by clicking on the "documented" badge.
 
 ## Core
 
@@ -53,4 +60,12 @@ Container:
  * signals: containers ready to render signals
  * waveRecorder: container to record audio into a wave file
 
+## Graphics
+
+This submodul is work in progress.
+
+# Motivation
+
+Netero was orignaly developed for learning purpose, even thought today it is developed by
+hobyist with an open-source mindset.
 
