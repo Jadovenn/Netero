@@ -1,10 +1,10 @@
 
-First off, I am very happy that you read this! Because this project is in a very
+First off, I am very happy that you read this! Because the project is in a very
 early stage, any contributions would help a lot. Thank you for taking the time to contribute!
 
 # How can I contribute ?
 
-This section guide you in the process of submiting features, enhencement and bug report.
+This section guide you in the process of submiting features, enhancement and bug report.
 Everythings is tracked using github issues. You will find template related template while opening
 issues.
 
@@ -34,7 +34,14 @@ all the containers of the library. And might be more easier to accomplish.
 
 ## Submit a pull request
 
+1. open a pull request using the template
+2. Complete the necessary section in the template, do not forget to reference an issue if necessary
+3. Make sure the code you add include test and related documentation
+4. After submiting the pull request make sure the pipeline didn't failed
+5. It this possible that maintainers ask you or performe necessary change before the pull request is merged
 
+If the pipeline failed and you belived this is not related to your contribution please comment it and explain it.
+This would help a lot maintainer to find the bug and treat it as a seperat issue.
 
 # How to execute unit test ?
 
