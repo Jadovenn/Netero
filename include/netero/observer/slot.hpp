@@ -78,10 +78,29 @@ namespace netero {
 		slot(slot<_rType(_ArgsType...)> &copy)
 			:	_function(copy._function)
 		{
-				std::scoped_lock	lock(copy._sigMutex);
 				for (auto signal: copy._signals) {
 					this->connect(signal);
 				}
+		}
+
+		/**
+		 * @brief assignation
+		 * @param args
+		 * @return
+		 */
+		slot<_rType(_ArgsType...)>&  operator=(const slot<_rType(_ArgsType...)>& copy) {
+			for (auto *signal : this->_signals) {
+				signal->disconnect(this);
+			}
+			{
+				std::scoped_lock<std::mutex>	lock(_sigMutex);
+				this->_function = copy._function;
+				this->_signals.clear();
+			}
+			for (auto *signal : copy._signals) {
+				signal->connect(this);
+			}
+			return *this;
 		}
 
 		/**
@@ -141,6 +160,7 @@ namespace netero {
 			throw netero::bad_slot_call();
 		}
 
+
 		/**
 		 * @brief Test if the slot is callable.
 		 * @return true if the internal functor is callable, false otherwise
@@ -148,6 +168,7 @@ namespace netero {
 		explicit operator bool() {
 			return static_cast<bool>(_function);
 		}
+
 
 		/**
 		 * @brief Disconnect the slot from the given signal.
