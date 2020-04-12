@@ -38,7 +38,7 @@ Containers:
  * entity: entity container managed by a wolrd container
  * system: logic holder container fot entities
  * component: attributs holder container for entities
- * component_filter: filter container base on entities's componet for systems
+ * component_filter: filters container base on entities's components for systems
 
 ## Audio
 
