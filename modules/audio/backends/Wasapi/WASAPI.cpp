@@ -67,3 +67,8 @@ netero::audio::device::events& netero::audio::backend::getDeviceEvents(const net
 	return nativeDevice->clientDevice.signals;
 }
 
+void netero::audio::backend::setDeviceDisconnectedCallback(const std::function<void(const netero::audio::device&)>& callback) const {
+	pImpl->deviceDisconectedCallback = callback;
+}
+
+
