@@ -34,9 +34,11 @@ const netero::audio::device& netero::audio::engine::getDefaultCaptureDevice() co
     return _backend.getDefaultCaptureDevice();
 }
 
+/**
 netero::audio::device::events& netero::audio::engine::getDeviceEvents(const netero::audio::device &device) {
     return _backend.getDeviceEvents(device);
 }
+*/
 
 netero::audio::RtCode       netero::audio::engine::deviceStartRendering(const netero::audio::device& device) {
     return _backend.deviceStartRendering(device);

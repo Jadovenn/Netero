@@ -42,7 +42,7 @@ enum class DataFlow {
 };
 
 struct WASAPI_device: public IAudioSessionEvents {
-	~WASAPI_device();
+	virtual ~WASAPI_device();
 	enum class state {
 		OFF,
 		STOP,
@@ -81,6 +81,12 @@ struct WASAPI_device: public IAudioSessionEvents {
 	// Rendering thread related
 	DataFlow							deviceFlow = DataFlow::eAll;
 	netero::audio::device				clientDevice;
+	netero::signal<void(float*, const size_t)>					renderStreamSig;
+	netero::signal<void(const float*, const size_t)>			captureStreamSig;
+	netero::signal<void(const netero::audio::StreamFormat&)>	deviceStreamFormatChangeSig;
+	netero::signal<void(const std::string&)>					deviceErrorSig;
+	netero::signal<void(const std::string&)>					deviceDisconnectedSig;
+
 	std::unique_ptr<std::thread>		renderingThread;
 	std::unique_ptr<std::thread>		capturingThread;
 	std::atomic<state>					renderingState = state::OFF;
@@ -88,7 +94,7 @@ struct WASAPI_device: public IAudioSessionEvents {
 
 	template<class T,
 		typename = std::enable_if<std::is_base_of<IUnknown, T>::value>>
-	inline void release(T** ptr) {
+	static inline void release(T** ptr) {
 		if (*ptr) {
 			(*ptr)->Release();
 			*ptr = nullptr;

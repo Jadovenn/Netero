@@ -123,6 +123,12 @@ netero::audio::backend::impl::WASAPI_alloc_device(IMMDevice* device, DataFlow da
         this,
         std::placeholders::_1);
 
+	// Assign signals addresses
+    newDevice->clientDevice.signals.renderStreamSig = &newDevice->renderStreamSig;
+    newDevice->clientDevice.signals.captureStreamSig = &newDevice->captureStreamSig;
+    newDevice->clientDevice.signals.deviceStreamFormatChangeSig = &newDevice->deviceStreamFormatChangeSig;
+    newDevice->clientDevice.signals.deviceErrorSig = &newDevice->deviceErrorSig;
+    newDevice->clientDevice.signals.deviceDisconnectedSig = &newDevice->deviceDisconnectedSig;
     return newDevice;
 }
 

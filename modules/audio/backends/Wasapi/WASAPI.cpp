@@ -59,6 +59,7 @@ const std::string& netero::audio::backend::getLastError() {
 	return pImpl->lastError;
 }
 
+/**
 netero::audio::device::events& netero::audio::backend::getDeviceEvents(const netero::audio::device& device) {
 	auto nativeDevice = pImpl->WASAPI_get_device(device);
 	if (!nativeDevice) {
@@ -66,6 +67,7 @@ netero::audio::device::events& netero::audio::backend::getDeviceEvents(const net
 	}
 	return nativeDevice->clientDevice.signals;
 }
+*/
 
 void netero::audio::backend::setDeviceDisconnectedCallback(const std::function<void(const netero::audio::device&)>& callback) const {
 	pImpl->deviceDisconectedCallback = callback;

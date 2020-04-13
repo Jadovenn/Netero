@@ -32,8 +32,7 @@ int main() {
 
     // Set device error handler, to be notify if some errors happened
     netero::audio::DeviceErrorSlot  deviceErrorSlot(deviceErrorHandler);
-    auto& deviceEvent = audioEngine.getDeviceEvents(defaultDevice);
-    deviceEvent.deviceErrorSig.connect(&deviceErrorSlot);
+    defaultDevice.signals.deviceErrorSig->connect(&deviceErrorSlot);
     
     // Create the root mixer, and connect the engine and device
     netero::audio::mixer    rootMixer(audioEngine, defaultDevice);

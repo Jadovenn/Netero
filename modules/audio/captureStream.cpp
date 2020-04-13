@@ -10,13 +10,11 @@ netero::audio::CaptureStream::CaptureStream(netero::audio::engine& engine,
 	: _engine(engine),
 	_device(device)
 {
-	try {
-		auto& deviceSignals = _engine.getDeviceEvents(_device);
-		deviceSignals.captureStreamSig.connect(&captureSlot);
-		deviceSignals.deviceStreamFormatChangeSig.connect(&onFormatChangeSlot);
-		deviceSignals.deviceDisconnectedSig.connect(&onDisconnectedSlot);
+	if (_device) {
+		_device.signals.captureStreamSig->connect(&captureSlot);
+		_device.signals.deviceStreamFormatChangeSig->connect(&onFormatChangeSlot);
+		_device.signals.deviceDisconnectedSig->connect(&onDisconnectedSlot);
 	}
-	catch (...) {}
 }
 
 netero::audio::CaptureStream::CaptureStream(netero::audio::engine& engine)
@@ -24,13 +22,11 @@ netero::audio::CaptureStream::CaptureStream(netero::audio::engine& engine)
 {}
 
 netero::audio::CaptureStream::~CaptureStream() {
-	try {
-		auto& deviceSignals = _engine.getDeviceEvents(_device);
-		deviceSignals.captureStreamSig.disconnect(&captureSlot);
-		deviceSignals.deviceStreamFormatChangeSig.disconnect(&onFormatChangeSlot);
-		deviceSignals.deviceDisconnectedSig.disconnect(&onDisconnectedSlot);
+	if (_device) {
+		_device.signals.captureStreamSig->disconnect(&captureSlot);
+		_device.signals.deviceStreamFormatChangeSig->disconnect(&onFormatChangeSlot);
+		_device.signals.deviceDisconnectedSig->disconnect(&onDisconnectedSlot);
 	}
-	catch (...) {}
 }
 
 netero::audio::engine& netero::audio::CaptureStream::getEngine() {

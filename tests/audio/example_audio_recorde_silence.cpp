@@ -59,14 +59,7 @@ int     main() {
 
     // Set device error handler, to be notify if some errors happen
     netero::audio::DeviceErrorSlot          deviceErrorSlot(&errorCallback);
-    try {
-        auto& deviceEvent = audioEngine.getDeviceEvents(silenceDevice);
-        deviceEvent.deviceErrorSig.connect(&deviceErrorSlot);
-    }
-    catch(...) {
-        // The device is invalide
-        return 1;
-    }
+    silenceDevice.signals.deviceErrorSig->connect(&deviceErrorSlot);
 
     // If it is a loop back device play silence to make sure to record something
     if (silenceDevice) {

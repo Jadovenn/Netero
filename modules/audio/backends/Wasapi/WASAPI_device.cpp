@@ -28,10 +28,10 @@ WASAPI_device::~WASAPI_device() {
 		}
 		capturingThread.reset();
 	}
-	clientDevice.signals.captureStreamSig.flush();
-	clientDevice.signals.renderStreamSig.flush();
-	clientDevice.signals.deviceStreamFormatChangeSig.flush();
-	clientDevice.signals.deviceErrorSig.flush();
+	captureStreamSig.flush();
+	renderStreamSig.flush();
+	deviceStreamFormatChangeSig.flush();
+	deviceErrorSig.flush();
 	release<IMMDevice>(&device);
 	release<IAudioSessionControl>(&audioSession);
 	release<IAudioClient>(&audio_client);
@@ -119,22 +119,22 @@ HRESULT WASAPI_device::OnSessionDisconnected(AudioSessionDisconnectReason reason
 	// Notify devices slots
 	switch (reason) {
 	case DisconnectReasonDeviceRemoval:
-		clientDevice.signals.deviceDisconnectedSig("device removed");
+		deviceDisconnectedSig("device removed");
 		break;
 	case DisconnectReasonServerShutdown:
-		clientDevice.signals.deviceDisconnectedSig("server shutdown");
+		deviceDisconnectedSig("server shutdown");
 		break;
 	case DisconnectReasonFormatChanged:
-		clientDevice.signals.deviceDisconnectedSig("format changed");
+		deviceDisconnectedSig("format changed");
 		break;
 	case DisconnectReasonSessionLogoff:
-		clientDevice.signals.deviceDisconnectedSig("user logout");
+		deviceDisconnectedSig("user logout");
 		break;
 	case DisconnectReasonSessionDisconnected:
-		clientDevice.signals.deviceDisconnectedSig("user terminat his session");
+		deviceDisconnectedSig("user terminate his session");
 		break;
 	case DisconnectReasonExclusiveModeOverride:
-		clientDevice.signals.deviceDisconnectedSig("exclusive mode override");
+		deviceDisconnectedSig("exclusive mode override");
 		break;
 	}
 	return S_OK;

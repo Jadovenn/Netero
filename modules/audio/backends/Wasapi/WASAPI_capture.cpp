@@ -23,13 +23,13 @@ void    capturingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 	task = AvSetMmThreadCharacteristics(TEXT("Pro Audio"), &taskIndex);
 	if (!task) {
 		task = nullptr;
-		nativeDevice->clientDevice.signals.deviceErrorSig("Could not elevate thread priority.");
+		nativeDevice->deviceErrorSig("Could not elevate thread priority.");
 		goto exit;
 	}
 	result = nativeDevice->audio_client->Start();
 	if (FAILED(result)) {
 		_com_error	err(result);
-		nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
+		nativeDevice->deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
 		goto exit;
 	}
 	while (nativeDevice->capturingState.load(std::memory_order_acquire) == WASAPI_device::state::RUNNING) {
@@ -39,7 +39,7 @@ void    capturingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 		result = nativeDevice->capture_client->GetNextPacketSize(&padding);
 		if (FAILED(result)) {
 			_com_error	err(result);
-			nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
+			nativeDevice->deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
 			goto exit;
 		}
 		if (padding != 0) {
@@ -50,14 +50,14 @@ void    capturingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 				nullptr);
 			if (FAILED(result) || buffer == nullptr) {
 				_com_error	err(result);
-				nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
+				nativeDevice->deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
 				goto exit;
 			}
-			nativeDevice->clientDevice.signals.captureStreamSig(reinterpret_cast<float*>(buffer), padding);
+			nativeDevice->captureStreamSig(reinterpret_cast<float*>(buffer), padding);
 			result = nativeDevice->capture_client->ReleaseBuffer(padding);
 			if (FAILED(result)) {
 				_com_error	err(result);
-				nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
+				nativeDevice->deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
 				goto exit;
 			}
 		}
@@ -68,7 +68,7 @@ void    capturingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 	result = nativeDevice->audio_client->Stop();
 	if (FAILED(result)) {
 		_com_error	err(result);
-		nativeDevice->clientDevice.signals.deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
+		nativeDevice->deviceErrorSig("Audio Client: " + std::string(err.ErrorMessage()));
 	}
 exit:
 	nativeDevice->capturingState.store(WASAPI_device::state::OFF, std::memory_order_release);

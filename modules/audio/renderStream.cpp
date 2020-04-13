@@ -10,12 +10,10 @@ netero::audio::RenderStream::RenderStream(netero::audio::engine& engine,
 	:	_engine(engine),
 		_device(device)
 {
-	try {
-		auto& deviceSignals = _engine.getDeviceEvents(_device);
-		deviceSignals.renderStreamSig.connect(&renderSlot);
-		deviceSignals.deviceStreamFormatChangeSig.connect(&onFormatChangeSlot);
+	if (_device) {
+		_device.signals.renderStreamSig->connect(&renderSlot);
+		_device.signals.deviceStreamFormatChangeSig->connect(&onFormatChangeSlot);
 	}
-	catch (...) {}
 }
 
 netero::audio::RenderStream::RenderStream(netero::audio::engine& engine)
@@ -23,12 +21,10 @@ netero::audio::RenderStream::RenderStream(netero::audio::engine& engine)
 {}
 
 netero::audio::RenderStream::~RenderStream() {
-	try {
-		auto& deviceSignals = _engine.getDeviceEvents(_device);
-		deviceSignals.captureStreamSig.disconnect(&renderSlot);
-		deviceSignals.deviceStreamFormatChangeSig.disconnect(&onFormatChangeSlot);
+	if (_device) {
+		_device.signals.renderStreamSig->disconnect(&renderSlot);
+		_device.signals.deviceStreamFormatChangeSig->disconnect(&onFormatChangeSlot);
 	}
-	catch (...) {}
 }
 
 netero::audio::engine& netero::audio::RenderStream::getEngine() {
