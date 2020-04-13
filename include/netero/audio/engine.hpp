@@ -106,7 +106,7 @@ namespace netero::audio {
         RtCode  deviceStopRecording(const netero::audio::device&);
 
     	/**
-    	 * 
+    	 * A signal that emit each time a physical device is disconnected/become unavailable.
     	 */
         netero::signal<void(const netero::audio::device&)>  deviceDisconnectedSig;
     private:
