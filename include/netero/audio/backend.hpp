@@ -35,8 +35,6 @@ namespace netero::audio {
 		const std::vector<device>	getCaptureDevices();
 		const device&				getDefaultCaptureDevice();
 
-		//device::events& getDeviceEvents(const device&); // may throw
-
 		RtCode						deviceStartRendering(const device&);
 		RtCode						deviceStopRendering(const device&);
 		RtCode						deviceStartRecording(const device&);

@@ -67,8 +67,6 @@ namespace netero::audio {
     	 */
         [[nodiscard]] const netero::audio::device& getDefaultCaptureDevice() const;
 
-        //netero::audio::device::events& getDeviceEvents(const netero::audio::device&); // may throw
-
     	/**
     	 * @brief Start a device for rendering.
     	 * @warning The device should be a rendering device or this
