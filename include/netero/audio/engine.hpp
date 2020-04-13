@@ -11,6 +11,7 @@
   */
 
 #include <vector>
+#include <netero/observer/signal.hpp>
 #include <netero/audio/audio.hpp>
 #include <netero/audio/device.hpp>
 #include <netero/audio/backend.hpp>
@@ -37,6 +38,8 @@ namespace netero::audio {
 
         RtCode  deviceStartRecording(const device&);
         RtCode  deviceStopRecording(const device&);
+
+        netero::signal<void(const netero::audio::device&)>  deviceDisconnectedSig;
     private:
         backend& _backend;
     };
