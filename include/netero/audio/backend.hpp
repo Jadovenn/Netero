@@ -43,6 +43,7 @@ namespace netero::audio {
 		RtCode						deviceStopRecording(const device&);
 		const std::string&			getLastError();
 
+		void	setDeviceDisconnectedCallback(const std::function<void(const netero::audio::device&)>&) const;
 	private:
 		backend();
 		class impl;

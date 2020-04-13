@@ -7,7 +7,7 @@
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "-D NETERO_AUDIO=ON -D NETERO_ECS=OFF -D NETERO_GRAPHICS=OFF",
+      "cmakeCommandArgs": "-D NETERO_AUDIO=ON -D NETERO_ECS=ON -D NETERO_GRAPHICS=OFF",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "variables": []

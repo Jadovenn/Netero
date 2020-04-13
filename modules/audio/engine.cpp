@@ -7,7 +7,13 @@
 
 netero::audio::engine::engine(const InitStrategy strategy)
     : _backend(netero::audio::backend::GetInstance())
-{}
+{
+    if (strategy == InitStrategy::DEFAULT) {
+        this->_backend.setDeviceDisconnectedCallback([&](const netero::audio::device &device) -> void {
+            this->deviceDisconnectedSig(device);
+        });
+    } 
+}
 
 netero::audio::engine::~engine() {
 }

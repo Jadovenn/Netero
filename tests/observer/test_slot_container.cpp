@@ -6,6 +6,7 @@
 #include <cassert>
 #include <functional>
 #include <netero/observer/slot.hpp>
+#include <netero/observer/signal.hpp>
 
 class TestClass {
 public:
@@ -19,6 +20,17 @@ public:
 
 int		add(int a, int b) {
 	return a + b;
+}
+
+void test_copy_operator() {
+	TestClass test;
+	netero::signal<int(int, int)> signal;
+	netero::slot<int(int, int)>	slot(&TestClass::add, &test);
+	netero::slot<int(int, int)> slot_bis;
+	signal.connect(&slot);
+	slot_bis = slot;
+	signal(1, 1);
+	assert(test.nbCall == 2);
 }
 
 void	test_copy_ctor() {
@@ -64,6 +76,7 @@ void 	test_bool_operator() {
 }
 
 int	main() {
+	test_copy_operator();
 	test_functor_call();
 	test_function_call();
 	test_class_call();

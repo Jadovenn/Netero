@@ -362,6 +362,7 @@ const netero::audio::device& netero::audio::backend::getDefaultCaptureDevice() {
 void    netero::audio::backend::impl::WASAPI_disconnect_device(const netero::audio::device& device) {
     const auto nativeDevice = WASAPI_get_device(device);
     if (!nativeDevice) { return; } // Notify this as an error some where
+    deviceDisconectedCallback(device);
     // possible data race on devices vector here
     if (nativeDevice->deviceFlow == DataFlow::eRender) {
         _renderDevices.remove(nativeDevice);

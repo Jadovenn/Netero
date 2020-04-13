@@ -117,6 +117,7 @@ public:
 	std::list<std::shared_ptr<WASAPI_device>>	_captureDevices;
 	std::list<std::shared_ptr<WASAPI_device>>	_garbadgeDevices;
 	netero::audio::device						nullDevice;
+	std::function<void(const netero::audio::device&)> deviceDisconectedCallback;
 
 	std::shared_ptr<WASAPI_device>	WASAPI_alloc_device(IMMDevice*, DataFlow);
 	void							WASAPI_refresh_devices_list(DataFlow);
