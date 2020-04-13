@@ -11,13 +11,23 @@
 #include <chrono>
 #include <thread>
 
+static
 void    deviceErrorHandler(const std::string& message) {
     std::cout << message << std::endl;
 }
 
+static 
+void    deviceDisconnectionHandler(const netero::audio::device &device) {
+    std::cout << "device: " << device.name << " has been disconnected." << std::endl;
+}
+
+static
+netero::slot<void(const netero::audio::device&)>    deviceDisconnectionSlot(&deviceDisconnectionHandler);
+
 int main() {
     // Create an audio engine and retrieve the default render device
     netero::audio::engine   audioEngine;
+    audioEngine.deviceDisconnectedSig.connect(&deviceDisconnectionSlot);
     const auto& defaultDevice = audioEngine.getDefaultRenderDevice();
 
     // Set device error handler, to be notify if some errors happened
