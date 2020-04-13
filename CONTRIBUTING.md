@@ -5,7 +5,7 @@ early stage, any contributions would help a lot. Thank you for taking the time t
 # How can I contribute ?
 
 This section guide you in the process of submiting features, enhancement and bug report.
-Everythings is tracked using github issues. You will find template related template while opening
+Everythings is tracked using github issues. You will find related template while opening
 issues.
 
 ## How to submit a bug report ?
@@ -52,5 +52,5 @@ The pipeline is executed in a docker container, you can run the tests localy:
  - Using `docker-compose up` this will execute the pipeline locally in a docker container.
  - Using the `make test` rule. This will execute the test on your local machine using your environment.
 
-It is a good idea to use this two methode especially if your are not working on a linux machine.
+It is a good idea to test with this two methods especially if your are not working on a linux machine.
 
