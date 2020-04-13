@@ -43,6 +43,19 @@ namespace netero::audio {
 	 * the number of bytes per samples time the number of samples.
 	 */
 	struct StreamFormat {
+
+		/**
+		 * @brief clear all stream format value.
+		 */
+		void	clear() noexcept {
+			this->framesCount = 0;
+			this->bytesPerFrame = 0;
+			this->bytesPerSample = 0;
+			this->channels = 0;
+			this->samplingFrequency = 0;
+			this->supportedSamplingRate.clear();
+		}
+		
 		unsigned	framesCount = 0; /**< Number of frames in contained in the shared buffer with the device. */
 		unsigned	bytesPerFrame = 0; /**< Size in byte for one frame. */
 		unsigned	bytesPerSample = 0; /**< Size in byte for one sample. */
