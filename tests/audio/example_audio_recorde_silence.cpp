@@ -48,7 +48,7 @@ int    select_recording_device(netero::audio::engine& engine, netero::audio::dev
 }
 
 int     main() {
-    netero::audio::engine                   audioEngine;
+    auto& audioEngine = netero::audio::engine::getInstance();
     netero::audio::device                   recordDevice;
     netero::audio::device                   silenceDevice;
 

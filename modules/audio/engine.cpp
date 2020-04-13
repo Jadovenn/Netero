@@ -5,32 +5,32 @@
 
 #include <netero/audio/engine.hpp>
 
-netero::audio::engine::engine(const InitStrategy strategy)
+netero::audio::engine::engine() noexcept
     : _backend(netero::audio::backend::GetInstance())
 {
-    if (strategy == InitStrategy::DEFAULT) {
         this->_backend.setDeviceDisconnectedCallback([&](const netero::audio::device &device) -> void {
             this->deviceDisconnectedSig(device);
         });
-    } 
 }
 
-netero::audio::engine::~engine() {
+netero::audio::engine& netero::audio::engine::getInstance() noexcept {
+    static std::unique_ptr<netero::audio::engine>   audioEngine(new netero::audio::engine);
+    return *audioEngine;
 }
 
-const std::vector<netero::audio::device>	netero::audio::engine::getRenderDevices() {
+std::vector<netero::audio::device>	netero::audio::engine::getRenderDevices() const {
     return _backend.getRenderDevices();
 }
 
-const netero::audio::device& netero::audio::engine::getDefaultRenderDevice() {
+const netero::audio::device& netero::audio::engine::getDefaultRenderDevice() const {
     return _backend.getDefaultRenderDevice();
 }
 
-const std::vector<netero::audio::device>	netero::audio::engine::getCaptureDevices() {
+std::vector<netero::audio::device>	netero::audio::engine::getCaptureDevices() const {
     return _backend.getCaptureDevices();
 }
 
-const netero::audio::device& netero::audio::engine::getDefaultCaptureDevice() {
+const netero::audio::device& netero::audio::engine::getDefaultCaptureDevice() const {
     return _backend.getDefaultCaptureDevice();
 }
 

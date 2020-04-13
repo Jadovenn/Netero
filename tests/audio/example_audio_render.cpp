@@ -26,7 +26,7 @@ netero::slot<void(const netero::audio::device&)>    deviceDisconnectionSlot(&dev
 
 int main() {
     // Create an audio engine and retrieve the default render device
-    netero::audio::engine   audioEngine;
+    auto& audioEngine = netero::audio::engine::getInstance();
     audioEngine.deviceDisconnectedSig.connect(&deviceDisconnectionSlot);
     const auto& defaultDevice = audioEngine.getDefaultRenderDevice();
 

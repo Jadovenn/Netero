@@ -21,9 +21,9 @@ void    printDeviceAttributes(const netero::audio::device& device) {
 }
 
 int     main() {
-    netero::audio::engine audio_engine;
+    auto &audioEngine = netero::audio::engine::getInstance();
 
-    std::vector<netero::audio::device> renderDevices = audio_engine.getRenderDevices();
+    std::vector<netero::audio::device> renderDevices = audioEngine.getRenderDevices();
     if (renderDevices.empty()) {
         std::cout << "No audio devices found" << std::endl;
     }
@@ -32,7 +32,7 @@ int     main() {
         printDeviceAttributes(device);
     }
 
-    std::vector<netero::audio::device> captureDevices = audio_engine.getCaptureDevices();
+    std::vector<netero::audio::device> captureDevices = audioEngine.getCaptureDevices();
     if (captureDevices.empty()) {
         std::cout << "No in audio devices found" << std::endl;
     }

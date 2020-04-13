@@ -42,43 +42,43 @@ int    select_recording_device(netero::audio::engine& engine, netero::audio::dev
 }
 
 int     main() {
-    netero::audio::engine                   audio_engine;
+    auto &audioEngine = netero::audio::engine::getInstance();
     netero::audio::device                   device;
     netero::audio::DeviceErrorSlot          deviceErrorSlot(&errorCallback);
 
-    if (select_recording_device(audio_engine, device) != 0) {
+    if (select_recording_device(audioEngine, device) != 0) {
         return 1;
     }
 
     // Record 1
-    netero::audio::waveRecorder *wave_recorder = new netero::audio::waveRecorder(audio_engine, device, std::to_string(device.format.samplingFrequency) + "1-hz_float32");
-    audio_engine.deviceStartRecording(device);
-    wave_recorder->record();
+    auto *waveRecorder = new netero::audio::waveRecorder(audioEngine, device, std::to_string(device.format.samplingFrequency) + "1-hz_float32");
+    audioEngine.deviceStartRecording(device);
+    waveRecorder->record();
 
-    std::chrono::time_point start = std::chrono::system_clock::now();
+    auto start = std::chrono::system_clock::now();
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
         std::this_thread::yield();
     }
-    wave_recorder->stop();
-    audio_engine.deviceStopRecording(device);
-    delete wave_recorder;
+    waveRecorder->stop();
+    audioEngine.deviceStopRecording(device);
+    delete waveRecorder;
 
     // Record 2
-    wave_recorder = new netero::audio::waveRecorder(audio_engine, device, std::to_string(device.format.samplingFrequency) + "2-hz_float32");
-    audio_engine.deviceStartRecording(device);
-    wave_recorder->record();
+    waveRecorder = new netero::audio::waveRecorder(audioEngine, device, std::to_string(device.format.samplingFrequency) + "2-hz_float32");
+    audioEngine.deviceStartRecording(device);
+    waveRecorder->record();
 
     start = std::chrono::system_clock::now();
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
         std::this_thread::yield();
     }
-    wave_recorder->stop();
-    audio_engine.deviceStopRecording(device);
-    delete wave_recorder;
+    waveRecorder->stop();
+    audioEngine.deviceStopRecording(device);
+    delete waveRecorder;
 
-    auto devices = audio_engine.getCaptureDevices();
-    for (auto& device : devices) {
-        std::cout << ": " << device.name << std::endl;
+    auto devices = audioEngine.getCaptureDevices();
+    for (auto& deviceItem : devices) {
+        std::cout << ": " << deviceItem.name << std::endl;
     }
     return 0;
 }
