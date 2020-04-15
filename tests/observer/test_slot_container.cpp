@@ -37,9 +37,9 @@ void	test_copy_ctor() {
 	TestClass	test;
 	netero::slot<int(int, int)>	slot(&TestClass::add, &test);
 	netero::slot<int(int, int)>	slot_copy(slot);
-	if (slot(21, 21) != 42) { assert(false); }
-	if (slot_copy(21, 21) != 42) { assert(false); }
-	if (test.nbCall != 2) { assert(false); }
+	assert(slot(21, 21) == 42);
+	assert(slot_copy(21, 21) == 42);
+	assert(test.nbCall == 2);
 }
 
 void 	test_functor_call() {
@@ -47,8 +47,8 @@ void 	test_functor_call() {
 	netero::slot<int(int, int)>	slot(functor);
 	netero::slot<int(int, int)>	default_slot;
 	default_slot.set(functor);
-	if (slot(21, 21) != 42) { assert(false); }
-	if (default_slot(21, 21) != 42) { assert(false); }
+	assert(slot(21, 21) == 42);
+	assert(default_slot(21, 21) == 42);
 }
 
 void	test_class_call() {
@@ -56,23 +56,23 @@ void	test_class_call() {
 	netero::slot<int(int, int)>	slot(&TestClass::add, &test);
 	netero::slot<int(int, int)>	default_slot;
 	default_slot.set(&TestClass::add, &test);
-	if (slot(21, 21) != 42) { assert(false); }
-	if (default_slot(21, 21) != 42) { assert(false); }
+	assert(slot(21, 21) == 42);
+	assert(default_slot(21, 21) == 42);
 }
 
 void 	test_function_call() {
 	netero::slot<int(int, int)>	slot(&add);
 	netero::slot<int(int, int)>	default_slot;
 	default_slot.set(&add);
-	if (slot(21, 21) != 42) { assert(false); }
-	if (default_slot(21, 21) != 42) { assert(false); }
+	assert(slot(21, 21) == 42);
+	assert(default_slot(21, 21) == 42);
 }
 
 void 	test_bool_operator() {
 	netero::slot<int(int, int)>	slot;
 	if (slot) { assert(false); }
 	slot.set(&add);
-	if (!slot) { assert(false); }
+	assert(slot);
 }
 
 int	main() {
