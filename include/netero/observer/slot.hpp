@@ -79,7 +79,7 @@ namespace netero {
 			:	_function(copy._function)
 		{
 				for (auto signal: copy._signals) {
-					this->connect(signal);
+					signal->connect(this);
 				}
 		}
 
