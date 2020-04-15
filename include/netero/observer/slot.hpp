@@ -75,7 +75,7 @@ namespace netero {
 		 * @param copy
 		 * This will also copy signal connection.
 		 */
-		slot(slot<_rType(_ArgsType...)> &copy)
+		slot(const slot<_rType(_ArgsType...)> &copy)
 			:	_function(copy._function)
 		{
 				for (auto signal: copy._signals) {
@@ -84,8 +84,8 @@ namespace netero {
 		}
 
 		/**
-		 * @brief assignation
-		 * @param args
+		 * @brief copy operator
+		 * @param copy arg
 		 * @return
 		 */
 		slot<_rType(_ArgsType...)>&  operator=(const slot<_rType(_ArgsType...)>& copy) {
