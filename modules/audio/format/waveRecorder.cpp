@@ -17,14 +17,14 @@ netero::audio::waveRecorder::waveRecorder(const std::string& name)
     _waveFileHeader.format.BitsPerSample = _format.bytesPerSample * 8;
     _buffer.reset(_waveFileHeader.format.BytePerSec);
     this->captureSlot.set<waveRecorder>(&waveRecorder::captureStream, this);
-    this->deviceDisconnectedSlot.set(&waveRecorder::onDisconnected, this);
+    this->deviceDisconnectedSlot.set(&waveRecorder::deviceDisconnected, this);
 }
 
 netero::audio::waveRecorder::operator bool() const {
     return _fileStream.is_open();
 }
 
-void    netero::audio::waveRecorder::onDisconnected(const std::string&) {
+void    netero::audio::waveRecorder::deviceDisconnected(const std::string&) {
     pause();
 }
 

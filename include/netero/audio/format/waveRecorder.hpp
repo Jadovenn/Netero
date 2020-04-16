@@ -71,7 +71,7 @@ namespace netero::audio {
     	 * @brief Callback called if the active device is disconnected.
     	 * This while call pause().
     	 */
-        void    onDisconnected(const std::string &);
+        void    deviceDisconnected(const std::string &);
 
     	/***
     	 * @brief Audio callback, that capture the audio signal.
