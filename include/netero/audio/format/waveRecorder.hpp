@@ -46,7 +46,7 @@ namespace netero::audio {
     	 * @brief Constructor.
     	 * @param name of the file.
     	 */
-        waveRecorder(const std::string&);
+        waveRecorder(const std::string& name);
         waveRecorder(waveRecorder&) = delete;
         waveRecorder(waveRecorder&&) = delete;
         waveRecorder& operator=(const waveRecorder&) = delete;
