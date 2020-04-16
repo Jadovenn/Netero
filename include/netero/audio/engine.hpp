@@ -116,6 +116,7 @@ namespace  netero::audio {
 				T* rawData = entity.get();
 				rawData->setFormat(this->_captureDevice.format);
 				this->_captureDevice.signals.captureStreamSig->connect(&entity->captureSlot);
+				this->_captureDevice.signals.deviceDisconnectedSig->connect(&entity->deviceDisconnectedSlot);
 				const RtCode result = audio::DeviceManager::getInstance().deviceStartRecording(this->_captureDevice);
 				if (result != RtCode::OK) {
 					this->_captureDevice.signals.captureStreamSig->disconnect(&this->_captureEntity->captureSlot);
@@ -170,6 +171,7 @@ namespace  netero::audio {
 				if (this->_captureDevice) {
 					audio::DeviceManager::getInstance().deviceStopRecording(this->_captureDevice);
 					this->_captureDevice.signals.captureStreamSig->disconnect(&this->_captureEntity->captureSlot);
+					this->_captureDevice.signals.deviceDisconnectedSig->disconnect(&this->_captureEntity->deviceDisconnectedSlot);
 				}
 				this->_captureEntity.reset();
 			}

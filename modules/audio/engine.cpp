@@ -58,6 +58,7 @@ netero::audio::RtCode netero::audio::engine::setCaptureDevice(const netero::audi
 	this->_captureDevice = device;
 	if (this->_captureEntity) {
 		this->_captureDevice.signals.captureStreamSig->connect(&this->_captureEntity->captureSlot);
+		this->_captureDevice.signals.deviceDisconnectedSig->connect(&this->_captureEntity->deviceDisconnectedSlot);
 		result = deviceManager.deviceStartRecording(this->_captureDevice);
 		if (result != RtCode::OK && result != RtCode::ERR_ALREADY_RUNNING) { return result; }
 		this->_captureEntity->record();
@@ -87,6 +88,7 @@ netero::audio::RtCode netero::audio::engine::disconnectCaptureDevice() {
 		if (this->_captureEntity) {
 			this->_captureEntity->pause();
 			this->_captureDevice.signals.captureStreamSig->disconnect(&this->_captureEntity->captureSlot);
+			this->_captureDevice.signals.deviceDisconnectedSig->disconnect(&this->_captureEntity->deviceDisconnectedSlot);
 		}
 		const RtCode result = deviceManager.deviceStopRecording(this->_captureDevice);
 		if (result != RtCode::OK) { return result; }
