@@ -1,6 +1,6 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #pragma once
@@ -11,7 +11,6 @@
 #include <type_traits>
 #include <thread>
 #include <atomic>
-#include <memory>
 
 #include <objbase.h>
 #include <Audioclient.h>
@@ -106,6 +105,10 @@ class netero::audio::backend::impl {
 public:
 
 	impl();
+	impl(const impl&) = delete;
+	impl(impl&&) = delete;
+	impl& operator=(const impl&) = delete;
+	impl& operator=(impl&&) = delete;
 	~impl();
 
 	enum state {

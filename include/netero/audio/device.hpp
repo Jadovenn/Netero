@@ -1,9 +1,14 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #pragma once
+
+/**
+ * @file device.hpp
+ * @brief High level container that represent an audio device.
+ */
 
 #include <netero/audio/audio.hpp>
 #include <netero/observer/signal.hpp>
@@ -26,7 +31,7 @@ namespace netero::audio {
         }
 
         device &operator=(const device &other) {
-            if (*this == other) {
+            if (this == &other) {
                 return *this;
             }
             this->id = other.id;
@@ -77,10 +82,13 @@ namespace netero::audio {
             return *this;
         }
 
+    	/**
+    	 * The copy operator check the name, the ID, and loopback attributes.
+    	 */
         bool    operator==(const device& other) const {
             return this->id == other.id
         			&& this->name == other.name
-        			&& this->isLoopback == this->isLoopback;
+        			&& this->isLoopback == other.isLoopback;
         }
     	
 		explicit operator bool() const {
@@ -88,14 +96,14 @@ namespace netero::audio {
         }
     	
 		std::string		id; /**< Device Id. Exact same stringify id given by the audio backend. */
-		std::string		name; /**< Device Name. Device name given by the audio backend */
-		std::string		manufacturer; /**< Device manufacturer name. May be "Unknown" if not provided by the audio backend*/
-        bool            isLoopback = false; /**< This is a loopback device. This flag is set while OS support lp device and it is actually one of them*/
+		std::string		name; /**< Device Name. Device name given by the audio backend. */
+		std::string		manufacturer; /**< Device manufacturer name. May be "Unknown" if not provided by the audio backend. */
+        bool            isLoopback = false; /**< This is a loopback device. This flag is set while OS support loopback device and it is actually one of them. */
 		StreamFormat	format; /**< Device stream format. */
 
         struct signalsSet {
         	/**
-        	 * @brief Set all signal's pointer to nullptr;
+        	 * @brief Set all signal's pointer to nullptr
         	 */
             void    clear() noexcept {
                 renderStreamSig = nullptr;
@@ -110,7 +118,7 @@ namespace netero::audio {
 			netero::signal<void(const std::string&)>            *deviceErrorSig = nullptr; /**< Signal emitted while the device encounter an error. */
 			netero::signal<void(const std::string&)>            *deviceDisconnectedSig = nullptr; /**< Signal emitted just before the device become unavailable. */
         };
-        signalsSet  signals; /**< Set of signal managed by the device. */
+        signalsSet  signals; /**< A set of signal managed by the device. */
 
     };
 }

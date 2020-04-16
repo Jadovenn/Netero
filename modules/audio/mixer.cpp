@@ -1,6 +1,6 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #include <numeric>
@@ -8,64 +8,50 @@
 #include <netero/audio/mixer.hpp>
 #include <netero/audio/backend.hpp>
 
-netero::audio::mixer::mixer(netero::audio::engine &engine)
-    :   RenderStream(engine),
-    	_samplesCount(0),
-        _sourceBuffer(nullptr)
-{
-    onFormatChangeSlot.set(&netero::audio::mixer::onFormatChange, this);
-    renderSlot.set(&netero::audio::mixer::renderStream, this);
-}
-
-netero::audio::mixer::mixer(netero::audio::engine& engine, const netero::audio::device &device)
-    :   RenderStream(engine, device),
-        _samplesCount(0),
-        _sourceBuffer(nullptr)
-{
-    onFormatChangeSlot.set(&netero::audio::mixer::onFormatChange, this);
-    renderSlot.set(&netero::audio::mixer::renderStream, this);
-    alloc_internal_buffer();
+netero::audio::mixer::mixer() {
+    this->formatChangedSlot.set(&mixer::setFormat, this);
+    this->renderSlot.set(&mixer::renderStream, this);
 }
 
 netero::audio::mixer::~mixer() {
-    stop();
-    free_internal_buffer();
+    this->stop();
+    this->free_internal_buffer();
 }
 
-void    netero::audio::mixer::onFormatChange(const netero::audio::StreamFormat& format) {
-    if (_device.format.samplingFrequency != format.samplingFrequency) {
-        free_internal_buffer();
-        _device.format = format;
-        alloc_internal_buffer();
-        for (auto* stream : _streams) {
-            stream->onFormatChange(_device.format);
-        }
+void netero::audio::mixer::setFormat(const netero::audio::StreamFormat& streamFormat) {
+    this->free_internal_buffer();
+    this->_streamFormat = streamFormat;
+    this->alloc_internal_buffer();
+    for (auto *stream: this->_streams) {
+        stream->setFormat(_device.format);
     }
 }
 
-void    netero::audio::mixer::alloc_internal_buffer() {
-    _samplesCount = (size_t)_device.format.framesCount * (size_t)_device.format.channels;
+void    netero::audio::mixer::alloc_internal_buffer() noexcept {
+    _samplesCount = static_cast<size_t>(_streamFormat.framesCount * _streamFormat.channels);
     _sourceBuffer = new (std::nothrow) float[_samplesCount];
-    if (!_samplesCount) {
-        throw std::bad_alloc();
+    if (!_sourceBuffer) {
+        _samplesCount = 0;
+        _sourceBuffer = nullptr;
+        return;
     }
-    std::memset(_sourceBuffer, 0, _samplesCount * _device.format.bytesPerSample);
+    std::memset(_sourceBuffer, 0, _samplesCount * _streamFormat.bytesPerSample);
 }
 
-void    netero::audio::mixer::free_internal_buffer() {
-    delete[] _sourceBuffer;
-    _sourceBuffer = nullptr;
-}
-
-/**
-void netero::audio::mixer::mix(float *__restrict dest, float *__restrict source, size_t sampleCount) {
-    for (int i = 0; i < sampleCount; i++) {
-        float avg = (dest[i] + source[i]) / 2;
-        float signe = avg < 0 ? -1 : 1;
-        dest[i] = signe * (1 - std::pow(1 - signe * avg, 2));
+void    netero::audio::mixer::free_internal_buffer() noexcept {
+    if (_sourceBuffer) {
+		delete[] _sourceBuffer;
+		_sourceBuffer = nullptr;
     }
 }
-*/
+
+//void netero::audio::mixer::mix(float *__restrict dest, float *__restrict source, size_t sampleCount) {
+//    for (int i = 0; i < sampleCount; i++) {
+//        float avg = (dest[i] + source[i]) / 2;
+//        float sign = avg < 0 ? -1 : 1;
+//        dest[i] = sign * (1 - std::pow(1 - sign * avg, 2));
+//    }
+//}
 
 void netero::audio::mixer::mix(float* __restrict dest, float* __restrict source, size_t sampleCount) {
     for (size_t idx = 0; idx < sampleCount; idx++) {
@@ -75,11 +61,11 @@ void netero::audio::mixer::mix(float* __restrict dest, float* __restrict source,
 
 void  netero::audio::mixer::renderStream(float* buffer, size_t frames) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
-    if (!_streams.empty()) {
+    if (!_streams.empty() && _sourceBuffer) {
         for (auto* stream : _streams) {
-            std::memset(_sourceBuffer, 0, frames * _device.format.bytesPerFrame);
+            std::memset(_sourceBuffer, 0, frames * _streamFormat.bytesPerFrame);
             stream->renderStream(_sourceBuffer, frames);
-            mixer::mix(buffer, _sourceBuffer, frames * _device.format.channels);
+            mixer::mix(buffer, _sourceBuffer, frames * _streamFormat.channels);
         }
     }
 }
@@ -105,13 +91,13 @@ void    netero::audio::mixer::stop() {
     }
 }
 
-void    netero::audio::mixer::add(RenderStream* stream) {
+void    netero::audio::mixer::addRenderStream(RenderStream* stream) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
-    stream->onFormatChange(_device.format);
+    stream->setFormat(_streamFormat);
     _streams.push_back(stream);
 }
 
-void    netero::audio::mixer::remove(RenderStream* stream) {
+void    netero::audio::mixer::removeRenderStream(RenderStream* stream) {
     const std::lock_guard<std::mutex>   lock(_streamsGuard);
     _streams.remove(stream);
 }

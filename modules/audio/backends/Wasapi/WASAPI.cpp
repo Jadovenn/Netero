@@ -1,9 +1,8 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
-#include <memory>
 #include "WASAPI.hpp"
 
 // ----------------------------------------
@@ -40,13 +39,13 @@ netero::audio::backend::impl::~impl() {
 	CoUninitialize();
 }
 
-// ----------------------------------------
-// netero::audio::backend definition
-// ----------------------------------------
+// -------------------------------------------
+// netero::audio::backend necessary definition
+// -------------------------------------------
 
 netero::audio::backend& netero::audio::backend::GetInstance() {
-	static std::unique_ptr<backend>	audio_engine(new backend());
-	return *audio_engine;
+	static std::unique_ptr<backend>	windowsBackend(new backend);
+	return *windowsBackend;
 }
 
 netero::audio::backend::backend()
@@ -55,12 +54,11 @@ netero::audio::backend::backend()
 
 netero::audio::backend::~backend() = default;
 
-const std::string& netero::audio::backend::getLastError() {
+const std::string& netero::audio::backend::getLastError() const {
 	return pImpl->lastError;
 }
 
 void netero::audio::backend::setDeviceDisconnectedCallback(const std::function<void(const netero::audio::device&)>& callback) const {
 	pImpl->deviceDisconectedCallback = callback;
 }
-
 

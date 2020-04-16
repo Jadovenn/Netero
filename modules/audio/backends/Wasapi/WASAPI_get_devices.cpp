@@ -174,7 +174,7 @@ netero::audio::backend::impl::WASAPI_get_device_property(IMMDevice *device, cons
     return property;
 }
 
-const std::vector<netero::audio::device>    netero::audio::backend::getRenderDevices() {
+std::vector<netero::audio::device>    netero::audio::backend::getRenderDevices() const {
     std::vector<netero::audio::device>   devices;
     HRESULT                 result;
     IMMDeviceCollection*    pCollection = nullptr;
@@ -184,7 +184,7 @@ const std::vector<netero::audio::device>    netero::audio::backend::getRenderDev
     pImpl->_garbadgeDevices.clear();
     pImpl->WASAPI_refresh_devices_list(DataFlow::eRender);
     devices.reserve(pImpl->_renderDevices.size());
-    for (auto nativeDevice : pImpl->_renderDevices) {
+    for (auto &nativeDevice : pImpl->_renderDevices) {
         devices.push_back(nativeDevice->clientDevice);
     }
     devices.shrink_to_fit();
@@ -248,7 +248,7 @@ netero::audio::backend::impl::WASAPI_get_device(const netero::audio::device& dev
     return nullptr;
 }
 
-const std::vector<netero::audio::device>   netero::audio::backend::getCaptureDevices() {
+std::vector<netero::audio::device>   netero::audio::backend::getCaptureDevices() const {
     std::vector<netero::audio::device>   devices;
     HRESULT                 result;
     IMMDeviceCollection*    pCollection = nullptr;
@@ -259,7 +259,7 @@ const std::vector<netero::audio::device>   netero::audio::backend::getCaptureDev
     pImpl->WASAPI_refresh_devices_list(DataFlow::eCapture);
     pImpl->WASAPI_refresh_devices_list(DataFlow::eAll);
     devices.reserve(pImpl->_captureDevices.size());
-    for (auto nativeDevice : pImpl->_captureDevices) {
+    for (auto &nativeDevice : pImpl->_captureDevices) {
         devices.push_back(nativeDevice->clientDevice);
     }
     devices.shrink_to_fit();
@@ -340,11 +340,11 @@ exit_error:
     */
 }
 
-const netero::audio::device&    netero::audio::backend::getDefaultRenderDevice() {
+netero::audio::device&    netero::audio::backend::getDefaultRenderDevice() const {
     (void)getRenderDevices();
     const auto defaultDeviceID = pImpl->WASAPI_get_default_device_ID(DataFlow::eRender);
 
-    for (auto device : pImpl->_renderDevices) {
+    for (const auto &device : pImpl->_renderDevices) {
         if (device->clientDevice.id == defaultDeviceID) {
             return device->clientDevice;
         }
@@ -352,11 +352,11 @@ const netero::audio::device&    netero::audio::backend::getDefaultRenderDevice()
     return pImpl->nullDevice;
 }
 
-const netero::audio::device& netero::audio::backend::getDefaultCaptureDevice() {
+netero::audio::device& netero::audio::backend::getDefaultCaptureDevice() const {
     (void)getCaptureDevices();
     const auto defaultDeviceID = pImpl->WASAPI_get_default_device_ID(DataFlow::eCapture);
 
-    for (const auto device : pImpl->_captureDevices) {
+    for (const auto &device : pImpl->_captureDevices) {
         if (device->clientDevice.id == defaultDeviceID) {
             return device->clientDevice;
         }
