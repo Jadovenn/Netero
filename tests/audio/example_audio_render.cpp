@@ -5,15 +5,11 @@
 
 #include <netero/audio/signals.hpp>
 #include <netero/audio/engine.hpp>
+#include <netero/audio/deviceManager.hpp>
 
 #include <iostream>
 #include <chrono>
 #include <thread>
-
-static
-void    deviceErrorHandler(const std::string& message) {
-    std::cout << message << std::endl;
-}
 
 static 
 void    deviceDisconnectionHandler(const netero::audio::device &device) {
@@ -27,6 +23,7 @@ int main() {
     try {
         // Get the audio engine instance
         auto& audioEngine = netero::audio::engine::getInstance();
+        netero::audio::DeviceManager::getInstance().deviceDisconnectedSig.connect(&deviceDisconnectionSlot);
 
     	// Create 3 audio entities, which are sinusoid signal
         auto* noteDo = audioEngine.createRenderEntity<netero::audio::signals::sinusoid>(0.01, 261.63, 0);

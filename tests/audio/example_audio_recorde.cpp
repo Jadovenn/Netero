@@ -11,10 +11,6 @@
 #include <netero/audio/deviceManager.hpp>
 #include <netero/audio/format/waveRecorder.hpp>
 
-void    errorCallback(const std::string& message) {
-    std::cout << message << std::endl;
-}
-
 int    select_recording_device(netero::audio::device &device) {
     auto devices = netero::audio::DeviceManager::getInstance().getCaptureDevices();
     int counter = 0;
@@ -46,7 +42,6 @@ int    select_recording_device(netero::audio::device &device) {
 int     main() {
     auto &audioEngine = netero::audio::engine::getInstance();
     netero::audio::device                   device;
-    netero::audio::DeviceErrorSlot          deviceErrorSlot(&errorCallback);
 
     if (select_recording_device(device) != 0) {
         return 1;
