@@ -1,6 +1,6 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #pragma once
@@ -15,6 +15,10 @@
  * @brief Default audio declarations
  */
 
+/**
+ * @namespace netero::audio
+ * @brief This namespace hold all related audio container and data-structures.
+ */
 namespace netero::audio {
 
 	/**
@@ -25,13 +29,13 @@ namespace netero::audio {
 		OK = 0, /**< Success. Issued if native call success. */
 		ABILITY_NOT_SUPPORTED = 1, /**< Functionality not supported. Issued while the native device does not support the call. */
 		FORMAT_NOT_SUPPORTED = 2, /**< The native device does not support the requested format. */
-		DEVICE_TIMEOUT = 3, /**< Time out while accessing/getting device's ressource. The device is probably busy, try later. */
-		ERR_NATIVE = 4, /**< Native error. Issued while native call failed, usually the lasterror msg is set or an deviceError signal is issued. */
+		DEVICE_TIMEOUT = 3, /**< Time out while accessing/getting device's resource. The device is probably busy, try later. */
+		ERR_NATIVE = 4, /**< Native error. Issued while native call failed, usually the last error msg is set or an deviceError signal is issued. */
 		ERR_MISSING_CALLBACK = 5, /**< Audio callback is missing. You forgot to setup the audio callback. */
 		ERR_ALREADY_RUNNING = 6, /**< You already have start the device. */
 		ERR_DEVICE_NOT_RUNNING = 7, /**< You try to stop the device but it is not running. */
 		ERR_ALTER_RUNNING = 8, /**< You try to change a device or a handler while the device is running. Stop the device before. */
-		ERR_NO_SUCH_DEVICE = 9, /**< You reffer to an unknown device. */
+		ERR_NO_SUCH_DEVICE = 9, /**< You refer to an unknown device. */
 	};
 
 	/**
@@ -43,6 +47,19 @@ namespace netero::audio {
 	 * the number of bytes per samples time the number of samples.
 	 */
 	struct StreamFormat {
+
+		/**
+		 * @brief clear all stream format value.
+		 */
+		void	clear() noexcept {
+			this->framesCount = 0;
+			this->bytesPerFrame = 0;
+			this->bytesPerSample = 0;
+			this->channels = 0;
+			this->samplingFrequency = 0;
+			this->supportedSamplingRate.clear();
+		}
+		
 		unsigned	framesCount = 0; /**< Number of frames in contained in the shared buffer with the device. */
 		unsigned	bytesPerFrame = 0; /**< Size in byte for one frame. */
 		unsigned	bytesPerSample = 0; /**< Size in byte for one sample. */
@@ -55,7 +72,7 @@ namespace netero::audio {
 	 * @typedef RenderSignal
 	 * @brief Render buffer event signal.
 	 * This type is used by the engine to declare a signal emitted by a device
-	 * while the buffer is available for writting operation. 
+	 * while the buffer is available for writing operation.
 	 */
 	using RenderSignal = netero::signal<void(float*, const size_t)>;
 
@@ -86,7 +103,7 @@ namespace netero::audio {
 	/**
 	 * @typedef OnFormatChangeSignal
 	 * @brief Format change event signal signature.
-	 * This type is used by the engine to declare a signal emittend
+	 * This type is used by the engine to declare a signal emitted
 	 * by a device while it stream format change.
 	 */
 	using OnFormatChangeSignal = netero::signal<void(const StreamFormat&)>;
@@ -103,7 +120,7 @@ namespace netero::audio {
 	 * @typedef DeviceErrorSignal
 	 * @brief Device error signal signature
 	 * This type is used by the engine to declare a signal emitted
-	 * while an error occure during a device operation.
+	 * while an error occur during a device operation.
 	 */
 	using DeviceErrorSignal = netero::signal<void(const std::string&)>;
 
@@ -128,7 +145,7 @@ namespace netero::audio {
 	 * @brief Device disconnected slot signature.
 	 * This type is used by the client to declare a slot to connect
 	 * with an OnDisconnectedSignal from a device.
-	 * @info the device is invalide after the end of the scope of the slot
+	 * @info the device is invalid after the end of the scope of the slot:
 	 */
 	using OnDisconnectedSlot = netero::slot<void(const std::string &)>;
 }

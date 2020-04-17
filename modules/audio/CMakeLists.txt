@@ -12,16 +12,19 @@ message(STATUS "Configure Netero audio submodule")
 
 list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/audio/audio.hpp
+        ${HEADERS_DIRECTORY}/audio/device.hpp
         ${HEADERS_DIRECTORY}/audio/backend.hpp
+        ${HEADERS_DIRECTORY}/audio/deviceManager.hpp
         ${HEADERS_DIRECTORY}/audio/engine.hpp
+        ${HEADERS_DIRECTORY}/audio/audioStream.hpp
         ${HEADERS_DIRECTORY}/audio/renderStream.hpp
         ${HEADERS_DIRECTORY}/audio/captureStream.hpp
-        ${HEADERS_DIRECTORY}/audio/device.hpp
         ${HEADERS_DIRECTORY}/audio/mixer.hpp
         ${HEADERS_DIRECTORY}/audio/signals.hpp
         ${HEADERS_DIRECTORY}/audio/format/wave.hpp
         ${HEADERS_DIRECTORY}/audio/format/waveRecorder.hpp)
 list(APPEND SRCS
+        deviceManager.cpp
         engine.cpp
         mixer.cpp
         renderStream.cpp

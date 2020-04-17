@@ -22,12 +22,12 @@ void   renderingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 	task = AvSetMmThreadCharacteristics(TEXT("Pro Audio"), &taskIndex);
 	if (!task) {
 		task = nullptr;
-		nativeDevice->clientDevice.signals.deviceErrorSig("Could not elevate thread priority.");
+		nativeDevice->deviceErrorSig("Could not elevate thread priority.");
 		goto exit;
 	}
 	result = nativeDevice->audio_client->Start();
 	if (FAILED(result)) {
-		nativeDevice->clientDevice.signals.deviceErrorSig("Could not start the device.");
+		nativeDevice->deviceErrorSig("Could not start the device.");
 		goto exit;
 	}
 	while (nativeDevice->renderingState.load(std::memory_order_acquire) == WASAPI_device::state::RUNNING) {
@@ -36,21 +36,21 @@ void   renderingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 		if (!nativeDevice) { return; }
 		result = nativeDevice->audio_client->GetCurrentPadding(&padding);
 		if (FAILED(result)) {
-			nativeDevice->clientDevice.signals.deviceErrorSig("Could not retrieve buffer padding.");
+			nativeDevice->deviceErrorSig("Could not retrieve buffer padding.");
 			goto exit;
 		}
 		else if (padding != nativeDevice->framesCount) {
 			availaleFrames = nativeDevice->framesCount - padding;
 			result = nativeDevice->render_client->GetBuffer(availaleFrames, &buffer);
 			if (FAILED(result) || buffer == nullptr) {
-				nativeDevice->clientDevice.signals.deviceErrorSig("Could not retrieve buffer padding.");
+				nativeDevice->deviceErrorSig("Could not retrieve buffer padding.");
 				goto exit;
 			}
 			std::memset(buffer, 0, availaleFrames * bytePerFrames);
-			nativeDevice->clientDevice.signals.renderStreamSig(reinterpret_cast<float*>(buffer), availaleFrames);
+			nativeDevice->renderStreamSig(reinterpret_cast<float*>(buffer), availaleFrames);
 			result = nativeDevice->render_client->ReleaseBuffer(availaleFrames, 0);
 			if (FAILED(result)) {
-				nativeDevice->clientDevice.signals.deviceErrorSig("Could not release buffer.");
+				nativeDevice->deviceErrorSig("Could not release buffer.");
 				goto exit;
 			}
 		}
@@ -60,7 +60,7 @@ void   renderingThreadHandle(std::weak_ptr<WASAPI_device> device) {
 	}
 	result = nativeDevice->audio_client->Stop();
 	if (FAILED(result)) {
-		nativeDevice->clientDevice.signals.deviceErrorSig("Could not stop, device stuck.");
+		nativeDevice->deviceErrorSig("Could not stop, device stuck.");
 	}
 exit:
 	nativeDevice->renderingState.store(WASAPI_device::state::OFF, std::memory_order_release);

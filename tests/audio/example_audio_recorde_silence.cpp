@@ -1,20 +1,22 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <netero/observer/slot.hpp>
+#include <netero/audio/engine.hpp>
+#include <netero/audio/deviceManager.hpp>
 #include <netero/audio/format/waveRecorder.hpp>
 
 void    errorCallback(const std::string& message) {
     std::cout << message << std::endl;
 }
 
-int    select_recording_device(netero::audio::engine& engine, netero::audio::device& recordDevice, netero::audio::device& silenceDevice) {
-    auto devices = engine.getCaptureDevices();
+int    select_recording_device(netero::audio::device& recordDevice, netero::audio::device& silenceDevice) {
+    auto devices = netero::audio::DeviceManager::getInstance().getCaptureDevices();
     int counter = 0;
     for (auto& device : devices) {
         std::cout << counter << ": " << device.name << std::endl;
@@ -24,11 +26,11 @@ int    select_recording_device(netero::audio::engine& engine, netero::audio::dev
     int idx = -1;
     std::cin >> idx;
     if (idx < 0 || idx > counter) {
-        std::cout << "Choosen idx out of bound!" << std::endl;
+        std::cout << "Chosen idx out of bound!" << std::endl;
         return 1;
     }
     recordDevice = devices[idx];
-    auto renderDevice = engine.getRenderDevices();
+    auto renderDevice =  netero::audio::DeviceManager::getInstance().getRenderDevices();
     for (auto& device : renderDevice) {
         if (device.id == recordDevice.id) {
             silenceDevice = device;
@@ -48,48 +50,37 @@ int    select_recording_device(netero::audio::engine& engine, netero::audio::dev
 }
 
 int     main() {
-    netero::audio::engine                   audioEngine;
+    auto& audioEngine = netero::audio::engine::getInstance();
     netero::audio::device                   recordDevice;
     netero::audio::device                   silenceDevice;
 
     // Select the device to record from
-    if (select_recording_device(audioEngine, recordDevice, silenceDevice) != 0) {
+    if (select_recording_device(recordDevice, silenceDevice) != 0) {
         return 1;
     }
+	if (silenceDevice) {
+		audioEngine.setRenderDevice(silenceDevice);
+	}
+    audioEngine.setCaptureDevice(recordDevice);
 
     // Set device error handler, to be notify if some errors happen
     netero::audio::DeviceErrorSlot          deviceErrorSlot(&errorCallback);
-    try {
-        auto& deviceEvent = audioEngine.getDeviceEvents(silenceDevice);
-        deviceEvent.deviceErrorSig.connect(&deviceErrorSlot);
-    }
-    catch(...) {
-        // The device is invalide
-        return 1;
-    }
-
-    // If it is a loop back device play silence to make sure to record something
-    if (silenceDevice) {
-        audioEngine.deviceStartRendering(silenceDevice);
-    }
+    silenceDevice.signals.deviceErrorSig->connect(&deviceErrorSlot);
 
     // Start the recording to a wave file
-    netero::audio::waveRecorder             wave_recorder(audioEngine, recordDevice, std::to_string(recordDevice.format.samplingFrequency) + "hz_float32");
-    audioEngine.deviceStartRecording(recordDevice);
-    wave_recorder.record();
+    auto* waveRecorder = audioEngine.createCaptureEntity<netero::audio::waveRecorder>("48kHz_stereo");
+    waveRecorder->record();
 
     // Wait 10 seconds
-    std::chrono::time_point start = std::chrono::system_clock::now();
+    const auto start = std::chrono::system_clock::now();
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count() < 10) {
         std::this_thread::yield();
     }
     
     // Stop recording
-    wave_recorder.stop();
-    audioEngine.deviceStopRecording(recordDevice);
-    if (silenceDevice) {
-        audioEngine.deviceStopRendering(silenceDevice);
-    }
+    waveRecorder->stop();
+    audioEngine.disconnectCaptureDevice();
+    audioEngine.disconnectRenderDevice();
     return 0;
 }
 

@@ -1,11 +1,10 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #include <iostream>
-
-#include <netero/audio/engine.hpp>
+#include <netero/audio/deviceManager.hpp>
 
 void    printDeviceAttributes(const netero::audio::device& device) {
     std::cout << device.name << std::endl;
@@ -21,23 +20,23 @@ void    printDeviceAttributes(const netero::audio::device& device) {
 }
 
 int     main() {
-    netero::audio::engine audio_engine;
+    auto &deviceManager = netero::audio::DeviceManager::getInstance();
 
-    std::vector<netero::audio::device> renderDevices = audio_engine.getRenderDevices();
+    auto renderDevices = deviceManager.getRenderDevices();
     if (renderDevices.empty()) {
         std::cout << "No audio devices found" << std::endl;
     }
     std::cout << "Audio render devices:" << std::endl;
-    for (const netero::audio::device& device : renderDevices) {
+    for (const auto& device : renderDevices) {
         printDeviceAttributes(device);
     }
 
-    std::vector<netero::audio::device> captureDevices = audio_engine.getCaptureDevices();
+    std::vector<netero::audio::device> captureDevices = deviceManager.getCaptureDevices();
     if (captureDevices.empty()) {
         std::cout << "No in audio devices found" << std::endl;
     }
     std::cout << "Audio capture devices:" << std::endl;
-    for (const netero::audio::device& device : captureDevices) {
+    for (const auto& device : captureDevices) {
         printDeviceAttributes(device);
     }
     return 0;
