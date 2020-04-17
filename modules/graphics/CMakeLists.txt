@@ -10,6 +10,10 @@ message(STATUS "Configure Netero graphics submodule")
 ##  Dependency
 ##====================================
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
 FetchContent_Declare(
         glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -26,10 +30,14 @@ endif()
 ##====================================
 
 list(APPEND PUBLIC_HEADER
-        )
+        ${HEADERS_DIRECTORY}/graphics/renderContext.hpp
+        ${HEADERS_DIRECTORY}/graphics/window.hpp)
 list(APPEND SRCS
-        backend/backend.hpp
-        backend/backend.cpp)
+        window/GLFWWindow.hpp
+        window/window.cpp
+        renderContext/VulkanRenderContext.hpp
+        renderContext/renderContext.cpp
+        renderContext/VulkanInstanceCreateAndRelease.cpp)
 
 ##====================================
 ##  Target
@@ -42,7 +50,8 @@ target_include_directories(netero_graphics
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
         $<BUILD_INTERFACE:${Vulkan_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${glfw_INCLUDE_DIRS}>)
+        $<BUILD_INTERFACE:${glfw_INCLUDE_DIRS}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/renderContext>)
 target_link_libraries(netero_graphics
         PRIVATE
             Vulkan::Vulkan glfw netero_ecs)
