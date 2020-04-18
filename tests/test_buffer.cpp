@@ -75,7 +75,8 @@ void    test_move_operators() {
     assert(move.getSize() == 10);
     assert(buffer.getSize() == 0);
 
-    const netero::shared_buffer<int>  moveAssign = std::move(move);
+    netero::shared_buffer<int>  moveAssign(10);
+	moveAssign = std::move(move);
     assert(moveAssign.getSize() == 10);
     assert(move.getSize() == 0);
 }
