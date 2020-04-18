@@ -110,7 +110,6 @@ namespace netero {
 		 */
 		slot<_rType(_ArgsType...)>& operator=(slot<_rType(_ArgsType...)>&& copy) {
 			std::vector<netero::IObserverDelegate*> tmp_signal_move;
-
 			for (auto* signal : this->_signals) {
 				signal->disconnect(this);
 			}
