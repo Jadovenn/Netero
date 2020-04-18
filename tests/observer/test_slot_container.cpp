@@ -47,6 +47,37 @@ void test_copy_operator_with_signal_in_both_slot() {
 	assert(test.nbCall == 2);
 }
 
+void test_move_operator()
+{
+	TestClass test;
+	netero::signal<int(int, int)> signal;
+	netero::slot<int(int, int)>	slot(&TestClass::add, &test);
+	netero::slot<int(int, int)> slot_bis;
+	signal.connect(&slot);
+	signal(21, 21);
+	slot_bis = std::move(slot);
+	assert(slot_bis.count_signal() == 1);
+	assert(slot.count_signal() == 0);
+	assert(slot_bis(21, 21) == 42);
+	assert(test.nbCall == 2);
+}
+
+void test_move_operator_with_signal_in_both_slot()
+{
+	TestClass test;
+	TestClass test_bis;
+	netero::signal<int(int, int)> signal;
+	netero::signal<int(int, int)> signal_bis;
+	netero::slot<int(int, int)>	slot(&TestClass::mult, &test);
+	netero::slot<int(int, int)> slot_bis(&TestClass::add, &test_bis);
+	signal.connect(&slot);
+	signal_bis.connect(&slot_bis);
+	slot_bis = std::move(slot);
+	assert(slot_bis.count_signal() == 1);
+	assert(slot.count_signal() == 0);
+	assert(slot_bis(21, 2) == 42);
+}
+
 void	test_copy_ctor() {
 	TestClass	test;
 	netero::slot<int(int, int)>	slot(&TestClass::add, &test);
