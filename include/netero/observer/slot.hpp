@@ -104,6 +104,29 @@ namespace netero {
 		}
 
 		/**
+		 * @brief move operator
+		 * @param move arg
+		 * @return 
+		 */
+		slot<_rType(_ArgsType...)>& operator=(slot<_rType(_ArgsType...)>&& copy) {
+			std::vector<netero::IObserverDelegate*> tmp_signal_move;
+
+			for (auto* signal : this->_signals) {
+				signal->disconnect(this);
+			}
+			{
+				std::scoped_lock<std::mutex>	lock(_sigMutex);
+				this->_function = std::move(copy._function);
+				this->_signals.clear();
+				tmp_signal_move = std::move(copy._signals);
+			}
+			for (auto* signal : tmp_signal_move) {
+				signal->connect(this);
+			}
+			return *this;
+		}
+
+		/**
 		 * @brief Destructor, disconnect from any connected signal
 		 */
 		~slot() override {
@@ -197,6 +220,13 @@ namespace netero {
 		void connect(IObserverDelegate *delegate) override {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			_signals.push_back(delegate);
+		}
+
+		/**
+		 * @brief Get the number of notifier connected to the slot.
+		 */
+		int count_signal() {
+			return this->_signals.size();
 		}
 
 	private:
