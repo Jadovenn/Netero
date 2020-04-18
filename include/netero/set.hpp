@@ -1,6 +1,6 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #pragma once
@@ -16,7 +16,7 @@ namespace netero {
 
 	/**
 	 * @brief Std set with subset comparison
-	 * @tparam value_type - type holder
+	 * @tparam __Type type holder
 	 */
 	template <typename __Type>
 	class set : public std::set<__Type> {
@@ -57,7 +57,7 @@ namespace netero {
 
 		/**
 		 * @brief check if two sets has an intersection
-		 * @note the given set does not need to be a netero::set, in contraste
+		 * @note the given set does not need to be a netero::set, in contrast
 		 * to isSubsetOf, interWith will stop at the first common element found
 		 * @param other - set to compare
 		 * @return true if their is a set which is a subset of both sets, false otherwise
@@ -79,3 +79,4 @@ namespace netero {
 		} // O(n, m) = n log(m), where n is size of this and m size of other
 	};
 }
+

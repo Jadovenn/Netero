@@ -1,14 +1,18 @@
  /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #pragma once
 
+/**
+ * @file avl.hpp
+ * @brief Balanced binary search tree.
+ */
+
 #include <functional>
 #include <iostream>
 #include <list>
-#include <memory>
 #include <type_traits>
 
  namespace netero {
@@ -17,159 +21,163 @@
  	 * @brief Adelson Velsky Landis (AVL) tree
  	 * @tparam T the type hold by the container
  	 */
-     template <class T,
-     		typename = std::enable_if<std::is_copy_constructible<T>::value>>
-     class avl {
+ 	template <class T,
+ 		typename = std::enable_if<std::is_copy_constructible<T>::value>>
+ 	class avl {
+ 		/**
+         * @brief structure representing a node in the tree,
+         * it hold the data provide by the client
+         */
+        struct node {
+        	explicit node(T *data, node *parent = nullptr)
+         		:   balance(0),
+                    parent(parent),
+                    rhs(nullptr),
+                    lhs(nullptr),
+         			data(data)
+        	{}
+            node(const node&) = delete;
+            node(node&&) = delete;
+            node& operator=(const node&) = delete;
+            node& operator=(node&&) = delete;
+         	
+            ~node() {
+            	delete data;
+            }
 
-
-         /**
-          * @brief structure representing a node in the tree,
-          * it hold the data provide by the client
-          */
-         struct node {
-             explicit node(T *data, node *parent = nullptr)
-                     : data(data),
-                       parent(parent),
-                       rhs(nullptr),
-                       lhs(nullptr),
-                       balance(0) {
-             }
-
-             ~node() {
-                 delete data;
-             }
-
-             /**
-              * @brief compute the depth of a node recursivly
-              * by descending to all child of the node
-              * @return the depth
-              */
-             int getDepth() {
-                 if (!rhs && !lhs)
-                     return 0;
-                 if (!rhs)
-                     return lhs->getDepth() + 1;
-                 else if (!lhs)
-                     return rhs->getDepth() + 1;
-                 else {
+            /**
+             * @brief compute the depth of a node recursively
+             *         by descending to all child of the node
+             * @return the depth
+             */
+            int getDepth() {
+                if (!rhs && !lhs)
+                    return 0;
+                if (!rhs)
+                    return lhs->getDepth() + 1;
+                else if (!lhs)
+                   return rhs->getDepth() + 1;
+                else {
                      int x = lhs->getDepth() + 1;
                      int y = rhs->getDepth() + 1;
                      return x > y ? x : y;
-                 }
-             }
+                }
+            }
 
-             /**
-              * @brief compute the balance of a single node (rhs - lhs)
-              * @details instead of going recursivly to the root
-              * it only compute the node, it does not balance the tree
-              */
-             void singleBalance() {
-                 int x = rhs ? rhs->getDepth() : -1;
-                 int y = lhs ? lhs->getDepth() : -1;
-                 balance = x - y;
-             }
+            /**
+             * @brief compute the balance of a single node (rhs - lhs)
+             * @details instead of going recursively to the root
+             * it only compute the node, it does not balance the tree
+             */
+            void singleBalance() {
+                const int x = rhs ? rhs->getDepth() : -1;
+                const int y = lhs ? lhs->getDepth() : -1;
+                balance = x - y;
+            }
 
-             int balance;
-             node *parent;
-             node *rhs;
-             node *lhs;
-             T *data;
-         };
+        	int balance; /**< Current balance of the node. */
+            node *parent; /**< Pointer to the parent node. */
+            node *rhs; /**< Pointer to the right subtree root. */
+            node *lhs; /**< Pointer to left subtree root. */
+            T *data; /**< Data pointer. */
+        };
 
-         /**
-          * @brief compute the balance of a tree recursivly
-          * @details it start from the node of the first call
-          * and climb to the root of the tree, it does balance the tree
-          * if necessary
-          */
-         void computeBalance(node *item) {
-             item->singleBalance();
-             if (item->balance == 2 || item->balance == -2)
-                 this->balanceTree(item); // will call computeBalance again
-             else if (item->parent)
-                 computeBalance(item->parent);
-         }
+        /**
+         * @brief compute the balance of a tree recursively
+         * @details it start from the node of the first call
+         * and climb to the root of the tree, it does balance the tree
+         * if necessary
+         */
+        void computeBalance(node *item) {
+        	item->singleBalance();
+        	if (item->balance == 2 || item->balance == -2)
+                this->balanceTree(item); // will call computeBalance again
+        	else if (item->parent)
+                computeBalance(item->parent);
+        }
 
 
-         /**
-          * @brief balance the tree depending the balance factor
-          * @details case 1: (2)(1) the right subtree is heavy on right
-          *          case 2: (-2)(-1) the left subtree is heavy on left
-          *          case 3: (2)(-1) the right subtree as a left subtree heavy
-          *          case 4: (-2)(1) the left subtree as a right subtree heavy
-          */
-         void balanceTree(node *item) {
-             if (item->balance == 2) { // case 1 or 3
-                 if (item->rhs->balance == 1) { // case 1
-                     rotateLeft(item);
-                     computeBalance(item);
-                 } else if (item->rhs->balance == -1) { // case 3
-                     rotateRight(item->rhs);
-                     node *subtree = rotateLeft(item);
-                     subtree->lhs->singleBalance();
-                     computeBalance(subtree->rhs);
-                 }
-             } else if (item->balance == -2) { // case 2 or 4
-                 if (item->lhs->balance == -1) { // case 2
-                     rotateRight(item);
-                     computeBalance(item);
-                 } else if (item->lhs->balance == 1) { // case 4
-                     rotateLeft(item->lhs);
-                     node *subtree = rotateRight(item);
-                     subtree->lhs->singleBalance();
-                     computeBalance(subtree->rhs);
-                 }
-             }
-         }
+        /**
+         * @brief balance the tree depending the balance factor
+         * @details case 1: (2)(1) the right subtree is heavy on right
+         *          case 2: (-2)(-1) the left subtree is heavy on left
+         *          case 3: (2)(-1) the right subtree as a left subtree heavy
+         *          case 4: (-2)(1) the left subtree as a right subtree heavy
+         */
+        void balanceTree(node *item) {
+            if (item->balance == 2) { // case 1 or 3
+                if (item->rhs->balance == 1) { // case 1
+                    rotateLeft(item);
+                    computeBalance(item);
+                } else if (item->rhs->balance == -1) { // case 3
+                    rotateRight(item->rhs);
+                    node *subtree = rotateLeft(item);
+                    subtree->lhs->singleBalance();
+                    computeBalance(subtree->rhs);
+                }
+            } else if (item->balance == -2) { // case 2 or 4
+                if (item->lhs->balance == -1) { // case 2
+                    rotateRight(item);
+                    computeBalance(item);
+                } else if (item->lhs->balance == 1) { // case 4
+                    rotateLeft(item->lhs);
+                    node *subtree = rotateRight(item);
+                    subtree->lhs->singleBalance();
+                    computeBalance(subtree->rhs);
+                }
+            }
+        }
 
-         /**
-          * @brief rotate the given tree to the right and return the new root of the subtree
-          * @param subtree - root of a subtree
-          * @return new root of the subtree
-          */
-         node *rotateRight(node *subtree) {
-             node *new_root = subtree->lhs;
-             new_root->parent = subtree->parent;
-             subtree->parent = new_root;
-             node *tmp_subRight = new_root->rhs;
-             new_root->rhs = subtree;
-             subtree->lhs = tmp_subRight;
-             if (tmp_subRight) // update subRight parent to subtree
-                tmp_subRight->parent = subtree;
-             if (new_root->parent) {
-                 if (new_root->parent->rhs == subtree)
-                     new_root->parent->rhs = new_root;
-                 else if (new_root->parent->lhs == subtree)
-                     new_root->parent->lhs = new_root;
-             } else
-                 this->root = new_root;
-             return new_root; // no balance recomputing at this point
-         }
+        /**
+         * @brief Rotate the given tree to the right and return the new root of the subtree.
+         * @param subtree is the root of a tree to rotate.
+         * @return The new root of the subtree.
+         */
+        node *rotateRight(node *subtree) {
+            node *new_root = subtree->lhs;
+            new_root->parent = subtree->parent;
+            subtree->parent = new_root;
+            node *tmp_subRight = new_root->rhs;
+            new_root->rhs = subtree;
+            subtree->lhs = tmp_subRight;
+            if (tmp_subRight) // update subRight parent to subtree
+               tmp_subRight->parent = subtree;
+            if (new_root->parent) {
+                if (new_root->parent->rhs == subtree)
+                    new_root->parent->rhs = new_root;
+                else if (new_root->parent->lhs == subtree)
+                    new_root->parent->lhs = new_root;
+            } else
+                this->root = new_root;
+            return new_root; // no balance recomputing at this point
+        }
 
-         /**
-          * @brief rotate the given tree to the left and return the new root of the subtree
-          * @param subtree - root of a subtree
-          * @return new root of the subtree
-          */
-         node *rotateLeft(node *subtree) {
-             node *new_root = subtree->rhs;
-             new_root->parent = subtree->parent;
-             subtree->parent = new_root;
-             node *tmp_subLeft = new_root->lhs;
-             new_root->lhs = subtree;
-             subtree->rhs = tmp_subLeft;
-             if (tmp_subLeft) // update subLeft parent to subtree
-                tmp_subLeft->parent = subtree;
-             if (new_root->parent) {
-                 if (new_root->parent->rhs == subtree)
-                     new_root->parent->rhs = new_root;
-                 else if (new_root->parent->lhs == subtree)
-                     new_root->parent->lhs = new_root;
-             } else
-                 this->root = new_root;
-             return new_root; // no balance recomputing at this point
-         }
+        /**
+         * @brief rotate the given tree to the left and return the new root of the subtree
+         * @param subtree - root of a subtree
+         * @return new root of the subtree
+         */
+        node *rotateLeft(node *subtree) {
+            node *new_root = subtree->rhs;
+            new_root->parent = subtree->parent;
+            subtree->parent = new_root;
+            node *tmp_subLeft = new_root->lhs;
+            new_root->lhs = subtree;
+            subtree->rhs = tmp_subLeft;
+            if (tmp_subLeft) // update subLeft parent to subtree
+               tmp_subLeft->parent = subtree;
+            if (new_root->parent) {
+                if (new_root->parent->rhs == subtree)
+                    new_root->parent->rhs = new_root;
+                else if (new_root->parent->lhs == subtree)
+                    new_root->parent->lhs = new_root;
+            } else
+                this->root = new_root;
+            return new_root; // no balance recomputing at this point
+        }
      public:
+
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
      	/**
      	 * @brief iterator for the container to be compatible
      	 * with std function and for-range based loop
@@ -230,7 +238,7 @@
      		bool    operator==(iterator other) const { return idx == other.idx && isListEmpty; }
 
      		/**
-     		 * @brief noteql comparator to another iterator
+     		 * @brief not eql comparator to another iterator
      		 * @param other - other iterator
      		 * @return true if not eql, false otherwise
      		 */
@@ -243,15 +251,13 @@
      	};
      	friend iterator;
      	/**
-     	 * @brief return an iterator to the begining of the
-     	 * tree following in-order traversal
+     	 * @brief return an iterator to the beginning of the tree following in-order traversal
      	 * @return iterator
      	 */
      	iterator	begin() {return iterator(*this);}
 
      	/**
-     	 * @brief return an iterator to the end of the tree
-     	 * following the in-order traversal
+     	 * @brief return an iterator to the end of the tree following the in-order traversal
      	 * @return iterator
      	 */
      	iterator	end() {
@@ -280,7 +286,8 @@
      	}
 
      	// copy operator
-     	avl<T>   &operator=(const avl<T> &copy) {
+     	avl&   operator=(const avl<T> &copy) {
+            if (this == &copy) { return *this; }
      	    this->deleteTree(root);
 			root = nullptr;
      	    copy.inOrder([&] (const auto &value) {
@@ -290,7 +297,7 @@
      	}
 
      	// move operator
-        avl<T>    &operator=(avl<T> &&move) {
+        avl&    operator=(avl<T> &&move) {
             this->deleteTree(root);
      	    this->root = move.root;
      	    move.root = nullptr;
@@ -302,13 +309,13 @@
      	    return this->root == other.root;
      	}
 
-     	// noteql operator
+     	// not eql operator
      	bool operator!=(const avl<T> &other) {
      	    return this->root != other.root;
      	}
 
      	// destructor
-     	~avl() { 
+     	virtual ~avl() { 
 			deleteTree(root);
 			root = nullptr;
 		}
@@ -337,6 +344,7 @@
      		if (idx->rhs)
      			inOrder(callBack, idx->rhs);
      	} // O(n) = n
+ 		
 	 public:
      	/**
      	 * @brief search if the given item exist in the tree
@@ -364,27 +372,27 @@
      	 * @brief add a new node to the tree
      	 * @param data - the new item to add
      	 */
-         virtual void   add(T *data) {
-             if (!data) // Special case, given pointer is null
-                 return;
-             node *new_node = new(std::nothrow) node(data);
-             if (!new_node)
-                 throw std::bad_alloc();
-             new_node->rhs = nullptr;
-             new_node->lhs = nullptr;
-             if (!root) { // Special case, three is empty add new data as root
-                 root = new_node;
-                 computeBalance(root);
-                 return;
-             }
-             { // Regular case, allocate and find the right place to add a leaf
-                 node *parent = root;
-                 node *idx = root;
-                 while (idx) {
-                 	if (*idx->data == *new_node->data) { // Special case the node already exist
-						return;
+        virtual void   add(T *data) {
+     		if (!data) // Special case, given pointer is null
+                return;
+            node *new_node = new(std::nothrow) node(data);
+            if (!new_node)
+                throw std::bad_alloc();
+            new_node->rhs = nullptr;
+            new_node->lhs = nullptr;
+            if (!root) { // Special case, three is empty add new data as root
+                root = new_node;
+                computeBalance(root);
+                return;
+            }
+            { // Regular case, allocate and find the right place to add a leaf
+                node *parent = root;
+                node *idx = root;
+                while (idx) {
+                	if (*idx->data == *new_node->data) { // Special case the node already exist
+                		return;
                  	}
-                 	else if (*idx->data < *new_node->data) {
+                 	if (*idx->data < *new_node->data) {
                      	parent = idx;
                      	idx = idx->rhs;
                  	}
@@ -392,26 +400,29 @@
                  		parent = idx;
                  		idx = idx->lhs;
                  	}
-                 } // the node is found in parent add new_node as a leaf
-                 if (*parent->data < *new_node->data) { // Regular case, if new_data is bigger add right
-                 	parent->rhs = new_node;
-                 }
-                 else { // Regular case, if new_data is smaller add left
-                 	parent->lhs = new_node;
-                 }
-				 new_node->parent = parent;
-                 new_node->lhs = nullptr;
-                 new_node->rhs = nullptr;
-             } // end regular case context
-             // Now we can balance stuff here
-             computeBalance(new_node->parent);
-         }
+                } // the node is found in parent add new_node as a leaf
+                if (*parent->data < *new_node->data) { // Regular case, if new_data is bigger add right
+                	parent->rhs = new_node;
+                }
+                else { // Regular case, if new_data is smaller add left
+                	parent->lhs = new_node;
+                }
+     			new_node->parent = parent;
+                new_node->lhs = nullptr;
+                new_node->rhs = nullptr;
+            } // end regular case context
+            // Now we can balance stuff here
+            computeBalance(new_node->parent);
+        }
 
-         void 	remove(const T &item) {
-         	node	*idx = root;
-         	if (!idx) // Special case, tree is empty
-         		return;
-         	while (idx) { // find the node to remove
+ 		/**
+ 		 * @brief remove the given item from the tree.
+ 		 */
+        void 	remove(const T &item) {
+        	node	*idx = root;
+        	if (!idx) // Special case, tree is empty
+        		return;
+        	while (idx) { // find the node to remove
 				 if (*idx->data == item) {
 					 break;
 				 }
@@ -445,8 +456,7 @@
 				computeBalance(new_root);
 			else if (parent) // if no subtree is returned start balancing at parent, if parent is null do nothing
 				computeBalance(parent);
-
-         }
+        }
 
 #ifdef NETERO_DEBUG
 		void	display() {
@@ -476,6 +486,9 @@
          }
 #endif
      private:
+        /**
+         * @brief Delete the entire tree.
+         */
      	void 	deleteTree(node *item) {
      		if (!item)
      			return;
@@ -485,8 +498,9 @@
      	}
 
      	/**
-     	 * @brief delete a node and return the root of the new subtree
-     	 * @param data
+     	 * @brief Delete a node and return the root of the new subtree
+     	 * @param item is the node to be deleted.
+     	 * @return The root of the tree.
      	 */
      	node 	*deleteNode(node *item) {
 			node	*new_root = nullptr;
@@ -521,7 +535,7 @@
      		}
      		return nullptr; // should never be reach
         }
-         node   *root;
+        node   *root; /**< The root node of the tree container. */
      };
-
  }
+

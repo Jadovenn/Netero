@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <netero/core/type_id.hpp>
+#include <netero/type_id.hpp>
 
 namespace netero {
 	namespace ecs {

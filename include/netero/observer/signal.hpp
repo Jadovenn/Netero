@@ -1,9 +1,14 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #pragma once
+
+/**
+ * @file signal.hpp
+ * @brief Signal emitter container.
+ */
 
 #include <algorithm>
 #include <functional>

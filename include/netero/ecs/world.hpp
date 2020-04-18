@@ -11,7 +11,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <netero/core/type_id.hpp>
+#include <netero/type_id.hpp>
 #include <netero/ecs/entity.hpp>
 #include <netero/ecs/system.hpp>
 

@@ -1,6 +1,6 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #pragma once
