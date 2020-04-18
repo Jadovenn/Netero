@@ -16,6 +16,11 @@ public:
 		this->nbCall += 1;
 		return a + b;
 	}
+
+	int 	mult(int a, int b) {
+		this->nbCall += 1;
+		return a * b;
+	}
 };
 
 int		add(int a, int b) {
@@ -135,6 +140,8 @@ void 	test_bool_operator() {
 int	main() {
 	test_copy_operator();
 	test_copy_operator_with_signal_in_both_slot();
+	test_move_operator();
+	test_move_operator_with_signal_in_both_slot();
 	test_functor_call();
 	test_function_call();
 	test_class_call();
