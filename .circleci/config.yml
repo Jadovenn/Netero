@@ -18,7 +18,7 @@ jobs:
     executor: ci-container
     steps:
       - checkout
-      - run: cmake . -D NETERO_AUDIO=OFF -DNETERO_GRAPHICS=OFF -D CODE_COVERAGE=ON
+      - run: cmake . -D NETERO_AUDIO=OFF -DNETERO_GRAPHICS=OFF -D NETERO_UNIT_TEST=ON -D CODE_COVERAGE=ON
       - run: make
       - run: make test
       - run: lcov --capture --directory . --output-file coverage.info
