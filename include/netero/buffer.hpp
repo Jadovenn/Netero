@@ -43,12 +43,22 @@ namespace netero {
             }
         }
 
-        shared_buffer(const shared_buffer &copy) {
-            *this = copy;
+        shared_buffer(shared_buffer &copy) {
+            std::scoped_lock<std::mutex> lock(copy._bufferMutex);
+
+            this->_size = copy._size;
+            _buffer = new (std::nothrow) T[_size];
+            if (!_buffer) {
+                _buffer = nullptr;
+                throw std::bad_alloc();
+            }
+            std::memcpy(this->_buffer, copy._buffer, _size * sizeof(T));
+            this->_writeOffset = copy._writeOffset;
+            this->_readOffset = copy._readOffset;
         }
 
         shared_buffer(shared_buffer&& move) noexcept {
-            std::scoped_lock(move._bufferMutex);
+            std::scoped_lock<std::mutex> lock(move._bufferMutex);
             this->_buffer = move._buffer;
             this->_size = move._size;
             this->_readOffset = move._readOffset;
@@ -60,26 +70,9 @@ namespace netero {
         }
 
     	/**
-    	 * @brief Copy operator.
-    	 * @warning May throw a bad_alloc exception!
+    	 * @brief Copy operator, is deleted, because it could not safely lock copy mutex.
     	 */
-        shared_buffer& operator=(const shared_buffer& copy) {
-            if (this == &copy) { return *this; }
-            std::scoped_lock<std::mutex>    lock(this->_bufferMutex);
-            std::scoped_lock<std::mutex>    otherLock(copy._bufferMutex);
-
-            this->_size = copy._size;
-            delete this->_buffer;
-            _buffer = new (std::nothrow) T[_size];
-            if (!_buffer) {
-                _buffer = nullptr;
-                throw std::bad_alloc();
-            }
-            std::memcpy(this->_buffer, copy._buffer, _size * sizeof(T));
-            this->_writeOffset = copy._writeOffset;
-            this->_readOffset = copy._readOffset;
-            return *this;
-        }
+        shared_buffer& operator=(const shared_buffer& copy) = delete;
 
         /**
          * @brief Move on assign operator.
@@ -135,7 +128,10 @@ namespace netero {
             if (_size == 0) {
                 return 0;
             }
-            if (_writeOffset == -1) {
+        	if (_writeOffset == -1 && _readOffset == -1) {
+                return _size;
+        	}
+            if (_writeOffset == -1 && _readOffset > 0) {
                 return _size - _readOffset;
             }
             if (_readOffset == -1 && _writeOffset > -1) {
