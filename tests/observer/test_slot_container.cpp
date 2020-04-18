@@ -11,10 +11,15 @@
 class TestClass {
 public:
 	int		nbCall = 0;
-
+	
 	int 	add(int a, int b) {
 		this->nbCall += 1;
 		return a + b;
+	}
+
+	int		mult(int a, int b) {
+		this->nbCall += 1;
+		return a * b;
 	}
 };
 
@@ -35,16 +40,49 @@ void test_copy_operator() {
 
 void test_copy_operator_with_signal_in_both_slot() {
 	TestClass test;
+	TestClass test_bis;
 	netero::signal<int(int, int)> signal;
 	netero::signal<int(int, int)> signal_bis;
-	netero::slot<int(int, int)>	slot(&TestClass::add, &test);
-	netero::slot<int(int, int)> slot_bis;
+	netero::slot<int(int, int)>	slot(&TestClass::mult, &test);
+	netero::slot<int(int, int)> slot_bis(&TestClass::add, &test_bis);
 	signal.connect(&slot);
 	signal_bis.connect(&slot_bis);
 	slot_bis = slot;
 	signal(21, 21);
 	signal_bis(21, 21);
 	assert(test.nbCall == 2);
+}
+
+void test_move_operator()
+{
+	TestClass test;
+	netero::signal<int(int, int)> signal;
+	netero::slot<int(int, int)>	slot(&TestClass::add, &test);
+	netero::slot<int(int, int)> slot_bis;
+	signal.connect(&slot);
+	signal(21, 21);
+	slot_bis = std::move(slot);
+	assert(slot_bis.count_signal() == 1);
+	assert(slot.count_signal() == 0);
+	assert(slot_bis(21, 21) == 42);
+	assert(test.nbCall == 2);
+}
+
+void test_move_operator_with_signal_in_both_slot()
+{
+	TestClass test;
+	TestClass test_bis;
+	netero::signal<int(int, int)> signal;
+	netero::signal<int(int, int)> signal_bis;
+	netero::slot<int(int, int)>	slot(&TestClass::mult, &test);
+	netero::slot<int(int, int)> slot_bis(&TestClass::add, &test_bis);
+	signal.connect(&slot);
+	signal_bis.connect(&slot_bis);
+
+	slot_bis = std::move(slot);
+	assert(slot_bis.count_signal() == 1);
+	assert(slot.count_signal() == 0);
+	assert(slot_bis(21, 2) == 42);
 }
 
 void	test_copy_ctor() {
@@ -104,6 +142,8 @@ void 	test_bool_operator() {
 int	main() {
 	test_copy_operator();
 	test_copy_operator_with_signal_in_both_slot();
+	test_move_operator();
+	test_move_operator_with_signal_in_both_slot();
 	test_functor_call();
 	test_function_call();
 	test_class_call();
