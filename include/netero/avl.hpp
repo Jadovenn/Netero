@@ -5,6 +5,11 @@
 
 #pragma once
 
+/**
+ * @file avl.hpp
+ * @brief Balanced binary search tree.
+ */
+
 #include <functional>
 #include <iostream>
 #include <list>

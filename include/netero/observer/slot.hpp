@@ -1,9 +1,14 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #pragma once
+
+/**
+ * @file slot.hpp
+ * @brief Slot container that execute a functor while a connected signal is emitted.
+ */
 
 #include <algorithm>
 #include <functional>
@@ -13,11 +18,6 @@
 
 #include <netero/observer/IObserverDelegate.hpp>
 #include <netero/exception.hpp>
-
-/**
- * @file slot.hpp
- * @brief Function slot.
- */
 
 namespace netero {
 

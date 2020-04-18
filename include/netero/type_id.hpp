@@ -7,7 +7,7 @@
 
 /**
  * @file type_id.hpp
- * A compile time typeid mechanism.
+ * @brief A compile time typeid mechanism.
  */
 
 #include <cstddef>

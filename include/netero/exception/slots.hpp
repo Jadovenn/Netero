@@ -1,14 +1,22 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
 #pragma once
+
+/**
+ * @file slots.hpp
+ * @brief Slot specific exception.
+ */
 
 #include <exception>
 
 namespace netero {
 
+	/**
+	 * Trowed while a slot does not have a functor.
+	 */
 	class bad_slot_call : std::exception {
 	public:
 		~bad_slot_call() override = default;

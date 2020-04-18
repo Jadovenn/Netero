@@ -5,6 +5,11 @@
 
 #pragma once
 
+/**
+ * @file buffer.hpp
+ * @brief Thread safe circular buffer.
+ */
+
 #include <algorithm>
 #include <cstring>
 #include <exception>
