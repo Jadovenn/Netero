@@ -64,6 +64,14 @@ else()
         list(APPEND LINK_LIBRARIES
             Userenv)
     endif(WIN32)
+    if(APPLE)
+        list(APPEND SRCS
+                os/macOsHelpers.cpp)
+    endif(APPLE)
+    if(UNIX AND NOT APPLE)
+        list(APPEND SRCS
+                os/mockOsHelpers.cpp)
+    endif(UNIX AND NOT APPLE)
 endif(MOCK_INTERFACES)
 
 
