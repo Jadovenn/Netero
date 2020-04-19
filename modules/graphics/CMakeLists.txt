@@ -52,7 +52,7 @@ target_link_libraries(netero_graphics
 ##====================================
 
 install(TARGETS netero_graphics
-        EXPORT engine-export
+        EXPORT graphics-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
