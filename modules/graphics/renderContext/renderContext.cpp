@@ -5,15 +5,18 @@
 
 #include "VulkanRenderContext.hpp"
 
-netero::graphics::RenderContext::RenderContext(const std::string& appName)
-    :   pImpl(std::make_unique<RenderContext::impl>(appName))
+netero::graphics::RenderContext::RenderContext(const std::string& appName,
+		bool enableValidationLayers)
+    :   pImpl(std::make_unique<RenderContext::impl>(appName, enableValidationLayers))
 {}
 
 netero::graphics::RenderContext::~RenderContext() = default;
 
 
-netero::graphics::RenderContext::impl::impl(const std::string& appName)
-	:   appName(appName)
+netero::graphics::RenderContext::impl::impl(const std::string& appName,
+		bool enableValidationLayers)
+	:   appName(appName),
+		enableValidationLayers(enableValidationLayers)
 {
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = this->appName.c_str();

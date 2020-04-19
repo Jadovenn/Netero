@@ -13,7 +13,7 @@
 namespace netero::graphics {
 	class RenderContext::impl {
 	public:
-		impl(const std::string& appName);
+		impl(const std::string& appName, bool enableValidationLayers);
 		impl(const impl&) = delete;
 		impl(impl&&) = delete;
 		impl& operator=(const impl&) = delete;
@@ -24,6 +24,7 @@ namespace netero::graphics {
 		void	releaseVulkanContext();
 
 		const std::string	appName;
+		bool 				enableValidationLayers;
 		
 		VkInstance			instance;
 		VkApplicationInfo	appInfo;
