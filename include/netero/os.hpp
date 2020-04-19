@@ -6,7 +6,8 @@
 #pragma once
 
 /**
- * @brief 
+ * @file os.hpp
+ * @brief Operating System ressources lock and standard path getters.
  */
 
 #include <string>
