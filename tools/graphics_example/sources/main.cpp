@@ -10,7 +10,7 @@
 int	main() {
 	try {
 		const netero::graphics::window	m_window(800, 600, "GraphicsExample");
-		const netero::graphics::RenderContext m_context("GraphicsExample");
+		const netero::graphics::RenderContext m_context("GraphicsExample", true);
 		m_window.initialize();
 		m_context.initialize();
 		m_window.runLoop();
