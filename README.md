@@ -24,7 +24,7 @@ Containers:
  * shared_buffer: thread safe circular buffer
  * set: std::set with isSubsetOf and interWith feature
  * type_id: static type typeId container (needed for the ecs)
- * os: namespace containing OS getter helper, like userlogin, home dir path...
+ * os: namespace containing OS helper, like userlogin, home dir path...
 
 The core contain an Observer pattern, with the following container:
  * slot: a callback holder container
