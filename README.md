@@ -4,7 +4,7 @@
 [![CircleCI](https://circleci.com/gh/domage-j/netero.svg?style=svg)](https://circleci.com/gh/domage-j/netero)
 [![Documentation](https://codedocs.xyz/domage-j/netero.svg)](https://codedocs.xyz/domage-j/netero/)
 [![codecov](https://codecov.io/gh/domage-j/netero/branch/develop/graph/badge.svg)](https://codecov.io/gh/domage-j/netero)
-![Discord](https://img.shields.io/discord/621011079417298944?color=blue&label=Netero&logo=discord)
+[![Discord](https://img.shields.io/discord/621011079417298944?color=blue&label=Netero&logo=discord)](https://discord.gg/bUMjEKj)
 
 Netero's libs help you create application with real-time problematics, events managements and deal with shared ressources.
 
