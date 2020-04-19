@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
-#include <uuid/uuid.h>
 #include <mutex>
 #include <atomic>
 #include <netero/os.hpp>
