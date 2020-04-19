@@ -6,6 +6,7 @@ project(netero_core
 
 message(STATUS "Configure Netero libs")
 
+
 ##====================================
 ##  Core Sources
 ##====================================
@@ -49,6 +50,24 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/observer/slot.hpp)
 
 ##====================================
+##  Os sources
+##====================================
+list(APPEND PUBLIC_HEADER
+        ${HEADERS_DIRECTORY}/os.hpp)
+if(MOCK_INTERFACES)
+    list(APPEND SRCS
+        os/mockOsHelpers.cpp)
+else()
+    if(WIN32)
+        list(APPEND SRCS
+            os/windowsOsHelpers.cpp)
+        list(APPEND LINK_LIBRARIES
+            Userenv)
+    endif(WIN32)
+endif(MOCK_INTERFACES)
+
+
+##====================================
 ##  Targets
 ##====================================
 
@@ -63,6 +82,11 @@ target_include_directories(netero
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
 )
+target_link_libraries(netero ${LINK_LIBRARIES})
+if(WIN32 AND WIN32_STATIC)
+    set_property(TARGET netero PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
+endif()
 
 target_compile_features(netero PUBLIC cxx_std_17)
 
