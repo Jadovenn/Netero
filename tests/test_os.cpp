@@ -3,6 +3,7 @@
  * see LICENSE.txt
  */
 
+#include <cassert>
 #include <iostream>
 #include <netero/os.hpp>
 
