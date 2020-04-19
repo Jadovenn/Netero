@@ -4,6 +4,7 @@
 [![CircleCI](https://circleci.com/gh/domage-j/netero.svg?style=svg)](https://circleci.com/gh/domage-j/netero)
 [![Documentation](https://codedocs.xyz/domage-j/netero.svg)](https://codedocs.xyz/domage-j/netero/)
 [![codecov](https://codecov.io/gh/domage-j/netero/branch/develop/graph/badge.svg)](https://codecov.io/gh/domage-j/netero)
+[![Discord Chat](https://img.shields.io/discord/308323056592486420.svg)](https://discord.gg/bUMjEKj)
 
 Netero's libs help you create application with real-time problematics, events managements and deal with shared ressources.
 
@@ -13,6 +14,7 @@ in the most generic way. I tried to make as much as possible Netero features sup
 under Windows, linux based OS and macOs.
 
 You can access to the documentation by clicking on the "documented" badge.
+Feel free to join our discord channel to chat with us.
 
 ## Core
 
