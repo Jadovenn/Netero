@@ -70,7 +70,7 @@ else()
     endif(APPLE)
     if(UNIX AND NOT APPLE)
         list(APPEND SRCS
-                os/mockOsHelpers.cpp)
+                os/unixOsHelpers.cpp)
     endif(UNIX AND NOT APPLE)
 endif(MOCK_INTERFACES)
 
