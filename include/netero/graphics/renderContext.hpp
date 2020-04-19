@@ -9,9 +9,10 @@
 #include <memory>
 
 namespace netero::graphics {
+
 	class RenderContext {
 	public:
-		RenderContext(const std::string &appName);
+		explicit RenderContext(const std::string &appName, bool enableValidationLayers = false);
 		RenderContext(const RenderContext&) = delete;
 		RenderContext(RenderContext&&) = delete;
 		RenderContext& operator=(const RenderContext&) = delete;
