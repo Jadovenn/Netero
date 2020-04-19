@@ -43,6 +43,7 @@ endmacro(add_project_test)
 ##  Test Core
 ##====================================
 
+add_project_test(NAME test_os SOURCES test_os.cpp DEPENDS netero)
 add_project_test(NAME test_core_type_id SOURCES core/test_core_type_id.cpp)
 add_project_test(NAME test_avl SOURCES test_avl.cpp)
 add_project_test(NAME test_set SOURCES test_set.cpp)
