@@ -3,6 +3,7 @@
  * see LICENSE.txt
  */
 
+#include <netero/os.hpp>
 #include "WASAPI.hpp"
 
 // ----------------------------------------
@@ -21,13 +22,15 @@ const IID IID_IAudioSessionControl = __uuidof(IAudioSessionControl);
 // ----------------------------------
 
 netero::audio::backend::impl::impl() {
-	HRESULT	result;
+
+	netero::os::acquireSystemResources();
+	
 	// Initialize COM library in the current thread
-	result = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	test_result(result);
+	//result = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	//test_result(result);
 
 	// Create COM device enumerator object
-	result = CoCreateInstance(CLSID_MMDeviceEnumerator,
+	HRESULT result = CoCreateInstance(CLSID_MMDeviceEnumerator,
 		nullptr,
 		CLSCTX_ALL,
 		IID_IMMDeviceEnumerator,
@@ -36,7 +39,8 @@ netero::audio::backend::impl::impl() {
 }
 
 netero::audio::backend::impl::~impl() {
-	CoUninitialize();
+	netero::os::releaseSystemResources();
+	//CoUninitialize();
 }
 
 // -------------------------------------------
