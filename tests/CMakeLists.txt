@@ -43,6 +43,7 @@ endmacro(add_project_test)
 ##  Test Core
 ##====================================
 
+add_project_test(NAME test_os SOURCES test_os.cpp DEPENDS netero)
 add_project_test(NAME test_core_type_id SOURCES core/test_core_type_id.cpp)
 add_project_test(NAME test_avl SOURCES test_avl.cpp)
 add_project_test(NAME test_set SOURCES test_set.cpp)
@@ -54,10 +55,10 @@ add_project_test(NAME bug_size_buffer SOURCES bug_size_buffer.cpp)
 ##====================================
 
 if (NETERO_AUDIO)
-    add_project_test(NAME test_audio_format SOURCES audio/test_audio_format.cpp DEPENDS netero_audio)
-    add_project_test(NAME example_audio_render SOURCES audio/example_audio_render.cpp DEPENDS netero_audio)
-    add_project_test(NAME example_audio_recorde SOURCES audio/example_audio_recorde.cpp DEPENDS netero_audio)
-    add_project_test(NAME example_audio_recorde_silence SOURCES audio/example_audio_recorde_silence.cpp DEPENDS netero_audio)
+    add_project_test(NAME test_audio_format SOURCES audio/test_audio_format.cpp DEPENDS netero netero_audio)
+    add_project_test(NAME example_audio_render SOURCES audio/example_audio_render.cpp DEPENDS netero netero_audio)
+    add_project_test(NAME example_audio_recorde SOURCES audio/example_audio_recorde.cpp DEPENDS netero netero_audio)
+    add_project_test(NAME example_audio_recorde_silence SOURCES audio/example_audio_recorde_silence.cpp DEPENDS netero netero_audio)
 endif(NETERO_AUDIO)
 
 ##====================================

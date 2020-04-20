@@ -26,9 +26,9 @@ int main() {
         netero::audio::DeviceManager::getInstance().deviceDisconnectedSig.connect(&deviceDisconnectionSlot);
 
     	// Create 3 audio entities, which are sinusoid signal
-        auto* noteDo = audioEngine.createRenderEntity<netero::audio::signals::sinusoid>(0.01, 261.63, 0);
-        auto* noteMi = audioEngine.createRenderEntity<netero::audio::signals::sinusoid>(0.01, 329.63, 0);
-        auto* noteLa = audioEngine.createRenderEntity<netero::audio::signals::sinusoid>(0.01, 400, 0);
+        auto* noteDo = audioEngine.createRenderEntity<netero::audio::signals::sinusoid>(0.01F, 261.63F, 0.0F);
+        auto* noteMi = audioEngine.createRenderEntity<netero::audio::signals::sinusoid>(0.01F, 329.63F, 0.0F);
+        auto* noteLa = audioEngine.createRenderEntity<netero::audio::signals::sinusoid>(0.01F, 400.0F, 0.0F);
 
         noteDo->play();
 

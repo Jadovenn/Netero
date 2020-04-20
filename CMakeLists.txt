@@ -40,6 +40,7 @@ OPTION(NETERO_GRAPHICS "Graphics component based on ecs submodule" ON)
 ## Build config
 OPTION(WIN32_STATIC "Link staticaly with win32's dll" OFF)
 OPTION(CODE_COVERAGE "Enable coverage reporting" OFF)
+OPTION(MOCK_INTERFACES "Enable mock interfaces" OFF)
 
 set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
