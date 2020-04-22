@@ -6,8 +6,8 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
 
+#include <vector>
 #include <netero/graphics/renderContext.hpp>
 
 namespace netero::graphics {
@@ -20,14 +20,26 @@ namespace netero::graphics {
 		impl& operator=(impl&&) = delete;
 		~impl();
 
+		// Render init proc
 		void	createVulkanContext();
-		void	releaseVulkanContext();
+		[[nodiscard]] std::vector<const char*> getRequiredExtensions() const;
+		[[nodiscard]] bool	checkValidationLayerSupport() const;
+		void	setupDebugMessenger();
+		void	setupDebugReportCallback();
+		static void	populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
+		static void	populateDebugReportCreateInfo(VkDebugReportCallbackCreateInfoEXT&);
+
+		// Render release proc
+		void	releaseVulkanContext() const;
 
 		const std::string	appName;
 		bool 				enableValidationLayers;
+		static const std::vector<char*> validationLayers;
 		
 		VkInstance			instance;
 		VkApplicationInfo	appInfo;
+		VkDebugUtilsMessengerEXT debugMessenger = nullptr;
+		VkDebugReportCallbackEXT debugReport = nullptr;
 	};
 }
 
