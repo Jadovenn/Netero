@@ -21,14 +21,13 @@ namespace netero::graphics {
         impl& operator=(impl&&) = delete;
         ~impl();
 
-    	// Netero window related members
+        // Netero window related members
         std::string name;
         unsigned    height;
         unsigned    width;
 
-    	// GLFW window related members
-        GLFWwindow* window;
+        // GLFW window related members
+        GLFWwindow* window = nullptr;
     };
-	
 }
 
