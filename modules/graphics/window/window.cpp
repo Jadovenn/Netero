@@ -10,14 +10,14 @@ netero::graphics::window::window(unsigned width, unsigned height, const std::str
 {}
 
 netero::graphics::window::~window() {
-    glfwDestroyWindow(_pImpl->window);
+    glfwDestroyWindow(this->_pImpl->window);
     glfwTerminate();
 }
 
 netero::graphics::window::impl::impl(unsigned width, unsigned height, const std::string& name)
     :   name(name),
-		height(height),
-		width(width)
+        height(height),
+        width(width)
 {}
 
 netero::graphics::window::impl::~impl() = default;
@@ -26,17 +26,16 @@ void netero::graphics::window::initialize() const {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    _pImpl->window = glfwCreateWindow(_pImpl->width,
-        _pImpl->height,
-        _pImpl->name.c_str(),
+    _pImpl->window = glfwCreateWindow(this->_pImpl->width,
+        this->_pImpl->height,
+        this->_pImpl->name.c_str(),
         nullptr,
         nullptr);
 }
 
-
 void netero::graphics::window::runLoop() const {
-	while (!glfwWindowShouldClose(_pImpl->window)) {
+    while (!glfwWindowShouldClose(_pImpl->window)) {
         glfwPollEvents();
-	}
+    }
 }
 
