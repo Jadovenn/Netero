@@ -43,6 +43,8 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/renderContext.hpp
         ${HEADERS_DIRECTORY}/graphics/window.hpp)
 list(APPEND SRCS
+        vulkan/vulkan.hpp
+        vulkan/vulkanExtention.cpp
         window/GLFWWindow.hpp
         window/window.cpp
         renderContext/VulkanRenderContext.hpp
@@ -63,6 +65,7 @@ target_include_directories(netero_graphics
         $<BUILD_INTERFACE:${glm_SOURCE_DIR}>
         PRIVATE
         $<BUILD_INTERFACE:${glfw_INCLUDE_DIRS}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vulkan>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/renderContext>)
 message(STATUS "GLM headers: ${glm_SOURCE_DIR}")
 target_link_libraries(netero_graphics
