@@ -3,39 +3,18 @@
  * see LICENSE.txt
  */
 
-#include "vulkan.hpp"
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
 #include <iostream>
 #include <vector>
 #include <stdexcept>
-#include "VulkanRenderContext.hpp"
+#include "renderContext/vkRenderContext.hpp"
+#include "utils/vkUtils.hpp"
 
 const std::vector<char*> netero::graphics::RenderContext::impl::validationLayers = {
     "VK_LAYER_KHRONOS_validation"
 };
-
-static VKAPI_ATTR VkBool32 VKAPI_CALL debugMessengerCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    void* pUserData) {
-    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-    return VK_TRUE;
-}
-
-static VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkFlags msgFlags,
-    VkDebugReportObjectTypeEXT objType,
-    uint64_t srcObject,
-    size_t location,
-    int32_t msgCode,
-    const char* pLayerPrefix,
-    const char* pMsg,
-    void* pUserData) {
-    std::cerr << pMsg << std::endl;
-    return VK_FALSE;
-}
 
 void netero::graphics::RenderContext::impl::createVulkanContext() {
     VkInstanceCreateInfo    createInfo = {};
@@ -129,7 +108,7 @@ void netero::graphics::RenderContext::impl::populateDebugMessengerCreateInfo(VkD
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    createInfo.pfnUserCallback = debugMessengerCallback;
+    createInfo.pfnUserCallback = vkUtils::debugMessengerCallback;
     createInfo.pUserData = nullptr; // Optional    
     createInfo.pNext = nullptr;
 }
@@ -137,7 +116,7 @@ void netero::graphics::RenderContext::impl::populateDebugMessengerCreateInfo(VkD
 void netero::graphics::RenderContext::impl::populateDebugReportCreateInfo(VkDebugReportCallbackCreateInfoEXT& createInfo) {
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-    createInfo.pfnCallback = debugReportCallback;
+    createInfo.pfnCallback = vkUtils::debugReportCallback;
     createInfo.pUserData = nullptr;
     createInfo.pNext = nullptr;
     createInfo.flags =
@@ -150,7 +129,7 @@ void netero::graphics::RenderContext::impl::populateDebugReportCreateInfo(VkDebu
 void netero::graphics::RenderContext::impl::setupDebugReportCallback() {
     VkDebugReportCallbackCreateInfoEXT createInfo = {};
     RenderContext::impl::populateDebugReportCreateInfo(createInfo);
-    if (CreateDebugReportEXT(instance, &createInfo, nullptr, &this->debugReport)) {
+    if (vkUtils::CreateDebugReportEXT(instance, &createInfo, nullptr, &this->debugReport)) {
         throw std::runtime_error("Failed to setup debug report callback.");
     }
 }
@@ -159,15 +138,15 @@ void netero::graphics::RenderContext::impl::setupDebugMessenger() {
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     RenderContext::impl::populateDebugMessengerCreateInfo(createInfo);
 
-    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &this->debugMessenger) != VK_SUCCESS) {
+    if (vkUtils::CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &this->debugMessenger) != VK_SUCCESS) {
         throw std::runtime_error("Failed to setup debug messenger callback.");
     }
 }
 
 void netero::graphics::RenderContext::impl::releaseVulkanContext() const {
     if (enableValidationLayers) {
-        DestroyDebugReportEXT(this->instance, this->debugReport, nullptr);
-        DestroyDebugUtilsMessengerEXT(this->instance, this->debugMessenger, nullptr);
+        vkUtils::DestroyDebugReportEXT(this->instance, this->debugReport, nullptr);
+        vkUtils::DestroyDebugUtilsMessengerEXT(this->instance, this->debugMessenger, nullptr);
     }
     vkDestroyInstance(this->instance, nullptr);
 }

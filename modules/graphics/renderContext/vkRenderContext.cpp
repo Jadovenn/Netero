@@ -3,7 +3,7 @@
  * see LICENSE.txt
  */
 
-#include "VulkanRenderContext.hpp"
+#include "renderContext/vkRenderContext.hpp"
 
 netero::graphics::RenderContext::RenderContext(const std::string& appName,
         bool enableValidationLayers)
