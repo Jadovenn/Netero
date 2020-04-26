@@ -40,8 +40,9 @@ endif()
 ##====================================
 
 list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/graphics/renderContext.hpp
-        ${HEADERS_DIRECTORY}/graphics/window.hpp)
+        ${HEADERS_DIRECTORY}/graphics/window.hpp
+        ${HEADERS_DIRECTORY}/graphics/physicalDevice.hpp
+        ${HEADERS_DIRECTORY}/graphics/renderContext.hpp)
 list(APPEND SRCS
         utils/vkUtils.hpp
         utils/vkExtentionLoaders.cpp
@@ -50,7 +51,8 @@ list(APPEND SRCS
         window/GLFWwindow.cpp
         renderContext/vkRenderContext.hpp
         renderContext/vkRenderContext.cpp
-        renderContext/vkInstanceCreateAndRelease.cpp)
+        renderContext/vkInstanceCreateAndRelease.cpp
+        device/vkPhysicalDevice.cpp)
 
 ##====================================
 ##  Target
