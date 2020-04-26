@@ -3,6 +3,7 @@
  * see LICENSE.txt
  */
 
+#include <netero/graphics/physicalDevice.hpp>
 #include "renderContext/vkRenderContext.hpp"
 
 netero::graphics::RenderContext::RenderContext(const std::string& appName,
@@ -31,6 +32,7 @@ netero::graphics::RenderContext::impl::~impl() = default;
 
 void netero::graphics::RenderContext::initialize() const {
     this->pImpl->createVulkanContext();
+    netero::graphics::PhysicalDevice::Initialize(this->pImpl->instance);
 }
 
 void netero::graphics::RenderContext::release() const {
