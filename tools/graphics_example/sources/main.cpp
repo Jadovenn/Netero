@@ -11,7 +11,7 @@
 int    main() {
     try {
         const netero::graphics::window    m_window(800, 600, "GraphicsExample");
-        const netero::graphics::RenderContext m_context("GraphicsExample", true);
+        const netero::graphics::RenderContext m_context("GraphicsExample");
         m_window.initialize();
         m_context.initialize();
         const auto physicalDevice = netero::graphics::PhysicalDevice::Instance();
