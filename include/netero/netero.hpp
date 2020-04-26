@@ -16,6 +16,7 @@
 #include <netero/observer/signal.hpp>
 #include <netero/observer/slot.hpp>
 
+
 /**
  * @brief Netero namespace.
  */
@@ -26,3 +27,13 @@ namespace netero {
         constexpr float pi = 3.14159265358979323846;
 	}
 }
+
+
+#if defined __GNUC__ || defined __clang__
+#   define likely(x)   __builtin_expect(!!(x), 1)
+#   define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#   define likely(x)   (x)
+#   define unlikely(x) (x)
+#endif
+
