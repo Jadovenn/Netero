@@ -7,7 +7,9 @@
 #include "WASAPI.hpp"
 
 WASAPI_device::~WASAPI_device() {
-	audioSession->UnregisterAudioSessionNotification(this);
+	if (audioSession) {
+		audioSession->UnregisterAudioSessionNotification(this);
+	}
 	if (renderingThread) {
 		renderingState.store(state::OFF, std::memory_order_release);
 		if (renderingThread->joinable()) {
