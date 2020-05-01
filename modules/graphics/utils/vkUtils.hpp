@@ -5,15 +5,24 @@
 
 #pragma once
 
+#include <vector>
 #include <vulkan/vulkan.h>
 
 namespace vkUtils {
-    VkResult    CreateDebugUtilsMessengerEXT(VkInstance,
+    extern const std::vector<char*> validationLayers;
+
+    std::vector<const char*>    getRequiredExtensions();
+    bool                        checkValidationLayerSupport();
+
+    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
+    void populateDebugReportCreateInfo(VkDebugReportCallbackCreateInfoEXT&);
+
+    VkResult    CreateDebugMessengerEXT(VkInstance,
         const VkDebugUtilsMessengerCreateInfoEXT*,
         const VkAllocationCallbacks* pAllocator,
         VkDebugUtilsMessengerEXT*);
 
-    void        DestroyDebugUtilsMessengerEXT(VkInstance,
+    void        DestroyDebugMessengerEXT(VkInstance,
         VkDebugUtilsMessengerEXT,
         const VkAllocationCallbacks*);
 
