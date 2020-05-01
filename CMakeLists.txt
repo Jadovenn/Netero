@@ -28,6 +28,8 @@ if(${CMAKE_VERSION} VERSION_LESS 3.14)
     include(cmake/add_FetchContent_MakeAvailable.cmake)
 endif()
 
+add_compile_options("$<$<CONFIG:RELEASE>:-O2>")
+
 ##====================================
 ##  Modules declaration
 ##====================================
