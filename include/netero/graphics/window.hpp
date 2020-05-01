@@ -5,30 +5,31 @@
 
 #pragma once
 
+#include <netero/graphics/renderContext.hpp>
 #include <string>
 #include <memory>
 
 namespace netero::graphics {
 
-	enum class WindowMode {
-		FIX,
-		RESIZABLE,
-		FULLSCREEN,
-		WINDOWED,
-	};
+    enum class WindowMode {
+        FIX,
+        RESIZABLE,
+        FULLSCREEN,
+        WINDOWED,
+    };
 
-	class window {
-	public:
-		window(unsigned width, unsigned height, const std::string& name);
-		~window();
+    class window {
+    public:
+        friend RenderContext;
+        window(unsigned width, unsigned height, const std::string& name);
+        ~window();
 
-		void	initialize() const;
-
-		void	runLoop() const;
-		
-	private:
-		class impl;
-		std::unique_ptr<impl>	_pImpl;
-	};
+        void    initialize() const;
+        void    runLoop() const;
+        
+    protected:
+        class impl;
+        std::unique_ptr<impl>    _pImpl;
+    };
 }
 

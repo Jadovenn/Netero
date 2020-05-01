@@ -3,7 +3,7 @@
  * see LICENSE.txt
  */
 
-#include "GLFWwindow.hpp"
+#include "GLFWWindow.hpp"
 
 netero::graphics::window::window(unsigned width, unsigned height, const std::string& name)
     :   _pImpl(std::make_unique<window::impl>(width, height, name))

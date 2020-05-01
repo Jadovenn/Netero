@@ -5,9 +5,8 @@
 
 #pragma once
 
-#include <vulkan/vulkan.h>
-
 #include <vector>
+#include <vulkan/vulkan.h>
 #include <netero/graphics/renderContext.hpp>
 
 namespace netero::graphics {
@@ -37,6 +36,9 @@ namespace netero::graphics {
         static const std::vector<char*> validationLayers;
 
         VkInstance          instance;
+        VkSurfaceKHR        surface;
+        VkDevice            logicalDevice;
+        VkQueue             graphicsQueue;
         VkApplicationInfo   appInfo = {};
         VkDebugUtilsMessengerEXT    debugMessenger = nullptr;
         VkDebugReportCallbackEXT    debugReport = nullptr;
