@@ -6,6 +6,7 @@
 #include <stdexcept>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <netero/netero.hpp>
 #include <netero/graphics/context.hpp>
 #include <netero/graphics/physicalDevice.hpp>
 #include <utils/vkUtils.hpp>

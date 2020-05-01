@@ -44,7 +44,6 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/context.hpp
         ${HEADERS_DIRECTORY}/graphics/window.hpp
         ${HEADERS_DIRECTORY}/graphics/physicalDevice.hpp)
-##        ${HEADERS_DIRECTORY}/graphics/renderContext.hpp)
 list(APPEND SRCS
         application.cpp
         utils/vkUtils.hpp
@@ -52,12 +51,6 @@ list(APPEND SRCS
         utils/vkExtentionLoaders.cpp
         utils/vkDebugCallbacks.cpp
         context/context.cpp
-        window/GLFWWindow.hpp
-        window/GLFWWindow.cpp
-##        renderContext/vkRenderContext.hpp
-##        renderContext/vkRenderContext.cpp
-##        renderContext/vkInstanceCreateAndRelease.cpp
-##        renderContext/vkSetPhysicalDevice.cpp
         device/vkPhysicalDevice.cpp)
 
 ##====================================
