@@ -13,21 +13,22 @@
 #include <netero/core/internal.hpp>
 #include <netero/core/type_id.hpp>
 
-#include <netero/observer/signal.hpp>
-#include <netero/observer/slot.hpp>
-
-
 /**
  * @brief Netero namespace.
  */
 namespace netero {
 	constexpr char const *version = "0.0.1"; /**< Version string. */
 
+#if !defined(NDEBUG)
+    constexpr bool      isDebugMode = true;
+#else
+    constexpr bool      isDebugMode = false; /**< Debug mode flag. Evaluate to true if NDEBUG is defined. */
+#endif // NDEBUG
+
 	namespace numbers {
-        constexpr float pi = 3.14159265358979323846;
+        constexpr float pi = 3.14159265358979323846; /**< Pi constant. */
 	}
 }
-
 
 #if defined __GNUC__ || defined __clang__
 #   define likely(x)   __builtin_expect(!!(x), 1)
