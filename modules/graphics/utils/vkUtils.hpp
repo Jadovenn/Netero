@@ -13,7 +13,7 @@
 
 namespace vkUtils {
     extern const std::vector<char*> validationLayers;
-
+    extern const std::vector<const char*> defaultDeviceExtensions;
 
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
@@ -23,6 +23,7 @@ namespace vkUtils {
             return graphicsFamily.has_value() && presentFamily.has_value();
         }
     };
+    bool                                checkDeviceSuitable(VkPhysicalDevice, const std::vector<const char*>);
     [[nodiscard]] QueueFamilyIndices    findQueueFamilies(VkPhysicalDevice, VkSurfaceKHR);
     [[nodiscard]] static int            rateDeviceSuitability(VkPhysicalDevice, VkSurfaceKHR);
     [[nodiscard]] std::multimap<int, VkPhysicalDevice>      getRatedAvailableDevices(VkInstance, VkSurfaceKHR);
