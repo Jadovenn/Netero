@@ -9,7 +9,6 @@
 #include <netero/netero.hpp>
 #include <netero/graphics/application.hpp>
 #include <netero/graphics/context.hpp>
-#include <netero/graphics/physicalDevice.hpp>
 #include "utils/vkUtils.hpp"
 
 std::unique_ptr<netero::graphics::Application>  netero::graphics::Application::s_instance = nullptr;
@@ -72,7 +71,6 @@ netero::graphics::Application* netero::graphics::Application::Initialize(const s
             throw std::runtime_error("Failed to setup debug messenger callback.");
         }
     }
-    netero::graphics::PhysicalDevice::Initialize(s_instance->_vulkanInstance);
     return s_instance.get();
 }
 
