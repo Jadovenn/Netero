@@ -7,6 +7,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 #include <vulkan/vulkan.h>
 #include <netero/graphics/window.hpp>
 
@@ -29,7 +30,12 @@ namespace netero::graphics {
         Context& operator=(Context&&) = delete;
         ~Context();
 
+        // Context related
         void    run() const;
+
+        // Device Related
+        [[nodiscard]] std::vector<std::string>  getPhysicalDevices() const;
+        [[nodiscard]] std::string   getCurrentPhysicalDeviceName() const;
 
     private:
         void setPhysicalDevice(VkPhysicalDevice device);
@@ -44,6 +50,7 @@ namespace netero::graphics {
         VkPhysicalDevice    _physicalDevice = nullptr;
         VkDevice            _logicalDevice = nullptr;
         VkQueue             _graphicsQueue = nullptr;
+        VkQueue             _presentQueue = nullptr;
         VkSurfaceKHR        _surface = nullptr;
         struct impl;
         std::unique_ptr<impl>   _pImpl;
