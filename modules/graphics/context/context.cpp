@@ -4,6 +4,7 @@
  */
 
 #include <stdexcept>
+#include <set>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <netero/netero.hpp>
@@ -34,13 +35,11 @@ namespace netero::graphics {
         if (_windowMode == WindowMode::FIX) {
             glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         }
-        this->_pImpl->window = glfwCreateWindow(this->_width,
-            this->_height,
+        this->_pImpl->window = glfwCreateWindow(static_cast<int>(this->_width),
+            static_cast<int>(this->_height),
             this->_name.c_str(),
             nullptr,
             nullptr);
-        this->_physicalDevice = PhysicalDevice::Instance()->getPhysicalDevice();
-        this->setPhysicalDevice(this->_physicalDevice);
         const VkResult result = glfwCreateWindowSurface(this->_vulkanInstance,
             this->_pImpl->window,
             nullptr,
@@ -48,6 +47,8 @@ namespace netero::graphics {
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to create window surface.");
         }
+        this->_physicalDevice = vkUtils::getBestDevice(this->_vulkanInstance, this->_surface);
+        this->setPhysicalDevice(this->_physicalDevice);
     }
 
     Context::~Context() {
@@ -63,20 +64,25 @@ namespace netero::graphics {
     }
 
     void Context::setPhysicalDevice(VkPhysicalDevice device) {
-        auto indices = netero::graphics::PhysicalDevice::findQueueFamilies(device);
-        VkDeviceQueueCreateInfo     queueCreateInfo{};
+        auto indices = vkUtils::findQueueFamilies(device, this->_surface);
         VkPhysicalDeviceFeatures    deviceFeatures{};
         VkDeviceCreateInfo          deviceCreateInfo{};
 
         float   queuePriority = 1.f;
-        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
-        queueCreateInfo.queueCount = 1;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
+        std::vector<VkDeviceQueueCreateInfo>    queueCreateInfos;
+        std::set<uint32_t>  uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+        for (auto queueFamily: uniqueQueueFamilies) {
+            VkDeviceQueueCreateInfo queueCreateInfo = {};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
 
         deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-        deviceCreateInfo.queueCreateInfoCount = 1;
+        deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
+        deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
         deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
         deviceCreateInfo.enabledExtensionCount = 0;
         if (netero::isDebugMode) {
@@ -91,6 +97,7 @@ namespace netero::graphics {
             throw std::runtime_error("Failed to create logical device.");
         }
         vkGetDeviceQueue(this->_logicalDevice, indices.graphicsFamily.value(), 0, &this->_graphicsQueue);
+        vkGetDeviceQueue(this->_logicalDevice, indices.presentFamily.value(), 0, &this->_presentQueue);
     }
 
 }

@@ -43,7 +43,6 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/application.hpp
         ${HEADERS_DIRECTORY}/graphics/context.hpp
         ${HEADERS_DIRECTORY}/graphics/window.hpp)
-##        ${HEADERS_DIRECTORY}/graphics/physicalDevice.hpp)
 list(APPEND SRCS
         application.cpp
         utils/vkUtils.hpp
@@ -53,7 +52,6 @@ list(APPEND SRCS
         utils/vkFindQueueFamilies.cpp
         context/context.cpp
         context/physicalDevices.cpp)
-##        device/vkPhysicalDevice.cpp)
 
 ##====================================
 ##  Target
