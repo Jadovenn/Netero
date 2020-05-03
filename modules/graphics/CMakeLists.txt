@@ -42,16 +42,18 @@ endif()
 list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/application.hpp
         ${HEADERS_DIRECTORY}/graphics/context.hpp
-        ${HEADERS_DIRECTORY}/graphics/window.hpp
-        ${HEADERS_DIRECTORY}/graphics/physicalDevice.hpp)
+        ${HEADERS_DIRECTORY}/graphics/window.hpp)
+##        ${HEADERS_DIRECTORY}/graphics/physicalDevice.hpp)
 list(APPEND SRCS
         application.cpp
         utils/vkUtils.hpp
         utils/vkCheckValidationLayerSupport.cpp
         utils/vkExtentionLoaders.cpp
         utils/vkDebugCallbacks.cpp
+        utils/vkFindQueueFamilies.cpp
         context/context.cpp
-        device/vkPhysicalDevice.cpp)
+        context/physicalDevices.cpp)
+##        device/vkPhysicalDevice.cpp)
 
 ##====================================
 ##  Target

@@ -5,11 +5,31 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
+#include <map>
+#include <optional>
 #include <vulkan/vulkan.h>
 
 namespace vkUtils {
     extern const std::vector<char*> validationLayers;
+
+
+    struct QueueFamilyIndices {
+        std::optional<uint32_t> graphicsFamily;
+        std::optional<uint32_t> presentFamily;
+
+        [[nodiscard]] bool  isGraphicsSuitable() const {
+            return graphicsFamily.has_value() && presentFamily.has_value();
+        }
+    };
+    [[nodiscard]] QueueFamilyIndices    findQueueFamilies(VkPhysicalDevice, VkSurfaceKHR);
+    [[nodiscard]] static int            rateDeviceSuitability(VkPhysicalDevice, VkSurfaceKHR);
+    [[nodiscard]] std::multimap<int, VkPhysicalDevice>      getRatedAvailableDevices(VkInstance, VkSurfaceKHR);
+    [[nodiscard]] VkPhysicalDevice                          getBestDevice(VkInstance, VkSurfaceKHR);
+    [[nodiscard]] std::string   getDeviceName(VkPhysicalDevice);
+    [[nodiscard]] VkPhysicalDevice  getDeviceByName(const char*, VkInstance);
+    [[nodiscard]] std::vector<std::string>   getDevicesName(VkInstance);
 
     std::vector<const char*>    getRequiredExtensions();
     bool                        checkValidationLayerSupport();
