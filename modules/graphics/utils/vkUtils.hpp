@@ -29,12 +29,12 @@ namespace vkUtils {
     [[nodiscard]] QueueFamilyIndices    findQueueFamilies(VkPhysicalDevice, VkSurfaceKHR);
 
     // Physical Device related
-    [[nodiscard]] static int            rateDeviceSuitability(VkPhysicalDevice, VkSurfaceKHR);
+    [[nodiscard]] int                                       rateDeviceSuitability(VkPhysicalDevice, VkSurfaceKHR);
     [[nodiscard]] std::multimap<int, VkPhysicalDevice>      getRatedAvailableDevices(VkInstance, VkSurfaceKHR);
-    [[nodiscard]] VkPhysicalDevice                          getBestDevice(VkInstance, VkSurfaceKHR);
-    [[nodiscard]] std::string   getDeviceName(VkPhysicalDevice);
-    [[nodiscard]] VkPhysicalDevice  getDeviceByName(const char*, VkInstance);
-    [[nodiscard]] std::vector<std::string>   getDevicesName(VkInstance);
+    [[nodiscard]] VkPhysicalDevice          getBestDevice(VkInstance, VkSurfaceKHR);
+    [[nodiscard]] std::string               getDeviceName(VkPhysicalDevice);
+    [[nodiscard]] VkPhysicalDevice          getDeviceByName(const char*, VkInstance);
+    [[nodiscard]] std::vector<std::string>  getDevicesName(VkInstance);
 
     // Swap chain related
     struct SwapChainSupportDetails {
