@@ -40,6 +40,7 @@ namespace netero::graphics {
     private:
         void    createLogicalDevice(VkPhysicalDevice device);
         void    createSwapchain();
+        void    createImageViews();
 
         VkInstance  _vulkanInstance;
         unsigned    _height;
@@ -56,7 +57,8 @@ namespace netero::graphics {
         VkSwapchainKHR      _swapchain = nullptr;
         VkFormat            _swapchainImageFormat;
         VkExtent2D          _swapchainExtent;
-        std::vector<VkImage>    _swapchainImage;
+        std::vector<VkImage>        _swapchainImage;
+        std::vector<VkImageView>    _swapchainImageViews;
 
         struct impl;
         std::unique_ptr<impl>   _pImpl;
