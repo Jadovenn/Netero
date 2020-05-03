@@ -3,7 +3,12 @@
  * see LICENSE.txt
  */
 
+#include <set>
 #include "utils/vkUtils.hpp"
+
+const std::vector<const char*> vkUtils::defaultDeviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
 
 vkUtils::QueueFamilyIndices    vkUtils::findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface) {
     QueueFamilyIndices  indices;
@@ -23,6 +28,18 @@ vkUtils::QueueFamilyIndices    vkUtils::findQueueFamilies(VkPhysicalDevice devic
         }
     }
     return indices;
+}
+
+bool    vkUtils::checkDeviceSuitable(VkPhysicalDevice device, const std::vector<const char*> extensions) {
+    uint32_t    extensionCount = 0;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+    std::vector<VkExtensionProperties>  availableExtension(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtension.data());
+    std::set<std::string>   requiredExtensions(extensions.begin(), extensions.end());
+    for (const auto& ext: availableExtension) {
+        requiredExtensions.erase(ext.extensionName);
+    }
+    return requiredExtensions.empty();
 }
 
 int vkUtils::rateDeviceSuitability(VkPhysicalDevice device, VkSurfaceKHR surface) {

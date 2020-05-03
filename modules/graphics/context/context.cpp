@@ -9,7 +9,6 @@
 #include <GLFW/glfw3.h>
 #include <netero/netero.hpp>
 #include <netero/graphics/context.hpp>
-#include <netero/graphics/physicalDevice.hpp>
 #include <utils/vkUtils.hpp>
 
 namespace netero::graphics {
@@ -48,6 +47,9 @@ namespace netero::graphics {
             throw std::runtime_error("Failed to create window surface.");
         }
         this->_physicalDevice = vkUtils::getBestDevice(this->_vulkanInstance, this->_surface);
+        if (!vkUtils::checkDeviceSuitable(this->_physicalDevice, vkUtils::defaultDeviceExtensions)) {
+            throw std::runtime_error("The device (" + vkUtils::getDeviceName(this->_physicalDevice) + ") is not suitable for windowed context.");
+        }
         this->setPhysicalDevice(this->_physicalDevice);
     }
 
@@ -84,7 +86,8 @@ namespace netero::graphics {
         deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
         deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
         deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-        deviceCreateInfo.enabledExtensionCount = 0;
+        deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(vkUtils::defaultDeviceExtensions.size());
+        deviceCreateInfo.ppEnabledExtensionNames = vkUtils::defaultDeviceExtensions.data();
         if (netero::isDebugMode) {
             deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(vkUtils::validationLayers.size());
             deviceCreateInfo.ppEnabledLayerNames = vkUtils::validationLayers.data();
