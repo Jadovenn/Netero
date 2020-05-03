@@ -50,6 +50,10 @@ namespace netero::graphics {
         if (!vkUtils::checkDeviceSuitable(this->_physicalDevice, vkUtils::defaultDeviceExtensions)) {
             throw std::runtime_error("The device (" + vkUtils::getDeviceName(this->_physicalDevice) + ") is not suitable for windowed context.");
         }
+        const auto swapChainDetails = vkUtils::QuerySwapChainSupport(this->_physicalDevice, this->_surface);
+        if (swapChainDetails.formats.empty() || swapChainDetails.presentMode.empty()) {
+            throw std::runtime_error("The device (" + vkUtils::getDeviceName(this->_physicalDevice) + ") is as no suitable swap chain.");
+        }
         this->setPhysicalDevice(this->_physicalDevice);
     }
 

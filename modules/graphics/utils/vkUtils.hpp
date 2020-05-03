@@ -12,9 +12,11 @@
 #include <vulkan/vulkan.h>
 
 namespace vkUtils {
+    // Global variable
     extern const std::vector<char*> validationLayers;
     extern const std::vector<const char*> defaultDeviceExtensions;
 
+    // Queue Family related
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
@@ -25,6 +27,8 @@ namespace vkUtils {
     };
     bool                                checkDeviceSuitable(VkPhysicalDevice, const std::vector<const char*>);
     [[nodiscard]] QueueFamilyIndices    findQueueFamilies(VkPhysicalDevice, VkSurfaceKHR);
+
+    // Physical Device related
     [[nodiscard]] static int            rateDeviceSuitability(VkPhysicalDevice, VkSurfaceKHR);
     [[nodiscard]] std::multimap<int, VkPhysicalDevice>      getRatedAvailableDevices(VkInstance, VkSurfaceKHR);
     [[nodiscard]] VkPhysicalDevice                          getBestDevice(VkInstance, VkSurfaceKHR);
@@ -32,6 +36,16 @@ namespace vkUtils {
     [[nodiscard]] VkPhysicalDevice  getDeviceByName(const char*, VkInstance);
     [[nodiscard]] std::vector<std::string>   getDevicesName(VkInstance);
 
+    // Swap chain related
+    struct SwapChainSupportDetails {
+        VkSurfaceCapabilitiesKHR        capabilities;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR>   presentMode;
+    };
+
+    SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice, VkSurfaceKHR);
+
+    // Validation layers related
     std::vector<const char*>    getRequiredExtensions();
     bool                        checkValidationLayerSupport();
 

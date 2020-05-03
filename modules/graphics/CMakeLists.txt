@@ -50,6 +50,7 @@ list(APPEND SRCS
         utils/vkExtentionLoaders.cpp
         utils/vkDebugCallbacks.cpp
         utils/vkFindQueueFamilies.cpp
+        utils/vkSwapChainSupport.cpp
         context/context.cpp
         context/physicalDevices.cpp)
 
