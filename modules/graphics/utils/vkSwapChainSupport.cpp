@@ -3,6 +3,7 @@
  * see LICENSE.txt
  */
 
+#include <algorithm>
 #include "utils/vkUtils.hpp"
 
 vkUtils::SwapChainSupportDetails vkUtils::QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface) {
@@ -24,5 +25,34 @@ vkUtils::SwapChainSupportDetails vkUtils::QuerySwapChainSupport(VkPhysicalDevice
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentMode.data());
     }
     return details;
+}
+
+VkSurfaceFormatKHR vkUtils::ChooseSwapSurfaceFormat(std::vector<VkSurfaceFormatKHR>& availableFormats) {
+    for (const auto& availableFormat: availableFormats) {
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB
+            && availableFormat.colorSpace == VK_COLORSPACE_SRGB_NONLINEAR_KHR) {
+            return availableFormat;
+        }
+    }
+    return availableFormats[0];
+}
+
+VkPresentModeKHR        vkUtils::ChooseSwapPresentMode(std::vector<VkPresentModeKHR>& availableModes) {
+    for (const auto& mode: availableModes) {
+        if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {
+            return mode;
+        }
+    }
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D vkUtils::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, uint32_t height, uint32_t width) {
+    if (capabilities.currentExtent.width != UINT32_MAX) {
+        return capabilities.currentExtent;
+    }
+    VkExtent2D  actualExtent = { width, height };
+    actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+    actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.minImageExtent.height, actualExtent.height));
+    return actualExtent;
 }
 

@@ -44,6 +44,9 @@ namespace vkUtils {
     };
 
     SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice, VkSurfaceKHR);
+    VkSurfaceFormatKHR      ChooseSwapSurfaceFormat(std::vector<VkSurfaceFormatKHR>&);
+    VkPresentModeKHR        ChooseSwapPresentMode(std::vector<VkPresentModeKHR>&);
+    VkExtent2D              ChooseSwapExtent(const VkSurfaceCapabilitiesKHR&, uint32_t, uint32_t);
 
     // Validation layers related
     std::vector<const char*>    getRequiredExtensions();
