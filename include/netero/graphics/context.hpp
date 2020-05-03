@@ -38,7 +38,8 @@ namespace netero::graphics {
         [[nodiscard]] std::string   getCurrentPhysicalDeviceName() const;
 
     private:
-        void setPhysicalDevice(VkPhysicalDevice device);
+        void    createLogicalDevice(VkPhysicalDevice device);
+        void    createSwapchain();
 
         VkInstance  _vulkanInstance;
         unsigned    _height;
@@ -52,6 +53,11 @@ namespace netero::graphics {
         VkQueue             _graphicsQueue = nullptr;
         VkQueue             _presentQueue = nullptr;
         VkSurfaceKHR        _surface = nullptr;
+        VkSwapchainKHR      _swapchain = nullptr;
+        VkFormat            _swapchainImageFormat;
+        VkExtent2D          _swapchainExtent;
+        std::vector<VkImage>    _swapchainImage;
+
         struct impl;
         std::unique_ptr<impl>   _pImpl;
     };
