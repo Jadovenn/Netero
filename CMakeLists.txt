@@ -1,8 +1,8 @@
 cmake_minimum_required (VERSION 3.11...3.16)
 project(netero
-	VERSION 1.0
-	DESCRIPTION "Real time utility library"
-	LANGUAGES CXX)
+    VERSION 1.0
+    DESCRIPTION "Real time utility library"
+    LANGUAGES CXX)
 
 ##====================================
 ##  Init Project if not a dependency
@@ -81,6 +81,7 @@ if(NETERO_GRAPHICS)
     if(NOT NETERO_ECS)
         message(FATAL_ERROR "GRAPHICS rely on ECS, ECS must be activated")
     endif(NOT NETERO_ECS)
+    include(cmake/netero-graphics-function.cmake)
     add_subdirectory(modules/graphics)
 endif(NETERO_GRAPHICS)
 
