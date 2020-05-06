@@ -7,6 +7,9 @@ endif()
 
 if (NOT VULKAN_PATH)
     set(VULKAN_PATH $ENV{VULKAN_SDK})
+    if(APPLE)
+        set(VULKAN_PATH "/usr/local")
+    endif(APPLE)
 endif(NOT VULKAN_PATH)
 
 if (NOT VULKAN_PATH)
@@ -27,6 +30,13 @@ if (WIN32)
     endif(EXISTS "${GLSLC_PATH}")
 endif(WIN32)
 
+if (APPLE)
+    set(GLSLC_PATH "${VULKAN_PATH}/bin/glslc")
+    if(EXISTS "${GLSLC_PATH}")
+        set(FOUND_GLSLC TRUE)
+    endif(EXISTS "${GLSLC_PATH}")
+endif(APPLE)
+
 if (FOUND_GLSLC)
     message(INFO " FOUND glslc ${GLSLC_PATH}")
 else()
@@ -46,5 +56,8 @@ function(target_add_shader TARGET SHADER_PATH)
         VERBATIM)
     set_source_files_properties(${CURRENT_SHADER_OUTPUT_PATH} PROPERTIES GENERATED TRUE)
     target_sources(${TARGET} PRIVATE ${CURRENT_SHADER_OUTPUT_PATH})
+    if (APPLE)
+        set_source_files_properties(${CURRENT_SHADER_OUTPUT_PATH} PROPERTIES
+                MACOSX_PACKAGE_LOCATION "Shaders")
+    endif(APPLE)
 endfunction(target_add_shader)
-
