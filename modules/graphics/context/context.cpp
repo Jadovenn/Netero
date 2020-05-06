@@ -49,6 +49,7 @@ namespace netero::graphics {
         }
         // Pick physical device
         this->_physicalDevice = vkUtils::getBestDevice(this->_vulkanInstance, this->_surface);
+        if (!this->_physicalDevice) { throw std::runtime_error("No suitable devices has been found."); }
         if (!vkUtils::checkDeviceSuitable(this->_physicalDevice, vkUtils::defaultDeviceExtensions)) {
             throw std::runtime_error("The device (" + vkUtils::getDeviceName(this->_physicalDevice) + ") is not suitable for windowed context.");
         }
