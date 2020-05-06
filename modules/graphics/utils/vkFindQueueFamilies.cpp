@@ -51,9 +51,6 @@ int vkUtils::rateDeviceSuitability(VkPhysicalDevice device, VkSurfaceKHR surface
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
     const auto queueFamilyIndices = vkUtils::findQueueFamilies(device, surface);
 
-    if (!deviceFeatures.geometryShader) {
-        return -1;
-    }
     if (!queueFamilyIndices.isGraphicsSuitable()) {
         return -2;
     }
