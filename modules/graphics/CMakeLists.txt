@@ -72,8 +72,8 @@ target_include_directories(netero_graphics
 message(STATUS "GLM headers: ${glm_SOURCE_DIR}")
 target_link_libraries(netero_graphics
         PRIVATE
-            Vulkan::Vulkan glfw)
-
+            Vulkan::Vulkan
+            glfw)
 ##====================================
 ##  Installation
 ##====================================
@@ -93,4 +93,3 @@ install(EXPORT graphics-export
 install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/graphics
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")
-
