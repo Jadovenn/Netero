@@ -9,7 +9,7 @@
 #include <netero/netero.hpp>
 #include "utils/vkUtils.hpp"
 
-const std::vector<char*>    vkUtils::validationLayers = {
+const std::vector<const char*>    vkUtils::validationLayers = {
     "VK_LAYER_KHRONOS_validation"
 };
 

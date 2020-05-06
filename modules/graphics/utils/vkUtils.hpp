@@ -13,7 +13,7 @@
 
 namespace vkUtils {
     // Global variable
-    extern const std::vector<char*> validationLayers;
+    extern const std::vector<const char*> validationLayers;
     extern const std::vector<const char*> defaultDeviceExtensions;
 
     // Queue Family related
