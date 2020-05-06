@@ -160,7 +160,7 @@ namespace netero::graphics {
         this->_swapchainImage.resize(imageCount);
         vkGetSwapchainImagesKHR(this->_logicalDevice, this->_swapchain, &imageCount, this->_swapchainImage.data());
         this->_swapchainImageFormat = surfaceFormat.format;
-        this->_swapchainExtent = this->_swapchainExtent;
+        this->_swapchainExtent = extent;
     }
 
     void Context::createImageViews() {
