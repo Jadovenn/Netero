@@ -63,6 +63,9 @@ namespace netero::graphics {
     }
 
     Context::~Context() {
+        for (auto frameBuffer : this->_swapchainFrameBuffers) {
+            vkDestroyFramebuffer(this->_logicalDevice, frameBuffer, nullptr);
+        }
         vkDestroyPipeline(this->_logicalDevice, this->_graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(this->_logicalDevice, this->_pipelineLayout, nullptr);
         vkDestroyRenderPass(this->_logicalDevice, this->_renderPass, nullptr);
@@ -78,6 +81,7 @@ namespace netero::graphics {
     void Context::run() {
         this->createRenderPass();
         this->createGraphicsPipeline();
+        this->createFrameBuffers();
         while (!glfwWindowShouldClose(this->_pImpl->window)) {
             glfwPollEvents();
         }
