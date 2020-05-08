@@ -63,6 +63,9 @@ namespace netero::graphics {
     }
 
     Context::~Context() {
+        vkDestroySemaphore(this->_logicalDevice, this->_imageAvailableSemaphore, nullptr);
+        vkDestroySemaphore(this->_logicalDevice, this->_renderFinishedSemaphore, nullptr);
+        vkDestroyCommandPool(this->_logicalDevice, this->_commandPool, nullptr);
         for (auto frameBuffer : this->_swapchainFrameBuffers) {
             vkDestroyFramebuffer(this->_logicalDevice, frameBuffer, nullptr);
         }
@@ -82,9 +85,14 @@ namespace netero::graphics {
         this->createRenderPass();
         this->createGraphicsPipeline();
         this->createFrameBuffers();
+        this->createCommandPool();
+        this->createCommandBuffers();
+        this->createSemaphores();
         while (!glfwWindowShouldClose(this->_pImpl->window)) {
             glfwPollEvents();
+            this->drawFrame();
         }
+        vkDeviceWaitIdle(this->_logicalDevice);
     }
 
     void Context::createLogicalDevice(VkPhysicalDevice device) {
@@ -199,6 +207,49 @@ namespace netero::graphics {
                 throw std::runtime_error("Failed to create image views.");
             }
         }
+    }
+
+    void Context::drawFrame() {
+        uint32_t imageIndex;
+        VkResult result = vkAcquireNextImageKHR(this->_logicalDevice,
+            this->_swapchain,
+            UINT64_MAX,
+            this->_imageAvailableSemaphore,
+            nullptr,
+            &imageIndex);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Failed to retrieve next image");
+        }
+        VkSemaphore waitSemaphores[] = { this->_imageAvailableSemaphore };
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &this->_commandBuffers[imageIndex];
+        VkSemaphore signalSemaphores[] = { this->_renderFinishedSemaphore };
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
+        result = vkQueueSubmit(this->_graphicsQueue,
+            1,
+            &submitInfo,
+            nullptr);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Failed to submit draw command buffer.");
+        }
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores;
+        VkSwapchainKHR swapChains[] = { this->_swapchain };
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pResults = nullptr;
+        vkQueuePresentKHR(this->_presentQueue, &presentInfo);
+        vkQueueWaitIdle(this->_presentQueue);
     }
 
 
