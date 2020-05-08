@@ -50,7 +50,7 @@ std::string netero::os::getUserAppDataRoamingPath() {
 	if (!str) {
 		return string;
 	}
-	auto c_string = new (std::nothrow) char[size];
+	const auto c_string = new (std::nothrow) char[size];
 	if (!c_string) {
 		return string;
 	}
@@ -62,8 +62,27 @@ std::string netero::os::getUserAppDataRoamingPath() {
 
 std::string netero::os::getBundlePath() {
 	WCHAR path[MAX_PATH];
-	GetModuleFileNameW(NULL, path, MAX_PATH);
-	return std::string(path);
+	GetModuleFileNameW(nullptr, path, MAX_PATH);
+	std::string string;
+	size_t converted_char = 0;
+	size_t size = wcslen(path);
+	size *= 2;
+
+	if (!path) {
+		return string;
+	}
+	const auto c_string = new (std::nothrow) char[size];
+	if (!c_string) {
+		return string;
+	}
+	wcstombs_s(&converted_char, c_string, size, path, _TRUNCATE);
+	string = c_string;
+	delete[] c_string;
+	const auto pos = string.find_last_of('\\');
+	if (pos != std::string::npos) {
+		string.erase(pos);
+	}
+	return string;
 }
 
 static std::atomic<int>     g_com_library_locks = 0;

@@ -10,9 +10,6 @@
  * @brief Include all netero core features.
  */
 
-#include <netero/core/internal.hpp>
-#include <netero/core/type_id.hpp>
-
 /**
  * @brief Netero namespace.
  */
