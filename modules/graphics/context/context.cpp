@@ -63,6 +63,9 @@ namespace netero::graphics {
     }
 
     Context::~Context() {
+        vkDestroyPipeline(this->_logicalDevice, this->_graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(this->_logicalDevice, this->_pipelineLayout, nullptr);
+        vkDestroyRenderPass(this->_logicalDevice, this->_renderPass, nullptr);
         for (auto imageView: this->_swapchainImageViews) {
             vkDestroyImageView(this->_logicalDevice, imageView, nullptr);
         }
@@ -72,7 +75,9 @@ namespace netero::graphics {
         glfwDestroyWindow(this->_pImpl->window);
     }
 
-    void Context::run() const {
+    void Context::run() {
+        this->createRenderPass();
+        this->createGraphicsPipeline();
         while (!glfwWindowShouldClose(this->_pImpl->window)) {
             glfwPollEvents();
         }

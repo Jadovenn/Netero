@@ -42,6 +42,7 @@ endif()
 list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/application.hpp
         ${HEADERS_DIRECTORY}/graphics/context.hpp
+        ${HEADERS_DIRECTORY}/graphics/shader.hpp
         ${HEADERS_DIRECTORY}/graphics/window.hpp)
 list(APPEND SRCS
         application.cpp
@@ -52,7 +53,9 @@ list(APPEND SRCS
         utils/vkFindQueueFamilies.cpp
         utils/vkSwapChainSupport.cpp
         context/context.cpp
-        context/physicalDevices.cpp)
+        context/physicalDevices.cpp
+        context/graphicsPipeline.cpp
+        context/shaders.cpp)
 
 ##====================================
 ##  Target
