@@ -19,7 +19,6 @@
 namespace netero {
 	constexpr char const *version = "0.0.1"; /**< Version string. */
 
-
 #if !defined(NDEBUG)
     constexpr bool      isDebugMode = true;
 #else
@@ -30,10 +29,9 @@ namespace netero {
 	 * @brief Constant numbers namespace.
 	 */
 	namespace numbers {
-        constexpr float pi = 3.14159265358979323846; /**< PI as float. */
+        constexpr float pi = 3.14159265358979323846F; /**< Pi constant. */
 	}
 }
-
 
 #if defined __GNUC__ || defined __clang__
 #   define likely(x)   __builtin_expect(!!(x), 1)
