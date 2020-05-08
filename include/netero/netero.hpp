@@ -26,7 +26,7 @@ namespace netero {
 #endif // NDEBUG
 
 	namespace numbers {
-        constexpr float pi = 3.14159265358979323846; /**< Pi constant. */
+        constexpr float pi = 3.14159265358979323846F; /**< Pi constant. */
 	}
 }
 
