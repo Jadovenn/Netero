@@ -60,6 +60,11 @@ std::string netero::os::getUserAppDataRoamingPath() {
 	return string;
 }
 
+std::string netero::os::getBundlePath() {
+	WCHAR path[MAX_PATH];
+	GetModuleFileNameW(NULL, path, MAX_PATH);
+	return std::string(path);
+}
 
 static std::atomic<int>     g_com_library_locks = 0;
 static std::mutex           g_com_lock_mutex;

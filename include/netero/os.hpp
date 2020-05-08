@@ -34,7 +34,14 @@ namespace netero::os {
 	 * with the name of your application and store config files.
 	 */
 	std::string getUserAppDataRoamingPath();
-	
+
+
+	/**
+	 * @brief Return the path to the application bundle if there is.
+	 * On linux this may return ".".
+	 */
+	std::string getBundlePath();
+
 	/**
 	 * @brief Perform necessary init call if needed
 	 * This help you while you are using netero beside
