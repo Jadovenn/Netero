@@ -169,5 +169,27 @@ namespace netero::graphics {
         }
     }
 
+    void Context::createFrameBuffers() {
+        this->_swapchainFrameBuffers.resize(this->_swapchainImageViews.size());
+        for (size_t i = 0; i < this->_swapchainImageViews.size(); i++) {
+            VkImageView attachments[] = {
+                this->_swapchainImageViews[i]
+            };
+
+            VkFramebufferCreateInfo framebufferInfo{};
+            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.renderPass = this->_renderPass;
+            framebufferInfo.attachmentCount = 1;
+            framebufferInfo.pAttachments = attachments;
+            framebufferInfo.width = this->_swapchainExtent.width;
+            framebufferInfo.height = this->_swapchainExtent.height;
+            framebufferInfo.layers = 1;
+
+            if (vkCreateFramebuffer(this->_logicalDevice, &framebufferInfo, nullptr, &this->_swapchainFrameBuffers[i]) != VK_SUCCESS) {
+                throw std::runtime_error("failed to create frameBuffer!");
+            }
+        }
+    }
+
 }
 
