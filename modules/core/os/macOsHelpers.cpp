@@ -3,13 +3,23 @@
  * see LICENSE.txt
  */
 
+#include <CoreFoundation/CoreFoundation.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <pwd.h>
-#include <uuid/uuid.h>
 #include <mutex>
 #include <atomic>
 #include <netero/os.hpp>
+
+std::string	netero::os::getBundlePath() {
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	CFURLRef resourcesURL = CFBundleCopyBundleURL(mainBundle);
+	CFStringRef cfStr = CFURLCopyFileSystemPath(resourcesURL, kCFURLPOSIXPathStyle);
+	CFRelease(resourcesURL);
+	char bundlePathStr[PATH_MAX];
+	CFStringGetCString(cfStr, bundlePathStr, FILENAME_MAX, kCFStringEncodingASCII);
+	CFRelease(cfStr);
+	return std::string(bundlePathStr) + "/Contents";
+}
 
 std::string netero::os::getSessionUsername() {
 	uid_t uid = getuid();

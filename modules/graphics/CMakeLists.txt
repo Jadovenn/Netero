@@ -10,15 +10,29 @@ message(STATUS "Configure Netero graphics submodule")
 ##  Dependency
 ##====================================
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+find_package(Vulkan)
+if(NOT Vulkan_FOUND)
+    message(FATAL_ERROR "Please install vulkan SDK.")
+endif()
+
 FetchContent_Declare(
         glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
 )
 FetchContent_MakeAvailable(glfw)
-find_package(Vulkan)
-
-if(NOT Vulkan_FOUND)
-    message(FATAL_ERROR "Please install vulkan SDK.")
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+)
+FetchContent_GetProperties(glm)
+if(NOT glm_POPULATED)
+    FetchContent_Populate(glm)
+    set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
 endif()
 
 ##====================================
@@ -26,10 +40,23 @@ endif()
 ##====================================
 
 list(APPEND PUBLIC_HEADER
-        )
+        ${HEADERS_DIRECTORY}/graphics/application.hpp
+        ${HEADERS_DIRECTORY}/graphics/context.hpp
+        ${HEADERS_DIRECTORY}/graphics/shader.hpp
+        ${HEADERS_DIRECTORY}/graphics/window.hpp)
 list(APPEND SRCS
-        backend/backend.hpp
-        backend/backend.cpp)
+        application.cpp
+        utils/vkUtils.hpp
+        utils/vkCheckValidationLayerSupport.cpp
+        utils/vkExtentionLoaders.cpp
+        utils/vkDebugCallbacks.cpp
+        utils/vkFindQueueFamilies.cpp
+        utils/vkSwapChainSupport.cpp
+        context/context.cpp
+        context/physicalDevices.cpp
+        context/graphicsPipeline.cpp
+        context/command.cpp
+        context/shaders.cpp)
 
 ##====================================
 ##  Target
@@ -42,11 +69,15 @@ target_include_directories(netero_graphics
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
         $<BUILD_INTERFACE:${Vulkan_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${glfw_INCLUDE_DIRS}>)
+        $<BUILD_INTERFACE:${glm_SOURCE_DIR}>
+        PRIVATE
+        $<BUILD_INTERFACE:${glfw_INCLUDE_DIRS}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+message(STATUS "GLM headers: ${glm_SOURCE_DIR}")
 target_link_libraries(netero_graphics
         PRIVATE
-            Vulkan::Vulkan glfw netero_ecs)
-
+            Vulkan::Vulkan
+            glfw)
 ##====================================
 ##  Installation
 ##====================================
@@ -66,4 +97,3 @@ install(EXPORT graphics-export
 install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/graphics
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")
-
