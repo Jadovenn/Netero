@@ -46,6 +46,10 @@ namespace netero::graphics {
         void    createRenderPass();
         void    createGraphicsPipeline();
         void    createFrameBuffers();
+        void    createCommandPool();
+        void    createCommandBuffers();
+        void    createSemaphores();
+        void    drawFrame();
 
         VkInstance  _vulkanInstance;
         unsigned    _height;
@@ -65,10 +69,15 @@ namespace netero::graphics {
         VkRenderPass        _renderPass;
         VkPipelineLayout    _pipelineLayout;
         VkPipeline          _graphicsPipeline;
+        VkCommandPool       _commandPool;
         std::vector<VkImage>        _swapchainImage;
         std::vector<VkImageView>    _swapchainImageViews;
         std::vector<VkFramebuffer>  _swapchainFrameBuffers;
         std::vector<Shader>         _shaderModules;
+        std::vector<VkCommandBuffer>    _commandBuffers;
+
+        VkSemaphore _imageAvailableSemaphore;
+        VkSemaphore _renderFinishedSemaphore;
 
         struct impl;
         std::unique_ptr<impl>   _pImpl;
