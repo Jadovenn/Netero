@@ -1,9 +1,9 @@
 /**
  * Netero sources under BSD-3-Clause
- * see LICENCE.txt
+ * see LICENSE.txt
  */
 
-#include <netero/netero.hpp>
+#include <netero/type_id.hpp>
 
 struct BaseType {};
 struct TypeA : public BaseType {};
