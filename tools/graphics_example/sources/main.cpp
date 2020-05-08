@@ -13,6 +13,8 @@ int    main() {
         auto* app = netero::graphics::Application::Initialize("GraphicsExample");
         auto* context = app->newWindowedContext(800, 600, netero::graphics::WindowMode::FIX);
         std::cout << "Current Device:" << context->getCurrentPhysicalDeviceName() << std::endl;
+        context->loadShader("./shaders/triangleVertices.spv", netero::graphics::ShaderStage::VERTEX);
+        context->loadShader("./shaders/triangleFragment.spv", netero::graphics::ShaderStage::FRAGMENT);
         context->run();
     }
     catch (const std::exception &e) {
