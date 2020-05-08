@@ -10,6 +10,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <netero/graphics/window.hpp>
+#include <netero/graphics/shader.hpp>
 
 namespace netero::graphics {
 
@@ -31,7 +32,8 @@ namespace netero::graphics {
         ~Context();
 
         // Context related
-        void    run() const;
+        void    run();
+        int     loadShader(const std::string&, ShaderStage);
 
         // Device Related
         [[nodiscard]] std::vector<std::string>  getPhysicalDevices() const;
@@ -41,6 +43,8 @@ namespace netero::graphics {
         void    createLogicalDevice(VkPhysicalDevice device);
         void    createSwapchain();
         void    createImageViews();
+        void    createRenderPass();
+        void    createGraphicsPipeline();
 
         VkInstance  _vulkanInstance;
         unsigned    _height;
@@ -57,8 +61,12 @@ namespace netero::graphics {
         VkSwapchainKHR      _swapchain = nullptr;
         VkFormat            _swapchainImageFormat;
         VkExtent2D          _swapchainExtent;
+        VkRenderPass        _renderPass;
+        VkPipelineLayout    _pipelineLayout;
+        VkPipeline          _graphicsPipeline;
         std::vector<VkImage>        _swapchainImage;
         std::vector<VkImageView>    _swapchainImageViews;
+        std::vector<Shader>         _shaderModules;
 
         struct impl;
         std::unique_ptr<impl>   _pImpl;
