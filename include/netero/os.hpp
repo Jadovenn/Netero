@@ -7,7 +7,7 @@
 
 /**
  * @file os.hpp
- * @brief Operating System ressources lock and standard path getters.
+ * @brief Operating System resources lock and standard path getters.
  */
 
 #include <string>
@@ -35,12 +35,16 @@ namespace netero::os {
 	 */
 	std::string getUserAppDataRoamingPath();
 
-
 	/**
 	 * @brief Return the path to the application bundle if there is.
 	 * On linux this may return ".".
 	 */
 	std::string getBundlePath();
+
+	/**
+	 * @brief Return path to the current executable
+	 */
+	std::string getExecutablePath();
 
 	/**
 	 * @brief Perform necessary init call if needed
@@ -68,6 +72,4 @@ namespace netero::os {
 	 * @brief Tell you if Netero have preform initialization.
 	 */
     bool    isSystemLibraryHolder();
-	
 }
-

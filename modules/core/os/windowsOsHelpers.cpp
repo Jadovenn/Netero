@@ -85,6 +85,27 @@ std::string netero::os::getBundlePath() {
 	return string;
 }
 
+std::string	netero::os::getExecutablePath() {
+	WCHAR path[MAX_PATH];
+	GetModuleFileNameW(nullptr, path, MAX_PATH);
+	std::string string;
+	size_t converted_char = 0;
+	size_t size = wcslen(path);
+	size *= 2;
+
+	if (!path) {
+		return string;
+	}
+	const auto c_string = new (std::nothrow) char[size];
+	if (!c_string) {
+		return string;
+	}
+	wcstombs_s(&converted_char, c_string, size, path, _TRUNCATE);
+	string = c_string;
+	delete[] c_string;
+	return string;
+}
+
 static std::atomic<int>     g_com_library_locks = 0;
 static std::mutex           g_com_lock_mutex;
 static std::atomic<bool>    g_is_com_holder = false;

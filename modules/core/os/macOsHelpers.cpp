@@ -3,6 +3,7 @@
  * see LICENSE.txt
  */
 
+#include <mach-o/dyld.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <unistd.h>
 #include <pwd.h>
@@ -19,6 +20,15 @@ std::string	netero::os::getBundlePath() {
 	CFStringGetCString(cfStr, bundlePathStr, FILENAME_MAX, kCFStringEncodingASCII);
 	CFRelease(cfStr);
 	return std::string(bundlePathStr) + "/Contents";
+}
+
+std::string netero::os::getExecutablePath() {
+	char path[1024];
+	uint32_t size = sizeof(path);
+	if (_NSGetExecutablePath(path, &size) == 0) {
+		return std::string(path);
+	}
+	return "";
 }
 
 std::string netero::os::getSessionUsername() {

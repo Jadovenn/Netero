@@ -16,7 +16,8 @@ int	main() {
 	std::cout << netero::os::getSessionUsername() << std::endl;
 	std::cout << netero::os::getUserHomeDirectoryPath() << std::endl;
 	std::cout << netero::os::getUserAppDataRoamingPath() << std::endl;
+	std::cout << netero::os::getBundlePath() << std::endl;
+	std::cout << netero::os::getExecutablePath() << std::endl;
 
 	return 0;
 }
-

@@ -6,8 +6,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
 #include <mutex>
 #include <atomic>
+#include <netero/netero.hpp>
 #include <netero/os.hpp>
 
 std::string netero::os::getSessionUsername() {
@@ -38,7 +42,20 @@ std::string netero::os::getUserAppDataRoamingPath() {
 }
 
 std::string netero::os::getBundlePath() {
-	return ".";
+	return netero::isDebugMode ? "." : "/usr/share";
+}
+
+std::string netero::os::getExecutablePath() {
+	char path[PATH_MAX];
+	char dest[PATH_MAX];
+	memset(dest, 0, sizeof(dest));
+	pid_t pid = getpid();
+	snprintf(path, "/proc/%ld/exe", static_cast<long>(pid));
+	ssize_t result = readlink(path, dest, PATH_MAX);
+	if (result == -1 || static_cast<size_t>(result) >= sizeof(dest)) {
+		return "";
+	}
+	return std::string(path);
 }
 
 static std::atomic<int>     g_com_library_locks = 0;

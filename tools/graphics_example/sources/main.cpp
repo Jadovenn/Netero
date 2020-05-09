@@ -13,7 +13,6 @@ const std::string g_triangleFragment_path = netero::os::getBundlePath() + "/shad
 
 int    main() {
     int rtCode = 0;
-    std::cout << netero::os::getBundlePath() << std::endl;
     try {
         auto* app = netero::graphics::Application::Initialize("GraphicsExample");
         auto* context = app->newWindowedContext(800, 600, netero::graphics::WindowMode::FIX);

@@ -23,6 +23,10 @@ std::string netero::os::getBundlePath() {
 	return ".";
 }
 
+std::string netero::os::getExecutablePath() {
+	return "./netero.exe";
+}
+
 static std::atomic<int>     g_com_library_locks = 0;
 static std::mutex           g_com_lock_mutex;
 

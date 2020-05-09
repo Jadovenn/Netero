@@ -78,6 +78,11 @@ endif(MOCK_INTERFACES)
 ##====================================
 ##  Targets
 ##====================================
+if (APPLE)
+    FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
+    list(APPEND LINK_LIBRARIES
+            ${COREFOUNDATION_LIBRARY})
+endif(APPLE)
 
 add_library(netero STATIC ${SRCS} ${PUBLIC_HEADER})
 target_include_directories(netero
