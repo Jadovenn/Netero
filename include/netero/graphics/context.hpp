@@ -76,8 +76,12 @@ namespace netero::graphics {
         std::vector<Shader>         _shaderModules;
         std::vector<VkCommandBuffer>    _commandBuffers;
 
-        VkSemaphore _imageAvailableSemaphore;
-        VkSemaphore _renderFinishedSemaphore;
+        std::vector<VkSemaphore>    _imageAvailableSemaphore;
+        std::vector<VkSemaphore>    _renderFinishedSemaphore;
+        std::vector<VkFence>        _inFlightFences;
+        std::vector<VkFence>        _imagesInFlight;
+        size_t      _currentFrame = 0;
+        const int   MAX_FRAMES_IN_FLIGHT = 2;
 
         struct impl;
         std::unique_ptr<impl>   _pImpl;

@@ -63,8 +63,12 @@ namespace netero::graphics {
     }
 
     Context::~Context() {
-        vkDestroySemaphore(this->_logicalDevice, this->_imageAvailableSemaphore, nullptr);
-        vkDestroySemaphore(this->_logicalDevice, this->_renderFinishedSemaphore, nullptr);
+        for (unsigned idx = 0; idx < this->MAX_FRAMES_IN_FLIGHT; idx++) {
+            vkDestroySemaphore(this->_logicalDevice, this->_imageAvailableSemaphore[idx], nullptr);
+            vkDestroySemaphore(this->_logicalDevice, this->_renderFinishedSemaphore[idx], nullptr);
+            vkDestroyFence(this->_logicalDevice, this->_inFlightFences[idx], nullptr);
+
+        }
         vkDestroyCommandPool(this->_logicalDevice, this->_commandPool, nullptr);
         for (auto frameBuffer : this->_swapchainFrameBuffers) {
             vkDestroyFramebuffer(this->_logicalDevice, frameBuffer, nullptr);
@@ -211,16 +215,31 @@ namespace netero::graphics {
 
     void Context::drawFrame() {
         uint32_t imageIndex;
+        vkWaitForFences(this->_logicalDevice,
+                1,
+                &this->_inFlightFences[this->_currentFrame],
+                VK_TRUE,
+                UINT64_MAX);
         VkResult result = vkAcquireNextImageKHR(this->_logicalDevice,
             this->_swapchain,
             UINT64_MAX,
-            this->_imageAvailableSemaphore,
+            this->_imageAvailableSemaphore[this->_currentFrame],
             nullptr,
             &imageIndex);
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to retrieve next image");
         }
-        VkSemaphore waitSemaphores[] = { this->_imageAvailableSemaphore };
+
+        if (this->_imagesInFlight[imageIndex] != nullptr) {
+            vkWaitForFences(this->_logicalDevice,
+                    1,
+                    &this->_imagesInFlight[imageIndex],
+                    VK_TRUE,
+                    UINT64_MAX);
+        }
+        this->_imagesInFlight[imageIndex] = this->_inFlightFences[this->_currentFrame];
+
+        VkSemaphore waitSemaphores[] = { this->_imageAvailableSemaphore[this->_currentFrame] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -229,13 +248,16 @@ namespace netero::graphics {
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &this->_commandBuffers[imageIndex];
-        VkSemaphore signalSemaphores[] = { this->_renderFinishedSemaphore };
+        VkSemaphore signalSemaphores[] = { this->_renderFinishedSemaphore[this->_currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
+        vkResetFences(this->_logicalDevice,
+                      1,
+                      &this->_inFlightFences[this->_currentFrame]);
         result = vkQueueSubmit(this->_graphicsQueue,
             1,
             &submitInfo,
-            nullptr);
+            this->_inFlightFences[this->_currentFrame]);
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to submit draw command buffer.");
         }
@@ -249,7 +271,7 @@ namespace netero::graphics {
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
         vkQueuePresentKHR(this->_presentQueue, &presentInfo);
-        vkQueueWaitIdle(this->_presentQueue);
+        this->_currentFrame = (this->_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
 
