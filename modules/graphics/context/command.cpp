@@ -60,22 +60,38 @@ namespace netero::graphics {
     }
 
     void Context::createSemaphores() {
+        this->_imageAvailableSemaphore.resize(this->MAX_FRAMES_IN_FLIGHT);
+        this->_renderFinishedSemaphore.resize(this->MAX_FRAMES_IN_FLIGHT);
+        this->_inFlightFences.resize(this->MAX_FRAMES_IN_FLIGHT);
+        this->_imagesInFlight.resize(this->_swapchainImage.size(), nullptr);
+
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-        VkResult result = vkCreateSemaphore(this->_logicalDevice,
-            &semaphoreInfo,
-            nullptr,
-            &this->_imageAvailableSemaphore);
-        if (result != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create imageAvailable semaphore.");
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        for (unsigned idx = 0; idx < this->MAX_FRAMES_IN_FLIGHT; idx++) {
+            VkResult result = vkCreateSemaphore(this->_logicalDevice,
+                                                &semaphoreInfo,
+                                                nullptr,
+                                                &this->_imageAvailableSemaphore[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create imageAvailable semaphore.");
+            }
+            result = vkCreateSemaphore(this->_logicalDevice,
+                                       &semaphoreInfo,
+                                       nullptr,
+                                       &this->_renderFinishedSemaphore[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create renderFinished semaphore.");
+            }
+            result = vkCreateFence(this->_logicalDevice, &fenceInfo, nullptr, &this->_inFlightFences[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create inFlight fence.");
+            }
         }
-        result = vkCreateSemaphore(this->_logicalDevice,
-            &semaphoreInfo,
-            nullptr,
-            &this->_renderFinishedSemaphore);
-        if (result != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create renderFinished semaphore.");
-        }
+
+
     }
 
 
