@@ -40,6 +40,7 @@ namespace netero::graphics {
         [[nodiscard]] std::string   getCurrentPhysicalDeviceName() const;
 
     private:
+        void    pickPhysicalDevice();
         void    createLogicalDevice(VkPhysicalDevice device);
         void    createSwapchain();
         void    createImageViews();
@@ -50,10 +51,12 @@ namespace netero::graphics {
         void    createCommandBuffers();
         void    createSemaphores();
         void    drawFrame();
+        void    cleanUpSwapchain();
+        void    recreateSwapchain();
 
         VkInstance  _vulkanInstance;
-        unsigned    _height;
-        unsigned    _width;
+        int    _height;
+        int    _width;
         WindowMode  _windowMode;
         const std::string   _name;
         const std::string   _deviceName;
@@ -64,12 +67,12 @@ namespace netero::graphics {
         VkQueue             _presentQueue = nullptr;
         VkSurfaceKHR        _surface = nullptr;
         VkSwapchainKHR      _swapchain = nullptr;
-        VkFormat            _swapchainImageFormat;
-        VkExtent2D          _swapchainExtent;
-        VkRenderPass        _renderPass;
-        VkPipelineLayout    _pipelineLayout;
-        VkPipeline          _graphicsPipeline;
-        VkCommandPool       _commandPool;
+        VkFormat            _swapchainImageFormat = VK_FORMAT_UNDEFINED;
+        VkExtent2D          _swapchainExtent = {0, 0};
+        VkRenderPass        _renderPass = nullptr;
+        VkPipelineLayout    _pipelineLayout = nullptr;
+        VkPipeline          _graphicsPipeline = nullptr;
+        VkCommandPool       _commandPool = nullptr;
         std::vector<VkImage>        _swapchainImage;
         std::vector<VkImageView>    _swapchainImageViews;
         std::vector<VkFramebuffer>  _swapchainFrameBuffers;
