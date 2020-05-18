@@ -6,7 +6,85 @@
 #include <stdexcept>
 #include <netero/graphics/context.hpp>
 
+#include "utils/vkUtils.hpp"
+
 namespace netero::graphics {
+
+    void Context::createSwapchain() {
+        vkUtils::SwapChainSupportDetails    swapChainSupport = vkUtils::QuerySwapChainSupport(this->_physicalDevice, this->_surface);
+        vkUtils::QueueFamilyIndices         indices = vkUtils::findQueueFamilies(this->_physicalDevice, this->_surface);
+        uint32_t    queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+
+        const VkSurfaceFormatKHR surfaceFormat = vkUtils::ChooseSwapSurfaceFormat(swapChainSupport.formats);
+        const VkPresentModeKHR presentMode = vkUtils::ChooseSwapPresentMode(swapChainSupport.presentMode);
+        const VkExtent2D extent = vkUtils::ChooseSwapExtent(swapChainSupport.capabilities, this->_height, this->_width);
+        uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+        if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
+            imageCount = swapChainSupport.capabilities.maxImageCount;
+        }
+        VkSwapchainCreateInfoKHR createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface = this->_surface;
+        createInfo.minImageCount = imageCount;
+        createInfo.imageFormat = surfaceFormat.format;
+        createInfo.imageColorSpace = surfaceFormat.colorSpace;
+        createInfo.imageExtent = extent;
+        createInfo.imageArrayLayers = 1;
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        if (indices.graphicsFamily != indices.presentFamily) {
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            createInfo.queueFamilyIndexCount = 2;
+            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        }
+        else {
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.queueFamilyIndexCount = 0;
+            createInfo.pQueueFamilyIndices = nullptr;
+        }
+        createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        createInfo.presentMode = presentMode;
+        createInfo.clipped = VK_TRUE;
+        createInfo.oldSwapchain = nullptr;
+        const VkResult result = vkCreateSwapchainKHR(this->_logicalDevice, &createInfo, nullptr, &this->_swapchain);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create the swapchain.");
+        }
+        vkGetSwapchainImagesKHR(this->_logicalDevice, this->_swapchain, &imageCount, nullptr);
+        this->_swapchainImage.resize(imageCount);
+        vkGetSwapchainImagesKHR(this->_logicalDevice, this->_swapchain, &imageCount, this->_swapchainImage.data());
+        this->_swapchainImageFormat = surfaceFormat.format;
+        this->_swapchainExtent = extent;
+    }
+
+    void Context::createImageViews() {
+        VkImageViewCreateInfo   createInfo = {};
+
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.format = this->_swapchainImageFormat;
+        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+
+        this->_swapchainImageViews.resize(this->_swapchainImage.size());
+        for (unsigned idx = 0; idx < this->_swapchainImageViews.size(); idx++) {
+            createInfo.image = this->_swapchainImage[idx];
+            const VkResult result = vkCreateImageView(this->_logicalDevice,
+                &createInfo,
+                nullptr,
+                &this->_swapchainImageViews[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create image views.");
+            }
+        }
+    }
 
     void Context::createRenderPass() {
         VkAttachmentDescription colorAttachment{};
@@ -172,9 +250,6 @@ namespace netero::graphics {
         pipelineInfo.basePipelineIndex = -1;
         if (vkCreateGraphicsPipelines(this->_logicalDevice, nullptr, 1, &pipelineInfo, nullptr, &this->_graphicsPipeline) != VK_SUCCESS) {
             throw std::runtime_error("failed to create graphics pipeline!");
-        }
-        for (const auto& shader: this->_shaderModules) {
-            vkDestroyShaderModule(this->_logicalDevice, shader.shaderModule, nullptr);
         }
     }
 
