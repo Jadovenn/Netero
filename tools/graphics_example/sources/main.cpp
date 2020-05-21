@@ -12,10 +12,10 @@
 const std::string g_triangleVertices_path = netero::os::getBundlePath() + "/shaders/triangleVertices.spv";
 const std::string g_triangleFragment_path = netero::os::getBundlePath() + "/shaders/triangleFragment.spv";
 
-const std::vector<netero::graphics::ColoredVertex>   vertices = {
+std::vector<netero::graphics::ColoredVertex>   vertices = {
     {{0.f, -0.5f}, {1.f, 0.f, 0.f}},
     {{0.5f, 0.5f}, {0.f, 1.f, 0.f}},
-    {{-0.5f, -0.5f}, {0.f, 0.f, 1.f}},
+    {{-0.5f, 0.5f}, {0.f, 0.f, 1.f}},
 };
 
 int    main() {
@@ -26,6 +26,7 @@ int    main() {
         std::cout << "Current Device:" << context->getCurrentPhysicalDeviceName() << std::endl;
         context->loadShader(g_triangleVertices_path, netero::graphics::ShaderStage::VERTEX);
         context->loadShader(g_triangleFragment_path, netero::graphics::ShaderStage::FRAGMENT);
+        context->addVertices(&vertices);
         context->run();
     }
     catch (const std::exception &e) {
