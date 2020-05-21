@@ -48,6 +48,9 @@ namespace vkUtils {
     VkPresentModeKHR        ChooseSwapPresentMode(std::vector<VkPresentModeKHR>&);
     VkExtent2D              ChooseSwapExtent(const VkSurfaceCapabilitiesKHR&, uint32_t, uint32_t);
 
+    // Memory related
+    int32_t    FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
     // Validation layers related
     std::vector<const char*>    getRequiredExtensions();
     bool                        checkValidationLayerSupport();

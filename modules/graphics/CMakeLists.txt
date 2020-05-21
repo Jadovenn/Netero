@@ -52,6 +52,7 @@ list(APPEND SRCS
         utils/vkDebugCallbacks.cpp
         utils/vkFindQueueFamilies.cpp
         utils/vkSwapChainSupport.cpp
+        utils/vkMemory.cpp
         context/context.cpp
         context/physicalDevices.cpp
         context/graphicsPipeline.cpp
