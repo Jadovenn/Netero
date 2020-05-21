@@ -106,6 +106,7 @@ namespace netero::graphics {
         this->createGraphicsPipeline();
         this->createFrameBuffers();
         this->createCommandPool();
+        this->createVertexBuffer();
         this->createCommandBuffers();
         this->createSemaphores();
         while (!glfwWindowShouldClose(this->_pImpl->window)) {

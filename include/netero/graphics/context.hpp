@@ -49,7 +49,7 @@ namespace netero::graphics {
         void    createGraphicsPipeline();
         void    createFrameBuffers();
         void    createCommandPool();
-        void    creatVertexBuffer();
+        void    createVertexBuffer();
         void    createCommandBuffers();
         void    createSemaphores();
         void    drawFrame();

@@ -44,7 +44,7 @@ namespace netero::graphics {
         this->_vertices = vertices;
     }
 
-    void Context::creatVertexBuffer() {
+    void Context::createVertexBuffer() {
         VkBufferCreateInfo  createInfo{};
 
         createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
