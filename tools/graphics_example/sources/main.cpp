@@ -4,12 +4,19 @@
  */
 
 #include <iostream>
+#include <glm/glm.hpp>
 #include <netero/os.hpp>
 #include <netero/graphics/application.hpp>
 #include <netero/graphics/context.hpp>
 
 const std::string g_triangleVertices_path = netero::os::getBundlePath() + "/shaders/triangleVertices.spv";
 const std::string g_triangleFragment_path = netero::os::getBundlePath() + "/shaders/triangleFragment.spv";
+
+const std::vector<netero::graphics::ColoredVertex>   vertices = {
+    {{0.f, -0.5f}, {1.f, 0.f, 0.f}},
+    {{0.5f, 0.5f}, {0.f, 1.f, 0.f}},
+    {{-0.5f, -0.5f}, {0.f, 0.f, 1.f}},
+};
 
 int    main() {
     int rtCode = 0;
