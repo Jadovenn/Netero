@@ -40,5 +40,26 @@ namespace netero::graphics {
         return 0;
     }
 
+    void Context::addVertices(std::vector<ColoredVertex> *vertices) {
+        this->_vertices = vertices;
+    }
+
+    void Context::creatVertexBuffer() {
+        VkBufferCreateInfo  createInfo{};
+
+        createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        createInfo.size = sizeof(ColoredVertex) * this->_vertices->size();
+        createInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.flags = 0;
+
+        VkResult result = vkCreateBuffer(this->_logicalDevice,
+            &createInfo,
+            nullptr,
+            &this->_vertexBuffer);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Error while creating vertex buffer.");
+        }
+    }
 }
 

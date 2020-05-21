@@ -34,6 +34,7 @@ namespace netero::graphics {
         // Context related
         void    run();
         int     loadShader(const std::string&, ShaderStage);
+        void    addVertices(std::vector<ColoredVertex>*);
 
         // Device Related
         [[nodiscard]] std::vector<std::string>  getPhysicalDevices() const;
@@ -48,6 +49,7 @@ namespace netero::graphics {
         void    createGraphicsPipeline();
         void    createFrameBuffers();
         void    createCommandPool();
+        void    creatVertexBuffer();
         void    createCommandBuffers();
         void    createSemaphores();
         void    drawFrame();
@@ -73,11 +75,13 @@ namespace netero::graphics {
         VkPipelineLayout    _pipelineLayout = nullptr;
         VkPipeline          _graphicsPipeline = nullptr;
         VkCommandPool       _commandPool = nullptr;
+        VkBuffer            _vertexBuffer = nullptr;
         std::vector<VkImage>        _swapchainImage;
         std::vector<VkImageView>    _swapchainImageViews;
         std::vector<VkFramebuffer>  _swapchainFrameBuffers;
         std::vector<Shader>         _shaderModules;
         std::vector<VkCommandBuffer>    _commandBuffers;
+        std::vector<ColoredVertex>*     _vertices = nullptr;
 
         std::vector<VkSemaphore>    _imageAvailableSemaphore;
         std::vector<VkSemaphore>    _renderFinishedSemaphore;
