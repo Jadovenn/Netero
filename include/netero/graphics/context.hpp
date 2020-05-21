@@ -76,6 +76,7 @@ namespace netero::graphics {
         VkPipeline          _graphicsPipeline = nullptr;
         VkCommandPool       _commandPool = nullptr;
         VkBuffer            _vertexBuffer = nullptr;
+        VkDeviceMemory      _vertexBufferMemory = nullptr;
         std::vector<VkImage>        _swapchainImage;
         std::vector<VkImageView>    _swapchainImageViews;
         std::vector<VkFramebuffer>  _swapchainFrameBuffers;

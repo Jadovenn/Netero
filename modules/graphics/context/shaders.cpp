@@ -7,6 +7,8 @@
 #include <fstream>
 #include <netero/graphics/context.hpp>
 
+#include "utils/vkUtils.hpp"
+
 static std::vector<char>    ReadBinaryFile(const std::string& filePath) {
     std::ifstream   file(filePath, std::ios::ate | std::ios::binary);
 
@@ -60,6 +62,25 @@ namespace netero::graphics {
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Error while creating vertex buffer.");
         }
+        VkMemoryRequirements    memoryRequirements;
+        vkGetBufferMemoryRequirements(this->_logicalDevice, this->_vertexBuffer, &memoryRequirements);
+        const int index = vkUtils::FindMemoryType(this->_physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        if (index == -1) {
+            throw std::runtime_error("Error could not find a suitable memory type for vertex buffer.");
+        }
+        VkMemoryAllocateInfo    allocateInfo{};
+        allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocateInfo.allocationSize = memoryRequirements.size;
+        allocateInfo.memoryTypeIndex = index;
+        result = vkAllocateMemory(this->_logicalDevice, &allocateInfo, nullptr, &this->_vertexBufferMemory);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Error could not allocate memory for vertex buffer");
+        }
+        vkBindBufferMemory(this->_logicalDevice, this->_vertexBuffer, this->_vertexBufferMemory, 0);
+        void* data = nullptr;
+        vkMapMemory(this->_logicalDevice, this->_vertexBufferMemory, 0, createInfo.size, 0, &data);
+        std::memcpy(data, this->_vertices->data(), static_cast<size_t>(createInfo.size));
+        vkUnmapMemory(this->_logicalDevice, this->_vertexBufferMemory);
     }
 }
 

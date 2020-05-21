@@ -57,6 +57,7 @@ namespace netero::graphics {
     Context::~Context() {
         cleanUpSwapchain();
         vkDestroyBuffer(this->_logicalDevice, this->_vertexBuffer, nullptr);
+        vkFreeMemory(this->_logicalDevice, this->_vertexBufferMemory, nullptr);
         for (const auto& shader: this->_shaderModules) {
             vkDestroyShaderModule(this->_logicalDevice, shader.shaderModule, nullptr);
         }

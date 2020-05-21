@@ -51,7 +51,10 @@ namespace netero::graphics {
             renderPassInfo.pClearValues = &clearColor;
             vkCmdBeginRenderPass(this->_commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             vkCmdBindPipeline(this->_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, this->_graphicsPipeline);
-            vkCmdDraw(this->_commandBuffers[i], 3, 1, 0, 0);
+            VkBuffer vertexBuffer[] = { this->_vertexBuffer };
+            VkDeviceSize    offsets[] = { 0 };
+            vkCmdBindVertexBuffers(this->_commandBuffers[i], 0, 1, vertexBuffer, offsets);
+            vkCmdDraw(this->_commandBuffers[i], static_cast<uint32_t>(this->_vertices->size()), 1, 0, 0);
             vkCmdEndRenderPass(this->_commandBuffers[i]);
             if (vkEndCommandBuffer(this->_commandBuffers[i]) != VK_SUCCESS) {
                 throw std::runtime_error("Failed to record command buffer.");
