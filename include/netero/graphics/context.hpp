@@ -12,6 +12,8 @@
 #include <netero/graphics/window.hpp>
 #include <netero/graphics/device.hpp>
 #include <netero/graphics/shader.hpp>
+#include <netero/graphics/vertex.hpp>
+#include <netero/graphics/pipeline.hpp>
 
 namespace netero::graphics {
 
@@ -35,24 +37,15 @@ namespace netero::graphics {
         // Context related
         void    run();
         int     loadShader(const std::string&, ShaderStage);
-        void    addVertices(std::vector<ColoredVertex>*);
+        void    addVertices(std::vector<Vertex>&);
 
         // Device Related
         [[nodiscard]] std::vector<std::string>  getPhysicalDevices() const;
         [[nodiscard]] std::string   getCurrentPhysicalDeviceName() const;
 
     private:
-        void    createSwapchain();
-        void    createImageViews();
-        void    createRenderPass();
-        void    createGraphicsPipeline();
-        void    createFrameBuffers();
-        void    createCommandPool();
-        void    createVertexBuffer();
-        void    createCommandBuffers();
         void    createSemaphores();
         void    drawFrame();
-        void    cleanUpSwapchain();
         void    recreateSwapchain();
 
         VkInstance  _vulkanInstance;
@@ -62,28 +55,11 @@ namespace netero::graphics {
         const std::string   _name;
         const std::string   _deviceName;
 
-        //VkPhysicalDevice    _physicalDevice = nullptr;
-        //VkDevice            _logicalDevice = nullptr;
-        //VkQueue             _graphicsQueue = nullptr;
-        //VkQueue             _presentQueue = nullptr;
-        netero::graphics::Device*    _device = nullptr;
-        VkSurfaceKHR        _surface = nullptr;
-        VkSwapchainKHR      _swapchain = nullptr;
-        VkFormat            _swapchainImageFormat = VK_FORMAT_UNDEFINED;
-        VkExtent2D          _swapchainExtent = {0, 0};
-        VkRenderPass        _renderPass = nullptr;
-        VkPipelineLayout    _pipelineLayout = nullptr;
-        VkPipeline          _graphicsPipeline = nullptr;
-        VkCommandPool       _commandPool = nullptr;
-        VkBuffer            _vertexBuffer = nullptr;
-        VkDeviceMemory      _vertexBufferMemory = nullptr;
-        std::vector<VkImage>        _swapchainImage;
-        std::vector<VkImageView>    _swapchainImageViews;
-        std::vector<VkFramebuffer>  _swapchainFrameBuffers;
+        VkSurfaceKHR    _surface = nullptr;
+        Device*         _device = nullptr;
+        VertexBuffer*   _vertexBuffer = nullptr;
+        Pipeline*       _pipeline = nullptr;
         std::vector<Shader>         _shaderModules;
-        std::vector<VkCommandBuffer>    _commandBuffers;
-        std::vector<ColoredVertex>*     _vertices = nullptr;
-
         std::vector<VkSemaphore>    _imageAvailableSemaphore;
         std::vector<VkSemaphore>    _renderFinishedSemaphore;
         std::vector<VkFence>        _inFlightFences;

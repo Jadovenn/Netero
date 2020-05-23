@@ -49,14 +49,16 @@ namespace netero::graphics {
             throw std::runtime_error("Failed to create window surface.");
         }
         this->_device = new netero::graphics::Device(this->_vulkanInstance, this->_surface);
-        this->createSwapchain();
-        this->createImageViews();
+        if (!this->_device) { throw std::bad_alloc(); }
+        this->_device->setSurfaceHeight(height);
+        this->_device->setSurfaceWidth(width);
+        this->_vertexBuffer = new VertexBuffer(this->_device);
+        if (!this->_vertexBuffer) { throw std::bad_alloc(); }
     }
 
     Context::~Context() {
-        cleanUpSwapchain();
-        vkDestroyBuffer(this->_device->logicalDevice, this->_vertexBuffer, nullptr);
-        vkFreeMemory(this->_device->logicalDevice, this->_vertexBufferMemory, nullptr);
+        delete this->_pipeline;
+        delete this->_vertexBuffer;
         for (const auto& shader: this->_shaderModules) {
             vkDestroyShaderModule(this->_device->logicalDevice, shader.shaderModule, nullptr);
         }
@@ -65,25 +67,9 @@ namespace netero::graphics {
             vkDestroySemaphore(this->_device->logicalDevice, this->_renderFinishedSemaphore[idx], nullptr);
             vkDestroyFence(this->_device->logicalDevice, this->_inFlightFences[idx], nullptr);
         }
-        vkDestroyCommandPool(this->_device->logicalDevice, this->_commandPool, nullptr);
         vkDestroySurfaceKHR(this->_vulkanInstance, this->_surface, nullptr);
-        vkDestroyDevice(this->_device->logicalDevice, nullptr);
         delete this->_device;
         glfwDestroyWindow(this->_pImpl->window);
-    }
-
-    void Context::cleanUpSwapchain() {
-        for (auto* frameBuffer : this->_swapchainFrameBuffers) {
-            vkDestroyFramebuffer(this->_device->logicalDevice, frameBuffer, nullptr);
-        }
-        vkFreeCommandBuffers(this->_device->logicalDevice, this->_commandPool, static_cast<uint32_t>(this->_commandBuffers.size()), this->_commandBuffers.data());
-        vkDestroyPipeline(this->_device->logicalDevice, this->_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(this->_device->logicalDevice, this->_pipelineLayout, nullptr);
-        vkDestroyRenderPass(this->_device->logicalDevice, this->_renderPass, nullptr);
-        for (auto* imageView: this->_swapchainImageViews) {
-            vkDestroyImageView(this->_device->logicalDevice, imageView, nullptr);
-        }
-        vkDestroySwapchainKHR(this->_device->logicalDevice, this->_swapchain, nullptr);
     }
 
     void Context::recreateSwapchain() {
@@ -93,28 +79,22 @@ namespace netero::graphics {
             glfwGetFramebufferSize(this->_pImpl->window, &this->_width, &this->_height);
             glfwWaitEvents();
         }
-        this->cleanUpSwapchain();
-        this->createSwapchain();
-        this->createImageViews();
-        this->createRenderPass();
-        this->createGraphicsPipeline();
-        this->createFrameBuffers();
-        this->createCommandBuffers();
+        this->_pipeline->rebuild(_shaderModules, *this->_vertexBuffer);
     }
 
     void Context::run() {
-        this->createRenderPass();
-        this->createGraphicsPipeline();
-        this->createFrameBuffers();
-        this->createCommandPool();
-        this->createVertexBuffer();
-        this->createCommandBuffers();
+        this->_pipeline = new Pipeline(this->_vulkanInstance, this->_device);
+        if (!this->_pipeline) { throw std::bad_alloc(); }
+        this->_vertexBuffer->createVertexBuffer();
+        this->_pipeline->build(this->_shaderModules, *this->_vertexBuffer);
         this->createSemaphores();
         while (!glfwWindowShouldClose(this->_pImpl->window)) {
             glfwPollEvents();
             this->drawFrame();
         }
         vkDeviceWaitIdle(this->_device->logicalDevice);
+        delete this->_pipeline;
+        this->_pipeline = nullptr;
     }
 
     void Context::drawFrame() {
@@ -125,7 +105,7 @@ namespace netero::graphics {
                 VK_TRUE,
                 UINT64_MAX);
         VkResult result = vkAcquireNextImageKHR(this->_device->logicalDevice,
-            this->_swapchain,
+            this->_pipeline->swapchain,
             UINT64_MAX,
             this->_imageAvailableSemaphore[this->_currentFrame],
             nullptr,
@@ -155,7 +135,7 @@ namespace netero::graphics {
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &this->_commandBuffers[imageIndex];
+        submitInfo.pCommandBuffers = &this->_pipeline->commandBuffers[imageIndex];
         VkSemaphore signalSemaphores[] = { this->_renderFinishedSemaphore[this->_currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
@@ -173,7 +153,7 @@ namespace netero::graphics {
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
-        VkSwapchainKHR swapChains[] = { this->_swapchain };
+        VkSwapchainKHR swapChains[] = { this->_pipeline->swapchain };
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
         presentInfo.pImageIndices = &imageIndex;
@@ -186,6 +166,39 @@ namespace netero::graphics {
             throw std::runtime_error("Failed to present swapchain image.");
         }
         this->_currentFrame = (this->_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    }
+
+    void Context::createSemaphores() {
+        this->_imageAvailableSemaphore.resize(this->MAX_FRAMES_IN_FLIGHT);
+        this->_renderFinishedSemaphore.resize(this->MAX_FRAMES_IN_FLIGHT);
+        this->_inFlightFences.resize(this->MAX_FRAMES_IN_FLIGHT);
+        this->_imagesInFlight.resize(this->_pipeline->swapchainImages.size(), nullptr);
+
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        for (unsigned idx = 0; idx < this->MAX_FRAMES_IN_FLIGHT; idx++) {
+            VkResult result = vkCreateSemaphore(this->_device->logicalDevice,
+                &semaphoreInfo,
+                nullptr,
+                &this->_imageAvailableSemaphore[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create imageAvailable semaphore.");
+            }
+            result = vkCreateSemaphore(this->_device->logicalDevice,
+                &semaphoreInfo,
+                nullptr,
+                &this->_renderFinishedSemaphore[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create renderFinished semaphore.");
+            }
+            result = vkCreateFence(this->_device->logicalDevice, &fenceInfo, nullptr, &this->_inFlightFences[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create inFlight fence.");
+            }
+        }
     }
 
 }
