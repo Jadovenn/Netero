@@ -25,6 +25,7 @@ namespace vkUtils {
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
+        std::optional<uint32_t> transferFamily;
 
         [[nodiscard]] bool  isGraphicsSuitable() const {
             return graphicsFamily.has_value() && presentFamily.has_value();
@@ -56,6 +57,7 @@ namespace vkUtils {
     // Memory related
     int32_t     FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
     std::pair<VkBuffer, VkDeviceMemory>    AllocBuffer(netero::graphics::Device*, VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags);
+    void        TransferBuffer(netero::graphics::Device* device, VkBuffer source, VkBuffer destination, VkDeviceSize size);
 
     // Validation layers related
     std::vector<const char*>    getRequiredExtensions();
