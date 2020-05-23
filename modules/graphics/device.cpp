@@ -19,16 +19,20 @@ namespace netero::graphics {
             physicalDevice(nullptr),
             logicalDevice(nullptr),
             graphicsQueue(nullptr),
-            presentQueue(nullptr)
+            presentQueue(nullptr),
+            transferQueue(nullptr),
+            transferCommandPool(nullptr)
     {
         assert(_instance);
         assert(_surface);
         this->pickPhysicalDevice();
         this->createLogicalDevice(this->physicalDevice);
+        this->createTransferCommandPool();
         this->deviceName = vkUtils::getDeviceName(this->physicalDevice);
     }
 
     Device::~Device() {
+        vkDestroyCommandPool(this->logicalDevice, this->transferCommandPool, nullptr);
         vkDestroyDevice(logicalDevice, nullptr);
     }
 
@@ -104,7 +108,31 @@ namespace netero::graphics {
         }
         vkGetDeviceQueue(this->logicalDevice, indices.graphicsFamily.value(), 0, &this->graphicsQueue);
         vkGetDeviceQueue(this->logicalDevice, indices.presentFamily.value(), 0, &this->presentQueue);
+        if (indices.transferFamily.has_value()) {
+            vkGetDeviceQueue(this->logicalDevice, indices.transferFamily.value(), 0, &this->transferQueue);
+        }
+        else {
+            this->transferQueue = this->presentQueue;
+        }
     }
+
+    void Device::createTransferCommandPool() {
+        vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(this->physicalDevice, this->_surface);
+
+        VkCommandPoolCreateInfo poolInfo{};
+        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        if (queueFamilyIndices.transferFamily.has_value()) {
+            poolInfo.queueFamilyIndex = queueFamilyIndices.transferFamily.value();
+        }
+        else {
+            poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+        }
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+        if (vkCreateCommandPool(this->logicalDevice, &poolInfo, nullptr, &this->transferCommandPool) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create transfer command pool.");
+        }
+    }
+
 
 }
 
