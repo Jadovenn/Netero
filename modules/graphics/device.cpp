@@ -5,6 +5,7 @@
 
 #include <set>
 #include <stdexcept>
+#include <cassert>
 #include <netero/netero.hpp>
 #include <netero/graphics/device.hpp>
 
@@ -20,10 +21,17 @@ namespace netero::graphics {
             graphicsQueue(nullptr),
             presentQueue(nullptr)
     {
+        assert(_instance);
+        assert(_surface);
         this->pickPhysicalDevice();
         this->createLogicalDevice(this->physicalDevice);
         this->deviceName = vkUtils::getDeviceName(this->physicalDevice);
     }
+
+    Device::~Device() {
+        vkDestroyDevice(logicalDevice, nullptr);
+    }
+
 
     void Device::pickPhysicalDevice() {
         // Pick physical device
@@ -36,6 +44,27 @@ namespace netero::graphics {
         if (swapChainDetails.formats.empty() || swapChainDetails.presentMode.empty()) {
             throw std::runtime_error("The device (" + vkUtils::getDeviceName(this->physicalDevice) + ") is as no suitable swap chain.");
         }
+    }
+
+    VkSurfaceKHR Device::getAssociatedSurface() const {
+        return this->_surface;
+    }
+
+    int Device::getSurfaceHeight() const {
+        return this->_height;
+    }
+
+    void Device::setSurfaceHeight(const int height) {
+        this->_height = height;
+    }
+
+
+    int Device::getSurfaceWidth() const {
+        return this->_width;
+    }
+
+    void Device::setSurfaceWidth(const int width) {
+        this->_width = width;
     }
 
     void Device::createLogicalDevice(VkPhysicalDevice device) {
