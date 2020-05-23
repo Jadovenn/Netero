@@ -9,13 +9,13 @@
 
 namespace netero::graphics {
     void Context::createCommandPool() {
-        vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(this->_physicalDevice, this->_surface);
+        vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(this->_device->physicalDevice, this->_surface);
 
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
         poolInfo.flags = 0;
-        if (vkCreateCommandPool(this->_logicalDevice, &poolInfo, nullptr, &this->_commandPool) != VK_SUCCESS) {
+        if (vkCreateCommandPool(this->_device->logicalDevice, &poolInfo, nullptr, &this->_commandPool) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create command pool.");
         }
     }
@@ -28,7 +28,7 @@ namespace netero::graphics {
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = static_cast<uint32_t>(this->_commandBuffers.size());
 
-        if (vkAllocateCommandBuffers(this->_logicalDevice, &allocInfo, this->_commandBuffers.data()) != VK_SUCCESS) {
+        if (vkAllocateCommandBuffers(this->_device->logicalDevice, &allocInfo, this->_commandBuffers.data()) != VK_SUCCESS) {
             throw std::runtime_error("Failed to allocate command buffers.");
         }
         for (size_t i = 0; i < this->_commandBuffers.size(); i++) {
@@ -74,21 +74,21 @@ namespace netero::graphics {
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
         for (unsigned idx = 0; idx < this->MAX_FRAMES_IN_FLIGHT; idx++) {
-            VkResult result = vkCreateSemaphore(this->_logicalDevice,
+            VkResult result = vkCreateSemaphore(this->_device->logicalDevice,
                                                 &semaphoreInfo,
                                                 nullptr,
                                                 &this->_imageAvailableSemaphore[idx]);
             if (result != VK_SUCCESS) {
                 throw std::runtime_error("Failed to create imageAvailable semaphore.");
             }
-            result = vkCreateSemaphore(this->_logicalDevice,
+            result = vkCreateSemaphore(this->_device->logicalDevice,
                                        &semaphoreInfo,
                                        nullptr,
                                        &this->_renderFinishedSemaphore[idx]);
             if (result != VK_SUCCESS) {
                 throw std::runtime_error("Failed to create renderFinished semaphore.");
             }
-            result = vkCreateFence(this->_logicalDevice, &fenceInfo, nullptr, &this->_inFlightFences[idx]);
+            result = vkCreateFence(this->_device->logicalDevice, &fenceInfo, nullptr, &this->_inFlightFences[idx]);
             if (result != VK_SUCCESS) {
                 throw std::runtime_error("Failed to create inFlight fence.");
             }

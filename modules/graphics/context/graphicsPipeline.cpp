@@ -12,8 +12,8 @@
 namespace netero::graphics {
 
     void Context::createSwapchain() {
-        vkUtils::SwapChainSupportDetails    swapChainSupport = vkUtils::QuerySwapChainSupport(this->_physicalDevice, this->_surface);
-        vkUtils::QueueFamilyIndices         indices = vkUtils::findQueueFamilies(this->_physicalDevice, this->_surface);
+        vkUtils::SwapChainSupportDetails    swapChainSupport = vkUtils::QuerySwapChainSupport(this->_device->physicalDevice, this->_surface);
+        vkUtils::QueueFamilyIndices         indices = vkUtils::findQueueFamilies(this->_device->physicalDevice, this->_surface);
         uint32_t    queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
         const VkSurfaceFormatKHR surfaceFormat = vkUtils::ChooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -47,13 +47,13 @@ namespace netero::graphics {
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = nullptr;
-        const VkResult result = vkCreateSwapchainKHR(this->_logicalDevice, &createInfo, nullptr, &this->_swapchain);
+        const VkResult result = vkCreateSwapchainKHR(this->_device->logicalDevice, &createInfo, nullptr, &this->_swapchain);
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to create the swapchain.");
         }
-        vkGetSwapchainImagesKHR(this->_logicalDevice, this->_swapchain, &imageCount, nullptr);
+        vkGetSwapchainImagesKHR(this->_device->logicalDevice, this->_swapchain, &imageCount, nullptr);
         this->_swapchainImage.resize(imageCount);
-        vkGetSwapchainImagesKHR(this->_logicalDevice, this->_swapchain, &imageCount, this->_swapchainImage.data());
+        vkGetSwapchainImagesKHR(this->_device->logicalDevice, this->_swapchain, &imageCount, this->_swapchainImage.data());
         this->_swapchainImageFormat = surfaceFormat.format;
         this->_swapchainExtent = extent;
     }
@@ -77,7 +77,7 @@ namespace netero::graphics {
         this->_swapchainImageViews.resize(this->_swapchainImage.size());
         for (unsigned idx = 0; idx < this->_swapchainImageViews.size(); idx++) {
             createInfo.image = this->_swapchainImage[idx];
-            const VkResult result = vkCreateImageView(this->_logicalDevice,
+            const VkResult result = vkCreateImageView(this->_device->logicalDevice,
                 &createInfo,
                 nullptr,
                 &this->_swapchainImageViews[idx]);
@@ -119,7 +119,7 @@ namespace netero::graphics {
         renderPassInfo.pSubpasses = &subpass;
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
-        const VkResult result = vkCreateRenderPass(this->_logicalDevice, &renderPassInfo, nullptr, &this->_renderPass);
+        const VkResult result = vkCreateRenderPass(this->_device->logicalDevice, &renderPassInfo, nullptr, &this->_renderPass);
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to create render pass!");
         }
@@ -231,7 +231,7 @@ namespace netero::graphics {
         pipelineLayoutInfo.pSetLayouts = nullptr;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
-        if (vkCreatePipelineLayout(this->_logicalDevice, &pipelineLayoutInfo, nullptr, &this->_pipelineLayout) != VK_SUCCESS) {
+        if (vkCreatePipelineLayout(this->_device->logicalDevice, &pipelineLayoutInfo, nullptr, &this->_pipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("failed to create pipeline layout!");
         }
         VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -251,7 +251,7 @@ namespace netero::graphics {
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = nullptr;
         pipelineInfo.basePipelineIndex = -1;
-        if (vkCreateGraphicsPipelines(this->_logicalDevice, nullptr, 1, &pipelineInfo, nullptr, &this->_graphicsPipeline) != VK_SUCCESS) {
+        if (vkCreateGraphicsPipelines(this->_device->logicalDevice, nullptr, 1, &pipelineInfo, nullptr, &this->_graphicsPipeline) != VK_SUCCESS) {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
     }
@@ -272,7 +272,7 @@ namespace netero::graphics {
             framebufferInfo.height = this->_swapchainExtent.height;
             framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(this->_logicalDevice, &framebufferInfo, nullptr, &this->_swapchainFrameBuffers[i]) != VK_SUCCESS) {
+            if (vkCreateFramebuffer(this->_device->logicalDevice, &framebufferInfo, nullptr, &this->_swapchainFrameBuffers[i]) != VK_SUCCESS) {
                 throw std::runtime_error("failed to create frameBuffer!");
             }
         }

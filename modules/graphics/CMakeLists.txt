@@ -43,6 +43,7 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/application.hpp
         ${HEADERS_DIRECTORY}/graphics/context.hpp
         ${HEADERS_DIRECTORY}/graphics/shader.hpp
+        ${HEADERS_DIRECTORY}/graphics/device.hpp
         ${HEADERS_DIRECTORY}/graphics/window.hpp)
 list(APPEND SRCS
         application.cpp
@@ -57,7 +58,10 @@ list(APPEND SRCS
         context/physicalDevices.cpp
         context/graphicsPipeline.cpp
         context/command.cpp
-        context/shaders.cpp)
+        context/shaders.cpp
+        device/device.cpp
+)##        swapchain/swapchain.hpp
+##        swapchain/swapchain.cpp)
 
 ##====================================
 ##  Target

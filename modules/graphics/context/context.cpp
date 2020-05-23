@@ -48,46 +48,46 @@ namespace netero::graphics {
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to create window surface.");
         }
-        this->pickPhysicalDevice();
-        this->createLogicalDevice(this->_physicalDevice);
+        this->_device = new netero::graphics::Device(this->_vulkanInstance, this->_surface);
         this->createSwapchain();
         this->createImageViews();
     }
 
     Context::~Context() {
         cleanUpSwapchain();
-        vkDestroyBuffer(this->_logicalDevice, this->_vertexBuffer, nullptr);
-        vkFreeMemory(this->_logicalDevice, this->_vertexBufferMemory, nullptr);
+        vkDestroyBuffer(this->_device->logicalDevice, this->_vertexBuffer, nullptr);
+        vkFreeMemory(this->_device->logicalDevice, this->_vertexBufferMemory, nullptr);
         for (const auto& shader: this->_shaderModules) {
-            vkDestroyShaderModule(this->_logicalDevice, shader.shaderModule, nullptr);
+            vkDestroyShaderModule(this->_device->logicalDevice, shader.shaderModule, nullptr);
         }
         for (unsigned idx = 0; static_cast<int>(idx) < this->MAX_FRAMES_IN_FLIGHT; idx++) {
-            vkDestroySemaphore(this->_logicalDevice, this->_imageAvailableSemaphore[idx], nullptr);
-            vkDestroySemaphore(this->_logicalDevice, this->_renderFinishedSemaphore[idx], nullptr);
-            vkDestroyFence(this->_logicalDevice, this->_inFlightFences[idx], nullptr);
+            vkDestroySemaphore(this->_device->logicalDevice, this->_imageAvailableSemaphore[idx], nullptr);
+            vkDestroySemaphore(this->_device->logicalDevice, this->_renderFinishedSemaphore[idx], nullptr);
+            vkDestroyFence(this->_device->logicalDevice, this->_inFlightFences[idx], nullptr);
         }
-        vkDestroyCommandPool(this->_logicalDevice, this->_commandPool, nullptr);
+        vkDestroyCommandPool(this->_device->logicalDevice, this->_commandPool, nullptr);
         vkDestroySurfaceKHR(this->_vulkanInstance, this->_surface, nullptr);
-        vkDestroyDevice(this->_logicalDevice, nullptr);
+        vkDestroyDevice(this->_device->logicalDevice, nullptr);
+        delete this->_device;
         glfwDestroyWindow(this->_pImpl->window);
     }
 
     void Context::cleanUpSwapchain() {
         for (auto* frameBuffer : this->_swapchainFrameBuffers) {
-            vkDestroyFramebuffer(this->_logicalDevice, frameBuffer, nullptr);
+            vkDestroyFramebuffer(this->_device->logicalDevice, frameBuffer, nullptr);
         }
-        vkFreeCommandBuffers(this->_logicalDevice, this->_commandPool, static_cast<uint32_t>(this->_commandBuffers.size()), this->_commandBuffers.data());
-        vkDestroyPipeline(this->_logicalDevice, this->_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(this->_logicalDevice, this->_pipelineLayout, nullptr);
-        vkDestroyRenderPass(this->_logicalDevice, this->_renderPass, nullptr);
+        vkFreeCommandBuffers(this->_device->logicalDevice, this->_commandPool, static_cast<uint32_t>(this->_commandBuffers.size()), this->_commandBuffers.data());
+        vkDestroyPipeline(this->_device->logicalDevice, this->_graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(this->_device->logicalDevice, this->_pipelineLayout, nullptr);
+        vkDestroyRenderPass(this->_device->logicalDevice, this->_renderPass, nullptr);
         for (auto* imageView: this->_swapchainImageViews) {
-            vkDestroyImageView(this->_logicalDevice, imageView, nullptr);
+            vkDestroyImageView(this->_device->logicalDevice, imageView, nullptr);
         }
-        vkDestroySwapchainKHR(this->_logicalDevice, this->_swapchain, nullptr);
+        vkDestroySwapchainKHR(this->_device->logicalDevice, this->_swapchain, nullptr);
     }
 
     void Context::recreateSwapchain() {
-        vkDeviceWaitIdle(this->_logicalDevice);
+        vkDeviceWaitIdle(this->_device->logicalDevice);
         glfwGetFramebufferSize(this->_pImpl->window, &this->_width, &this->_height);
         while (this->_width == 0 || this->_height == 0) {
             glfwGetFramebufferSize(this->_pImpl->window, &this->_width, &this->_height);
@@ -114,17 +114,17 @@ namespace netero::graphics {
             glfwPollEvents();
             this->drawFrame();
         }
-        vkDeviceWaitIdle(this->_logicalDevice);
+        vkDeviceWaitIdle(this->_device->logicalDevice);
     }
 
     void Context::drawFrame() {
         uint32_t imageIndex;
-        vkWaitForFences(this->_logicalDevice,
+        vkWaitForFences(this->_device->logicalDevice,
                 1,
                 &this->_inFlightFences[this->_currentFrame],
                 VK_TRUE,
                 UINT64_MAX);
-        VkResult result = vkAcquireNextImageKHR(this->_logicalDevice,
+        VkResult result = vkAcquireNextImageKHR(this->_device->logicalDevice,
             this->_swapchain,
             UINT64_MAX,
             this->_imageAvailableSemaphore[this->_currentFrame],
@@ -139,7 +139,7 @@ namespace netero::graphics {
         }
 
         if (this->_imagesInFlight[imageIndex] != nullptr) {
-            vkWaitForFences(this->_logicalDevice,
+            vkWaitForFences(this->_device->logicalDevice,
                     1,
                     &this->_imagesInFlight[imageIndex],
                     VK_TRUE,
@@ -159,10 +159,10 @@ namespace netero::graphics {
         VkSemaphore signalSemaphores[] = { this->_renderFinishedSemaphore[this->_currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
-        vkResetFences(this->_logicalDevice,
+        vkResetFences(this->_device->logicalDevice,
                       1,
                       &this->_inFlightFences[this->_currentFrame]);
-        result = vkQueueSubmit(this->_graphicsQueue,
+        result = vkQueueSubmit(this->_device->graphicsQueue,
             1,
             &submitInfo,
             this->_inFlightFences[this->_currentFrame]);
@@ -178,7 +178,7 @@ namespace netero::graphics {
         presentInfo.pSwapchains = swapChains;
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
-        result = vkQueuePresentKHR(this->_presentQueue, &presentInfo);
+        result = vkQueuePresentKHR(this->_device->presentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
             this->recreateSwapchain();
         }

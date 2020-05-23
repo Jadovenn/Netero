@@ -31,7 +31,7 @@ namespace netero::graphics {
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = shader.byteCode.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(shader.byteCode.data());
-        const VkResult result = vkCreateShaderModule(this->_logicalDevice,
+        const VkResult result = vkCreateShaderModule(this->_device->logicalDevice,
             &createInfo,
             nullptr,
             &shader.shaderModule);
@@ -55,7 +55,7 @@ namespace netero::graphics {
         createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         createInfo.flags = 0;
 
-        VkResult result = vkCreateBuffer(this->_logicalDevice,
+        VkResult result = vkCreateBuffer(this->_device->logicalDevice,
             &createInfo,
             nullptr,
             &this->_vertexBuffer);
@@ -63,8 +63,8 @@ namespace netero::graphics {
             throw std::runtime_error("Error while creating vertex buffer.");
         }
         VkMemoryRequirements    memoryRequirements;
-        vkGetBufferMemoryRequirements(this->_logicalDevice, this->_vertexBuffer, &memoryRequirements);
-        const int index = vkUtils::FindMemoryType(this->_physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        vkGetBufferMemoryRequirements(this->_device->logicalDevice, this->_vertexBuffer, &memoryRequirements);
+        const int index = vkUtils::FindMemoryType(this->_device->physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         if (index == -1) {
             throw std::runtime_error("Error could not find a suitable memory type for vertex buffer.");
         }
@@ -72,15 +72,15 @@ namespace netero::graphics {
         allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocateInfo.allocationSize = memoryRequirements.size;
         allocateInfo.memoryTypeIndex = index;
-        result = vkAllocateMemory(this->_logicalDevice, &allocateInfo, nullptr, &this->_vertexBufferMemory);
+        result = vkAllocateMemory(this->_device->logicalDevice, &allocateInfo, nullptr, &this->_vertexBufferMemory);
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Error could not allocate memory for vertex buffer");
         }
-        vkBindBufferMemory(this->_logicalDevice, this->_vertexBuffer, this->_vertexBufferMemory, 0);
+        vkBindBufferMemory(this->_device->logicalDevice, this->_vertexBuffer, this->_vertexBufferMemory, 0);
         void* data = nullptr;
-        vkMapMemory(this->_logicalDevice, this->_vertexBufferMemory, 0, createInfo.size, 0, &data);
+        vkMapMemory(this->_device->logicalDevice, this->_vertexBufferMemory, 0, createInfo.size, 0, &data);
         std::memcpy(data, this->_vertices->data(), static_cast<size_t>(createInfo.size));
-        vkUnmapMemory(this->_logicalDevice, this->_vertexBufferMemory);
+        vkUnmapMemory(this->_device->logicalDevice, this->_vertexBufferMemory);
     }
 }
 
