@@ -8,8 +8,13 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <utility>
 #include <optional>
 #include <vulkan/vulkan.h>
+
+namespace netero::graphics {
+    class Device;
+}
 
 namespace vkUtils {
     // Global variable
@@ -49,7 +54,8 @@ namespace vkUtils {
     VkExtent2D              ChooseSwapExtent(const VkSurfaceCapabilitiesKHR&, uint32_t, uint32_t);
 
     // Memory related
-    int32_t    FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    int32_t     FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    std::pair<VkBuffer, VkDeviceMemory>    AllocBuffer(netero::graphics::Device*, VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags);
 
     // Validation layers related
     std::vector<const char*>    getRequiredExtensions();
