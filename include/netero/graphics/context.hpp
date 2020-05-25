@@ -38,6 +38,7 @@ namespace netero::graphics {
         void    run();
         int     loadShader(const std::string&, ShaderStage);
         void    addVertices(std::vector<Vertex>&);
+        void    addVertices(std::vector<Vertex>&, std::vector<uint16_t>&);
 
         // Device Related
         [[nodiscard]] std::vector<std::string>  getPhysicalDevices() const;

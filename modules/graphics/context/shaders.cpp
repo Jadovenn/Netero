@@ -44,7 +44,17 @@ namespace netero::graphics {
     }
 
     void Context::addVertices(std::vector < netero::graphics::Vertex>& vertices) {
+        const int v_size = this->_vertexBuffer->vertices.size();
+        const int i_size = vertices.size();
+        for (unsigned idx = v_size; idx < i_size + v_size; ++idx) {
+            this->_vertexBuffer->indices.push_back(idx);
+        }
         this->_vertexBuffer->vertices.insert(this->_vertexBuffer->vertices.end(), vertices.begin(), vertices.end());
+    }
+
+    void Context::addVertices(std::vector < netero::graphics::Vertex>& vertices, std::vector<uint16_t>& indices) {
+        this->_vertexBuffer->vertices.insert(this->_vertexBuffer->vertices.end(), vertices.begin(), vertices.end());
+        this->_vertexBuffer->indices.insert(this->_vertexBuffer->indices.end(), indices.begin(), indices.end());
     }
 }
 
