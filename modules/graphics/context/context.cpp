@@ -85,7 +85,7 @@ namespace netero::graphics {
     void Context::run() {
         this->_pipeline = new Pipeline(this->_vulkanInstance, this->_device);
         if (!this->_pipeline) { throw std::bad_alloc(); }
-        this->_vertexBuffer->createVertexBuffer();
+        this->_vertexBuffer->transfer();
         this->_pipeline->build(this->_shaderModules, *this->_vertexBuffer);
         this->createSemaphores();
         while (!glfwWindowShouldClose(this->_pImpl->window)) {

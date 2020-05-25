@@ -42,6 +42,8 @@ namespace netero::graphics {
 
     struct VertexBuffer {
         Device* _device;
+        void    createVertexBuffer();
+        void    createIndexBuffer();
     public:
         VertexBuffer(Device*);
         VertexBuffer(const VertexBuffer&) = delete;
@@ -50,11 +52,15 @@ namespace netero::graphics {
         VertexBuffer& operator=(VertexBuffer&&) = delete;
         ~VertexBuffer();
 
-        void    createVertexBuffer();
+        void    transfer();
 
         VkBuffer            vertexBuffer;
         VkDeviceMemory      vertexBufferMemory;
         std::vector<Vertex> vertices;
+        VkBuffer                indexBuffer;
+        VkDeviceMemory          indexBufferMemory;
+        std::vector<uint16_t>   indices;
+
     };
 
 }

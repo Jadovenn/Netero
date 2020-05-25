@@ -380,7 +380,8 @@ namespace netero::graphics {
             VkBuffer vertexBuffer[] = { vtBuffer.vertexBuffer };
             VkDeviceSize    offsets[] = { 0 };
             vkCmdBindVertexBuffers(this->commandBuffers[i], 0, 1, vertexBuffer, offsets);
-            vkCmdDraw(this->commandBuffers[i], static_cast<uint32_t>(vtBuffer.vertices.size()), 1, 0, 0);
+            vkCmdBindIndexBuffer(commandBuffers[i], vtBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdDrawIndexed(this->commandBuffers[i], static_cast<uint32_t>(vtBuffer.indices.size()), 1, 0, 0, 0);
             vkCmdEndRenderPass(this->commandBuffers[i]);
             if (vkEndCommandBuffer(this->commandBuffers[i]) != VK_SUCCESS) {
                 throw std::runtime_error("Failed to record command buffer.");

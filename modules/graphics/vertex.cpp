@@ -21,6 +21,9 @@ namespace netero::graphics {
     VertexBuffer::~VertexBuffer() {
         vkDestroyBuffer(this->_device->logicalDevice, this->vertexBuffer, nullptr);
         vkFreeMemory(this->_device->logicalDevice, this->vertexBufferMemory, nullptr);
+        vkDestroyBuffer(this->_device->logicalDevice, this->indexBuffer, nullptr);
+        vkFreeMemory(this->_device->logicalDevice, this->indexBufferMemory, nullptr);
+
     }
 
     // not supposed to actually call vkAllocateMemory for every individual buffer. Use one big buffer and offsets
@@ -51,6 +54,40 @@ namespace netero::graphics {
         vkFreeMemory(this->_device->logicalDevice, stagingBufferMemory, nullptr);
         this->vertexBuffer = buffer;
         this->vertexBufferMemory = bufferMemory;
+    }
+
+    void VertexBuffer::createIndexBuffer() {
+        const VkDeviceSize size = sizeof(uint16_t) * indices.size();
+        auto [ stagingBuffer, stagingBufferMemory ] = vkUtils::AllocBuffer(this->_device,
+            size,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        void* data = nullptr;
+        vkMapMemory(this->_device->logicalDevice,
+            stagingBufferMemory,
+            0,
+            size,
+            0,
+            &data);
+        std::memcpy(data,
+            this->indices.data(),
+            static_cast<size_t>(size));
+        vkUnmapMemory(this->_device->logicalDevice,
+            stagingBufferMemory);
+        auto [ buffer, bufferMemory ] = vkUtils::AllocBuffer(this->_device,
+            size,
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        vkUtils::TransferBuffer(this->_device, stagingBuffer, buffer, size);
+        vkDestroyBuffer(this->_device->logicalDevice, stagingBuffer, nullptr);
+        vkFreeMemory(this->_device->logicalDevice, stagingBufferMemory, nullptr);
+        this->indexBuffer = buffer;
+        this->indexBufferMemory = bufferMemory;
+    }
+
+    void VertexBuffer::transfer() {
+        createVertexBuffer();
+        createIndexBuffer();
     }
 
 }
