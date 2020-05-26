@@ -7,17 +7,25 @@
 
 #include <vector>
 #include <vulkan/vulkan.h>
+#include <glm/glm.hpp>
 #include <netero/graphics/device.hpp>
 #include <netero/graphics/shader.hpp>
 #include <netero/graphics/vertex.hpp>
 
 namespace netero::graphics {
 
+    struct UniformBufferObject {
+        glm::mat4   model;
+        glm::mat4   view;
+        glm::mat4   proj;
+    };
+
     struct Pipeline {
    private:
         void createSwapchain();
         void createImageViews();
         void createRenderPass();
+        void createDescriptorSet();
         void createGraphicsPipeline(std::vector<Shader>&);
         void createFrameBuffers();
         void createCommandPool();
@@ -31,6 +39,8 @@ namespace netero::graphics {
         VkCommandPool       _commandPool;
         VkFormat            _swapchainImageFormat = VK_FORMAT_UNDEFINED;
         VkExtent2D          _swapchainExtent = {0, 0};
+        UniformBufferObject _ubo {};
+        VkDescriptorSetLayout           _descriptorSetLayout;
         std::vector<VkImageView>        _swapchainImageViews;
         std::vector<VkFramebuffer>      _swapchainFrameBuffers;
     public:
