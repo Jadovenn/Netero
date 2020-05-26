@@ -60,7 +60,6 @@ namespace netero::graphics {
         VkBuffer                indexBuffer;
         VkDeviceMemory          indexBufferMemory;
         std::vector<uint16_t>   indices;
-
     };
 
 }

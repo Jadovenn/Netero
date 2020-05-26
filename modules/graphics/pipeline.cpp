@@ -28,13 +28,17 @@ namespace netero::graphics {
 
     Pipeline::~Pipeline() {
         this->release();
+        vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
         vkDestroyCommandPool(this->_device->logicalDevice, this->_commandPool, nullptr);
+
     }
 
     void Pipeline::build(std::vector<Shader>& shaders, VertexBuffer& vtBuffer) {
         this->createSwapchain();
+        this->createUniformBuffers();
         this->createImageViews();
         this->createRenderPass();
+        this->createDescriptorSet();
         this->createGraphicsPipeline(shaders);
         this->createFrameBuffers();
         this->createCommandPool();
@@ -53,11 +57,16 @@ namespace netero::graphics {
             vkDestroyImageView(this->_device->logicalDevice, imageView, nullptr);
         }
         vkDestroySwapchainKHR(this->_device->logicalDevice, this->swapchain, nullptr);
+        for (size_t idx = 0; idx < this->swapchainImages.size(); ++idx) {
+            vkDestroyBuffer(this->_device->logicalDevice, uniformBuffers[idx], nullptr);
+            vkFreeMemory(this->_device->logicalDevice, uniformBuffersMemory[idx], nullptr);
+        }
     }
 
     void Pipeline::rebuild(std::vector<Shader>& shaders, VertexBuffer& vtBuffer) {
         this->release();
         this->createSwapchain();
+        this->createUniformBuffers();
         this->createImageViews();
         this->createRenderPass();
         this->createGraphicsPipeline(shaders);
@@ -109,7 +118,23 @@ namespace netero::graphics {
         this->swapchainImages.resize(imageCount);
         vkGetSwapchainImagesKHR(this->_device->logicalDevice, this->swapchain, &imageCount, this->swapchainImages.data());
         this->_swapchainImageFormat = surfaceFormat.format;
-        this->_swapchainExtent = extent;
+        this->swapchainExtent = extent;
+    }
+
+    // TODO: Do not allocate multiple buffers, allocate one buffer and use offsets
+    void Pipeline::createUniformBuffers() {
+        const VkDeviceSize    size = sizeof(UniformBufferObject);
+        const size_t swapchainImagesCount = this->swapchainImages.size();
+        this->uniformBuffers.resize(swapchainImagesCount);
+        this->uniformBuffersMemory.resize(swapchainImagesCount);
+        for (size_t idx = 0; idx < swapchainImagesCount; ++idx) {
+            auto [buffer, bufferMemory] = vkUtils::AllocBuffer(this->_device,
+                size,
+                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            this->uniformBuffers[idx] = buffer;
+            this->uniformBuffersMemory[idx] = bufferMemory;
+        }
     }
 
     void Pipeline::createImageViews() {
@@ -241,13 +266,13 @@ namespace netero::graphics {
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = static_cast<float>(this->_swapchainExtent.width);
-        viewport.height = static_cast<float>(this->_swapchainExtent.height);
+        viewport.width = static_cast<float>(this->swapchainExtent.width);
+        viewport.height = static_cast<float>(this->swapchainExtent.height);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = this->_swapchainExtent;
+        scissor.extent = this->swapchainExtent;
         VkPipelineViewportStateCreateInfo viewportState{};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewportState.viewportCount = 1;
@@ -303,8 +328,8 @@ namespace netero::graphics {
         dynamicState.pDynamicStates = dynamicStates;
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0;
-        pipelineLayoutInfo.pSetLayouts = nullptr;
+        pipelineLayoutInfo.setLayoutCount = 1;
+        pipelineLayoutInfo.pSetLayouts = &this->_descriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
         if (vkCreatePipelineLayout(this->_device->logicalDevice, &pipelineLayoutInfo, nullptr, &this->_pipelineLayout) != VK_SUCCESS) {
@@ -344,8 +369,8 @@ namespace netero::graphics {
             frameBufferInfo.renderPass = this->_renderPass;
             frameBufferInfo.attachmentCount = 1;
             frameBufferInfo.pAttachments = attachments;
-            frameBufferInfo.width = this->_swapchainExtent.width;
-            frameBufferInfo.height = this->_swapchainExtent.height;
+            frameBufferInfo.width = this->swapchainExtent.width;
+            frameBufferInfo.height = this->swapchainExtent.height;
             frameBufferInfo.layers = 1;
 
             if (vkCreateFramebuffer(this->_device->logicalDevice, &frameBufferInfo, nullptr, &this->_swapchainFrameBuffers[i]) != VK_SUCCESS) {
@@ -392,7 +417,7 @@ namespace netero::graphics {
             renderPassInfo.renderPass = this->_renderPass;
             renderPassInfo.framebuffer = this->_swapchainFrameBuffers[i];
             renderPassInfo.renderArea.offset = { 0, 0 };
-            renderPassInfo.renderArea.extent = this->_swapchainExtent;
+            renderPassInfo.renderArea.extent = this->swapchainExtent;
             renderPassInfo.clearValueCount = 1;
             renderPassInfo.pClearValues = &clearColor;
             vkCmdBeginRenderPass(this->commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);

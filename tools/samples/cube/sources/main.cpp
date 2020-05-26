@@ -29,7 +29,6 @@ int    main() {
     try {
         auto* app = netero::graphics::Application::Initialize("Cube");
         auto* context = app->newWindowedContext(800, 600, netero::graphics::WindowMode::RESIZABLE);
-        std::cout << "Current Device:" << context->getCurrentPhysicalDeviceName() << std::endl;
         context->loadShader(g_triangleVertices_path, netero::graphics::ShaderStage::VERTEX);
         context->loadShader(g_triangleFragment_path, netero::graphics::ShaderStage::FRAGMENT);
         context->addVertices(vertices, indices);

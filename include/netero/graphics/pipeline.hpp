@@ -14,6 +14,8 @@
 
 namespace netero::graphics {
 
+    // see: https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap14.html#interfaces-resources-layout
+    // for alignment requirements
     struct UniformBufferObject {
         glm::mat4   model;
         glm::mat4   view;
@@ -22,6 +24,7 @@ namespace netero::graphics {
 
     struct Pipeline {
    private:
+        void createUniformBuffers();
         void createSwapchain();
         void createImageViews();
         void createRenderPass();
@@ -38,7 +41,6 @@ namespace netero::graphics {
         VkPipeline          _graphicsPipeline;
         VkCommandPool       _commandPool;
         VkFormat            _swapchainImageFormat = VK_FORMAT_UNDEFINED;
-        VkExtent2D          _swapchainExtent = {0, 0};
         UniformBufferObject _ubo {};
         VkDescriptorSetLayout           _descriptorSetLayout;
         std::vector<VkImageView>        _swapchainImageViews;
@@ -56,8 +58,11 @@ namespace netero::graphics {
         void    release();
 
         VkSwapchainKHR                  swapchain;
+        VkExtent2D                      swapchainExtent = {0, 0};
         std::vector<VkImage>            swapchainImages;
         std::vector<VkCommandBuffer>    commandBuffers;
+        std::vector<VkBuffer>           uniformBuffers;
+        std::vector<VkDeviceMemory>     uniformBuffersMemory;
     };
 
 }

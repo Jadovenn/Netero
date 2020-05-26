@@ -5,10 +5,15 @@
 
 // ReSharper disable CppUnreachableCode
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
+#include <chrono>
 #include <netero/graphics/context.hpp>
 #include <utils/vkUtils.hpp>
 
@@ -127,6 +132,7 @@ namespace netero::graphics {
         }
         this->_imagesInFlight[imageIndex] = this->_inFlightFences[this->_currentFrame];
 
+        updateUniformBuffer(imageIndex);
         VkSemaphore waitSemaphores[] = { this->_imageAvailableSemaphore[this->_currentFrame] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         VkSubmitInfo submitInfo{};
@@ -200,6 +206,36 @@ namespace netero::graphics {
             }
         }
     }
+
+    void Context::updateUniformBuffer(uint32_t imageIndex) {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+        auto now = std::chrono::high_resolution_clock::now();
+        const float time = std::chrono::duration<float, std::chrono::seconds::period>(now - startTime).count();
+        UniformBufferObject ubo{};
+        ubo.model = glm::rotate(glm::mat4(1.f),
+            time * glm::radians(90.f),
+            glm::vec3(0.f, 0.f, 1.f));
+        ubo.view = glm::lookAt(glm::vec3(2.f, 2.f, 2.f),
+            glm::vec3(0.f, 0.f, 0.f),
+            glm::vec3(0.f, 0.f, 1.f));
+        ubo.proj = glm::perspective(glm::radians(45.f),
+            this->_pipeline->swapchainExtent.width / static_cast<float>(this->_pipeline->swapchainExtent.height),
+            0.1f,
+            10.f);
+        // remember Y axis is upside down
+        ubo.proj[1][1] *= -1;
+        void* data;
+        vkMapMemory(this->_device->logicalDevice,
+            this->_pipeline->uniformBuffersMemory[imageIndex],
+            0,
+            sizeof(ubo),
+            0,
+            &data);
+        memcpy(data, &ubo, sizeof(ubo));
+        vkUnmapMemory(this->_device->logicalDevice,
+            this->_pipeline->uniformBuffersMemory[imageIndex]);
+    }
+
 
 }
 
