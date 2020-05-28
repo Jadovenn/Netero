@@ -24,11 +24,13 @@ namespace netero::graphics {
 
     struct Pipeline {
    private:
-        void createUniformBuffers();
         void createSwapchain();
+        void createUniformBuffers();
+        void createDescriptorPool();
+        void createDescriptorSets();
+        void createDescriptorSetLayout();
         void createImageViews();
         void createRenderPass();
-        void createDescriptorSet();
         void createGraphicsPipeline(std::vector<Shader>&);
         void createFrameBuffers();
         void createCommandPool();
@@ -42,7 +44,9 @@ namespace netero::graphics {
         VkCommandPool       _commandPool;
         VkFormat            _swapchainImageFormat = VK_FORMAT_UNDEFINED;
         UniformBufferObject _ubo {};
+        VkDescriptorPool    _descriptorPool;
         VkDescriptorSetLayout           _descriptorSetLayout;
+        std::vector<VkDescriptorSet>    _descriptorSets;
         std::vector<VkImageView>        _swapchainImageViews;
         std::vector<VkFramebuffer>      _swapchainFrameBuffers;
     public:
