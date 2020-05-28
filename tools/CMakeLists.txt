@@ -4,6 +4,5 @@ project(netero_tools
 	DESCRIPTION "Netero tools and example programes."
 	LANGUAGES CXX)
 
-add_subdirectory(samples/triangles)
-add_subdirectory(samples/cube)
+add_subdirectory(samples/graphicsSample)
 

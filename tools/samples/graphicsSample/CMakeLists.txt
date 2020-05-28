@@ -1,10 +1,10 @@
 cmake_minimum_required (VERSION 3.11...3.16)
-project(Cube
+project(GraphicSample
     VERSION 1.0
     DESCRIPTION "Graphics example program using netero_graphics."
     LANGUAGES CXX)
 
-message(STATUS "Configure Netero Sample Cube")
+message(STATUS "Configure Netero Sample graphics")
 
 set(SOURCES
         sources/main.cpp)
