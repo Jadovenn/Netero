@@ -4,5 +4,5 @@ project(netero_tools
 	DESCRIPTION "Netero tools and example programes."
 	LANGUAGES CXX)
 
-add_subdirectory(graphics_example)
+add_subdirectory(samples/graphicsSample)
 

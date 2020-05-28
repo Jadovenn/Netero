@@ -1,15 +1,15 @@
 cmake_minimum_required (VERSION 3.11...3.16)
-project(GraphicsExample
+project(GraphicSample
     VERSION 1.0
     DESCRIPTION "Graphics example program using netero_graphics."
     LANGUAGES CXX)
 
-message(STATUS "Configure Netero GraphicsExample")
+message(STATUS "Configure Netero Sample graphics")
 
 set(SOURCES
         sources/main.cpp)
 
-include_directories(${PROJECT_NAME} sources ../../include)
+include_directories(${PROJECT_NAME} sources ../../../include)
 
 if(WIN32)
     add_executable(${PROJECT_NAME} WindowsRessources.rc ${SOURCES})

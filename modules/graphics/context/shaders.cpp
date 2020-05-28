@@ -6,6 +6,9 @@
 #include <stdexcept>
 #include <fstream>
 #include <netero/graphics/context.hpp>
+#include <netero/graphics/vertex.hpp>
+
+#include "utils/vkUtils.hpp"
 
 static std::vector<char>    ReadBinaryFile(const std::string& filePath) {
     std::ifstream   file(filePath, std::ios::ate | std::ios::binary);
@@ -29,7 +32,7 @@ namespace netero::graphics {
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = shader.byteCode.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(shader.byteCode.data());
-        const VkResult result = vkCreateShaderModule(this->_logicalDevice,
+        const VkResult result = vkCreateShaderModule(this->_device->logicalDevice,
             &createInfo,
             nullptr,
             &shader.shaderModule);
@@ -40,5 +43,18 @@ namespace netero::graphics {
         return 0;
     }
 
+    void Context::addVertices(std::vector < netero::graphics::Vertex>& vertices) {
+        const int v_size = this->_vertexBuffer->vertices.size();
+        const int i_size = vertices.size();
+        for (unsigned idx = v_size; idx < i_size + v_size; ++idx) {
+            this->_vertexBuffer->indices.push_back(idx);
+        }
+        this->_vertexBuffer->vertices.insert(this->_vertexBuffer->vertices.end(), vertices.begin(), vertices.end());
+    }
+
+    void Context::addVertices(std::vector < netero::graphics::Vertex>& vertices, std::vector<uint16_t>& indices) {
+        this->_vertexBuffer->vertices.insert(this->_vertexBuffer->vertices.end(), vertices.begin(), vertices.end());
+        this->_vertexBuffer->indices.insert(this->_vertexBuffer->indices.end(), indices.begin(), indices.end());
+    }
 }
 

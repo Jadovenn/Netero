@@ -5,10 +5,15 @@
 
 // ReSharper disable CppUnreachableCode
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
+#include <chrono>
 #include <netero/graphics/context.hpp>
 #include <utils/vkUtils.hpp>
 
@@ -48,81 +53,64 @@ namespace netero::graphics {
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to create window surface.");
         }
-        this->pickPhysicalDevice();
-        this->createLogicalDevice(this->_physicalDevice);
-        this->createSwapchain();
-        this->createImageViews();
+        this->_device = new netero::graphics::Device(this->_vulkanInstance, this->_surface);
+        if (!this->_device) { throw std::bad_alloc(); }
+        this->_device->setSurfaceHeight(height);
+        this->_device->setSurfaceWidth(width);
+        this->_vertexBuffer = new VertexBuffer(this->_device);
+        if (!this->_vertexBuffer) { throw std::bad_alloc(); }
     }
 
     Context::~Context() {
-        cleanUpSwapchain();
+        delete this->_pipeline;
+        delete this->_vertexBuffer;
         for (const auto& shader: this->_shaderModules) {
-            vkDestroyShaderModule(this->_logicalDevice, shader.shaderModule, nullptr);
+            vkDestroyShaderModule(this->_device->logicalDevice, shader.shaderModule, nullptr);
         }
         for (unsigned idx = 0; static_cast<int>(idx) < this->MAX_FRAMES_IN_FLIGHT; idx++) {
-            vkDestroySemaphore(this->_logicalDevice, this->_imageAvailableSemaphore[idx], nullptr);
-            vkDestroySemaphore(this->_logicalDevice, this->_renderFinishedSemaphore[idx], nullptr);
-            vkDestroyFence(this->_logicalDevice, this->_inFlightFences[idx], nullptr);
+            vkDestroySemaphore(this->_device->logicalDevice, this->_imageAvailableSemaphore[idx], nullptr);
+            vkDestroySemaphore(this->_device->logicalDevice, this->_renderFinishedSemaphore[idx], nullptr);
+            vkDestroyFence(this->_device->logicalDevice, this->_inFlightFences[idx], nullptr);
         }
-        vkDestroyCommandPool(this->_logicalDevice, this->_commandPool, nullptr);
         vkDestroySurfaceKHR(this->_vulkanInstance, this->_surface, nullptr);
-        vkDestroyDevice(this->_logicalDevice, nullptr);
+        delete this->_device;
         glfwDestroyWindow(this->_pImpl->window);
     }
 
-    void Context::cleanUpSwapchain() {
-        for (auto* frameBuffer : this->_swapchainFrameBuffers) {
-            vkDestroyFramebuffer(this->_logicalDevice, frameBuffer, nullptr);
-        }
-        vkFreeCommandBuffers(this->_logicalDevice, this->_commandPool, static_cast<uint32_t>(this->_commandBuffers.size()), this->_commandBuffers.data());
-        vkDestroyPipeline(this->_logicalDevice, this->_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(this->_logicalDevice, this->_pipelineLayout, nullptr);
-        vkDestroyRenderPass(this->_logicalDevice, this->_renderPass, nullptr);
-        for (auto* imageView: this->_swapchainImageViews) {
-            vkDestroyImageView(this->_logicalDevice, imageView, nullptr);
-        }
-        vkDestroySwapchainKHR(this->_logicalDevice, this->_swapchain, nullptr);
-    }
-
     void Context::recreateSwapchain() {
-        vkDeviceWaitIdle(this->_logicalDevice);
+        vkDeviceWaitIdle(this->_device->logicalDevice);
         glfwGetFramebufferSize(this->_pImpl->window, &this->_width, &this->_height);
         while (this->_width == 0 || this->_height == 0) {
             glfwGetFramebufferSize(this->_pImpl->window, &this->_width, &this->_height);
             glfwWaitEvents();
         }
-        this->cleanUpSwapchain();
-        this->createSwapchain();
-        this->createImageViews();
-        this->createRenderPass();
-        this->createGraphicsPipeline();
-        this->createFrameBuffers();
-        this->createCommandBuffers();
+        this->_pipeline->rebuild(_shaderModules, *this->_vertexBuffer);
     }
 
     void Context::run() {
-        this->createRenderPass();
-        this->createGraphicsPipeline();
-        this->createFrameBuffers();
-        this->createCommandPool();
-        this->createCommandBuffers();
+        this->_pipeline = new Pipeline(this->_vulkanInstance, this->_device);
+        if (!this->_pipeline) { throw std::bad_alloc(); }
+        this->_vertexBuffer->transfer();
+        this->_pipeline->build(this->_shaderModules, *this->_vertexBuffer);
         this->createSemaphores();
         while (!glfwWindowShouldClose(this->_pImpl->window)) {
             glfwPollEvents();
             this->drawFrame();
         }
-        vkDeviceWaitIdle(this->_logicalDevice);
+        vkDeviceWaitIdle(this->_device->logicalDevice);
+        delete this->_pipeline;
+        this->_pipeline = nullptr;
     }
 
     void Context::drawFrame() {
         uint32_t imageIndex;
-        vkWaitForFences(this->_logicalDevice,
+        vkWaitForFences(this->_device->logicalDevice,
                 1,
                 &this->_inFlightFences[this->_currentFrame],
                 VK_TRUE,
                 UINT64_MAX);
-        VkResult result = vkAcquireNextImageKHR(this->_logicalDevice,
-            this->_swapchain,
+        VkResult result = vkAcquireNextImageKHR(this->_device->logicalDevice,
+            this->_pipeline->swapchain,
             UINT64_MAX,
             this->_imageAvailableSemaphore[this->_currentFrame],
             nullptr,
@@ -136,7 +124,7 @@ namespace netero::graphics {
         }
 
         if (this->_imagesInFlight[imageIndex] != nullptr) {
-            vkWaitForFences(this->_logicalDevice,
+            vkWaitForFences(this->_device->logicalDevice,
                     1,
                     &this->_imagesInFlight[imageIndex],
                     VK_TRUE,
@@ -144,6 +132,7 @@ namespace netero::graphics {
         }
         this->_imagesInFlight[imageIndex] = this->_inFlightFences[this->_currentFrame];
 
+        updateUniformBuffer(imageIndex);
         VkSemaphore waitSemaphores[] = { this->_imageAvailableSemaphore[this->_currentFrame] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         VkSubmitInfo submitInfo{};
@@ -152,14 +141,14 @@ namespace netero::graphics {
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &this->_commandBuffers[imageIndex];
+        submitInfo.pCommandBuffers = &this->_pipeline->commandBuffers[imageIndex];
         VkSemaphore signalSemaphores[] = { this->_renderFinishedSemaphore[this->_currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
-        vkResetFences(this->_logicalDevice,
+        vkResetFences(this->_device->logicalDevice,
                       1,
                       &this->_inFlightFences[this->_currentFrame]);
-        result = vkQueueSubmit(this->_graphicsQueue,
+        result = vkQueueSubmit(this->_device->graphicsQueue,
             1,
             &submitInfo,
             this->_inFlightFences[this->_currentFrame]);
@@ -170,12 +159,12 @@ namespace netero::graphics {
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
-        VkSwapchainKHR swapChains[] = { this->_swapchain };
+        VkSwapchainKHR swapChains[] = { this->_pipeline->swapchain };
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
-        result = vkQueuePresentKHR(this->_presentQueue, &presentInfo);
+        result = vkQueuePresentKHR(this->_device->presentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
             this->recreateSwapchain();
         }
@@ -184,6 +173,69 @@ namespace netero::graphics {
         }
         this->_currentFrame = (this->_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
+
+    void Context::createSemaphores() {
+        this->_imageAvailableSemaphore.resize(this->MAX_FRAMES_IN_FLIGHT);
+        this->_renderFinishedSemaphore.resize(this->MAX_FRAMES_IN_FLIGHT);
+        this->_inFlightFences.resize(this->MAX_FRAMES_IN_FLIGHT);
+        this->_imagesInFlight.resize(this->_pipeline->swapchainImages.size(), nullptr);
+
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        for (unsigned idx = 0; idx < this->MAX_FRAMES_IN_FLIGHT; idx++) {
+            VkResult result = vkCreateSemaphore(this->_device->logicalDevice,
+                &semaphoreInfo,
+                nullptr,
+                &this->_imageAvailableSemaphore[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create imageAvailable semaphore.");
+            }
+            result = vkCreateSemaphore(this->_device->logicalDevice,
+                &semaphoreInfo,
+                nullptr,
+                &this->_renderFinishedSemaphore[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create renderFinished semaphore.");
+            }
+            result = vkCreateFence(this->_device->logicalDevice, &fenceInfo, nullptr, &this->_inFlightFences[idx]);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create inFlight fence.");
+            }
+        }
+    }
+
+    void Context::updateUniformBuffer(uint32_t imageIndex) {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+        auto now = std::chrono::high_resolution_clock::now();
+        const float time = std::chrono::duration<float, std::chrono::seconds::period>(now - startTime).count();
+        UniformBufferObject ubo{};
+        ubo.model = glm::rotate(glm::mat4(1.f),
+            time * glm::radians(90.f),
+            glm::vec3(0.f, 0.f, 1.f));
+        ubo.view = glm::lookAt(glm::vec3(2.f, 2.f, 2.f),
+            glm::vec3(0.f, 0.f, 0.f),
+            glm::vec3(0.f, 0.f, 1.f));
+        ubo.proj = glm::perspective(glm::radians(45.f),
+            this->_pipeline->swapchainExtent.width / static_cast<float>(this->_pipeline->swapchainExtent.height),
+            0.1f,
+            10.f);
+        // remember Y axis is upside down
+        ubo.proj[1][1] *= -1;
+        void* data;
+        vkMapMemory(this->_device->logicalDevice,
+            this->_pipeline->uniformBuffersMemory[imageIndex],
+            0,
+            sizeof(ubo),
+            0,
+            &data);
+        memcpy(data, &ubo, sizeof(ubo));
+        vkUnmapMemory(this->_device->logicalDevice,
+            this->_pipeline->uniformBuffersMemory[imageIndex]);
+    }
+
 
 }
 

@@ -21,6 +21,9 @@ vkUtils::QueueFamilyIndices    vkUtils::findQueueFamilies(VkPhysicalDevice devic
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             indices.graphicsFamily = idx;
         }
+        if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) {
+            indices.transferFamily = idx;
+        }
         VkBool32 presentSupport = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(device, idx, surface, &presentSupport);
         if (presentSupport) {
@@ -53,6 +56,9 @@ int vkUtils::rateDeviceSuitability(VkPhysicalDevice device, VkSurfaceKHR surface
 
     if (!queueFamilyIndices.isGraphicsSuitable()) {
         return -2;
+    }
+    if (queueFamilyIndices.transferFamily.has_value()) {
+        score += 2000;
     }
     switch (deviceProperties.deviceType) {
     case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
