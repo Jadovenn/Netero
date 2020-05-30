@@ -72,18 +72,18 @@ endif(APPLE)
 ##  Target
 ##====================================
 
-add_library(netero_audio STATIC ${SRCS} ${PUBLIC_HEADER})
-target_compile_features(netero_audio PUBLIC cxx_std_17)
-target_include_directories(netero_audio
+add_library(neteroAudio STATIC ${SRCS} ${PUBLIC_HEADER})
+target_compile_features(neteroAudio PUBLIC cxx_std_17)
+target_include_directories(neteroAudio
         PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>)
-target_link_libraries(netero_audio
+target_link_libraries(neteroAudio
         PRIVATE
             ${LINK_LIBRARIES})
 
 if(WIN32 AND WIN32_STATIC)
-    set_property(TARGET netero_audio PROPERTY
+    set_property(TARGET neteroAudio PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
 endif()
 
@@ -91,7 +91,7 @@ endif()
 ##  Installation
 ##====================================
 
-install(TARGETS netero_audio
+install(TARGETS neteroAudio
         EXPORT audio-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib

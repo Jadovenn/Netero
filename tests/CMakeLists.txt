@@ -55,10 +55,10 @@ add_project_test(NAME bug_size_buffer SOURCES bug_size_buffer.cpp)
 ##====================================
 
 if (NETERO_AUDIO)
-    add_project_test(NAME test_audio_format SOURCES audio/test_audio_format.cpp DEPENDS netero netero_audio)
-    add_project_test(NAME example_audio_render SOURCES audio/example_audio_render.cpp DEPENDS netero netero_audio)
-    add_project_test(NAME example_audio_recorde SOURCES audio/example_audio_recorde.cpp DEPENDS netero netero_audio)
-    add_project_test(NAME example_audio_recorde_silence SOURCES audio/example_audio_recorde_silence.cpp DEPENDS netero netero_audio)
+    add_project_test(NAME test_audio_format SOURCES audio/test_audio_format.cpp DEPENDS netero neteroAudio)
+    add_project_test(NAME example_audio_render SOURCES audio/example_audio_render.cpp DEPENDS netero neteroAudio)
+    add_project_test(NAME example_audio_recorde SOURCES audio/example_audio_recorde.cpp DEPENDS netero neteroAudio)
+    add_project_test(NAME example_audio_recorde_silence SOURCES audio/example_audio_recorde_silence.cpp DEPENDS netero neteroAudio)
 endif(NETERO_AUDIO)
 
 ##====================================
@@ -74,15 +74,15 @@ add_project_test(NAME test_slot_container SOURCES observer/test_slot_container.c
 ##====================================
 
 if(NETERO_ECS)
-    add_project_test(NAME test_ecs_world SOURCES ecs/test_ecs_world.cpp DEPENDS netero_ecs)
-    add_project_test(NAME test_ecs_entity SOURCES ecs/test_ecs_entity.cpp DEPENDS netero_ecs)
-    add_project_test(NAME test_ecs_component SOURCES ecs/test_ecs_component.cpp DEPENDS netero_ecs)
-    add_project_test(NAME test_ecs_component_filter SOURCES ecs/test_ecs_component_filter.cpp DEPENDS netero_ecs)
+    add_project_test(NAME test_ecs_world SOURCES ecs/test_ecs_world.cpp DEPENDS neteroECS)
+    add_project_test(NAME test_ecs_entity SOURCES ecs/test_ecs_entity.cpp DEPENDS neteroECS)
+    add_project_test(NAME test_ecs_component SOURCES ecs/test_ecs_component.cpp DEPENDS neteroECS)
+    add_project_test(NAME test_ecs_component_filter SOURCES ecs/test_ecs_component_filter.cpp DEPENDS neteroECS)
     add_project_test(NAME test_ecs_system
             SOURCES
                 ecs/test_ecs_system.cpp
                 ecs/test_ecs_dataset.hpp
             DEPENDS
-                netero_ecs)
+                neteroECS)
 endif(NETERO_ECS)
 

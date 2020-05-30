@@ -1,39 +1,37 @@
 cmake_minimum_required (VERSION 3.11...3.16)
-project(neteroECS
+project(neteroExtra
         VERSION 0.1.0
-        DESCRIPTION "Netero ecs submodule"
-        LANGUAGES CXX)
+        DESCRIPTION "Netero extra submodule"
+        LANGUAGES C CXX)
 
-message(STATUS "Configure Netero ECS submodule")
+message(STATUS "Configure Netero extra submodule")
 
 ##====================================
-##  Generic core
+##  Generic extra
 ##====================================
 
 list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/ecs/world.hpp
-        ${HEADERS_DIRECTORY}/ecs/entity.hpp
-        ${HEADERS_DIRECTORY}/ecs/component.hpp
-        ${HEADERS_DIRECTORY}/ecs/component_filter.hpp
-        ${HEADERS_DIRECTORY}/ecs/system.hpp)
+        ${HEADERS_DIRECTORY}/extra/stb_image.h
+        ${HEADERS_DIRECTORY}/extra/stb_image_resize.h
+        ${HEADERS_DIRECTORY}/extra/stb_image_write.h)
 list(APPEND SRCS
-        world.cpp
-        entity.cpp
-        entityContainer.cpp)
+        stb_image.c
+        stb_image_resize.c
+        stb_image_write.c)
 
 ##====================================
 ##  Target
 ##====================================
 
-add_library(neteroECS STATIC ${SRCS} ${PUBLIC_HEADER})
-target_compile_features(neteroECS PUBLIC cxx_std_17)
-target_include_directories(neteroECS
+add_library(neteroExtra STATIC ${SRCS} ${PUBLIC_HEADER})
+target_compile_features(neteroExtra PUBLIC cxx_std_17)
+target_include_directories(neteroExtra
         PUBLIC
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>)
 
 if(WIN32 AND WIN32_STATIC)
-    set_property(TARGET neteroECS PROPERTY
+    set_property(TARGET neteroExtra PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
 endif()
 
@@ -41,18 +39,21 @@ endif()
 ##  Installation
 ##====================================
 
-install(TARGETS neteroECS
-        EXPORT ecs-export
+install(TARGETS neteroExtra
+        EXPORT extra-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install(EXPORT ecs-export
+install(EXPORT extra-export
         FILE
-            ecsTargets.cmake
+            extraTargets.cmake
         NAMESPACE
             Netero::
         DESTINATION
             ${CMAKE_INSTALL_PREFIX}/lib/cmake/netero)
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/ecs
+install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/extra
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")
+install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/extra
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
+        FILES_MATCHING PATTERN "*.h")
