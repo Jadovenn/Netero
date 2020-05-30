@@ -38,6 +38,7 @@ add_compile_options("$<$<CONFIG:RELEASE>:-O2>")
 OPTION(NETERO_ECS "ecs, contain Entity Component System architecture" ON)
 OPTION(NETERO_AUDIO "Audio engine" ON)
 OPTION(NETERO_GRAPHICS "Graphics component based on ecs submodule" ON)
+OPTION(NETERO_EXTRA "Self hosted STB lib components." ON)
 
 ## Other config
 OPTION(NETERO_UNIT_TEST "Netero unit tests." OFF)
@@ -67,6 +68,10 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     endif()
 endif()
 
+if (NETERO_GRAPHICS)
+    include(cmake/netero-graphics-function.cmake)
+endif(NETERO_GRAPHICS)
+
 ##====================================
 ##  Sub-project
 ##====================================
@@ -78,11 +83,16 @@ endif(NETERO_AUDIO)
 if (NETERO_ECS)
     add_subdirectory(modules/ecs)
 endif(NETERO_ECS)
+if (NETERO_EXTRA)
+    add_subdirectory(modules/extra)
+endif(NETERO_EXTRA)
 if(NETERO_GRAPHICS)
     if(NOT NETERO_ECS)
         message(FATAL_ERROR "GRAPHICS rely on ECS, ECS must be activated")
     endif(NOT NETERO_ECS)
-    include(cmake/netero-graphics-function.cmake)
+    if(NOT NETERO_EXTRA)
+        message(FATAL_ERROR "GRAPHICS rely on EXTRA, EXTRA must be activated")
+    endif(NOT NETERO_EXTRA)
     add_subdirectory(modules/graphics)
 endif(NETERO_GRAPHICS)
 
