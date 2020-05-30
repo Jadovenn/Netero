@@ -1,10 +1,10 @@
 cmake_minimum_required (VERSION 3.11...3.16)
-project(netero_ecs
+project(neteroECS
         VERSION 0.1.0
         DESCRIPTION "Netero ecs submodule"
         LANGUAGES CXX)
 
-message(STATUS "Configure Netero ecs submodule")
+message(STATUS "Configure Netero ECS submodule")
 
 ##====================================
 ##  Generic core
@@ -25,15 +25,15 @@ list(APPEND SRCS
 ##  Target
 ##====================================
 
-add_library(netero_ecs STATIC ${SRCS} ${PUBLIC_HEADER})
-target_compile_features(netero_ecs PUBLIC cxx_std_17)
-target_include_directories(netero_ecs
+add_library(neteroECS STATIC ${SRCS} ${PUBLIC_HEADER})
+target_compile_features(neteroECS PUBLIC cxx_std_17)
+target_include_directories(neteroECS
         PUBLIC
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>)
 
 if(WIN32 AND WIN32_STATIC)
-    set_property(TARGET netero_ecs PROPERTY
+    set_property(TARGET neteroECS PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
 endif()
 
@@ -41,7 +41,7 @@ endif()
 ##  Installation
 ##====================================
 
-install(TARGETS netero_ecs
+install(TARGETS neteroECS
         EXPORT ecs-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib

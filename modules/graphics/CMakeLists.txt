@@ -67,9 +67,9 @@ list(APPEND SRCS
 ##  Target
 ##====================================
 
-add_library(netero_graphics STATIC ${SRCS} ${PUBLIC_HEADER})
-target_compile_features(netero_graphics PUBLIC cxx_std_17)
-target_include_directories(netero_graphics
+add_library(neteroGraphics STATIC ${SRCS} ${PUBLIC_HEADER})
+target_compile_features(neteroGraphics PUBLIC cxx_std_17)
+target_include_directories(neteroGraphics
         PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
@@ -79,7 +79,7 @@ target_include_directories(netero_graphics
         $<BUILD_INTERFACE:${glfw_INCLUDE_DIRS}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 message(STATUS "GLM headers: ${glm_SOURCE_DIR}")
-target_link_libraries(netero_graphics
+target_link_libraries(neteroGraphics
         PRIVATE
             Vulkan::Vulkan
             glfw)
@@ -88,7 +88,7 @@ target_link_libraries(netero_graphics
 ##  Installation
 ##====================================
 
-install(TARGETS netero_graphics
+install(TARGETS neteroGraphics
         EXPORT graphics-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
