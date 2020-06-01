@@ -79,5 +79,40 @@ namespace vkUtils {
         vkFreeCommandBuffers(device->logicalDevice, device->transferCommandPool, 1, &commandBuffer);
     }
 
+    std::pair<VkImage, VkDeviceMemory>  AllocImage(netero::graphics::Device* device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usages, VkMemoryPropertyFlags properties) {
+        VkImage image = nullptr;
+        VkDeviceMemory memory = nullptr;
+        VkImageCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        createInfo.imageType = VK_IMAGE_TYPE_2D;
+        createInfo.extent.width = width;
+        createInfo.extent.height = height;
+        createInfo.extent.depth = 1;
+        createInfo.mipLevels = 1;
+        createInfo.arrayLayers = 1;
+        createInfo.format = format;
+        createInfo.tiling = tiling;
+        createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        createInfo.usage = usages;
+        createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        VkResult result = vkCreateImage(device->logicalDevice, &createInfo, nullptr, &image);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Could not allocate image.");
+        }
+        VkMemoryRequirements    memRequirements;
+        vkGetImageMemoryRequirements(device->logicalDevice, image, &memRequirements);
+        VkMemoryAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize = memRequirements.size;
+        allocInfo.memoryTypeIndex = FindMemoryType(device->physicalDevice, memRequirements.memoryTypeBits, properties);
+        result = vkAllocateMemory(device->logicalDevice, &allocInfo, nullptr, &memory);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Could not allocate image memory.");
+        }
+        vkBindImageMemory(device->logicalDevice, image, memory, 0);
+        return { image, memory };
+    }
+
 }
 
