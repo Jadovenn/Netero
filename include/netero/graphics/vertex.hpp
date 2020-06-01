@@ -43,7 +43,7 @@ namespace netero::graphics {
     struct VertexBuffer {
         Device* _device;
         void    createVertexBuffer();
-        void    createIndexBuffer();
+        void    createIndexBuffer(int);
     public:
         VertexBuffer(Device*);
         VertexBuffer(const VertexBuffer&) = delete;
@@ -52,7 +52,8 @@ namespace netero::graphics {
         VertexBuffer& operator=(VertexBuffer&&) = delete;
         ~VertexBuffer();
 
-        void    transfer();
+        void    transfer(int);
+        void    release();
 
         VkBuffer            vertexBuffer;
         VkDeviceMemory      vertexBufferMemory;

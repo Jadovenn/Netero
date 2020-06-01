@@ -9,10 +9,10 @@
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 #include <netero/graphics/device.hpp>
-#include <netero/graphics/shader.hpp>
-#include <netero/graphics/vertex.hpp>
 
 namespace netero::graphics {
+
+    class Model;
 
     // see: https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap14.html#interfaces-resources-layout
     // for alignment requirements
@@ -30,11 +30,11 @@ namespace netero::graphics {
         void createDescriptorSets();
         void createDescriptorSetLayout();
         void createImageViews();
-        void createRenderPass();
-        void createGraphicsPipeline(std::vector<Shader>&);
+        void createRenderPass(std::vector<Model*>&);
+        void createGraphicsPipeline(std::vector<Model*>&);
         void createFrameBuffers();
         void createCommandPool();
-        void createCommandBuffers(VertexBuffer&);
+        void createCommandBuffers(std::vector<Model*>&);
 
         VkInstance          _instance;
         Device*             _device;
@@ -57,8 +57,8 @@ namespace netero::graphics {
         Pipeline& operator=(Pipeline&&) = delete;
         ~Pipeline();
 
-        void    build(std::vector<Shader>&, VertexBuffer&);
-        void    rebuild(std::vector<Shader>&, VertexBuffer&);
+        void    build(std::vector<Model*>&);
+        void    rebuild(std::vector<Model*>&);
         void    release();
 
         VkSwapchainKHR                  swapchain;

@@ -57,15 +57,12 @@ namespace netero::graphics {
         if (!this->_device) { throw std::bad_alloc(); }
         this->_device->setSurfaceHeight(height);
         this->_device->setSurfaceWidth(width);
-        this->_vertexBuffer = new VertexBuffer(this->_device);
-        if (!this->_vertexBuffer) { throw std::bad_alloc(); }
     }
 
     Context::~Context() {
         delete this->_pipeline;
-        delete this->_vertexBuffer;
-        for (const auto& shader: this->_shaderModules) {
-            vkDestroyShaderModule(this->_device->logicalDevice, shader.shaderModule, nullptr);
+        for (auto* model: this->_models) {
+            delete model;
         }
         for (unsigned idx = 0; static_cast<int>(idx) < this->MAX_FRAMES_IN_FLIGHT; idx++) {
             vkDestroySemaphore(this->_device->logicalDevice, this->_imageAvailableSemaphore[idx], nullptr);
@@ -77,6 +74,28 @@ namespace netero::graphics {
         glfwDestroyWindow(this->_pImpl->window);
     }
 
+    Model* Context::createModel() {
+        auto* model = new Model(_vulkanInstance, _device);
+        this->_models.push_back(model);
+        return model;
+    }
+
+    void Context::deleteModel(Model* model) {
+        auto it = std::find(this->_models.begin(), this->_models.end(), model);
+        if (it != this->_models.end()) {
+            this->_models.erase(it);
+            delete *it;
+        }
+    }
+
+    std::vector<std::string> Context::getPhysicalDevices() const {
+        return vkUtils::getDevicesName(this->_vulkanInstance);
+    }
+
+    std::string Context::getCurrentPhysicalDeviceName() const {
+        return this->_device->deviceName;
+    }
+
     void Context::recreateSwapchain() {
         vkDeviceWaitIdle(this->_device->logicalDevice);
         glfwGetFramebufferSize(this->_pImpl->window, &this->_width, &this->_height);
@@ -84,20 +103,23 @@ namespace netero::graphics {
             glfwGetFramebufferSize(this->_pImpl->window, &this->_width, &this->_height);
             glfwWaitEvents();
         }
-        this->_pipeline->rebuild(_shaderModules, *this->_vertexBuffer);
+        this->_pipeline->rebuild(this->_models);
     }
 
     void Context::run() {
         this->_pipeline = new Pipeline(this->_vulkanInstance, this->_device);
         if (!this->_pipeline) { throw std::bad_alloc(); }
-        this->_vertexBuffer->transfer();
-        this->_pipeline->build(this->_shaderModules, *this->_vertexBuffer);
+        this->_pipeline->build(this->_models);
         this->createSemaphores();
         while (!glfwWindowShouldClose(this->_pImpl->window)) {
             glfwPollEvents();
             this->drawFrame();
         }
         vkDeviceWaitIdle(this->_device->logicalDevice);
+        for (auto* model: this->_models) {
+            model->release();
+            model->_vertexBuffer.release();
+        }
         delete this->_pipeline;
         this->_pipeline = nullptr;
     }
