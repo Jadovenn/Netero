@@ -40,6 +40,18 @@ netero::audio::backend::impl::impl() {
 
 netero::audio::backend::impl::~impl() {
 	netero::os::releaseSystemResources();
+	for (auto device: this->_renderDevices) {
+		device->Release();
+		device.reset();
+	}
+	for (auto device: this->_captureDevices) {
+		device->Release();
+		device.reset();
+	}
+	for (auto device: this->_garbadgeDevices) {
+		device->Release();
+		device.reset();
+	}
 	//CoUninitialize();
 }
 

@@ -74,6 +74,7 @@ int    netero::audio::waveRecorder::captureAsyncHandler() {
         _fileStream.write(reinterpret_cast<char*>(tmpBuffer), blocksRead * sizeof(float));
         writtenSize += blocksRead;
     }
+    delete[] tmpBuffer;
     return writtenSize;
 }
 
