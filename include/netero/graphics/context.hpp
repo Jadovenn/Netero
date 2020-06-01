@@ -14,6 +14,7 @@
 #include <netero/graphics/shader.hpp>
 #include <netero/graphics/vertex.hpp>
 #include <netero/graphics/pipeline.hpp>
+#include <netero/graphics/model.hpp>
 
 namespace netero::graphics {
 
@@ -36,9 +37,9 @@ namespace netero::graphics {
 
         // Context related
         void    run();
-        int     loadShader(const std::string&, ShaderStage);
-        void    addVertices(std::vector<Vertex>&);
-        void    addVertices(std::vector<Vertex>&, std::vector<uint16_t>&);
+
+        [[nodiscard]] Model*  createModel();
+        void    deleteModel(Model*);
 
         // Device Related
         [[nodiscard]] std::vector<std::string>  getPhysicalDevices() const;
@@ -62,6 +63,7 @@ namespace netero::graphics {
         VertexBuffer*   _vertexBuffer = nullptr;
         Pipeline*       _pipeline = nullptr;
         std::vector<Shader>         _shaderModules;
+        std::vector<Model*>          _models;
         std::vector<VkSemaphore>    _imageAvailableSemaphore;
         std::vector<VkSemaphore>    _renderFinishedSemaphore;
         std::vector<VkFence>        _inFlightFences;

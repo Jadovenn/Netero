@@ -55,9 +55,10 @@ namespace vkUtils {
     VkExtent2D              ChooseSwapExtent(const VkSurfaceCapabilitiesKHR&, uint32_t, uint32_t);
 
     // Memory related
-    int32_t     FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
-    std::pair<VkBuffer, VkDeviceMemory>    AllocBuffer(netero::graphics::Device*, VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags);
-    void        TransferBuffer(netero::graphics::Device* device, VkBuffer source, VkBuffer destination, VkDeviceSize size);
+    int32_t                             FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    std::pair<VkBuffer, VkDeviceMemory> AllocBuffer(netero::graphics::Device*, VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags);
+    std::pair<VkImage, VkDeviceMemory>  AllocImage(netero::graphics::Device*, uint32_t, uint32_t, VkFormat, VkImageTiling, VkImageUsageFlags, VkMemoryPropertyFlags);
+    void                                TransferBuffer(netero::graphics::Device* device, VkBuffer source, VkBuffer destination, VkDeviceSize size);
 
     // Validation layers related
     std::vector<const char*>    getRequiredExtensions();

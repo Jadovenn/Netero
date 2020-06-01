@@ -1,3 +1,7 @@
+##
+## Netero sources under BSD-3-Clause
+## see LICENSE.txt
+##
 cmake_minimum_required (VERSION 3.11...3.16)
 
 find_package(Vulkan)
@@ -43,6 +47,7 @@ else()
     message(ERROR " NOT FOUND glslc")
 endif()
 
+## Compile and move shader to the bin directory
 function(target_add_shader TARGET SHADER_PATH)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/shaders)
     get_filename_component(SHADER ${SHADER_PATH} NAME_WE)
@@ -61,3 +66,22 @@ function(target_add_shader TARGET SHADER_PATH)
                 MACOSX_PACKAGE_LOCATION "Shaders")
     endif(APPLE)
 endfunction(target_add_shader)
+
+## move texture/image to the bin directory
+function(target_add_texture TARGET TEXTURE_PATH)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/textures)
+    get_filename_component(TEXTURE ${TEXTURE_PATH} NAME)
+    set(TEXTURE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/textures/${TEXTURE})
+    set(CURRENT_TEXTURE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${TEXTURE_PATH})
+    add_custom_command(
+        OUTPUT ${TEXTURE_OUTPUT_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy ${CURRENT_TEXTURE_PATH} ${TEXTURE_OUTPUT_PATH}
+    )
+    set_source_files_properties(${TEXTURE_OUTPUT_PATH} PROPERTIES GENERATED TRUE)
+    target_sources(${TARGET} PRIVATE ${TEXTURE_OUTPUT_PATH})
+    if (APPLE)
+        set_source_files_properties(${TEXTURE_OUTPUT_PATH} PROPERTIES
+                MACOSX_PACKAGE_LOCATION "Textures")
+    endif(APPLE)
+endfunction(target_add_texture)
+

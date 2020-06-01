@@ -42,6 +42,7 @@ endif()
 list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/application.hpp
         ${HEADERS_DIRECTORY}/graphics/context.hpp
+        ${HEADERS_DIRECTORY}/graphics/model.hpp
         ${HEADERS_DIRECTORY}/graphics/shader.hpp
         ${HEADERS_DIRECTORY}/graphics/vertex.hpp
         ${HEADERS_DIRECTORY}/graphics/device.hpp
@@ -49,19 +50,20 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/window.hpp)
 list(APPEND SRCS
         application.cpp
+        context.cpp
         device.cpp
         vertex.cpp
         pipeline.cpp
+        model/model.cpp
+        model/model_render.cpp
+        model/instance.cpp
         utils/vkUtils.hpp
         utils/vkCheckValidationLayerSupport.cpp
         utils/vkExtentionLoaders.cpp
         utils/vkDebugCallbacks.cpp
         utils/vkFindQueueFamilies.cpp
         utils/vkSwapChainSupport.cpp
-        utils/vkMemory.cpp
-        context/context.cpp
-        context/physicalDevices.cpp
-        context/shaders.cpp)
+        utils/vkMemory.cpp)
 
 ##====================================
 ##  Target
@@ -80,6 +82,8 @@ target_include_directories(neteroGraphics
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 message(STATUS "GLM headers: ${glm_SOURCE_DIR}")
 target_link_libraries(neteroGraphics
+        PUBLIC
+            neteroExtra
         PRIVATE
             Vulkan::Vulkan
             glfw)
