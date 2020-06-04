@@ -159,7 +159,7 @@ namespace netero::graphics {
             &this->_descriptorSets[cmdBufferIndex],
             0,
             nullptr);
-        vkCmdDrawIndexed(cmdBuffer, static_cast<uint32_t>(this->_vertexBuffer.indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(cmdBuffer, static_cast<uint32_t>(this->_vertexBuffer.indices.size()), this->_modelInstances.size(), 0, 0, 0);
     }
 }
 

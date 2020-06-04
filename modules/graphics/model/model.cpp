@@ -29,7 +29,9 @@ namespace netero::graphics {
             _device(device),
             _vertexBuffer(_device),
             _pipelineLayout(nullptr),
-            _graphicsPipeline(nullptr)
+            _graphicsPipeline(nullptr),
+            _descriptorPool(nullptr),
+            _descriptorSetLayout(nullptr)
     {}
 
     Model::~Model() {

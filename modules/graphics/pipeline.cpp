@@ -95,7 +95,7 @@ namespace netero::graphics {
     void Pipeline::rebuildModels(std::vector<Model*>& models) {
         const size_t swapchainImagesCount = this->swapchainImages.size();
         for (auto* model : models) {
-            model->build(swapchainImagesCount, this->_renderPass, this->swapchainExtent);
+            model->rebuild(swapchainImagesCount, this->_renderPass, this->swapchainExtent);
         }
     }
 

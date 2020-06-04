@@ -44,18 +44,16 @@ int    main() {
         square2DModel->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
         square2DModel->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
         square2DModel->addVertices(vertices, indices);
-        auto* triangle2DModel = context->createModel();
-        triangle2DModel->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
-        triangle2DModel->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
-        triangle2DModel->addVertices(triangleVertices);
         // Create an instance of our model that is rendered in the graphic pipeline
         auto* mySquare = square2DModel->createInstance();
-        auto* myTriangle = triangle2DModel->createInstance();
+        auto* mySecondSquare = square2DModel->createInstance();
+        mySquare->z.rotate(glm::radians(45.0f));
+        mySquare->x.scale(0.5);
+        mySquare->y.scale(0.5);
         context->run();
         square2DModel->deleteInstance(mySquare);
+        square2DModel->deleteInstance(mySecondSquare);
         context->deleteModel(square2DModel);
-        triangle2DModel->deleteInstance(myTriangle);
-        context->deleteModel(triangle2DModel);
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

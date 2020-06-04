@@ -33,7 +33,7 @@ namespace netero::graphics {
     class Axis {
         volatile float   _value = 0;
         volatile float   _rotation = 0;
-        volatile float   _scale = 0;
+        volatile float   _scale = 1;
     public:
         operator float() { return this->_value; }
         float operator=(float value) { this->_value = value; return this->_value; };
@@ -51,16 +51,16 @@ namespace netero::graphics {
      * Many instance of a model may exist.
      */
     class Instance {
-        friend class Context;
+        friend class Model;
 
         // Need to recheck the order of the operation
         glm::mat4 getModelMat() {
             glm::mat4 model(1.f);
+            model = glm::translate(model, glm::vec3(x, y, z));
             model = glm::rotate(model, x.getRotation(), glm::vec3(1, 0, 0));
             model = glm::rotate(model, y.getRotation(), glm::vec3(0, 1, 0));
             model = glm::rotate(model, z.getRotation(), glm::vec3(0, 0, 1));
             model = glm::scale(model, glm::vec3(x.getScaling(), y.getScaling(), z.getScaling()));
-            model = glm::translate(model, glm::vec3(x, y, z));
             return model;
         }
     public:

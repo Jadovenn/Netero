@@ -11,7 +11,7 @@
 namespace netero::graphics {
 
     void Model::createUniformBuffers(size_t swapchainImagesCount) {
-        const VkDeviceSize    size = sizeof(UniformBufferObject);
+        const VkDeviceSize    size = sizeof(UniformBufferObject) * this->_modelInstances.size();
         this->uniformBuffers.resize(swapchainImagesCount);
         this->uniformBuffersMemory.resize(swapchainImagesCount);
         for (size_t idx = 0; idx < swapchainImagesCount; ++idx) {
@@ -53,7 +53,7 @@ namespace netero::graphics {
             VkDescriptorBufferInfo bufferInfo{};
             bufferInfo.buffer = uniformBuffers[i];
             bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(UniformBufferObject);
+            bufferInfo.range = sizeof(UniformBufferObject) * this->_modelInstances.size();
             VkWriteDescriptorSet descriptorWrite{};
             descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrite.dstSet = this->_descriptorSets[i];
@@ -88,33 +88,25 @@ namespace netero::graphics {
     }
 
     void Model::updateMVP(uint32_t frameIndex, VkExtent2D swapchainExtent) {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-        auto now = std::chrono::high_resolution_clock::now();
-        const float time = std::chrono::duration<float, std::chrono::seconds::period>(now - startTime).count();
-        UniformBufferObject ubo{};
-        glm::mat4 model(1.f);
-        model = glm::rotate(model,
-            time * glm::radians(90.f),
-            glm::vec3(0.f, 0.f, 1.f));
-        //model = glm::translate(model, glm::vec3(1, 0, 0));
-        ubo.model = model;
-        ubo.view = glm::lookAt(glm::vec3(0.f, 0.f, 2.f),
-            glm::vec3(0.f, 0.f, 0.f),
-            glm::vec3(0.f, 1.f, 0.f));
-        ubo.proj = glm::perspectiveRH(glm::radians(45.f),
-            swapchainExtent.width / static_cast<float>(swapchainExtent.height),
-            0.1f,
-            100.f);
-        // remember Y axis is upside down
-        //ubo.proj[1][1] *= -1;
-        void* data;
+        UniformBufferObject* data = nullptr;
         vkMapMemory(this->_device->logicalDevice,
             this->uniformBuffersMemory[frameIndex],
             0,
-            sizeof(ubo),
+            sizeof(UniformBufferObject) * this->_modelInstances.size(),
             0,
-            &data);
-        memcpy(data, &ubo, sizeof(ubo));
+            reinterpret_cast<void**>(&data));
+        for (size_t idx = 0; idx < this->_modelInstances.size(); ++idx) {
+            UniformBufferObject ubo{};
+            ubo.model = this->_modelInstances[idx]->getModelMat();
+            ubo.view = glm::lookAt(glm::vec3(0.f, 0.f, 2.f),
+                glm::vec3(0.f, 0.f, 0.f),
+                glm::vec3(0.f, 1.f, 0.f));
+            ubo.proj = glm::perspectiveRH(glm::radians(45.f),
+                swapchainExtent.width / static_cast<float>(swapchainExtent.height),
+                0.1f,
+                100.f);
+            memcpy(&data[idx], &ubo, sizeof(ubo));
+        }
         vkUnmapMemory(this->_device->logicalDevice,
             this->uniformBuffersMemory[frameIndex]);
     }
