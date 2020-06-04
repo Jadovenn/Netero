@@ -38,18 +38,31 @@ namespace netero::graphics {
         friend class netero::graphics::Context;
         friend class netero::graphics::Pipeline;
 
+        void build(size_t, VkRenderPass, VkExtent2D);
+        void rebuild(size_t, VkRenderPass, VkExtent2D);
+        void release(size_t);
         void transferVertexBuffer();
-        void release();
-        void createGraphicsPipeline(VkRenderPass, VkExtent2D, VkDescriptorSetLayout);
-        void commitRenderCommand(VkRenderPass, VkCommandBuffer, VkFramebuffer, VkDescriptorSet, VkExtent2D);
+
+        void createUniformBuffers(size_t); // DONE
+        void createDescriptorPool(size_t);  // DONE
+        void createDescriptorSets(size_t); // DONE
+        void createDescriptorSetLayout(); // DONE
+        void createGraphicsPipeline(VkRenderPass, VkExtent2D);
+        void commitRenderCommand(VkRenderPass, VkCommandBuffer, VkFramebuffer, VkExtent2D, size_t);
+        void updateMVP(uint32_t, VkExtent2D);
 
         VkInstance          _instance;
         Device*             _device;
         VertexBuffer        _vertexBuffer;
         VkPipelineLayout    _pipelineLayout;
         VkPipeline          _graphicsPipeline;
+        VkDescriptorPool    _descriptorPool;
+        VkDescriptorSetLayout   _descriptorSetLayout;
         std::vector<Shader>     _shaderModules;
         std::vector<Instance*>  _modelInstances;
+        std::vector<VkBuffer>           uniformBuffers;
+        std::vector<VkDeviceMemory>     uniformBuffersMemory;
+        std::vector<VkDescriptorSet>    _descriptorSets;
     public:
         ~Model();
 

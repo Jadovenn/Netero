@@ -3,23 +3,13 @@
  * see LICENSE.txt
  */
 
+#include <stdexcept>
 #include <netero/graphics/model.hpp>
 
 namespace netero::graphics {
 
-    void Model::transferVertexBuffer() {
-        if (this->_modelInstances.size() == 0) { return; }
-        this->_vertexBuffer.transfer(this->_modelInstances.size());
-    }
-
-    void Model::release() {
-        if (this->_modelInstances.size() == 0) { return; }
-        vkDestroyPipeline(this->_device->logicalDevice, this->_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(this->_device->logicalDevice, this->_pipelineLayout, nullptr);
-    }
-
-    void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout) {
-        if (this->_modelInstances.size() == 0) { return; }
+    void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent) {
+        if (this->_modelInstances.empty()) { return; }
         std::vector<VkPipelineShaderStageCreateInfo> shaderStage;
         for (const auto& shader : this->_shaderModules) {
             VkPipelineShaderStageCreateInfo createInfo = {};
@@ -78,7 +68,7 @@ namespace netero::graphics {
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        //rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
         rasterizer.depthBiasConstantFactor = 0.0f;
@@ -122,7 +112,7 @@ namespace netero::graphics {
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = &this->_descriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
         if (vkCreatePipelineLayout(this->_device->logicalDevice, &pipelineLayoutInfo, nullptr, &this->_pipelineLayout) != VK_SUCCESS) {
@@ -153,9 +143,9 @@ namespace netero::graphics {
     void Model::commitRenderCommand(VkRenderPass renderPass,
         VkCommandBuffer cmdBuffer,
         VkFramebuffer frameBuffer,
-        VkDescriptorSet descriptorSet,
-        VkExtent2D swapchainExtent) {
-        if (this->_modelInstances.size() == 0) { return; }
+        VkExtent2D swapchainExtent,
+        size_t cmdBufferIndex) {
+        if (this->_modelInstances.empty()) { return; }
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->_graphicsPipeline);
         VkBuffer vertexBuffer[] = { this->_vertexBuffer.vertexBuffer };
         VkDeviceSize    offsets[] = { 0 };
@@ -166,12 +156,10 @@ namespace netero::graphics {
             this->_pipelineLayout,
             0,
             1,
-            &descriptorSet,
+            &this->_descriptorSets[cmdBufferIndex],
             0,
             nullptr);
         vkCmdDrawIndexed(cmdBuffer, static_cast<uint32_t>(this->_vertexBuffer.indices.size()), 1, 0, 0, 0);
     }
-
-
 }
 

@@ -49,7 +49,7 @@ namespace netero::graphics {
         void    createSemaphores();
         void    drawFrame();
         void    recreateSwapchain();
-        void    updateUniformBuffer(uint32_t imageIndex);
+        //void    updateUniformBuffer(uint32_t imageIndex);
 
         VkInstance  _vulkanInstance;
         int    _height;

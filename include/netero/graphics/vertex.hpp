@@ -52,7 +52,7 @@ namespace netero::graphics {
         VertexBuffer& operator=(VertexBuffer&&) = delete;
         ~VertexBuffer();
 
-        void    transfer(int);
+        void    AllocateAndTransfer(int);
         void    release();
 
         VkBuffer            vertexBuffer;

@@ -37,7 +37,8 @@ namespace netero::graphics {
         this->indexBufferMemory = nullptr;
     }
 
-    void VertexBuffer::transfer(int instanceCount) {
+    void VertexBuffer::AllocateAndTransfer(int instanceCount) {
+        if (this->vertexBuffer) { return; }
         this->createVertexBuffer();
         this->createIndexBuffer(instanceCount);
     }

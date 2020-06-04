@@ -55,7 +55,8 @@ list(APPEND SRCS
         vertex.cpp
         pipeline.cpp
         model/model.cpp
-        model/model_render.cpp
+        model/vk_model_pipeline.cpp
+        model/vk_model_uniform_buffer.cpp
         model/instance.cpp
         utils/vkUtils.hpp
         utils/vkCheckValidationLayerSupport.cpp

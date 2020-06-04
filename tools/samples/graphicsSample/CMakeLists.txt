@@ -24,7 +24,8 @@ endif(APPLE)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} netero neteroGraphics)
-target_add_shader(${PROJECT_NAME} shaders/triangleVertices.vert)
-target_add_shader(${PROJECT_NAME} shaders/triangleFragment.frag)
+target_add_shader(${PROJECT_NAME} shaders/3DObjectProj.vert)
+target_add_shader(${PROJECT_NAME} shaders/2DObjectProj.vert)
+target_add_shader(${PROJECT_NAME} shaders/ColorFragment.frag)
 target_add_texture(${PROJECT_NAME} textures/cat.png)
 

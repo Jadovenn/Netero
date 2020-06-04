@@ -9,15 +9,23 @@
 #include <netero/graphics/context.hpp>
 #include <netero/graphics/vertex.hpp>
 
-const std::string g_triangleVertices_path = netero::os::getBundlePath() + "/shaders/triangleVertices.spv";
-const std::string g_triangleFragment_path = netero::os::getBundlePath() + "/shaders/triangleFragment.spv";
+const std::string g_2DObjectVertexShader_path = netero::os::getBundlePath() + "/shaders/2DObjectProj.spv";
+const std::string g_3DObjectVertexShader_path = netero::os::getBundlePath() + "/shaders/3DObjectProj.spv";
+const std::string g_ColorFragmentShader_path = netero::os::getBundlePath() + "/shaders/ColorFragment.spv";
 const std::string g_texture = netero::os::getBundlePath() + "/textures/cat.png";
 
 std::vector<netero::graphics::Vertex>   vertices {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{-0.5f, -0.5f}, {1.f, 0.0f, 0.f}},
     {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{0.5f, 0.5f}, {0.f, 0.0f, 1.f}},
     {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+};
+
+
+std::vector<netero::graphics::Vertex>   triangleVertices {
+    {{-1.f, -1.f}, {1.f, 0.0f, 0.f}},
+    {{-1.f, -0.5f}, {0.f, 1.0f, 0.f}},
+    {{-0.5f, -0.5f}, {0.f, 0.0f, 1.f}},
 };
 
 std::vector<uint16_t>    indices{
@@ -32,14 +40,22 @@ int    main() {
         // Create a new context with its window
         auto* context = app->newWindowedContext(800, 600, netero::graphics::WindowMode::RESIZABLE);
         // Create a new model that is a square
-        auto* squareModel = context->createModel();
-        squareModel->loadShader(g_triangleVertices_path, netero::graphics::ShaderStage::VERTEX);
-        squareModel->loadShader(g_triangleFragment_path, netero::graphics::ShaderStage::FRAGMENT);
-        squareModel->addVertices(vertices, indices);
+        auto* square2DModel = context->createModel();
+        square2DModel->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
+        square2DModel->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
+        square2DModel->addVertices(vertices, indices);
+        auto* triangle2DModel = context->createModel();
+        triangle2DModel->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
+        triangle2DModel->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
+        triangle2DModel->addVertices(triangleVertices);
         // Create an instance of our model that is rendered in the graphic pipeline
-        auto* myFirstSquare = squareModel->createInstance();
+        auto* mySquare = square2DModel->createInstance();
+        auto* myTriangle = triangle2DModel->createInstance();
         context->run();
-        squareModel->deleteInstance(myFirstSquare);
+        square2DModel->deleteInstance(mySquare);
+        context->deleteModel(square2DModel);
+        triangle2DModel->deleteInstance(myTriangle);
+        context->deleteModel(triangle2DModel);
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
