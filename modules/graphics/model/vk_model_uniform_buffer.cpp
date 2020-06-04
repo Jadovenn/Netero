@@ -92,16 +92,12 @@ namespace netero::graphics {
         auto now = std::chrono::high_resolution_clock::now();
         const float time = std::chrono::duration<float, std::chrono::seconds::period>(now - startTime).count();
         UniformBufferObject ubo{};
-        glm::mat4 modelPosition(
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        );
-        modelPosition = glm::rotate(modelPosition,
+        glm::mat4 model(1.f);
+        model = glm::rotate(model,
             time * glm::radians(90.f),
             glm::vec3(0.f, 0.f, 1.f));
-        ubo.model = modelPosition;
+        //model = glm::translate(model, glm::vec3(1, 0, 0));
+        ubo.model = model;
         ubo.view = glm::lookAt(glm::vec3(0.f, 0.f, 2.f),
             glm::vec3(0.f, 0.f, 0.f),
             glm::vec3(0.f, 1.f, 0.f));

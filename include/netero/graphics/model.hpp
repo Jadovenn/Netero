@@ -13,7 +13,6 @@
 #include <netero/graphics/shader.hpp>
 #include <netero/graphics/device.hpp>
 #include <netero/graphics/vertex.hpp>
-#include <netero/graphics/pipeline.hpp>
 
 namespace netero::graphics {
 
@@ -57,12 +56,11 @@ namespace netero::graphics {
         // Need to recheck the order of the operation
         glm::mat4 getModelMat() {
             glm::mat4 model(1.f);
-            model[3][0] = x;
-            model[3][1] = y;
-            model[3][2] = z;
             model = glm::rotate(model, x.getRotation(), glm::vec3(1, 0, 0));
             model = glm::rotate(model, y.getRotation(), glm::vec3(0, 1, 0));
             model = glm::rotate(model, z.getRotation(), glm::vec3(0, 0, 1));
+            model = glm::scale(model, glm::vec3(x.getScaling(), y.getScaling(), z.getScaling()));
+            model = glm::translate(model, glm::vec3(x, y, z));
             return model;
         }
     public:
@@ -85,7 +83,6 @@ namespace netero::graphics {
         void build(size_t, VkRenderPass, VkExtent2D);
         void rebuild(size_t, VkRenderPass, VkExtent2D);
         void release(size_t);
-        void transferVertexBuffer();
 
         void createUniformBuffers(size_t); // DONE
         void createDescriptorPool(size_t);  // DONE
