@@ -14,13 +14,7 @@ namespace netero::graphics {
 
     class Model;
 
-    // see: https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap14.html#interfaces-resources-layout
-    // for alignment requirements
-    struct UniformBufferObject {
-        glm::mat4   model;
-        glm::mat4   view;
-        glm::mat4   proj;
-    };
+
 
     struct Pipeline {
    private:
@@ -44,7 +38,7 @@ namespace netero::graphics {
         VkPipeline          _graphicsPipeline;
         VkCommandPool       _commandPool;
         VkFormat            _swapchainImageFormat = VK_FORMAT_UNDEFINED;
-        UniformBufferObject _ubo {};
+        //UniformBufferObject _ubo {};
         //VkDescriptorPool    _descriptorPool; // Model
         //VkDescriptorSetLayout           _descriptorSetLayout; // Model
         //std::vector<VkDescriptorSet>    _descriptorSets; // Model

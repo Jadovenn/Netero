@@ -14,6 +14,14 @@
 
 namespace netero::graphics {
 
+    // see: https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap14.html#interfaces-resources-layout
+    // for alignment requirements
+    struct UniformBufferObject {
+        glm::mat4   model;
+        glm::mat4   view;
+        glm::mat4   proj;
+    };
+
     /**
      * @brief Actual instance of a model
      * An instance represent one model in the context
