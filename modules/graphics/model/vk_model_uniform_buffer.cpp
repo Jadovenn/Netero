@@ -5,11 +5,7 @@
 
 #include <stdexcept>
 #include <chrono>
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <netero/graphics/model.hpp>
-
 #include "utils/vkUtils.hpp"
 
 namespace netero::graphics {

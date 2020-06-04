@@ -14,8 +14,6 @@ namespace netero::graphics {
 
     class Model;
 
-
-
     struct Pipeline {
    private:
         void createSwapchain();
