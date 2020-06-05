@@ -39,12 +39,13 @@ OPTION(NETERO_ECS "ecs, contain Entity Component System architecture" ON)
 OPTION(NETERO_AUDIO "Audio engine" ON)
 OPTION(NETERO_GRAPHICS "Graphics component based on ecs submodule" ON)
 OPTION(NETERO_EXTRA "Self hosted STB lib components." ON)
+OPTION(NETERO_MEMCHECK "Lightweight memory checker." ON)
 
 ## Other config
 OPTION(NETERO_UNIT_TEST "Netero unit tests." OFF)
 OPTION(NETERO_TOOLS "Netero additional tools." OFF)
 
-## Build config
+## Build config mainly for CI
 OPTION(WIN32_STATIC "Link staticaly with win32's dll" OFF)
 OPTION(CODE_COVERAGE "Enable coverage reporting" OFF)
 OPTION(MOCK_INTERFACES "Enable mock interfaces" OFF)
@@ -57,9 +58,9 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Add required flags (GCC & LLVM/Clang)
     add_library(coverage_config INTERFACE)
     target_compile_options(coverage_config INTERFACE
-            -O0        # no optimization
-            -g         # generate debug info
-            --coverage # sets all required flags
+            -O0
+            -g
+            --coverage
             )
     if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
         target_link_options(coverage_config INTERFACE --coverage)
@@ -80,12 +81,15 @@ add_subdirectory(modules/core)
 if (NETERO_AUDIO)
     add_subdirectory(modules/audio)
 endif(NETERO_AUDIO)
+
 if (NETERO_ECS)
     add_subdirectory(modules/ecs)
 endif(NETERO_ECS)
+
 if (NETERO_EXTRA)
     add_subdirectory(modules/extra)
 endif(NETERO_EXTRA)
+
 if(NETERO_GRAPHICS)
     if(NOT NETERO_ECS)
         message(FATAL_ERROR "GRAPHICS rely on ECS, ECS must be activated")
@@ -95,6 +99,10 @@ if(NETERO_GRAPHICS)
     endif(NOT NETERO_EXTRA)
     add_subdirectory(modules/graphics)
 endif(NETERO_GRAPHICS)
+
+if(NETERO_MEMCHECK)
+    add_subdirectory(modules/memcheck)
+endif(NETERO_MEMCHECK)
 
 if(NETERO_TOOLS)
     add_subdirectory(tools)

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <list>
 #include <type_traits>
+#include <memory>
 
  namespace netero {
 
@@ -22,12 +23,14 @@
  	 * @tparam T the type hold by the container
  	 */
  	template <class T,
+        class Allocator = std::allocator<T>,
  		typename = std::enable_if<std::is_copy_constructible<T>::value>>
  	class avl {
  		/**
          * @brief structure representing a node in the tree,
          * it hold the data provide by the client
          */
+
         struct node {
         	explicit node(T *data, node *parent = nullptr)
          		:   balance(0),
@@ -536,6 +539,7 @@
      		return nullptr; // should never be reach
         }
         node   *root; /**< The root node of the tree container. */
+        Allocator   allocator;
      };
  }
 

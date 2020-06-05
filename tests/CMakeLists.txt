@@ -70,6 +70,12 @@ add_project_test(NAME test_signal_container SOURCES observer/test_signal_contain
 add_project_test(NAME test_slot_container SOURCES observer/test_slot_container.cpp DEPENDS netero)
 
 ##====================================
+##  Test MEMCHECK
+##====================================
+
+add_project_test(NAME test_allocator SOURCES memcheck/test_allocator.cpp DEPENDS Netero::Memcheck)
+
+##====================================
 ##  Test ECS
 ##====================================
 
