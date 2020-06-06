@@ -12,11 +12,10 @@ message(STATUS "Configure Netero Memcheck")
 
 list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/memcheck/block.hpp
-        ${HEADERS_DIRECTORY}/memcheck/memory.hpp
-        ${HEADERS_DIRECTORY}/memcheck/report.hpp)
+        ${HEADERS_DIRECTORY}/memcheck/new.hpp)
 
 list(APPEND SRCS
-        report.cpp)
+        new.cpp)
 
 add_library(neteroMemcheck STATIC ${SRCS} ${PUBLIC_HEADER})
 add_library(Netero::Memcheck ALIAS neteroMemcheck)
