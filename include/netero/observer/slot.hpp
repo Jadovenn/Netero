@@ -27,13 +27,13 @@ namespace netero {
 	/**
 	 * @brief Slot container to hold a functor object.
 	 * @tparam _rType Return type
-	 * @tparam _ArgsType Arguments type.
+	 * @tparam ArgsType Arguments type.
 	 * A slot is a container used to hold a callable object such as a
 	 * function, functor or a method. It manage connection to signals and will
 	 * automatically disconnect from any signal while destructed.
 	 */
-	template <typename _rType, typename ..._ArgsType>
-	class slot<_rType(_ArgsType...)>: public IObserverDelegate {
+	template <typename _rType, typename ...ArgsType>
+	class slot<_rType(ArgsType...)>: public IObserverDelegate {
 	public:
 
 		/**
@@ -45,7 +45,7 @@ namespace netero {
 		 * @brief Instantiate a slot with a function ptr.
 		 * @param func_ptr Function pointer.
 		 */
-		explicit slot(_rType(*func_ptr)(_ArgsType...)) noexcept
+		explicit slot(_rType(*func_ptr)(ArgsType...)) noexcept
 			:	_function(func_ptr)
 		{}
 
@@ -53,7 +53,7 @@ namespace netero {
 		 * @brief Instantiate a slot from a standard function container.
 		 * @param f Standard function object.
 		 */
-		explicit slot(const std::function<_rType(_ArgsType...)> &f) noexcept
+		explicit slot(const std::function<_rType(ArgsType...)> &f) noexcept
 			:	_function(f)
 		{}
 
@@ -64,9 +64,9 @@ namespace netero {
 		 * @param base Pointer to instance of the class.
 		 */
 		template <typename _Base>
-		slot(_rType(_Base::*method)(_ArgsType...), _Base *base) {
-			_function = [method, base] (_ArgsType ...args) -> _rType {
-				return (base->*method)(std::forward<_ArgsType>(args)...);
+		slot(_rType(_Base::*method)(ArgsType...), _Base *base) {
+			_function = [method, base] (ArgsType ...args) -> _rType {
+				return (base->*method)(std::forward<ArgsType>(args)...);
 			};
 		}
 
@@ -75,7 +75,7 @@ namespace netero {
 		 * @param copy
 		 * This will also copy signal connection.
 		 */
-		slot(const slot<_rType(_ArgsType...)> &copy)
+		slot(const slot<_rType(ArgsType...)> &copy)
 			:	_function(copy._function)
 		{
 				for (auto signal: copy._signals) {
@@ -83,12 +83,25 @@ namespace netero {
 				}
 		}
 
+        /**
+         * @brief move constructor
+         * @param other
+         */
+        slot(slot<_rType(ArgsType...)>&& other) {
+            this->_function = std::move(other._function);
+            for (auto* signal: other._signals) {
+                signal->disconnect(&other);
+                signal->connect(this);
+            }
+            other._signals.clear();
+        }
+
 		/**
 		 * @brief copy operator
 		 * @param copy arg
 		 * @return
 		 */
-		slot<_rType(_ArgsType...)>&  operator=(const slot<_rType(_ArgsType...)>& copy) {
+		slot<_rType(ArgsType...)>&  operator=(const slot<_rType(ArgsType...)>& copy) {
 			for (auto *signal : this->_signals) {
 				signal->disconnect(this);
 			}
@@ -105,19 +118,23 @@ namespace netero {
 
 		/**
 		 * @brief move operator
-		 * @param move arg
-		 * @return 
+		 * @param other
+		 * @return *this
 		 */
-		slot<_rType(_ArgsType...)>& operator=(slot<_rType(_ArgsType...)>&& copy) {
+		slot<_rType(ArgsType...)>& operator=(slot<_rType(ArgsType...)>&& other) {
 			std::vector<netero::IObserverDelegate*> tmp_signal_move;
 			for (auto* signal : this->_signals) {
 				signal->disconnect(this);
 			}
 			{
 				std::scoped_lock<std::mutex>	lock(_sigMutex);
-				this->_function = std::move(copy._function);
+				this->_function = std::move(other._function);
 				this->_signals.clear();
-				tmp_signal_move = std::move(copy._signals);
+				for (auto* signal: other._signals) {
+				    signal->disconnect(&other);
+				    tmp_signal_move.push_back(signal);
+				}
+				other._signals.clear();
 			}
 			for (auto* signal : tmp_signal_move) {
 				signal->connect(this);
@@ -142,10 +159,10 @@ namespace netero {
 		 * @param base Pointer to instance of the class.
 		 */
 		template <typename _Base>
-		void	set(_rType(_Base::* method)(_ArgsType...), _Base* base) {
+		void	set(_rType(_Base::* method)(ArgsType...), _Base* base) {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
-			_function = [method, base] (_ArgsType ...args) -> _rType {
-				return (base->*method)(std::forward<_ArgsType>(args)...);
+			_function = [method, base] (ArgsType ...args) -> _rType {
+				return (base->*method)(std::forward<ArgsType>(args)...);
 			};
 		}
 
@@ -154,7 +171,7 @@ namespace netero {
 		 * @param function_ptr Function pointer.
 		 * Set the internal functor container to the given function pointer.
 		 */
-		void	set(_rType(*function_ptr)(_ArgsType...)) {
+		void	set(_rType(*function_ptr)(ArgsType...)) {
 			_function = function_ptr;
 		}
 
@@ -165,7 +182,7 @@ namespace netero {
 		 * Set the inter functor container to the give functor ref using
 		 * the copy operator.
 		 */
-		void	set(const std::function<_rType(_ArgsType...)> &functor) {
+		void	set(const std::function<_rType(ArgsType...)> &functor) {
 			_function = functor;
 		}
 
@@ -174,10 +191,10 @@ namespace netero {
 		 * @param args
 		 * @return
 		 */
-		virtual _rType    operator()(_ArgsType... args) {
+		virtual _rType    operator()(ArgsType... args) {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			if (_function) {
-				return _function(std::forward<_ArgsType>(args)...);
+				return _function(std::forward<ArgsType>(args)...);
 			}
 			throw netero::bad_slot_call();
 		}
@@ -230,7 +247,7 @@ namespace netero {
 
 	private:
 		std::mutex								_sigMutex; /**< Mutex to prevent data race over signal vector. */
-		std::function<_rType(_ArgsType...)>		_function; /**< Standard functor container. */
+		std::function<_rType(ArgsType...)>		_function; /**< Standard functor container. */
 		std::vector<netero::IObserverDelegate*>	_signals; /**< Signal vector to keep track of lifecycle connection. */
 	};
 }
