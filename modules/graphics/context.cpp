@@ -84,7 +84,7 @@ namespace netero::graphics {
         auto it = std::find(this->_models.begin(), this->_models.end(), model);
         if (it != this->_models.end()) {
             this->_models.erase(it);
-            delete *it;
+            delete model;
         }
     }
 
@@ -116,10 +116,7 @@ namespace netero::graphics {
             this->drawFrame();
         }
         vkDeviceWaitIdle(this->_device->logicalDevice);
-        for (auto* model: this->_models) {
-            model->release();
-            model->_vertexBuffer.release();
-        }
+        this->_pipeline->releaseModels(this->_models);
         delete this->_pipeline;
         this->_pipeline = nullptr;
     }
@@ -154,7 +151,10 @@ namespace netero::graphics {
         }
         this->_imagesInFlight[imageIndex] = this->_inFlightFences[this->_currentFrame];
 
-        updateUniformBuffer(imageIndex);
+        //updateUniformBuffer(imageIndex);
+        for (auto* model : this->_models) {
+            model->updateMVP(imageIndex, this->_pipeline->swapchainExtent);
+        }
         VkSemaphore waitSemaphores[] = { this->_imageAvailableSemaphore[this->_currentFrame] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         VkSubmitInfo submitInfo{};
@@ -229,23 +229,31 @@ namespace netero::graphics {
         }
     }
 
+    /**
     void Context::updateUniformBuffer(uint32_t imageIndex) {
         static auto startTime = std::chrono::high_resolution_clock::now();
         auto now = std::chrono::high_resolution_clock::now();
         const float time = std::chrono::duration<float, std::chrono::seconds::period>(now - startTime).count();
-        UniformBufferObject ubo{};
-        ubo.model = glm::rotate(glm::mat4(1.f),
+        UniformBufferObject ubo {};
+        glm::mat4 modelPosition(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+            );
+        modelPosition = glm::rotate(modelPosition,
             time * glm::radians(90.f),
             glm::vec3(0.f, 0.f, 1.f));
-        ubo.view = glm::lookAt(glm::vec3(2.f, 2.f, 2.f),
+        ubo.model = modelPosition;
+        ubo.view = glm::lookAt(glm::vec3(0.f, 0.f, 2.f),
             glm::vec3(0.f, 0.f, 0.f),
-            glm::vec3(0.f, 0.f, 1.f));
-        ubo.proj = glm::perspective(glm::radians(45.f),
+            glm::vec3(0.f, 1.f, 0.f));
+        ubo.proj = glm::perspectiveRH(glm::radians(45.f),
             this->_pipeline->swapchainExtent.width / static_cast<float>(this->_pipeline->swapchainExtent.height),
             0.1f,
-            10.f);
+            100.f);
         // remember Y axis is upside down
-        ubo.proj[1][1] *= -1;
+        //ubo.proj[1][1] *= -1;
         void* data;
         vkMapMemory(this->_device->logicalDevice,
             this->_pipeline->uniformBuffersMemory[imageIndex],
@@ -257,7 +265,6 @@ namespace netero::graphics {
         vkUnmapMemory(this->_device->logicalDevice,
             this->_pipeline->uniformBuffersMemory[imageIndex]);
     }
-
-
+    */
 }
 

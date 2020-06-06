@@ -29,17 +29,50 @@ namespace netero::graphics {
             _device(device),
             _vertexBuffer(_device),
             _pipelineLayout(nullptr),
-            _graphicsPipeline(nullptr)
+            _graphicsPipeline(nullptr),
+            _descriptorPool(nullptr),
+            _descriptorSetLayout(nullptr)
     {}
 
     Model::~Model() {
-        //this->release();
+        vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
         for (auto& shader: this->_shaderModules) {
             vkDestroyShaderModule(this->_device->logicalDevice, shader.shaderModule, nullptr);
         }
         for (auto* instance: _modelInstances) {
             delete instance;
         }
+        this->_vertexBuffer.release();
+    }
+    
+    void Model::release(size_t imageCount) {
+        if (this->_modelInstances.empty()) { return; }
+        vkDestroyPipeline(this->_device->logicalDevice, this->_graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(this->_device->logicalDevice, this->_pipelineLayout, nullptr);
+        for (size_t idx = 0; idx < imageCount; ++idx) {
+            vkDestroyBuffer(this->_device->logicalDevice, uniformBuffers[idx], nullptr);
+            vkFreeMemory(this->_device->logicalDevice, uniformBuffersMemory[idx], nullptr);
+        }
+        vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
+    }
+
+    void Model::build(size_t imageCount, VkRenderPass renderPass, VkExtent2D extent) {
+        if (this->_modelInstances.empty()) { return; }
+        this->_vertexBuffer.AllocateAndTransfer(this->_modelInstances.size());
+        this->createUniformBuffers(imageCount);
+        this->createDescriptorPool(imageCount);
+        this->createDescriptorSetLayout();
+        this->createDescriptorSets(imageCount);
+        this->createGraphicsPipeline(renderPass, extent);
+    }
+
+    void Model::rebuild(size_t imageCount, VkRenderPass renderPass, VkExtent2D extent) {
+        if (this->_modelInstances.empty()) { return; }
+        this->release(imageCount);
+        this->createUniformBuffers(imageCount);
+        this->createDescriptorPool(imageCount);
+        this->createDescriptorSets(imageCount);
+        this->createGraphicsPipeline(renderPass, extent);
     }
 
     Instance* Model::createInstance() {
