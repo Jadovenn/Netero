@@ -74,6 +74,7 @@ add_project_test(NAME test_slot_container SOURCES observer/test_slot_container.c
 ##====================================
 
 add_project_test(NAME test_allocator SOURCES memcheck/test_allocator.cpp DEPENDS Netero::Memcheck)
+add_project_test(NAME test_new SOURCES memcheck/test_new.cpp DEPENDS Netero::Memcheck)
 
 ##====================================
 ##  Test ECS
