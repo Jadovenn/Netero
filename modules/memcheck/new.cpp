@@ -23,7 +23,7 @@ void* operator new(std::size_t size) {
     return ptr;
 }
 
-void operator delete(void *ptr) {
+void operator delete(void *ptr) noexcept {
     std::scoped_lock<std::mutex>    lock(allocMutex);
     if (!ptr) { return; };
     auto* header = reinterpret_cast<netero::memck::MemBlockHeader*>((uintptr_t)ptr - sizeof(netero::memck::MemBlockHeader));
@@ -51,7 +51,7 @@ void* operator new[](std::size_t size) {
     return ptr;
 }
 
-void operator delete[](void *ptr) {
+void operator delete[](void *ptr) noexcept {
     std::scoped_lock<std::mutex>    lock(allocMutex);
     if (!ptr) { return; };
     auto* header = reinterpret_cast<netero::memck::MemBlockHeader*>((uintptr_t)ptr - sizeof(netero::memck::MemBlockHeader));

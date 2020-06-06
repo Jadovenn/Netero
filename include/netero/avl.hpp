@@ -382,10 +382,10 @@
              if (!data) // Special case, given pointer is null
                 return;
              //node *new_node = new(std::nothrow) node(data);
-             node* new_node = std::allocator_traits<Allocator::rebind<node>::other>::allocate(_nodeAllocator, 1);
+             node* new_node = std::allocator_traits<NodeAllocator>::allocate(_nodeAllocator, 1);
              if (!new_node)
                  throw std::bad_alloc();
-             std::allocator_traits<Allocator::rebind<node>::other>::construct(_nodeAllocator, new_node, data);
+             std::allocator_traits<NodeAllocator>::construct(_nodeAllocator, new_node, data);
              new_node->rhs = nullptr;
              new_node->lhs = nullptr;
              if (!root) { // Special case, three is empty add new data as root

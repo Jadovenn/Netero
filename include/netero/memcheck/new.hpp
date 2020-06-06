@@ -5,9 +5,11 @@
 
 #pragma once
 
+#include <exception>
+
 // Not necessary
 void* operator new(std::size_t);
-void operator delete(void*);
+void operator delete(void*) noexcept ;
 void* operator new[](std::size_t);
-void operator delete[](void*);
+void operator delete[](void*) noexcept ;
 
