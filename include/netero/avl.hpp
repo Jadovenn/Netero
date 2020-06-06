@@ -14,6 +14,7 @@
 #include <list>
 #include <type_traits>
 #include <memory>
+#include <new>
 
  namespace netero {
      /**
