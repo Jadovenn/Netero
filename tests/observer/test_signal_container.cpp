@@ -3,7 +3,9 @@
 * see LICENSE.txt
 */
 
+#include <cassert>
 #include <iostream>
+#include <functional>
 #include <netero/observer/signal.hpp>
 
 class	Subject {
@@ -17,7 +19,7 @@ public:
 		return _age;
 	}
 
-	netero::signal<void(std::string, int)>	birthday;
+	netero::signal<void(const std::string&, int)>	birthday;
 private:
 	const std::string	&_name;
 	int 				_age;
@@ -28,23 +30,24 @@ public:
 	Observer() : onBirthday(&Observer::notifyBirthday, this)
 	{}
 
-	void	notifyBirthday(std::string name, int age) {
-		std::cout << "Happy birthday " << name << ", you have " << age << " now!" << std::endl;
+	void	notifyBirthday(const std::string& name, int age) {
+		std::cout << "Observer(" << this << ") ";
+		std::cout << "Happy birthday "<< name;
+		std::cout << ", you have " << age << " now!" << std::endl;
 	}
 
-	netero::slot<void(std::string, int)>			onBirthday;
+	netero::slot<void(const std::string&, int)>			onBirthday;
 };
 
 
-int 	basic_test() {
-	Subject		bob("bob");
-	Subject		marina("marina");
-	Observer	notificationManager;
+void 	basic_test() {
+	Subject    bob("bob");
+	Subject    marina("marina");
+	Observer   notificationManager;
 	bob.birthday.connect(&notificationManager.onBirthday);
 	marina.birthday.connect(&notificationManager.onBirthday);
 	++bob;
 	++marina;
-	return 0;
 }
 
 // corrupt subject by connecting corrupted observer
@@ -53,33 +56,40 @@ void 	corrupt_subject(Subject &subject) {
 	subject.birthday.connect(&notificationManager.onBirthday);
 }
 
-int 	delete_obs_before_call() {
+void 	delete_obs_before_call() {
 	auto *subject = new Subject("bob");
 	corrupt_subject(*subject);
 	++*subject;
-	return 0;
 }
 
 void 	corrupt_observer(Observer *obs) {
-	Subject		bob("bob");
+	Subject    bob("bob");
 	bob.birthday.connect(&obs->onBirthday);
 }
 
-int		delete_subject_before_del_obs() {
+void	delete_subject_before_del_obs() {
 	Observer	notificationManager;
 	corrupt_observer(&notificationManager);
-	return 0;
+}
+
+void    signal_connect_disconnect() {
+    netero::signal<int(const int&, const int&)> signal;
+    netero::slot<int(const int&, const int&)> slot1;
+    netero::slot<int(const int&, const int&)> slot2;
+    signal.connect(&slot1);
+    signal.connect(&slot2);
+    assert(signal.size() == 2);
+    signal.disconnect(&slot2);
+    assert(signal.size() == 1);
+    signal.reset();
+    assert(signal.size() == 0);
+
 }
 
 int main() {
-	if (basic_test()) {
-		return 1;
-	}
-	if (delete_obs_before_call()) {
-		return 1;
-	}
-	if (delete_subject_before_del_obs()) {
-		return 1;
-	}
+    basic_test();
+    delete_obs_before_call();
+    delete_subject_before_del_obs();
+    signal_connect_disconnect();
 	return 0;
 }

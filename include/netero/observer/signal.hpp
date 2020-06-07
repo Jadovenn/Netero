@@ -28,57 +28,79 @@ namespace netero {
 	 * @class signal
 	 * @see netero::slot
 	 * @brief Event container that could emit signals.
-	 * @tparam _rType Return type of the signals.
-	 * @tparam _ArgsType Variadic types of arguments of the signal.
-	 * The signal container propagate a function call to multiple slot
+	 * @tparam rType Return type of the signals.
+	 * @tparam argsType Variadic types of arguments of the signal.
+	 * The signal container propagate a function call to multiple slot.
 	 */
-	template<class _rType, class ..._ArgsType>
-	class signal<_rType(_ArgsType...)>:  public IObserverDelegate {
+	template<class rType, class ...argsType>
+	class signal<rType(argsType...)>:  public IObserverDelegate {
 	public:
-		using Signature = _rType(_ArgsType...);
+		using Signature = rType(argsType...);
 
+	    signal() = default;
+
+	    /**
+	     * @brief Disconnect automatically all connected slots.
+	     */
 		~signal() override {
-			flush();
+			reset();
 		};
 
-		void    operator()(_ArgsType... args) {
-			std::scoped_lock<std::mutex>	lock(_slotsMutex);
-			for (netero::slot<_rType(_ArgsType...)> *slot: _slots) {
+		/**
+		 * @brief Emit the signal.
+		 * @param args forwarded to slots.
+		 * This will emit a call to any connected slots.
+		 */
+		void    operator()(argsType... args) {
+			std::scoped_lock<std::mutex>    lock(_slotsMutex);
+			for (netero::slot<rType(argsType...)> *slot: _slots) {
 				(*slot)(args...);
 			}
 		}
 
+		/**
+		 * @brief Connect a slot.
+		 * @param connectable slot.
+		 */
 		void 	connect(IObserverDelegate *connectable) final {
-			std::scoped_lock<std::mutex>	lock(_slotsMutex);
+			std::scoped_lock<std::mutex>    lock(_slotsMutex);
 			_slots.push_back(reinterpret_cast<netero::slot<Signature>*>(connectable));
 			connectable->connect(this);
 		}
 
+		/**
+		 * @brief Disconnect a slot.
+		 * @param connectable slot already connected.
+		 */
 		void 	disconnect(IObserverDelegate *connectable) final {
-			std::scoped_lock<std::mutex>	lock(_slotsMutex);
+			std::scoped_lock<std::mutex>    lock(_slotsMutex);
 			auto slot = reinterpret_cast<netero::slot<Signature>*>(connectable);
-			auto it = std::find_if(_slots.begin(), _slots.end(), [slot] (auto* item) {
-				return slot == item;
-			});
+			auto it = std::find(_slots.begin(), _slots.end(), slot);
 			if (it != _slots.end()) {
 				_slots.erase(it);
 			}
 		}
 
+		/**
+		 * @return int - number of slot connected.
+		 */
 		int		size() {
 			return _slots.size();
 		}
 
-		void	flush() {
-			std::scoped_lock<std::mutex>	lock(_slotsMutex);
+		/**
+		 * @brief Reset the signal by disconnect it from all its slots.
+		 */
+		void	reset() {
+			std::scoped_lock<std::mutex>    lock(_slotsMutex);
 			for (netero::slot<Signature >* slot : _slots) {
 				slot->disconnect(this);
 			}
+			_slots.clear();
 		}
 
 	private:
-		std::mutex									_slotsMutex;
-		std::vector<slot<_rType(_ArgsType...)>*>	_slots;
+		std::mutex                             _slotsMutex; /**< Slot access mutex. */
+		std::vector<slot<rType(argsType...)>*> _slots; /**< Slots vector. For connected slots. */
 	};
 }
-
