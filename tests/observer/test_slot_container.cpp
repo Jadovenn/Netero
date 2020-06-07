@@ -139,25 +139,15 @@ void 	test_bool_operator() {
 }
 
 int	main() {
-	try {
-		test_copy_operator();
-		test_copy_operator_with_signal_in_both_slot();
-		test_move_operator();
-		test_move_operator_with_signal_in_both_slot();
-		test_functor_call();
-		test_function_call();
-		test_class_call();
-		test_copy_ctor();
-		test_copy_ctor_with_signal();
-		test_bool_operator();
-	}
-	catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
-		return 1;
-	}
-	catch (...) {
-		std::cerr << "Fatal Error" << std::endl;
-		return 1;
-	}
+	test_copy_operator();
+	test_copy_operator_with_signal_in_both_slot();
+	test_move_operator();
+	test_move_operator_with_signal_in_both_slot();
+	test_functor_call();
+	test_function_call();
+	test_class_call();
+	test_copy_ctor();
+	test_copy_ctor_with_signal();
+	test_bool_operator();
 	return 0;
 }
