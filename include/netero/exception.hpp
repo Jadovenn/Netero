@@ -1,14 +1,7 @@
 /**
- * Netero sources under BSD-3-Clause
- * see LICENSE.txt
+ *  Created by Jean-Adrien DOMAGE on 14/12/2019.
  */
 
 #pragma once
 
-/**
- * @file exception.hpp
- * @brief Netero specific exceptions.
- */
-
 #include <netero/exception/slots.hpp>
-
