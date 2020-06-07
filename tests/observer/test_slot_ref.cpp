@@ -1,6 +1,6 @@
 /**
 * Netero sources under BSD-3-Clause
-* see LICENCE.txt
+* see LICENSE.txt
 */
 
 #include <memory>
@@ -57,8 +57,6 @@ int		main() {
 	netero::slot<Number&(Number&)>	ref_ndflt_ctor(inc);
 	ref_ndflt_ctor(integer);
 
-	if (integer.get() != 42) {
-		return 1;
-	}
+	assert(integer.get() == 42);
 	return 0;
 }
