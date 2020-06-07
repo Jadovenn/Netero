@@ -25,14 +25,6 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/buffer.hpp)
 
 ##====================================
-##  Exceptions Sources
-##====================================
-
-list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/exception.hpp
-        ${HEADERS_DIRECTORY}/exception/slots.hpp)
-
-##====================================
 ##  Pool sources
 ##====================================
 
@@ -130,9 +122,6 @@ install(FILES
 install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/core
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
 		FILES_MATCHING PATTERN "*.hpp")
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/exception
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
-        FILES_MATCHING PATTERN "*.hpp")
 install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/pool
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")

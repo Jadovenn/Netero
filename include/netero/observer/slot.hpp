@@ -17,7 +17,11 @@
 #include <vector>
 
 #include <netero/observer/IObserverDelegate.hpp>
-#include <netero/exception.hpp>
+
+/**
+ * @file slot.hpp
+ * @brief Function slot.
+ */
 
 namespace netero {
 
@@ -25,15 +29,15 @@ namespace netero {
 	class slot;
 
 	/**
-	 * @brief Slot container to hold a functor object.
-	 * @tparam _rType Return type
-	 * @tparam _ArgsType Arguments type.
+	 * @brief Slot container to hold a connectable functor object.
+	 * @tparam rType Return type
+	 * @tparam ArgsType Arguments type.
 	 * A slot is a container used to hold a callable object such as a
 	 * function, functor or a method. It manage connection to signals and will
 	 * automatically disconnect from any signal while destructed.
 	 */
-	template <typename _rType, typename ..._ArgsType>
-	class slot<_rType(_ArgsType...)>: public IObserverDelegate {
+	template <typename rType, typename ...ArgsType>
+	class slot<rType(ArgsType...)>: public IObserverDelegate {
 	public:
 
 		/**
@@ -45,7 +49,7 @@ namespace netero {
 		 * @brief Instantiate a slot with a function ptr.
 		 * @param func_ptr Function pointer.
 		 */
-		explicit slot(_rType(*func_ptr)(_ArgsType...)) noexcept
+		explicit slot(rType(*func_ptr)(ArgsType...)) noexcept
 			:	_function(func_ptr)
 		{}
 
@@ -53,7 +57,7 @@ namespace netero {
 		 * @brief Instantiate a slot from a standard function container.
 		 * @param f Standard function object.
 		 */
-		explicit slot(const std::function<_rType(_ArgsType...)> &f) noexcept
+		explicit slot(const std::function<rType(ArgsType...)> &f) noexcept
 			:	_function(f)
 		{}
 
@@ -63,32 +67,46 @@ namespace netero {
 		 * @param method Method pointer from class _Base.
 		 * @param base Pointer to instance of the class.
 		 */
-		template <typename _Base>
-		slot(_rType(_Base::*method)(_ArgsType...), _Base *base) {
-			_function = [method, base] (_ArgsType ...args) -> _rType {
-				return (base->*method)(std::forward<_ArgsType>(args)...);
+		template <typename Base>
+		slot(rType(Base::*method)(ArgsType...), Base *base) {
+			_function = [method, base] (ArgsType ...args) -> rType {
+				return (base->*method)(std::forward<ArgsType>(args)...);
 			};
 		}
 
 		/**
 		 * @brief Copy constructor.
-		 * @param copy
-		 * This will also copy signal connection.
+		 * @param copy other slot.
+		 * This will also copy signal connections.
 		 */
-		slot(slot<_rType(_ArgsType...)> &copy)
+		slot(const slot<rType(ArgsType...)> &copy)
 			:	_function(copy._function)
 		{
 				for (auto signal: copy._signals) {
-					this->connect(signal);
+					signal->connect(this);
 				}
 		}
 
 		/**
-		 * @brief assignation
-		 * @param args
-		 * @return
+		 * @brief Move constructor.
+		 * @param other slot to move.
+		 * This will also move signal connection between slots.
 		 */
-		slot<_rType(_ArgsType...)>&  operator=(const slot<_rType(_ArgsType...)>& copy) {
+		slot(slot<rType(ArgsType...)>&& other) noexcept {
+			this->_function = std::move(other._function);
+			for (auto* signal: other._signals) {
+				signal->disconnect(&other);
+				signal->connect(this);
+			}
+			other._signals.clear();
+		}
+
+		/**
+		 * @brief Copy operator.
+		 * @param copy other slot.
+		 * @return *this
+		 */
+		slot<rType(ArgsType...)>&  operator=(const slot<rType(ArgsType...)>& copy) {
 			for (auto *signal : this->_signals) {
 				signal->disconnect(this);
 			}
@@ -104,7 +122,33 @@ namespace netero {
 		}
 
 		/**
-		 * @brief Destructor, disconnect from any connected signal
+		 * @brief Move operator.
+		 * @param other slot to move.
+		 * @return *this
+		 */
+		slot<rType(ArgsType...)>& operator=(slot<rType(ArgsType...)>&& other) {
+			std::vector<netero::IObserverDelegate*> tmp_signal_move;
+			for (auto* signal : this->_signals) {
+				signal->disconnect(this);
+			}
+			{
+				std::scoped_lock<std::mutex>	lock(_sigMutex);
+				this->_function = std::move(other._function);
+				this->_signals.clear();
+				for (auto* signal: other._signals) {
+					signal->disconnect(&other);
+					tmp_signal_move.push_back(signal);
+				}
+				other._signals.clear();
+			}
+			for (auto* signal : tmp_signal_move) {
+				signal->connect(this);
+			}
+			return *this;
+		}
+
+		/**
+		 * @brief Destructor, disconnect from any connected signal.
 		 */
 		~slot() override {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
@@ -115,15 +159,15 @@ namespace netero {
 
 		/**
 		 * @brief Set the functor to the given class method.
-		 * @tparam _Base Type of the class.
+		 * @tparam Base Type of the class.
 		 * @param method Method pointer from class _Base.
 		 * @param base Pointer to instance of the class.
 		 */
-		template <typename _Base>
-		void	set(_rType(_Base::* method)(_ArgsType...), _Base* base) {
+		template <typename Base>
+		void	set(rType(Base::* method)(ArgsType...), Base* base) {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
-			_function = [method, base] (_ArgsType ...args) -> _rType {
-				return (base->*method)(std::forward<_ArgsType>(args)...);
+			_function = [method, base] (ArgsType ...args) -> rType {
+				return (base->*method)(std::forward<ArgsType>(args)...);
 			};
 		}
 
@@ -132,7 +176,7 @@ namespace netero {
 		 * @param function_ptr Function pointer.
 		 * Set the internal functor container to the given function pointer.
 		 */
-		void	set(_rType(*function_ptr)(_ArgsType...)) {
+		void	set(rType(*function_ptr)(ArgsType...)) {
 			_function = function_ptr;
 		}
 
@@ -143,32 +187,30 @@ namespace netero {
 		 * Set the inter functor container to the give functor ref using
 		 * the copy operator.
 		 */
-		void	set(const std::function<_rType(_ArgsType...)> &functor) {
+		void	set(const std::function<rType(ArgsType...)> &functor) {
 			_function = functor;
 		}
 
 		/**
-		 * @brief call
-		 * @param args
-		 * @return
+		 * @brief Perform a call on the stored callable object.
+		 * @param args to pass to the callable object.
+		 * @return rType
 		 */
-		virtual _rType    operator()(_ArgsType... args) {
+		virtual rType	operator()(ArgsType... args) {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
 			if (_function) {
-				return _function(std::forward<_ArgsType>(args)...);
+				return _function(std::forward<ArgsType>(args)...);
 			}
-			throw netero::bad_slot_call();
+			throw std::bad_function_call();
 		}
-
 
 		/**
 		 * @brief Test if the slot is callable.
-		 * @return true if the internal functor is callable, false otherwise
+		 * @return true if the internal functor is callable, false otherwise.
 		 */
 		explicit operator bool() {
 			return static_cast<bool>(_function);
 		}
-
 
 		/**
 		 * @brief Disconnect the slot from the given signal.
@@ -178,11 +220,7 @@ namespace netero {
 		 */
 		void disconnect(IObserverDelegate *delegate) override {
 			std::scoped_lock<std::mutex>	lock(_sigMutex);
-			auto it = std::find_if(_signals.begin(),
-					_signals.end(),
-					[delegate] (auto *item) {
-				return delegate == item;
-			});
+			auto it = std::find(_signals.begin(), _signals.end(), delegate);
 			if (it != _signals.end()) {
 				_signals.erase(it);
 			}
@@ -195,13 +233,20 @@ namespace netero {
 		 * slot could receive signal.
 		 */
 		void connect(IObserverDelegate *delegate) override {
-			std::scoped_lock<std::mutex>	lock(_sigMutex);
+			std::scoped_lock<std::mutex>    lock(_sigMutex);
 			_signals.push_back(delegate);
 		}
 
+		/**
+		 * @brief Get the number of notifier connected to the slot.
+		 */
+		int count_signal() {
+			return this->_signals.size();
+		}
+
 	private:
-		std::mutex								_sigMutex; /**< Mutex to prevent data race over signal vector. */
-		std::function<_rType(_ArgsType...)>		_function; /**< Standard functor container. */
-		std::vector<netero::IObserverDelegate*>	_signals; /**< Signal vector to keep track of lifecycle connection. */
+		std::mutex                              _sigMutex; /**< Mutex to prevent data race over signal vector. */
+		std::function<rType(ArgsType...)>       _function; /**< Standard functor container. */
+		std::vector<netero::IObserverDelegate*> _signals; /**< Signal vector to keep track of lifecycle connection. */
 	};
 }
