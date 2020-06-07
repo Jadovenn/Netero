@@ -43,19 +43,13 @@ namespace netero::memck {
         }
 
         template<typename U>
-        Allocator(const Allocator<U, Reporter>& other) {
-            this->pool = other.pool;
-        }
+        explicit Allocator(const Allocator<U, Reporter>& other)
+            :   pool(other.pool)
+        {}
 
-        Allocator(Allocator&& other) noexcept {
-            this->pool = other.pool;
-            this->pool->owner = this;
-            other.pool = static_cast<MemoryPool*>(std::malloc(sizeof(MemoryPool)));
-            other.pool->bytes = 0;
-            other.pool->owner = this;
-        }
-
-        Allocator&  operator=(Allocator&& other) {
+        template<typename U>
+        Allocator&  operator=(Allocator<U, Reporter>& other) {
+            if (this == &other) { return *this; }
             if (this == pool->owner) {
                 if (pool->bytes != 0) {
                     Reporter::reportLeaks(this, this->pool);
@@ -67,12 +61,10 @@ namespace netero::memck {
                     std::cerr << "Free failed there is nothing you can do." << std::endl;
                 }
             }
-            this->pool = other.pool;
-            this->pool->owner = this;
-            other.pool = static_cast<MemoryPool*>(std::malloc(sizeof(MemoryPool)));
-            other.pool->bytes = 0;
-            other.pool->owner = this;
-            return *this;
+            pool = static_cast<MemoryPool*>(std::malloc(sizeof(MemoryPool)));
+            pool->bytes = other.byte;
+            other.byte = 0;
+            pool->owner = this;
         }
 
         virtual ~Allocator() noexcept {
