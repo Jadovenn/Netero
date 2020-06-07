@@ -3,36 +3,29 @@
  * see LICENCE.txt
  */
 
+#include <cassert>
 #include <iostream>
 #include <netero/ecs/world.hpp>
 
 netero::ecs::World	world;
 
-int	createEntity() {
+void	createEntity() {
 	std::cout << "ecs_world: Create entity first" << std::endl;
 	netero::ecs::Entity	first = world.createEntity();
-	if (!first.valid())
-		return 1;
+	assert(first.valid());
 	std::cout << "ecs_world: Create entity second" << std::endl;
 	netero::ecs::Entity second = world.createEntity("second");
-	if (!second.valid())
-		return 2;
+	assert(second.valid());
 	std::cout << "ecs_world: World size " << world.size() << std::endl;
-	if (world.size() != 2)
-		return 3;
+	assert(world.size() == 2);
 	std::cout << "ecs_world: Kill entity second" << std::endl;
 	world.killEntity(first);
-	if (first.valid())
-		return 4;
+	assert(!first.valid());
 	std::cout << "ecs_world: World size " << world.size() << std::endl;
-	if (world.size() != 1)
-		return 5;
-	return 0;
+	assert(world.size() == 1);
 }
 
 int	main() {
-	int ret = createEntity();
-	if (ret != 0)
-		return ret;
+	createEntity();
 	return 0;
 }

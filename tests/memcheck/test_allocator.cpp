@@ -70,11 +70,20 @@ void avl_test() {
     std::cout << "avl_test -- start" << std::endl;
 }
 
+template<typename Allocator>
+void    test_wrong_behavior() {
+    netero::memck::Allocator<int>  allocator;
+    auto* null = std::allocator_traits<netero::memck::Allocator<int>>::allocate(allocator, 0);
+    auto* integer = std::allocator_traits<netero::memck::Allocator<int>>::allocate(allocator, 1);
+}
+
 int main() {
     stl_basic_container_test();
     on_class_test();
     rebind_test();
     avl_test();
+    test_wrong_behavior<netero::memck::Allocator<int>>();
+    test_wrong_behavior<netero::memck::LoggerAllocator<int>>();
     return 0;
 }
 

@@ -3,6 +3,7 @@
  * see LICENCE.txt
  */
 
+#include <cassert>
 #include <netero/ecs/component.hpp>
 #include <netero/ecs/component_filter.hpp>
 
@@ -24,13 +25,9 @@ int	main() {
 	const netero::set<std::size_t>	&filterA = GroupA::getFilter();
 	const netero::set<std::size_t>	&filterB = GroupB::getFilter();
 	const netero::set<std::size_t>	&filterC = GroupC::getFilter();
-	if (!filterA.isSubsetOf(filterAB))
-		return 1;
-	if (!filterB.isSubsetOf(filterAB))
-		return 1;
-	if (filterA.isSubsetOf(filterB))
-		return 1;
-	if (filterAB.isSubsetOf(filterA))
-		return 1;
+	assert(filterA.isSubsetOf(filterAB));
+	assert(filterB.isSubsetOf(filterAB));
+	assert(!filterA.isSubsetOf(filterB));
+	assert(!filterAB.isSubsetOf(filterA));
 	return 0;
 }

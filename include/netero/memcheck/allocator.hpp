@@ -64,6 +64,7 @@ namespace netero::memck {
         [[nodiscard]] constexpr T* allocate(std::size_t size) {
             if (size == 0) {
                 Reporter::reportZeroSizeUndefinedBehavior(this);
+                return nullptr;
             }
             if (std::numeric_limits<std::size_t>::max() / sizeof(T) < size) {
                 throw std::bad_array_new_length();

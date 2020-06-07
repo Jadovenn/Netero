@@ -3,12 +3,13 @@
  * see LICENCE.txt
  */
 
+#include <cassert>
 #include <iostream>
 #include <netero/ecs/world.hpp>
 
 netero::ecs::World	world;
 
-int	entityLocalScope() {
+void	entityLocalScope() {
 	std::cout << "ecs_entity: Create entity first" << std::endl;
 	netero::ecs::Entity	first = world.createEntity();
 	std::cout << "ecs_entity: Create entity second" << std::endl;
@@ -17,24 +18,18 @@ int	entityLocalScope() {
 	second.enable();
 	std::cout << "ecs_entity: entity killed" << std::endl;
 	first.kill();
-	if (first.valid())
-		return 1;
+	assert(!first.valid());
 	std::cout << "ecs_entity: update world" << std::endl;
 	world.update();
 	auto stat = world.getStatistic();
-	if (stat.size != 1)
-		return 2;
+	assert(stat.size == 1);
 	std::cout << "ecs_entity: update world" << std::endl;
 	world.update();
 	stat = world.getStatistic();
-	if (stat.size != 1)
-		return 5;
-	return 0;
+	assert(stat.size == 1);
 }
 
 int	main() {
-	int ret = entityLocalScope();
-	if (ret != 0)
-		return ret;
+	entityLocalScope();
 	return 0;
 }
