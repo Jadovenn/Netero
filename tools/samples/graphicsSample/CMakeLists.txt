@@ -9,7 +9,7 @@ message(STATUS "Configure Netero Sample graphics")
 set(SOURCES
         sources/main.cpp)
 
-include_directories(${PROJECT_NAME} sources ../../../include)
+include_directories(${PROJECT_NAME} sources ${netero_INCLUDE_DIRECTORY})
 
 if(WIN32)
     add_executable(${PROJECT_NAME} WindowsRessources.rc ${SOURCES})
@@ -23,7 +23,7 @@ if(APPLE)
 endif(APPLE)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-target_link_libraries(${PROJECT_NAME} netero neteroGraphics)
+target_link_libraries(${PROJECT_NAME} netero Netero::Graphics)
 target_add_shader(${PROJECT_NAME} shaders/3DObjectProj.vert)
 target_add_shader(${PROJECT_NAME} shaders/2DObjectProj.vert)
 target_add_shader(${PROJECT_NAME} shaders/ColorFragment.frag)

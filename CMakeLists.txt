@@ -46,13 +46,13 @@ OPTION(NETERO_UNIT_TEST "Netero unit tests." OFF)
 OPTION(NETERO_TOOLS "Netero additional tools." OFF)
 
 ## Build config mainly for CI
-OPTION(WIN32_STATIC "Link staticaly with win32's dll" OFF)
+OPTION(WIN32_STATIC "Link statically with win32's dll" OFF)
 OPTION(CODE_COVERAGE "Enable coverage reporting" OFF)
 OPTION(MOCK_INTERFACES "Enable mock interfaces" OFF)
 
 set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
-set(netero_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
+set(netero_INCLUDE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Add required flags (GCC & LLVM/Clang)

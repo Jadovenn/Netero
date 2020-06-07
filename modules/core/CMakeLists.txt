@@ -77,6 +77,7 @@ if (APPLE)
 endif(APPLE)
 
 add_library(netero STATIC ${SRCS} ${PUBLIC_HEADER})
+add_library(Netero::Core ALIAS netero)
 target_include_directories(netero
 	PUBLIC
 		$<INSTALL_INTERFACE:include>

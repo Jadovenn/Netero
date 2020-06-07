@@ -71,6 +71,7 @@ list(APPEND SRCS
 ##====================================
 
 add_library(neteroGraphics STATIC ${SRCS} ${PUBLIC_HEADER})
+add_library(Netero::Graphics ALIAS neteroGraphics)
 target_compile_features(neteroGraphics PUBLIC cxx_std_17)
 target_include_directories(neteroGraphics
         PUBLIC

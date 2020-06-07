@@ -24,6 +24,7 @@ list(APPEND SRCS
 ##====================================
 
 add_library(neteroExtra STATIC ${SRCS} ${PUBLIC_HEADER})
+add_library(Netero::Extra ALIAS neteroExtra)
 target_compile_features(neteroExtra PUBLIC cxx_std_17)
 target_include_directories(neteroExtra
         PUBLIC

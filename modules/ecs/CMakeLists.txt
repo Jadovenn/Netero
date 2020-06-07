@@ -27,6 +27,7 @@ list(APPEND SRCS
 
 add_library(neteroECS STATIC ${SRCS} ${PUBLIC_HEADER})
 target_compile_features(neteroECS PUBLIC cxx_std_17)
+add_library(Netero::ECS ALIAS neteroECS)
 target_include_directories(neteroECS
         PUBLIC
             $<INSTALL_INTERFACE:include>

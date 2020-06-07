@@ -73,6 +73,7 @@ endif(APPLE)
 ##====================================
 
 add_library(neteroAudio STATIC ${SRCS} ${PUBLIC_HEADER})
+add_library(Netero::Audio ALIAS neteroAudio)
 target_compile_features(neteroAudio PUBLIC cxx_std_17)
 target_include_directories(neteroAudio
         PUBLIC

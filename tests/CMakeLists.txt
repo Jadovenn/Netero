@@ -24,7 +24,7 @@ macro(add_project_test)
 
 	add_executable(${_ADD_PROJECT_TEST_NAME} ${_ADD_PROJECT_TEST_SOURCES})
     target_compile_features(${_ADD_PROJECT_TEST_NAME} PUBLIC cxx_std_17)
-	target_include_directories(${_ADD_PROJECT_TEST_NAME} PRIVATE ../include)
+	target_include_directories(${_ADD_PROJECT_TEST_NAME} PRIVATE ${netero_INCLUDE_DIRECTORY})
     if(WIN32_STATIC)
         set_property(TARGET ${_ADD_PROJECT_TEST_NAME} PROPERTY
             MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
@@ -43,7 +43,7 @@ endmacro(add_project_test)
 ##  Test Core
 ##====================================
 
-add_project_test(NAME test_os SOURCES test_os.cpp DEPENDS netero)
+add_project_test(NAME test_os SOURCES test_os.cpp DEPENDS Netero::Core)
 add_project_test(NAME test_core_type_id SOURCES core/test_core_type_id.cpp)
 add_project_test(NAME test_avl SOURCES test_avl.cpp)
 add_project_test(NAME test_set SOURCES test_set.cpp)
@@ -55,19 +55,19 @@ add_project_test(NAME bug_size_buffer SOURCES bug_size_buffer.cpp)
 ##====================================
 
 if (NETERO_AUDIO)
-    add_project_test(NAME test_audio_format SOURCES audio/test_audio_format.cpp DEPENDS netero neteroAudio)
-    add_project_test(NAME example_audio_render SOURCES audio/example_audio_render.cpp DEPENDS netero neteroAudio)
-    add_project_test(NAME example_audio_record SOURCES audio/example_audio_record.cpp DEPENDS netero neteroAudio)
-    add_project_test(NAME example_audio_record_silence SOURCES audio/example_audio_record_silence.cpp DEPENDS netero neteroAudio)
+    add_project_test(NAME test_audio_format SOURCES audio/test_audio_format.cpp DEPENDS Netero::Core Netero::Audio)
+    add_project_test(NAME example_audio_render SOURCES audio/example_audio_render.cpp DEPENDS Netero::Core Netero::Audio)
+    add_project_test(NAME example_audio_record SOURCES audio/example_audio_record.cpp DEPENDS Netero::Core Netero::Audio)
+    add_project_test(NAME example_audio_record_silence SOURCES audio/example_audio_record_silence.cpp DEPENDS Netero::Core Netero::Audio)
 endif(NETERO_AUDIO)
 
 ##====================================
 ##  Test Observer
 ##====================================
 
-add_project_test(NAME test_slot_ref SOURCES observer/test_slot_ref.cpp DEPENDS netero)
-add_project_test(NAME test_signal_container SOURCES observer/test_signal_container.cpp DEPENDS netero)
-add_project_test(NAME test_slot_container SOURCES observer/test_slot_container.cpp DEPENDS netero)
+add_project_test(NAME test_slot_ref SOURCES observer/test_slot_ref.cpp DEPENDS Netero::Core)
+add_project_test(NAME test_signal_container SOURCES observer/test_signal_container.cpp DEPENDS Netero::Core)
+add_project_test(NAME test_slot_container SOURCES observer/test_slot_container.cpp DEPENDS Netero::Core)
 
 ##====================================
 ##  Test MEMCHECK
@@ -81,15 +81,15 @@ add_project_test(NAME test_new SOURCES memcheck/test_new.cpp DEPENDS Netero::Mem
 ##====================================
 
 if(NETERO_ECS)
-    add_project_test(NAME test_ecs_world SOURCES ecs/test_ecs_world.cpp DEPENDS neteroECS)
-    add_project_test(NAME test_ecs_entity SOURCES ecs/test_ecs_entity.cpp DEPENDS neteroECS)
-    add_project_test(NAME test_ecs_component SOURCES ecs/test_ecs_component.cpp DEPENDS neteroECS)
-    add_project_test(NAME test_ecs_component_filter SOURCES ecs/test_ecs_component_filter.cpp DEPENDS neteroECS)
+    add_project_test(NAME test_ecs_world SOURCES ecs/test_ecs_world.cpp DEPENDS Netero::ECS)
+    add_project_test(NAME test_ecs_entity SOURCES ecs/test_ecs_entity.cpp DEPENDS Netero::ECS)
+    add_project_test(NAME test_ecs_component SOURCES ecs/test_ecs_component.cpp DEPENDS Netero::ECS)
+    add_project_test(NAME test_ecs_component_filter SOURCES ecs/test_ecs_component_filter.cpp DEPENDS Netero::ECS)
     add_project_test(NAME test_ecs_system
             SOURCES
                 ecs/test_ecs_system.cpp
                 ecs/test_ecs_dataset.hpp
             DEPENDS
-                neteroECS)
+                Netero::ECS)
 endif(NETERO_ECS)
 
