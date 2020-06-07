@@ -4,11 +4,12 @@
  */
 
 #include <cassert>
+#include <netero/memcheck/allocator.hpp>
 #include <netero/buffer.hpp>
 
 void test_full_fill_buffer() {
     int buf[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    netero::shared_buffer<int>  buffer(10);
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  buffer(10);
     buffer.write(buf, 3);
     buffer.write(buf + 3, 3);
     buffer.write(buf + 6, 4);
@@ -18,7 +19,7 @@ void test_full_fill_buffer() {
 void test_full_read() {
     int buf[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     int outBuf[10] = {};
-    netero::shared_buffer<int>  buffer(10);
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  buffer(10);
     buffer.write(buf, 10);
     buffer.read(outBuf, 3);
     buffer.read(outBuf + 3, 4);
@@ -29,7 +30,7 @@ void test_full_read() {
 void    test_faster_read() {
     int buf[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     int outBuf[10] = {};
-    netero::shared_buffer<int>  buffer(10);
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  buffer(10);
     assert(buffer.write(buf, 3) == 3);
     assert(buffer.read(outBuf, 5) == 3);
     assert(buffer.write(buf + 3, 3) == 3);
@@ -41,28 +42,28 @@ void    test_faster_read() {
 }
 
 void    test_copy_ctor() {
-    netero::shared_buffer<int>  buffer(10);
-    const netero::shared_buffer<int>  copy(buffer);
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  buffer(10);
+    const netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  copy(buffer);
     assert(copy.getSize() == 10);
     assert(buffer.getSize() == 10);
 }
 
 void    test_move_operators() {
-    netero::shared_buffer<int>  buffer(10);
-    netero::shared_buffer<int>  move(std::move(buffer));
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  buffer(10);
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  move(std::move(buffer));
 
     assert(move.getSize() == 10);
     assert(buffer.getSize() == 0);
 
-    netero::shared_buffer<int>  moveAssign(10);
-	moveAssign = std::move(move);
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  moveAssign(10);
+    moveAssign = std::move(move);
     assert(moveAssign.getSize() == 10);
     assert(move.getSize() == 0);
 }
 
 void    test_comparison_and_test_operators() {
-    netero::shared_buffer<int>  buffer(10);
-    const netero::shared_buffer<int>  move(std::move(buffer));
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  buffer(10);
+    const netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  move(std::move(buffer));
 
     assert(!(buffer == move));
     assert(static_cast<bool>(move));
@@ -70,7 +71,7 @@ void    test_comparison_and_test_operators() {
 }
 
 void    test_reset_and_clear() {
-    netero::shared_buffer<int>  buffer(4);
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  buffer(4);
     int buf[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
     assert(buffer.getSize() == 4);
@@ -91,7 +92,7 @@ void    test_reset_and_clear() {
 void    test_circular_write() {
     int buf[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     int outBuf[10] = {};
-    netero::shared_buffer<int>  buffer(10);
+    netero::shared_buffer<int, netero::memck::LoggerAllocator<int>>  buffer(10);
 
     assert(buffer.write(buf, 10) == 10);
     assert(buffer.getPadding() == 10);
