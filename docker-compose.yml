@@ -11,7 +11,7 @@ services:
       && mkdir /opt/netero/build
       && cd /opt/netero/build
       && cmake .. -D NETERO_AUDIO=OFF -D NETERO_GRAPHICS=OFF -D MOCK_INTERFACES=ON -D NETERO_UNIT_TEST=ON -D CODE_COVERAGE=ON
-      && make
+      && make -j 8
       && make test
       && lcov --capture --directory . --output-file coverage.info
       && lcov --remove coverage.info '/usr/*' --output-file coverage.info
