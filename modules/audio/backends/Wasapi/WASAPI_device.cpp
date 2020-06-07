@@ -52,9 +52,9 @@ ULONG	WASAPI_device::AddRef() {
 
 ULONG	WASAPI_device::Release() {
 	ULONG ref = InterlockedDecrement(&_cRef);
-	if (ref == 0) {
-		delete this;
-	}
+	//if (ref == 0) {
+		//delete this;
+	//}
 	return ref;
 }
 

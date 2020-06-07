@@ -424,10 +424,10 @@ void    netero::audio::backend::impl::WASAPI_refresh_devices_list(DataFlow dataF
             });
             if (it == _renderDevices.end()) {
                 auto device = WASAPI_alloc_device(pEndpoint, dataFlow);
-				if (!device) {
-					WASAPI_release<IMMDevice>(&pEndpoint);
-					continue;
-				}
+                if (!device) {
+                    WASAPI_release<IMMDevice>(&pEndpoint);
+                    continue;
+                }
                 _renderDevices.push_back(device);
             }
         }
@@ -438,10 +438,10 @@ void    netero::audio::backend::impl::WASAPI_refresh_devices_list(DataFlow dataF
             });
             if (it == _captureDevices.end()) {
                 auto device = WASAPI_alloc_device(pEndpoint, dataFlow);
-				if (!device) {
-					WASAPI_release<IMMDevice>(&pEndpoint);
-					continue;
-				}
+                if (!device) {
+                    WASAPI_release<IMMDevice>(&pEndpoint);
+                    continue;
+                }
                 _captureDevices.push_back(device);
             }
         }
