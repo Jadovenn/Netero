@@ -47,6 +47,34 @@ namespace netero::memck {
             this->pool = other.pool;
         }
 
+        Allocator(Allocator&& other) noexcept {
+            this->pool = other.pool;
+            this->pool->owner = this;
+            other.pool = static_cast<MemoryPool*>(std::malloc(sizeof(MemoryPool)));
+            other.pool->bytes = 0;
+            other.pool->owner = this;
+        }
+
+        Allocator&  operator=(Allocator&& other) {
+            if (this == pool->owner) {
+                if (pool->bytes != 0) {
+                    Reporter::reportLeaks(this, this->pool);
+                }
+                try {
+                    std::free(pool);
+                }
+                catch (...) {
+                    std::cerr << "Free failed there is nothing you can do." << std::endl;
+                }
+            }
+            this->pool = other.pool;
+            this->pool->owner = this;
+            other.pool = static_cast<MemoryPool*>(std::malloc(sizeof(MemoryPool)));
+            other.pool->bytes = 0;
+            other.pool->owner = this;
+            return *this;
+        }
+
         virtual ~Allocator() noexcept {
             if (this == pool->owner) {
                 if (pool->bytes != 0) {
