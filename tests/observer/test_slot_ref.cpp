@@ -3,6 +3,7 @@
 * see LICENSE.txt
 */
 
+#include <cassert>
 #include <memory>
 #include <netero/observer/slot.hpp>
 
