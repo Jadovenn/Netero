@@ -30,10 +30,10 @@ WASAPI_device::~WASAPI_device() {
 		}
 		capturingThread.reset();
 	}
-	captureStreamSig.flush();
-	renderStreamSig.flush();
-	deviceStreamFormatChangeSig.flush();
-	deviceErrorSig.flush();
+	captureStreamSig.reset();
+	renderStreamSig.reset();
+	deviceStreamFormatChangeSig.reset();
+	deviceErrorSig.reset();
 	release<IMMDevice>(&device);
 	release<IAudioSessionControl>(&audioSession);
 	release<IAudioClient>(&audio_client);
