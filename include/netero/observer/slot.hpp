@@ -18,6 +18,11 @@
 
 #include <netero/observer/IObserverDelegate.hpp>
 
+/**
+ * @file slot.hpp
+ * @brief Function slot.
+ */
+
 namespace netero {
 
 	template <typename T>
