@@ -99,7 +99,7 @@ namespace netero {
             move._size = 0;
             move._writeOffset = 0;
             move._readOffset = 0;
-            this->_allocator = std::move(move._allocator);
+            this->_allocator = move._allocator;
             return *this;
         }
 
