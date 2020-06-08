@@ -19,7 +19,7 @@ void* operator new(std::size_t size) {
     header->footer->magic = netero::memck::footerMagic;
     heap.add(header);
     void* ptr = reinterpret_cast<void*>((uintptr_t)header + sizeof(netero::memck::MemBlockHeader));
-    std::cout << "Allocator(global new) ::: Alloc data(0x" << ptr << ")" << std::endl;
+    //std::cout << "Allocator(global new) ::: Alloc data(0x" << ptr << ")" << std::endl;
     return ptr;
 }
 
@@ -35,7 +35,7 @@ void operator delete(void *ptr) noexcept {
         return;
     }
     heap.remove(header);
-    std::cout << "Allocator(global new) ::: free data(0x" << ptr << ")" << std::endl;
+    //std::cout << "Allocator(global new) ::: free data(0x" << ptr << ")" << std::endl;
     std::free(header);
 }
 
@@ -47,7 +47,7 @@ void* operator new[](std::size_t size) {
     header->footer->magic = netero::memck::footerMagic;
     heap.add(header);
     void* ptr = reinterpret_cast<void*>((uintptr_t)header + sizeof(netero::memck::MemBlockHeader));
-    std::cout << "Allocator(global new) ::: Alloc data(0x" << ptr << ")" << std::endl;
+    //std::cout << "Allocator(global new) ::: Alloc data(0x" << ptr << ")" << std::endl;
     return ptr;
 }
 
@@ -63,8 +63,19 @@ void operator delete[](void *ptr) noexcept {
         return;
     }
     heap.remove(header);
-    std::cout << "Allocator(global new) ::: free data(0x" << ptr << ")" << std::endl;
+    //std::cout << "Allocator(global new) ::: free data(0x" << ptr << ")" << std::endl;
     std::free(header);
 }
 
+namespace netero::memchk {
+    void    reportLeaks() {
+        size_t size = 0;
+        for (auto* block: heap) {
+            size += 1;
+        }
+        if (size) {
+            std::cout << "Allocator(global new) ::: Memory leaks detected, " << size << " blocks as leak." << std::endl;
+        }
+    }
+}
 

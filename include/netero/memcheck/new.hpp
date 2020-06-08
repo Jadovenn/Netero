@@ -13,3 +13,7 @@ void operator delete(void*) noexcept ;
 void* operator new[](std::size_t);
 void operator delete[](void*) noexcept ;
 
+namespace netero::memchk {
+    void    reportLeaks();
+}
+
