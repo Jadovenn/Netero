@@ -130,7 +130,7 @@ namespace  netero::audio {
 				return rawData;
 			}
 			catch (const std::exception&) {
-				throw;
+				return nullptr;
 			}
 			catch (...) {
 				return nullptr;

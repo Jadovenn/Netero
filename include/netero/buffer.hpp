@@ -166,6 +166,10 @@ namespace netero {
             _size = block;
             _readOffset = -1;
             _writeOffset = 0;
+            if (block == 0) {
+                _buffer = nullptr;
+                return;
+            }
             _buffer = std::allocator_traits<Allocator>::allocate(_allocator, _size);
             //_buffer = new (std::nothrow) T[_size];
             if (!_buffer) {
