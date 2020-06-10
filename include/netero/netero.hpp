@@ -37,3 +37,13 @@ namespace netero {
 #   define likely(x)   (x)
 #   define unlikely(x) (x)
 #endif
+
+
+#if !defined(NDEBUG)
+#if defined(_WIN32)
+#define	BREAK	__debugbreak()
+#endif // MSVC
+#else // ELSE NDEBUG
+#define BREAK
+#endif // NDEBUG
+

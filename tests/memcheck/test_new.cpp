@@ -13,22 +13,24 @@ public:
     int value = 0;
 };
 
-void test_overflow() {
+void test_mem_corruption() {
+    netero::memchk::activate_memcorruption_detection();
     auto* nb = new int;
     nb[0] = 42;
     nb[1] = 43;
     delete nb;
+    netero::memchk::deactivate_memcorruption_detection();
 }
 
-void test_class() {
+void test_ctor_call() {
     auto* object = new test;
     object->value = 42;
     delete object;
 }
 
 int main() {
-    test_overflow();
-    test_class();
+    test_ctor_call();
+    test_mem_corruption();
     return 0;
 }
 

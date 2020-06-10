@@ -15,5 +15,7 @@ void operator delete[](void*) noexcept ;
 
 namespace netero::memchk {
     void    reportLeaks();
+    void    activate_memcorruption_detection();
+    void    deactivate_memcorruption_detection();
 }
 
