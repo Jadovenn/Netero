@@ -40,10 +40,23 @@ namespace netero {
 
 
 #if !defined(NDEBUG)
-#if defined(_WIN32)
+
+#if defined(_MSC_VER)
+
 #define	BREAK	__debugbreak()
-#endif // MSVC
+
+#elif defined(__has_builtin)
+
+#if __has_builtin(__builtin_debugtrap)
+#define	BREAK	__buitin_debugtrp()
+#else // ELSE __has_builtin
+#define	BREAK	__asm__("int $03")
+#endif // __builtin debugtrap
+
+#endif // Compilers 
 #else // ELSE NDEBUG
+
 #define BREAK
+
 #endif // NDEBUG
 
