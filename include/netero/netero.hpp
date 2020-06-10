@@ -52,8 +52,8 @@ namespace netero {
 #else // ELSE __has_builtin
 #define	BREAK	__asm__("int $03")
 #endif // __builtin debugtrap
-#elif
-#define	BREAK	__asm__("int $03")
+#else // unknow (probably ci)
+#define	BREAK
 #endif // Compilers 
 #else // ELSE NDEBUG
 
