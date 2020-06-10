@@ -18,7 +18,10 @@ namespace netero::memck {
 
     struct MemBlockHeader {
         uint32_t  magic;
-        MemBlockFooter* footer;
+        size_t bytes;
+        struct MemBlockHeader*  next;
+        struct MemBlockHeader*  prev;
+        MemBlockFooter*         footer;
     };
 }
 

@@ -68,8 +68,8 @@ int     main() {
 
     // Stop recording
     waveRecorder->stop();
+    audioEngine.releaseCaptureEntity<netero::audio::waveRecorder>(waveRecorder);
     audioEngine.disconnectCaptureDevice();
-    audioEngine.disconnectRenderDevice();
     return 0;
 }
 
