@@ -23,11 +23,11 @@ void* operator new(std::size_t size) {
     if (likely(g_heap)) {
         header->next = g_heap;
         header->prev = nullptr;
-        g_heap = header;
     }
     else {
         header->next = nullptr;
         header->prev = nullptr;
+        g_heap = header;
     }
     void* ptr = reinterpret_cast<void*>((uintptr_t)header + sizeof(netero::memck::MemBlockHeader));
     //std::cout << "Allocator(global new) ::: Alloc data(0x" << ptr << ")" << std::endl;
@@ -57,6 +57,9 @@ void operator delete(void *ptr) noexcept {
     if (unlikely(!header->prev)) {
         g_heap = header->next;
     }
+    if (unlikely(!header->prev && !header->next)) {
+        g_heap = nullptr;
+    }
     //std::cout << "Allocator(global new) ::: free data(0x" << ptr << ")" << std::endl;
     std::free(header);
 }
@@ -71,11 +74,11 @@ void* operator new[](std::size_t size) {
     if (likely(g_heap)) {
         header->next = g_heap;
         header->prev = nullptr;
-        g_heap = header;
     }
     else {
         header->next = nullptr;
         header->prev = nullptr;
+        g_heap = header;
     }
     void* ptr = reinterpret_cast<void*>((uintptr_t)header + sizeof(netero::memck::MemBlockHeader));
     //std::cout << "Allocator(global new) ::: Alloc data(0x" << ptr << ")" << std::endl;
@@ -104,6 +107,9 @@ void operator delete[](void *ptr) noexcept {
     }
     if (unlikely(!header->prev)) {
         g_heap = header->next;
+    }
+    if (unlikely(!header->prev && !header->next)) {
+        g_heap = nullptr;
     }
     //std::cout << "Allocator(global new) ::: free data(0x" << ptr << ")" << std::endl;
     std::free(header);
