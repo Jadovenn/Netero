@@ -37,7 +37,7 @@ namespace netero::graphics {
         this->instanceBufferMemory = bufferMemory;
     }
 
-    void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent) {
+    void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout) {
         if (this->_modelInstances.empty()) { return; }
         std::vector<VkPipelineShaderStageCreateInfo> shaderStage;
         for (const auto& shader : this->_shaderModules) {
@@ -152,7 +152,7 @@ namespace netero::graphics {
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &this->_descriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
         if (vkCreatePipelineLayout(this->_device->logicalDevice, &pipelineLayoutInfo, nullptr, &this->_pipelineLayout) != VK_SUCCESS) {
@@ -180,11 +180,7 @@ namespace netero::graphics {
         }
     }
 
-    void Model::commitRenderCommand(VkRenderPass renderPass,
-        VkCommandBuffer cmdBuffer,
-        VkFramebuffer frameBuffer,
-        VkExtent2D swapchainExtent,
-        size_t cmdBufferIndex) {
+    void Model::commitRenderCommand(VkCommandBuffer cmdBuffer, VkDescriptorSet descriptorSet) {
         if (this->_modelInstances.empty()) { return; }
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->_graphicsPipeline);
         VkBuffer vertexBuffer[] = { this->_vertexBuffer.vertexBuffer };
@@ -198,10 +194,20 @@ namespace netero::graphics {
             this->_pipelineLayout,
             0,
             1,
-            &this->_descriptorSets[cmdBufferIndex],
+            &descriptorSet,
             0,
             nullptr);
-        vkCmdDrawIndexed(cmdBuffer, static_cast<uint32_t>(this->_vertexBuffer.indices.size()), this->_modelInstances.size(), 0, 0, 0);
+        vkCmdDrawIndexed(cmdBuffer,
+            static_cast<uint32_t>(this->_vertexBuffer.indices.size()),
+            this->_modelInstances.size(),
+            0,
+            0,
+            0);
     }
+
+    void Model::update(uint32_t frameIndex) {
+        // update instance model here if needed
+    }
+
 }
 

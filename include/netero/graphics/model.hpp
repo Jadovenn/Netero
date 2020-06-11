@@ -17,28 +17,23 @@
 
 namespace netero::graphics {
 
-    // see: https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap14.html#interfaces-resources-layout
-    // for alignment requirements
-    struct UniformBufferObject {
-        glm::mat4   view;
-        glm::mat4   proj;
-    };
+
 
     /**
      * @brief Manage an Axis
      * This will in the feature be able to be bind
-     * to an axis of a controller. For instance it is juste
+     * to an axis of a controller. For instance it is just
      * an accessor to a float value.
      */
     class Axis {
-        volatile float      _value = 0;
-        volatile float      _rotation = 0;
-        volatile float      _scale = 1;
+        std::atomic<float>  _value = 0;
+        std::atomic<float>  _rotation = 0;
+        std::atomic<float>  _scale = 1;
         std::atomic<bool>   _has_changed;
     public:
         operator bool() const { return _has_changed; }
         operator float() const { return this->_value; }
-        float operator=(float value) { this->_value = value; return this->_value; };
+        Axis& operator=(float value) { this->_value = value; return *this; };
 
         void rotate(float value) { this->_rotation = value; }
         float getRotation() const { return this->_rotation; }
@@ -120,31 +115,31 @@ namespace netero::graphics {
         friend class Context;
         Model(VkInstance, Device*);
 
-        void build(size_t, VkRenderPass, VkExtent2D);
-        void rebuild(size_t, VkRenderPass, VkExtent2D);
+        void build(size_t, VkRenderPass, VkDescriptorSetLayout, VkExtent2D);
+        void rebuild(size_t, VkRenderPass, VkDescriptorSetLayout, VkExtent2D);
         void release(size_t);
 
         void createInstanceBuffer();
-        void createUniformBuffers(size_t); // DONE
-        void createDescriptorPool(size_t);  // DONE
-        void createDescriptorSets(size_t); // DONE
-        void createDescriptorSetLayout(); // DONE
-        void createGraphicsPipeline(VkRenderPass, VkExtent2D);
-        void commitRenderCommand(VkRenderPass, VkCommandBuffer, VkFramebuffer, VkExtent2D, size_t);
-        void updateMVP(uint32_t, VkExtent2D);
+        //void createUniformBuffers(size_t); // DONE
+        //void createDescriptorPool(size_t);  // DONE
+        //void createDescriptorSets(size_t); // DONE
+        //void createDescriptorSetLayout(); // DONE
+        void createGraphicsPipeline(VkRenderPass, VkExtent2D, VkDescriptorSetLayout);
+        void commitRenderCommand(VkCommandBuffer, VkDescriptorSet);
+        void update(uint32_t);
 
         VkInstance          _instance;
         Device*             _device;
         VertexBuffer        _vertexBuffer;
         VkPipelineLayout    _pipelineLayout;
         VkPipeline          _graphicsPipeline;
-        VkDescriptorPool    _descriptorPool;
-        VkDescriptorSetLayout   _descriptorSetLayout;
+        //VkDescriptorPool    _descriptorPool;
+        //VkDescriptorSetLayout   _descriptorSetLayout;
         std::vector<Shader>     _shaderModules;
         std::vector<Instance*>  _modelInstances;
-        std::vector<VkBuffer>           uniformBuffers;
-        std::vector<VkDeviceMemory>     uniformBuffersMemory;
-        std::vector<VkDescriptorSet>    _descriptorSets;
+        //std::vector<VkBuffer>           uniformBuffers;
+        //std::vector<VkDeviceMemory>     uniformBuffersMemory;
+        //std::vector<VkDescriptorSet>    _descriptorSets;
 
         // Model Buffer
         VkBuffer            instanceBuffer;

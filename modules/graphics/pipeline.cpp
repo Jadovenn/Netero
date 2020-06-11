@@ -20,6 +20,8 @@ namespace netero::graphics {
             _pipelineLayout(nullptr),
             _graphicsPipeline(nullptr),
             _commandPool(nullptr),
+            _descriptorPool(nullptr),
+            _descriptorSetLayout(nullptr),
             swapchain(nullptr)
     {
         assert(_instance);
@@ -28,7 +30,7 @@ namespace netero::graphics {
 
     Pipeline::~Pipeline() {
         this->release();
-        //vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
+        vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
         vkDestroyCommandPool(this->_device->logicalDevice, this->_commandPool, nullptr);
 
     }
@@ -38,10 +40,10 @@ namespace netero::graphics {
             //model->transferVertexBuffer();
         //}
         this->createSwapchain();
-        //this->createUniformBuffers();
-        //this->createDescriptorPool();
-        //this->createDescriptorSetLayout();
-        //this->createDescriptorSets();
+        this->createUniformBuffers();
+        this->createDescriptorPool();
+        this->createDescriptorSetLayout();
+        this->createDescriptorSets();
         this->createImageViews();
         this->createRenderPass();
         //this->createGraphicsPipeline(models);
@@ -61,11 +63,11 @@ namespace netero::graphics {
             vkDestroyImageView(this->_device->logicalDevice, imageView, nullptr);
         }
         vkDestroySwapchainKHR(this->_device->logicalDevice, this->swapchain, nullptr);
-        //for (size_t idx = 0; idx < this->swapchainImages.size(); ++idx) {
-            //vkDestroyBuffer(this->_device->logicalDevice, uniformBuffers[idx], nullptr);
-            //vkFreeMemory(this->_device->logicalDevice, uniformBuffersMemory[idx], nullptr);
-        //}
-        //vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
+        for (size_t idx = 0; idx < this->swapchainImages.size(); ++idx) {
+            vkDestroyBuffer(this->_device->logicalDevice, _uniformBuffers[idx], nullptr);
+            vkFreeMemory(this->_device->logicalDevice, _uniformBuffersMemory[idx], nullptr);
+        }
+        vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
     }
 
     void Pipeline::rebuild(std::vector<Model*>& models) {
@@ -74,9 +76,9 @@ namespace netero::graphics {
         //}
         this->release();
         this->createSwapchain();
-        //this->createUniformBuffers();
-        //this->createDescriptorPool();
-        //this->createDescriptorSets();
+        this->createUniformBuffers();
+        this->createDescriptorPool();
+        this->createDescriptorSets();
         this->createImageViews();
         this->createRenderPass();
         //this->createGraphicsPipeline(models);
@@ -88,14 +90,14 @@ namespace netero::graphics {
     void Pipeline::buildModels(std::vector<Model*>& models) {
         const size_t swapchainImagesCount = this->swapchainImages.size();
         for (auto* model : models) {
-            model->build(swapchainImagesCount, this->_renderPass, this->swapchainExtent);
+            model->build(swapchainImagesCount, this->_renderPass, this->_descriptorSetLayout, this->swapchainExtent);
         }
     }
 
     void Pipeline::rebuildModels(std::vector<Model*>& models) {
         const size_t swapchainImagesCount = this->swapchainImages.size();
         for (auto* model : models) {
-            model->rebuild(swapchainImagesCount, this->_renderPass, this->swapchainExtent);
+            model->rebuild(swapchainImagesCount, this->_renderPass, this->_descriptorSetLayout, this->swapchainExtent);
         }
     }
 
@@ -384,7 +386,7 @@ namespace netero::graphics {
             renderPassInfo.pClearValues = &clearColor;
             vkCmdBeginRenderPass(this->commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             for (auto* model: models) {
-                model->commitRenderCommand(this->_renderPass, commandBuffers[i], this->_swapchainFrameBuffers[i], this->swapchainExtent, i);
+                model->commitRenderCommand(commandBuffers[i], this->_descriptorSets[i]);
             }
             vkCmdEndRenderPass(this->commandBuffers[i]);
             if (vkEndCommandBuffer(this->commandBuffers[i]) != VK_SUCCESS) {

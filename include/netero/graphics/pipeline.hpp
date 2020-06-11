@@ -17,10 +17,10 @@ namespace netero::graphics {
     struct Pipeline {
    private:
         void createSwapchain();
-        //void createUniformBuffers(); // Model
-        //void createDescriptorPool(); // Model
-        //void createDescriptorSets(); // Model
-        //void createDescriptorSetLayout(); // Model
+        void createUniformBuffers(); // Model
+        void createDescriptorPool(); // Model
+        void createDescriptorSets(); // Model
+        void createDescriptorSetLayout(); // Model
         void createImageViews();
         void createRenderPass();
         //void createGraphicsPipeline(std::vector<Model*>&);
@@ -42,6 +42,14 @@ namespace netero::graphics {
         //std::vector<VkDescriptorSet>    _descriptorSets; // Model
         std::vector<VkImageView>        _swapchainImageViews;
         std::vector<VkFramebuffer>      _swapchainFrameBuffers;
+
+        // UBO related
+        std::vector<VkBuffer>           _uniformBuffers;
+        std::vector<VkDeviceMemory>     _uniformBuffersMemory;
+        VkDescriptorPool                _descriptorPool;
+        VkDescriptorSetLayout           _descriptorSetLayout;
+        std::vector<VkDescriptorSet>    _descriptorSets;
+
     public:
         Pipeline(VkInstance, Device*);
         Pipeline(const Pipeline&) = delete;
@@ -53,6 +61,7 @@ namespace netero::graphics {
         void    build(std::vector<Model*>&);
         void    rebuild(std::vector<Model*>&);
         void    release();
+        void    update(uint32_t);
 
         void buildModels(std::vector<Model*>&);
         void rebuildModels(std::vector<Model*>&);
