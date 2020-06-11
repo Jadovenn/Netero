@@ -97,7 +97,6 @@ namespace netero::graphics {
             reinterpret_cast<void**>(&data));
         for (size_t idx = 0; idx < this->_modelInstances.size(); ++idx) {
             UniformBufferObject ubo{};
-            ubo.model = this->_modelInstances[idx]->getModelMat();
             ubo.view = glm::lookAt(glm::vec3(0.f, 0.f, 2.f),
                 glm::vec3(0.f, 0.f, 0.f),
                 glm::vec3(0.f, 1.f, 0.f));

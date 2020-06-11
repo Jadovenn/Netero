@@ -43,6 +43,8 @@ namespace netero::graphics {
             delete instance;
         }
         this->_vertexBuffer.release();
+        vkDestroyBuffer(this->_device->logicalDevice, this->instanceBuffer, nullptr);
+        vkFreeMemory(this->_device->logicalDevice, this->instanceBufferMemory, nullptr);
     }
     
     void Model::release(size_t imageCount) {
@@ -59,6 +61,7 @@ namespace netero::graphics {
     void Model::build(size_t imageCount, VkRenderPass renderPass, VkExtent2D extent) {
         if (this->_modelInstances.empty()) { return; }
         this->_vertexBuffer.AllocateAndTransfer(this->_modelInstances.size());
+        this->createInstanceBuffer();
         this->createUniformBuffers(imageCount);
         this->createDescriptorPool(imageCount);
         this->createDescriptorSetLayout();

@@ -6,7 +6,36 @@
 #include <stdexcept>
 #include <netero/graphics/model.hpp>
 
+#include "utils/vkUtils.hpp"
+
 namespace netero::graphics {
+
+    // Need to create one buffer per cmdPool
+    void Model::createInstanceBuffer() {
+        const size_t size = sizeof(Instance::InstanceData) * this->_modelInstances.size();
+        auto [buffer, bufferMemory] = vkUtils::AllocBuffer(this->_device,
+            size,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        void* data = nullptr;
+        vkMapMemory(this->_device->logicalDevice,
+            bufferMemory,
+            0,
+            size,
+            0,
+            &data);
+        for (size_t idx = 0; idx < this->_modelInstances.size(); ++idx) {
+            this->_modelInstances[idx]->offset = idx;
+
+            std::memcpy(static_cast<char*>(data) + (idx * sizeof(Instance::InstanceData)),
+                this->_modelInstances[idx]->getModelMat(),
+                sizeof(Instance::InstanceData));
+        }
+        vkUnmapMemory(this->_device->logicalDevice,
+            bufferMemory);
+        this->instanceBuffer = buffer;
+        this->instanceBufferMemory = bufferMemory;
+    }
 
     void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent) {
         if (this->_modelInstances.empty()) { return; }
@@ -33,15 +62,26 @@ namespace netero::graphics {
             createInfo.pName = "main";
             shaderStage.push_back(createInfo);
         }
-
-        auto bindingDescription = netero::graphics::Vertex::getBindingDescription();
-        auto attributeDescriptions = netero::graphics::Vertex::getAttributeDescription();
+        std::vector<VkVertexInputBindingDescription>    vertexBindings = {
+            Vertex::getBindingDescription(),
+            Instance::getBindingDescription()
+        };
+        auto vertexAttributeDescriptions = netero::graphics::Vertex::getAttributeDescription();
+        auto instanceAttributeDescriptions = netero::graphics::Instance::getAttributeDescription();
+        std::vector<VkVertexInputAttributeDescription>  vertexAttributes = {
+            vertexAttributeDescriptions[0],
+            vertexAttributeDescriptions[1],
+            instanceAttributeDescriptions[0],
+            instanceAttributeDescriptions[1],
+            instanceAttributeDescriptions[2],
+            instanceAttributeDescriptions[3],
+        };
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+        vertexInputInfo.vertexBindingDescriptionCount = vertexBindings.size();
+        vertexInputInfo.pVertexBindingDescriptions = vertexBindings.data();
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributes.size());
+        vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes.data();
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -149,7 +189,9 @@ namespace netero::graphics {
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->_graphicsPipeline);
         VkBuffer vertexBuffer[] = { this->_vertexBuffer.vertexBuffer };
         VkDeviceSize    offsets[] = { 0 };
+        VkBuffer instanceBuffer[] = { this->instanceBuffer };
         vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffer, offsets);
+        vkCmdBindVertexBuffers(cmdBuffer, 1, 1, instanceBuffer, offsets);
         vkCmdBindIndexBuffer(cmdBuffer, this->_vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
         vkCmdBindDescriptorSets(cmdBuffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,

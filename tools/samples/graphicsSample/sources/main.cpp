@@ -9,27 +9,25 @@
 #include <netero/graphics/context.hpp>
 #include <netero/graphics/vertex.hpp>
 
-const std::string g_2DObjectVertexShader_path = netero::os::getBundlePath() + "/shaders/2DObjectProj.spv";
 const std::string g_3DObjectVertexShader_path = netero::os::getBundlePath() + "/shaders/3DObjectProj.spv";
 const std::string g_ColorFragmentShader_path = netero::os::getBundlePath() + "/shaders/ColorFragment.spv";
 const std::string g_texture = netero::os::getBundlePath() + "/textures/cat.png";
 
-std::vector<netero::graphics::Vertex>   vertices {
+std::vector<netero::graphics::Vertex>   squareVertices {
     {{-0.5f, -0.5f}, {1.f, 0.0f, 0.f}},
     {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
     {{0.5f, 0.5f}, {0.f, 0.0f, 1.f}},
     {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
 };
 
-
-std::vector<netero::graphics::Vertex>   triangleVertices {
-    {{-1.f, -1.f}, {1.f, 0.0f, 0.f}},
-    {{-1.f, -0.5f}, {0.f, 1.0f, 0.f}},
-    {{-0.5f, -0.5f}, {0.f, 0.0f, 1.f}},
+std::vector<uint16_t>    squareIndices{
+    0, 1, 2, 2, 3, 0
 };
 
-std::vector<uint16_t>    indices{
-    0, 1, 2, 2, 3, 0
+std::vector<netero::graphics::Vertex>   triangleVertices {
+    {{0.f, -0.2f}, {1.f, 0.0f, 0.f}},
+    {{0.25f, 0.25f}, {0.0f, 1.0f, 0.0f}},
+    {{-0.25f, 0.25f}, {0.f, 0.0f, 1.f}},
 };
 
 int    main() {
@@ -43,16 +41,31 @@ int    main() {
         auto* square2DModel = context->createModel();
         square2DModel->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
         square2DModel->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
-        square2DModel->addVertices(vertices, indices);
+        square2DModel->addVertices(squareVertices, squareIndices);
+        auto* triangle2DModel = context->createModel();
+        triangle2DModel->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
+        triangle2DModel->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
+        triangle2DModel->addVertices(triangleVertices);
         // Create an instance of our model that is rendered in the graphic pipeline
         auto* mySquare = square2DModel->createInstance();
         auto* mySecondSquare = square2DModel->createInstance();
+        mySquare->x = 0.5;
+        mySquare->y = -0.25;
         mySquare->z.rotate(glm::radians(45.0f));
         mySquare->x.scale(0.5);
         mySquare->y.scale(0.5);
+        mySecondSquare->x = -0.5;
+        mySecondSquare->y = -0.25;
+        mySecondSquare->x.scale(0.5);
+        mySecondSquare->y.scale(0.5);
+        auto* myTriangle = triangle2DModel->createInstance();
+        myTriangle->y = 0.25;
+        myTriangle->x.scale(2);
+        myTriangle->y.scale(2);
         context->run();
         square2DModel->deleteInstance(mySquare);
         square2DModel->deleteInstance(mySecondSquare);
+        triangle2DModel->deleteInstance(myTriangle);
         context->deleteModel(square2DModel);
     }
     catch (const std::exception &e) {
