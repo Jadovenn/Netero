@@ -10,9 +10,9 @@
 
 namespace netero::graphics {
 
-    // Need to create one buffer per cmdPool
-    void Model::createInstanceBuffer() {
-        const size_t size = sizeof(Instance::InstanceData) * this->_modelInstances.size();
+    void Model::createInstanceBuffer(size_t framesCount) {
+        const size_t slot_count = this->_modelInstances.size() * framesCount;
+        const size_t size = sizeof(Instance::InstanceData) * slot_count;
         auto [buffer, bufferMemory] = vkUtils::AllocBuffer(this->_device,
             size,
             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
@@ -26,10 +26,13 @@ namespace netero::graphics {
             &data);
         for (size_t idx = 0; idx < this->_modelInstances.size(); ++idx) {
             this->_modelInstances[idx]->offset = idx;
-
-            std::memcpy(static_cast<char*>(data) + (idx * sizeof(Instance::InstanceData)),
-                this->_modelInstances[idx]->getModelMat(),
-                sizeof(Instance::InstanceData));
+            glm::mat4* model = this->_modelInstances[idx]->getModelMat();
+            for (size_t frameIdx = 0; frameIdx < framesCount; ++frameIdx) {
+                const size_t offset = frameIdx * this->_modelInstances.size() * sizeof(Instance::InstanceData);
+                std::memcpy(static_cast<char*>(data) + (offset + idx * sizeof(Instance::InstanceData)),
+                    model,
+                    sizeof(Instance::InstanceData));
+            }
         }
         vkUnmapMemory(this->_device->logicalDevice,
             bufferMemory);
@@ -180,14 +183,15 @@ namespace netero::graphics {
         }
     }
 
-    void Model::commitRenderCommand(VkCommandBuffer cmdBuffer, VkDescriptorSet descriptorSet) {
+    void Model::commitRenderCommand(VkCommandBuffer cmdBuffer, VkDescriptorSet descriptorSet, size_t frameIdx) {
         if (this->_modelInstances.empty()) { return; }
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->_graphicsPipeline);
         VkBuffer vertexBuffer[] = { this->_vertexBuffer.vertexBuffer };
         VkDeviceSize    offsets[] = { 0 };
         VkBuffer instanceBuffer[] = { this->instanceBuffer };
+        VkDeviceSize    instanceOffsets[] = { sizeof(Instance::InstanceData) * this->_modelInstances.size() * frameIdx };
         vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffer, offsets);
-        vkCmdBindVertexBuffers(cmdBuffer, 1, 1, instanceBuffer, offsets);
+        vkCmdBindVertexBuffers(cmdBuffer, 1, 1, instanceBuffer, instanceOffsets);
         vkCmdBindIndexBuffer(cmdBuffer, this->_vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
         vkCmdBindDescriptorSets(cmdBuffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -206,7 +210,20 @@ namespace netero::graphics {
     }
 
     void Model::update(uint32_t frameIndex) {
-        // update instance model here if needed
+        void* data = nullptr;
+        vkMapMemory(this->_device->logicalDevice,
+           this->instanceBufferMemory,
+           frameIndex * this->_modelInstances.size() * sizeof(Instance::InstanceData),
+           this->_modelInstances.size() * sizeof(Instance::InstanceData),
+           0,
+           &data);
+       for (size_t idx = 0; idx < this->_modelInstances.size(); ++idx) {
+           glm::mat4* model = this->_modelInstances[idx]->getModelMat();
+           std::memcpy(static_cast<char*>(data) + (idx * sizeof(Instance::InstanceData)),
+               model,
+               sizeof(Instance::InstanceData));
+       }
+       vkUnmapMemory(this->_device->logicalDevice, this->instanceBufferMemory);
     }
 
 }

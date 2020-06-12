@@ -30,7 +30,13 @@ std::vector<netero::graphics::Vertex>   triangleVertices {
     {{-0.25f, 0.25f}, {0.f, 0.0f, 1.f}},
 };
 
+#if !defined(_MSC_VER)
+#include <windows.h>
+#include <WinBase.h>
+int WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+#else
 int    main() {
+#endif
     int rtCode = 0;
     try {
         // Initialize the graphics module with the name of the app

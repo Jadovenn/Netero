@@ -73,8 +73,8 @@ namespace netero::graphics {
         }
         this->_device = new netero::graphics::Device(this->_vulkanInstance, this->_surface);
         if (!this->_device) { throw std::bad_alloc(); }
-        this->_device->setSurfaceHeight(height);
-        this->_device->setSurfaceWidth(width);
+        this->_device->setSurfaceHeight(this->_height);
+        this->_device->setSurfaceWidth(this->_width);
     }
 
     Context::~Context() {

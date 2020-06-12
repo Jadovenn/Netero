@@ -50,10 +50,10 @@ namespace netero::graphics {
         vkDestroyPipelineLayout(this->_device->logicalDevice, this->_pipelineLayout, nullptr);
     }
 
-    void Model::build(size_t imageCount, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout, VkExtent2D extent) {
+    void Model::build(size_t framesCount, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout, VkExtent2D extent) {
         if (this->_modelInstances.empty()) { return; }
         this->_vertexBuffer.AllocateAndTransfer(this->_modelInstances.size());
-        this->createInstanceBuffer();
+        this->createInstanceBuffer(framesCount);
         this->createGraphicsPipeline(renderPass, extent, descriptorSetLayout);
     }
 

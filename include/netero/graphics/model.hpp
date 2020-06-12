@@ -119,13 +119,13 @@ namespace netero::graphics {
         void rebuild(size_t, VkRenderPass, VkDescriptorSetLayout, VkExtent2D);
         void release(size_t);
 
-        void createInstanceBuffer();
+        void createInstanceBuffer(size_t);
         //void createUniformBuffers(size_t); // DONE
         //void createDescriptorPool(size_t);  // DONE
         //void createDescriptorSets(size_t); // DONE
         //void createDescriptorSetLayout(); // DONE
         void createGraphicsPipeline(VkRenderPass, VkExtent2D, VkDescriptorSetLayout);
-        void commitRenderCommand(VkCommandBuffer, VkDescriptorSet);
+        void commitRenderCommand(VkCommandBuffer, VkDescriptorSet, size_t);
         void update(uint32_t);
 
         VkInstance          _instance;

@@ -386,7 +386,7 @@ namespace netero::graphics {
             renderPassInfo.pClearValues = &clearColor;
             vkCmdBeginRenderPass(this->commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             for (auto* model: models) {
-                model->commitRenderCommand(commandBuffers[i], this->_descriptorSets[i]);
+                model->commitRenderCommand(commandBuffers[i], this->_descriptorSets[i], i);
             }
             vkCmdEndRenderPass(this->commandBuffers[i]);
             if (vkEndCommandBuffer(this->commandBuffers[i]) != VK_SUCCESS) {
