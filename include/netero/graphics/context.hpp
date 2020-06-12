@@ -43,7 +43,10 @@ namespace netero::graphics {
         ~Context();
 
         // Context related
-        void    run();
+        void build();
+        void release();
+        void update();
+        [[nodiscard]] bool shouldClose() const;
 
         [[nodiscard]] Model*  createModel();
         void    deleteModel(Model*);
@@ -57,10 +60,10 @@ namespace netero::graphics {
         //void createDescriptorPool(size_t);
         //void createDescriptorSets(size_t);
         //void createDescriptorSetLayout();
-        void createSemaphores();
-        void drawFrame();
-        void recreateSwapchain();
-        void    update(uint32_t imageIndex);
+        void    createSemaphores();
+        void    recreateSwapchain();
+        bool    prepareFrame(uint32_t& frameIndex);
+        void    submitFrame(uint32_t frameIndex);
 
         VkInstance  _vulkanInstance;
         int         _height;

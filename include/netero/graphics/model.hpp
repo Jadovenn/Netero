@@ -17,8 +17,6 @@
 
 namespace netero::graphics {
 
-
-
     /**
      * @brief Manage an Axis
      * This will in the feature be able to be bind

@@ -4,6 +4,7 @@
  */
 
 #include <iostream>
+#include <chrono>
 #include <netero/os.hpp>
 #include <netero/graphics/application.hpp>
 #include <netero/graphics/context.hpp>
@@ -30,6 +31,66 @@ std::vector<netero::graphics::Vertex>   triangleVertices {
     {{-0.25f, 0.25f}, {0.f, 0.0f, 1.f}},
 };
 
+struct GraphicSampleApp {
+    netero::graphics::Application*  handle = nullptr;
+    netero::graphics::Context*      context = nullptr;
+    netero::graphics::Model*        square = nullptr;
+    netero::graphics::Model*        triangle = nullptr;
+    netero::graphics::Instance*     squareInstance1 = nullptr;
+    netero::graphics::Instance*     squareInstance2 = nullptr;
+    netero::graphics::Instance*     triangleInstance1 = nullptr;
+};
+
+void    RunApplication(GraphicSampleApp* myApp) {
+    const auto startTime = std::chrono::high_resolution_clock::now();
+    myApp->context->build();
+    while (!myApp->context->shouldClose()) {
+        auto now = std::chrono::high_resolution_clock::now();
+        const float time = std::chrono::duration<float, std::chrono::seconds::period>(now - startTime).count();
+        myApp->triangleInstance1->z.rotate(time * glm::radians(45.0f));
+        myApp->squareInstance1->z.rotate(time * glm::radians(90.0f));
+        myApp->squareInstance2->z.rotate(-1 * time * glm::radians(30.0f));
+        myApp->context->update();
+    }
+    myApp->context->release();
+}
+
+void    InitializeApp(GraphicSampleApp* myApp) {
+    myApp->handle = netero::graphics::Application::Initialize("GraphicsSample");
+    myApp->context = myApp->handle->newWindowedContext(800, 600, netero::graphics::WindowMode::RESIZABLE);
+    myApp->square = myApp->context->createModel();
+    myApp->square->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
+    myApp->square->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
+    myApp->square->addVertices(squareVertices, squareIndices);
+    myApp->triangle = myApp->context->createModel();
+    myApp->triangle->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
+    myApp->triangle->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
+    myApp->triangle->addVertices(triangleVertices);
+    myApp->squareInstance1 = myApp->square->createInstance();
+    myApp->squareInstance1->x = 0.5;
+    myApp->squareInstance1->y = -0.25;
+    myApp->squareInstance1->x.scale(0.5);
+    myApp->squareInstance1->y.scale(0.5);
+    myApp->squareInstance2 = myApp->square->createInstance();
+    myApp->squareInstance2->x = -0.5;
+    myApp->squareInstance2->y = -0.25;
+    myApp->squareInstance2->x.scale(0.5);
+    myApp->squareInstance2->y.scale(0.5);
+    myApp->triangleInstance1 = myApp->triangle->createInstance();
+    myApp->triangleInstance1->y = 0.25;
+    myApp->triangleInstance1->x.scale(2);
+    myApp->triangleInstance1->y.scale(2);
+}
+
+void    CleanUpApp(GraphicSampleApp* myApp) {
+    myApp->square->deleteInstance(myApp->squareInstance1);
+    myApp->square->deleteInstance(myApp->squareInstance2);
+    myApp->triangle->deleteInstance(myApp->triangleInstance1);
+    myApp->context->deleteModel(myApp->square);
+    myApp->context->deleteModel(myApp->triangle);
+    netero::graphics::Application::Release();
+}
+
 #if !defined(_MSC_VER)
 #include <windows.h>
 #include <WinBase.h>
@@ -38,41 +99,11 @@ int WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 int    main() {
 #endif
     int rtCode = 0;
+    GraphicSampleApp    myApp{};
     try {
-        // Initialize the graphics module with the name of the app
-        auto* app = netero::graphics::Application::Initialize("GraphicsSample");
-        // Create a new context with its window
-        auto* context = app->newWindowedContext(800, 600, netero::graphics::WindowMode::RESIZABLE);
-        // Create a new model that is a square
-        auto* square2DModel = context->createModel();
-        square2DModel->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
-        square2DModel->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
-        square2DModel->addVertices(squareVertices, squareIndices);
-        auto* triangle2DModel = context->createModel();
-        triangle2DModel->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
-        triangle2DModel->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
-        triangle2DModel->addVertices(triangleVertices);
-        // Create an instance of our model that is rendered in the graphic pipeline
-        auto* mySquare = square2DModel->createInstance();
-        auto* mySecondSquare = square2DModel->createInstance();
-        mySquare->x = 0.5;
-        mySquare->y = -0.25;
-        mySquare->z.rotate(glm::radians(45.0f));
-        mySquare->x.scale(0.5);
-        mySquare->y.scale(0.5);
-        mySecondSquare->x = -0.5;
-        mySecondSquare->y = -0.25;
-        mySecondSquare->x.scale(0.5);
-        mySecondSquare->y.scale(0.5);
-        auto* myTriangle = triangle2DModel->createInstance();
-        myTriangle->y = 0.25;
-        myTriangle->x.scale(2);
-        myTriangle->y.scale(2);
-        context->run();
-        square2DModel->deleteInstance(mySquare);
-        square2DModel->deleteInstance(mySecondSquare);
-        triangle2DModel->deleteInstance(myTriangle);
-        context->deleteModel(square2DModel);
+        InitializeApp(&myApp);
+        RunApplication(&myApp);
+        CleanUpApp(&myApp);
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
@@ -82,7 +113,6 @@ int    main() {
         std::cerr << "Fatal error." << std::endl;
         rtCode = 2;
     }
-    netero::graphics::Application::Release();
     return rtCode;
 }
 
