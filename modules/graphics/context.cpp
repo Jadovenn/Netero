@@ -123,7 +123,6 @@ namespace netero::graphics {
     }
 
     bool Context::shouldClose() const {
-        glfwPollEvents();
         return glfwWindowShouldClose(this->_pImpl->window);
     }
 
@@ -249,6 +248,7 @@ namespace netero::graphics {
 
     void Context::update() {
         uint32_t frameIndex = 0;
+        glfwPollEvents();
         if (!this->prepareFrame(frameIndex)) {
             return;
         }
