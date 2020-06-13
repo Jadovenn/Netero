@@ -12,7 +12,12 @@ set(SOURCES
 include_directories(${PROJECT_NAME} sources ${netero_INCLUDE_DIRECTORY})
 
 if(WIN32)
-    add_executable(${PROJECT_NAME} WindowsRessources.rc ${SOURCES})
+    if (WIN_APP)
+        add_compile_definitions(WIN_APP)
+        add_executable(${PROJECT_NAME} WIN32 WindowsRessources.rc ${SOURCES})
+    else()
+        add_executable(${PROJECT_NAME} WindowsRessources.rc ${SOURCES})
+    endif()
 endif(WIN32)
 if(APPLE)
     set(MACOSX_BUNDLE_ICON_FILE NeteroIcon.icns)
@@ -24,8 +29,7 @@ endif(APPLE)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} netero Netero::Graphics)
-target_add_shader(${PROJECT_NAME} shaders/3DObjectProj.vert)
-target_add_shader(${PROJECT_NAME} shaders/2DObjectProj.vert)
+target_add_shader(${PROJECT_NAME} shaders/ModelVertex.vert)
 target_add_shader(${PROJECT_NAME} shaders/ColorFragment.frag)
 target_add_texture(${PROJECT_NAME} textures/cat.png)
 

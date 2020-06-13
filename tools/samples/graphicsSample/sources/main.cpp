@@ -10,7 +10,7 @@
 #include <netero/graphics/context.hpp>
 #include <netero/graphics/vertex.hpp>
 
-const std::string g_3DObjectVertexShader_path = netero::os::getBundlePath() + "/shaders/3DObjectProj.spv";
+const std::string g_3DObjectVertexShader_path = netero::os::getBundlePath() + "/shaders/ModelVertex.spv";
 const std::string g_ColorFragmentShader_path = netero::os::getBundlePath() + "/shaders/ColorFragment.spv";
 const std::string g_texture = netero::os::getBundlePath() + "/textures/cat.png";
 
@@ -91,7 +91,7 @@ void    CleanUpApp(GraphicSampleApp* myApp) {
     netero::graphics::Application::Release();
 }
 
-#if !defined(_MSC_VER)
+#if defined(WIN_APP)
 #include <windows.h>
 #include <WinBase.h>
 int WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
