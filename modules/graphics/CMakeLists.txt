@@ -60,13 +60,16 @@ list(APPEND SRCS
         model/model.cpp
         model/vertex.cpp
         model/vk_model_pipeline.cpp
+        model/vk_model_texture.cpp
         utils/vkUtils.hpp
         utils/vkCheckValidationLayerSupport.cpp
         utils/vkExtentionLoaders.cpp
         utils/vkDebugCallbacks.cpp
         utils/vkFindQueueFamilies.cpp
         utils/vkSwapChainSupport.cpp
-        utils/vkMemory.cpp)
+        utils/vkCommandBuffer.cpp
+        utils/vkMemory.cpp
+        utils/vkTransferCommand.cpp)
 
 ##====================================
 ##  Target

@@ -36,8 +36,8 @@ namespace netero::graphics {
         }
         vkUnmapMemory(this->_device->logicalDevice,
             bufferMemory);
-        this->instanceBuffer = buffer;
-        this->instanceBufferMemory = bufferMemory;
+        this->_instanceBuffer = buffer;
+        this->_instanceBufferMemory = bufferMemory;
     }
 
     void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout) {
@@ -188,7 +188,7 @@ namespace netero::graphics {
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->_graphicsPipeline);
         VkBuffer vertexBuffer[] = { this->_vertexBuffer.vertexBuffer };
         VkDeviceSize    offsets[] = { 0 };
-        VkBuffer instanceBuffer[] = { this->instanceBuffer };
+        VkBuffer instanceBuffer[] = { this->_instanceBuffer };
         VkDeviceSize    instanceOffsets[] = { sizeof(Instance::Data) * this->_modelInstances.size() * frameIdx };
         vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffer, offsets);
         vkCmdBindVertexBuffers(cmdBuffer, 1, 1, instanceBuffer, instanceOffsets);
@@ -212,7 +212,7 @@ namespace netero::graphics {
     void Model::update(uint32_t frameIndex) {
         void* data = nullptr;
         vkMapMemory(this->_device->logicalDevice,
-           this->instanceBufferMemory,
+           this->_instanceBufferMemory,
            frameIndex * this->_modelInstances.size() * sizeof(Instance::Data),
            this->_modelInstances.size() * sizeof(Instance::Data),
            0,
@@ -223,7 +223,7 @@ namespace netero::graphics {
                shared,
                sizeof(Instance::Data));
        }
-       vkUnmapMemory(this->_device->logicalDevice, this->instanceBufferMemory);
+       vkUnmapMemory(this->_device->logicalDevice, this->_instanceBufferMemory);
     }
 
 }

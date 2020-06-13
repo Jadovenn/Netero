@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <fstream>
 #include <netero/graphics/model.hpp>
-#include <netero/extra/stb_image.h>
 
 #include "utils/vkUtils.hpp"
 
@@ -29,7 +28,11 @@ namespace netero::graphics {
             _device(device),
             _vertexBuffer(_device),
             _pipelineLayout(nullptr),
-            _graphicsPipeline(nullptr)
+            _graphicsPipeline(nullptr),
+            _instanceBuffer(nullptr),
+            _instanceBufferMemory(nullptr),
+            _image(nullptr),
+            _imageMemory(nullptr)
     {}
 
     Model::~Model() {
@@ -40,8 +43,12 @@ namespace netero::graphics {
             delete instance;
         }
         this->_vertexBuffer.release();
-        vkDestroyBuffer(this->_device->logicalDevice, this->instanceBuffer, nullptr);
-        vkFreeMemory(this->_device->logicalDevice, this->instanceBufferMemory, nullptr);
+        vkDestroyBuffer(this->_device->logicalDevice, this->_instanceBuffer, nullptr);
+        vkFreeMemory(this->_device->logicalDevice, this->_instanceBufferMemory, nullptr);
+        if (this->_image) {
+            vkDestroyImage(this->_device->logicalDevice, this->_image, nullptr);
+            vkFreeMemory(this->_device->logicalDevice, this->_imageMemory, nullptr);
+        }
     }
     
     void Model::release(size_t imageCount) {
@@ -109,29 +116,5 @@ namespace netero::graphics {
         this->_shaderModules.push_back(shader);
         return 0;
     }
-
-    void Model::loadTexture(const std::string& path) {
-        int width, height, channels = 0;
-        stbi_uc* pixels = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-        const VkDeviceSize imageSize = width * height * 4;
-        if (!pixels) {
-            throw std::runtime_error("Failed to load texture from fs.");
-        }
-        auto [stagingBuffer, stagingBufferMemory] = vkUtils::AllocBuffer(this->_device,
-            imageSize,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        void* data;
-        vkMapMemory(this->_device->logicalDevice,
-            stagingBufferMemory,
-            0,
-            imageSize,
-            0,
-            &data);
-        memcpy(data, pixels, static_cast<size_t>(imageSize));
-        vkUnmapMemory(this->_device->logicalDevice, stagingBufferMemory);
-        stbi_image_free(pixels);
-    }
-
 }
 

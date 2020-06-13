@@ -44,8 +44,12 @@ namespace netero::graphics {
         std::vector<Instance*>  _modelInstances;
 
         // Model Buffer
-        VkBuffer            instanceBuffer;
-        VkDeviceMemory      instanceBufferMemory;
+        VkBuffer            _instanceBuffer;
+        VkDeviceMemory      _instanceBufferMemory;
+
+        // Texture
+        VkImage         _image;
+        VkDeviceMemory  _imageMemory;
     public:
         Model(const Model&) = delete;
         Model(Model&&) = delete;
