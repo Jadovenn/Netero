@@ -20,6 +20,13 @@ namespace netero::graphics {
 
     class Application;
 
+    // see: https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap14.html#interfaces-resources-layout
+    // for alignment requirements
+    struct UniformBufferObject {
+        glm::mat4   view;
+        glm::mat4   proj;
+    };
+
     class Context {
         Context(VkInstance vulkanInstance,
             unsigned width,
@@ -36,7 +43,10 @@ namespace netero::graphics {
         ~Context();
 
         // Context related
-        void    run();
+        void build();
+        void release();
+        void update();
+        [[nodiscard]] bool shouldClose() const;
 
         [[nodiscard]] Model*  createModel();
         void    deleteModel(Model*);
@@ -46,14 +56,18 @@ namespace netero::graphics {
         [[nodiscard]] std::string   getCurrentPhysicalDeviceName() const;
 
     private:
+        //void createUniformBuffers(size_t);
+        //void createDescriptorPool(size_t);
+        //void createDescriptorSets(size_t);
+        //void createDescriptorSetLayout();
         void    createSemaphores();
-        void    drawFrame();
         void    recreateSwapchain();
-        //void    updateUniformBuffer(uint32_t imageIndex);
+        bool    prepareFrame(uint32_t& frameIndex);
+        void    submitFrame(uint32_t frameIndex);
 
         VkInstance  _vulkanInstance;
-        int    _height;
-        int    _width;
+        int         _height;
+        int         _width;
         WindowMode  _windowMode;
         const std::string   _name;
         const std::string   _deviceName;
@@ -70,6 +84,7 @@ namespace netero::graphics {
         std::vector<VkFence>        _imagesInFlight;
         size_t      _currentFrame = 0;
         const int   MAX_FRAMES_IN_FLIGHT = 2;
+
 
         struct impl;
         std::unique_ptr<impl>   _pImpl;

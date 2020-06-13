@@ -6,9 +6,41 @@
 #include <stdexcept>
 #include <netero/graphics/model.hpp>
 
+#include "utils/vkUtils.hpp"
+
 namespace netero::graphics {
 
-    void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent) {
+    void Model::createInstanceBuffer(size_t framesCount) {
+        const size_t slot_count = this->_modelInstances.size() * framesCount;
+        const size_t size = sizeof(Instance::Data) * slot_count;
+        auto [buffer, bufferMemory] = vkUtils::AllocBuffer(this->_device,
+            size,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        void* data = nullptr;
+        vkMapMemory(this->_device->logicalDevice,
+            bufferMemory,
+            0,
+            size,
+            0,
+            &data);
+        for (size_t idx = 0; idx < this->_modelInstances.size(); ++idx) {
+            this->_modelInstances[idx]->offset = idx;
+            Instance::Data* shared = this->_modelInstances[idx]->update();
+            for (size_t frameIdx = 0; frameIdx < framesCount; ++frameIdx) {
+                const size_t offset = frameIdx * this->_modelInstances.size() * sizeof(Instance::Data);
+                std::memcpy(static_cast<char*>(data) + (offset + idx * sizeof(Instance::Data)),
+                    shared,
+                    sizeof(Instance::Data));
+            }
+        }
+        vkUnmapMemory(this->_device->logicalDevice,
+            bufferMemory);
+        this->instanceBuffer = buffer;
+        this->instanceBufferMemory = bufferMemory;
+    }
+
+    void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout) {
         if (this->_modelInstances.empty()) { return; }
         std::vector<VkPipelineShaderStageCreateInfo> shaderStage;
         for (const auto& shader : this->_shaderModules) {
@@ -33,15 +65,26 @@ namespace netero::graphics {
             createInfo.pName = "main";
             shaderStage.push_back(createInfo);
         }
-
-        auto bindingDescription = netero::graphics::Vertex::getBindingDescription();
-        auto attributeDescriptions = netero::graphics::Vertex::getAttributeDescription();
+        std::vector<VkVertexInputBindingDescription>    vertexBindings = {
+            Vertex::getBindingDescription(),
+            Instance::getBindingDescription()
+        };
+        auto vertexAttributeDescriptions = netero::graphics::Vertex::getAttributeDescription();
+        auto instanceAttributeDescriptions = netero::graphics::Instance::getAttributeDescription();
+        std::vector<VkVertexInputAttributeDescription>  vertexAttributes = {
+            vertexAttributeDescriptions[0],
+            vertexAttributeDescriptions[1],
+            instanceAttributeDescriptions[0],
+            instanceAttributeDescriptions[1],
+            instanceAttributeDescriptions[2],
+            instanceAttributeDescriptions[3],
+        };
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+        vertexInputInfo.vertexBindingDescriptionCount = vertexBindings.size();
+        vertexInputInfo.pVertexBindingDescriptions = vertexBindings.data();
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributes.size());
+        vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes.data();
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -68,8 +111,8 @@ namespace netero::graphics {
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizer.lineWidth = 1.0f;
-        //rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
         rasterizer.depthBiasConstantFactor = 0.0f;
         rasterizer.depthBiasClamp = 0.0f;
@@ -112,7 +155,7 @@ namespace netero::graphics {
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &this->_descriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
         if (vkCreatePipelineLayout(this->_device->logicalDevice, &pipelineLayoutInfo, nullptr, &this->_pipelineLayout) != VK_SUCCESS) {
@@ -140,26 +183,48 @@ namespace netero::graphics {
         }
     }
 
-    void Model::commitRenderCommand(VkRenderPass renderPass,
-        VkCommandBuffer cmdBuffer,
-        VkFramebuffer frameBuffer,
-        VkExtent2D swapchainExtent,
-        size_t cmdBufferIndex) {
+    void Model::commitRenderCommand(VkCommandBuffer cmdBuffer, VkDescriptorSet descriptorSet, size_t frameIdx) {
         if (this->_modelInstances.empty()) { return; }
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->_graphicsPipeline);
         VkBuffer vertexBuffer[] = { this->_vertexBuffer.vertexBuffer };
         VkDeviceSize    offsets[] = { 0 };
+        VkBuffer instanceBuffer[] = { this->instanceBuffer };
+        VkDeviceSize    instanceOffsets[] = { sizeof(Instance::Data) * this->_modelInstances.size() * frameIdx };
         vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffer, offsets);
+        vkCmdBindVertexBuffers(cmdBuffer, 1, 1, instanceBuffer, instanceOffsets);
         vkCmdBindIndexBuffer(cmdBuffer, this->_vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
         vkCmdBindDescriptorSets(cmdBuffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
             this->_pipelineLayout,
             0,
             1,
-            &this->_descriptorSets[cmdBufferIndex],
+            &descriptorSet,
             0,
             nullptr);
-        vkCmdDrawIndexed(cmdBuffer, static_cast<uint32_t>(this->_vertexBuffer.indices.size()), this->_modelInstances.size(), 0, 0, 0);
+        vkCmdDrawIndexed(cmdBuffer,
+            static_cast<uint32_t>(this->_vertexBuffer.indices.size()),
+            this->_modelInstances.size(),
+            0,
+            0,
+            0);
     }
+
+    void Model::update(uint32_t frameIndex) {
+        void* data = nullptr;
+        vkMapMemory(this->_device->logicalDevice,
+           this->instanceBufferMemory,
+           frameIndex * this->_modelInstances.size() * sizeof(Instance::Data),
+           this->_modelInstances.size() * sizeof(Instance::Data),
+           0,
+           &data);
+       for (size_t idx = 0; idx < this->_modelInstances.size(); ++idx) {
+           Instance::Data* shared = this->_modelInstances[idx]->update();
+           std::memcpy(static_cast<char*>(data) + (idx * sizeof(Instance::Data)),
+               shared,
+               sizeof(Instance::Data));
+       }
+       vkUnmapMemory(this->_device->logicalDevice, this->instanceBufferMemory);
+    }
+
 }
 

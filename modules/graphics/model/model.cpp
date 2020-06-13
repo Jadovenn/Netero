@@ -29,13 +29,10 @@ namespace netero::graphics {
             _device(device),
             _vertexBuffer(_device),
             _pipelineLayout(nullptr),
-            _graphicsPipeline(nullptr),
-            _descriptorPool(nullptr),
-            _descriptorSetLayout(nullptr)
+            _graphicsPipeline(nullptr)
     {}
 
     Model::~Model() {
-        vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
         for (auto& shader: this->_shaderModules) {
             vkDestroyShaderModule(this->_device->logicalDevice, shader.shaderModule, nullptr);
         }
@@ -43,36 +40,27 @@ namespace netero::graphics {
             delete instance;
         }
         this->_vertexBuffer.release();
+        vkDestroyBuffer(this->_device->logicalDevice, this->instanceBuffer, nullptr);
+        vkFreeMemory(this->_device->logicalDevice, this->instanceBufferMemory, nullptr);
     }
     
     void Model::release(size_t imageCount) {
         if (this->_modelInstances.empty()) { return; }
         vkDestroyPipeline(this->_device->logicalDevice, this->_graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(this->_device->logicalDevice, this->_pipelineLayout, nullptr);
-        for (size_t idx = 0; idx < imageCount; ++idx) {
-            vkDestroyBuffer(this->_device->logicalDevice, uniformBuffers[idx], nullptr);
-            vkFreeMemory(this->_device->logicalDevice, uniformBuffersMemory[idx], nullptr);
-        }
-        vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
     }
 
-    void Model::build(size_t imageCount, VkRenderPass renderPass, VkExtent2D extent) {
+    void Model::build(size_t framesCount, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout, VkExtent2D extent) {
         if (this->_modelInstances.empty()) { return; }
         this->_vertexBuffer.AllocateAndTransfer(this->_modelInstances.size());
-        this->createUniformBuffers(imageCount);
-        this->createDescriptorPool(imageCount);
-        this->createDescriptorSetLayout();
-        this->createDescriptorSets(imageCount);
-        this->createGraphicsPipeline(renderPass, extent);
+        this->createInstanceBuffer(framesCount);
+        this->createGraphicsPipeline(renderPass, extent, descriptorSetLayout);
     }
 
-    void Model::rebuild(size_t imageCount, VkRenderPass renderPass, VkExtent2D extent) {
+    void Model::rebuild(size_t imageCount, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout, VkExtent2D extent) {
         if (this->_modelInstances.empty()) { return; }
         this->release(imageCount);
-        this->createUniformBuffers(imageCount);
-        this->createDescriptorPool(imageCount);
-        this->createDescriptorSets(imageCount);
-        this->createGraphicsPipeline(renderPass, extent);
+        this->createGraphicsPipeline(renderPass, extent, descriptorSetLayout);
     }
 
     Instance* Model::createInstance() {

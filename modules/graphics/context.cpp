@@ -7,7 +7,6 @@
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -37,15 +36,32 @@ namespace netero::graphics {
             _deviceName(deviceName),
             _pImpl(std::make_unique<Context::impl>())
     {
-        // Init GLFW Window
+        GLFWmonitor* monitor = nullptr;
         if (_windowMode == WindowMode::FIX) {
             glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        }
+        else if (_windowMode == WindowMode::BORDERLESS) {
+            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+        }
+        else if (_windowMode == WindowMode::FULLSCREEN) {
+            monitor = glfwGetPrimaryMonitor();
+            glfwGetMonitorWorkarea(monitor, nullptr, nullptr, &this->_width, &this->_height);
         }
         this->_pImpl->window = glfwCreateWindow(static_cast<int>(this->_width),
             static_cast<int>(this->_height),
             this->_name.c_str(),
-            nullptr,
+            monitor,
             nullptr);
+        if (_windowMode == WindowMode::BORDERLESS) {
+            monitor = glfwGetPrimaryMonitor();
+            int wHeight, wWidth = 0;
+            glfwGetMonitorWorkarea(monitor, nullptr, nullptr, &wWidth, &wHeight);
+            wHeight /= 2;
+            wHeight -= this->_height / 2;
+            wWidth /= 2;
+            wWidth -= this->_width / 2;
+            glfwSetWindowPos(this->_pImpl->window, wWidth, wHeight);
+        }
         const VkResult result = glfwCreateWindowSurface(this->_vulkanInstance,
             this->_pImpl->window,
             nullptr,
@@ -55,8 +71,8 @@ namespace netero::graphics {
         }
         this->_device = new netero::graphics::Device(this->_vulkanInstance, this->_surface);
         if (!this->_device) { throw std::bad_alloc(); }
-        this->_device->setSurfaceHeight(height);
-        this->_device->setSurfaceWidth(width);
+        this->_device->setSurfaceHeight(this->_height);
+        this->_device->setSurfaceWidth(this->_width);
     }
 
     Context::~Context() {
@@ -106,55 +122,56 @@ namespace netero::graphics {
         this->_pipeline->rebuild(this->_models);
     }
 
-    void Context::run() {
+    bool Context::shouldClose() const {
+        return glfwWindowShouldClose(this->_pImpl->window);
+    }
+
+    void Context::build() {
         this->_pipeline = new Pipeline(this->_vulkanInstance, this->_device);
         if (!this->_pipeline) { throw std::bad_alloc(); }
         this->_pipeline->build(this->_models);
         this->createSemaphores();
-        while (!glfwWindowShouldClose(this->_pImpl->window)) {
-            glfwPollEvents();
-            this->drawFrame();
-        }
+    }
+
+    void Context::release() {
         vkDeviceWaitIdle(this->_device->logicalDevice);
         this->_pipeline->releaseModels(this->_models);
         delete this->_pipeline;
         this->_pipeline = nullptr;
     }
 
-    void Context::drawFrame() {
-        uint32_t imageIndex;
+    bool Context::prepareFrame(uint32_t &frameIndex) {
         vkWaitForFences(this->_device->logicalDevice,
-                1,
-                &this->_inFlightFences[this->_currentFrame],
-                VK_TRUE,
-                UINT64_MAX);
+            1,
+            &this->_inFlightFences[this->_currentFrame],
+            VK_TRUE,
+            UINT64_MAX);
         VkResult result = vkAcquireNextImageKHR(this->_device->logicalDevice,
             this->_pipeline->swapchain,
             UINT64_MAX,
             this->_imageAvailableSemaphore[this->_currentFrame],
             nullptr,
-            &imageIndex);
+            &frameIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             this->recreateSwapchain();
-            return;
+            return false;
         }
-        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             throw std::runtime_error("Failed to retrieve next image");
         }
 
-        if (this->_imagesInFlight[imageIndex] != nullptr) {
+        if (this->_imagesInFlight[frameIndex] != nullptr) {
             vkWaitForFences(this->_device->logicalDevice,
-                    1,
-                    &this->_imagesInFlight[imageIndex],
-                    VK_TRUE,
-                    UINT64_MAX);
+                1,
+                &this->_imagesInFlight[frameIndex],
+                VK_TRUE,
+                UINT64_MAX);
         }
-        this->_imagesInFlight[imageIndex] = this->_inFlightFences[this->_currentFrame];
+        this->_imagesInFlight[frameIndex] = this->_inFlightFences[this->_currentFrame];
+        return true;
+    }
 
-        //updateUniformBuffer(imageIndex);
-        for (auto* model : this->_models) {
-            model->updateMVP(imageIndex, this->_pipeline->swapchainExtent);
-        }
+    void Context::submitFrame(uint32_t frameIndex) {
         VkSemaphore waitSemaphores[] = { this->_imageAvailableSemaphore[this->_currentFrame] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         VkSubmitInfo submitInfo{};
@@ -163,14 +180,14 @@ namespace netero::graphics {
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &this->_pipeline->commandBuffers[imageIndex];
+        submitInfo.pCommandBuffers = &this->_pipeline->commandBuffers[frameIndex];
         VkSemaphore signalSemaphores[] = { this->_renderFinishedSemaphore[this->_currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
         vkResetFences(this->_device->logicalDevice,
-                      1,
-                      &this->_inFlightFences[this->_currentFrame]);
-        result = vkQueueSubmit(this->_device->graphicsQueue,
+            1,
+            &this->_inFlightFences[this->_currentFrame]);
+        VkResult result = vkQueueSubmit(this->_device->graphicsQueue,
             1,
             &submitInfo,
             this->_inFlightFences[this->_currentFrame]);
@@ -184,7 +201,7 @@ namespace netero::graphics {
         VkSwapchainKHR swapChains[] = { this->_pipeline->swapchain };
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
-        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pImageIndices = &frameIndex;
         presentInfo.pResults = nullptr;
         result = vkQueuePresentKHR(this->_device->presentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
@@ -229,42 +246,17 @@ namespace netero::graphics {
         }
     }
 
-    /**
-    void Context::updateUniformBuffer(uint32_t imageIndex) {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-        auto now = std::chrono::high_resolution_clock::now();
-        const float time = std::chrono::duration<float, std::chrono::seconds::period>(now - startTime).count();
-        UniformBufferObject ubo {};
-        glm::mat4 modelPosition(
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-            );
-        modelPosition = glm::rotate(modelPosition,
-            time * glm::radians(90.f),
-            glm::vec3(0.f, 0.f, 1.f));
-        ubo.model = modelPosition;
-        ubo.view = glm::lookAt(glm::vec3(0.f, 0.f, 2.f),
-            glm::vec3(0.f, 0.f, 0.f),
-            glm::vec3(0.f, 1.f, 0.f));
-        ubo.proj = glm::perspectiveRH(glm::radians(45.f),
-            this->_pipeline->swapchainExtent.width / static_cast<float>(this->_pipeline->swapchainExtent.height),
-            0.1f,
-            100.f);
-        // remember Y axis is upside down
-        //ubo.proj[1][1] *= -1;
-        void* data;
-        vkMapMemory(this->_device->logicalDevice,
-            this->_pipeline->uniformBuffersMemory[imageIndex],
-            0,
-            sizeof(ubo),
-            0,
-            &data);
-        memcpy(data, &ubo, sizeof(ubo));
-        vkUnmapMemory(this->_device->logicalDevice,
-            this->_pipeline->uniformBuffersMemory[imageIndex]);
+    void Context::update() {
+        uint32_t frameIndex = 0;
+        glfwPollEvents();
+        if (!this->prepareFrame(frameIndex)) {
+            return;
+        }
+        this->_pipeline->update(frameIndex);
+        for (auto* model : this->_models) {
+            model->update(frameIndex);
+        }
+        this->submitFrame(frameIndex);
     }
-    */
 }
 
