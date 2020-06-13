@@ -43,7 +43,6 @@ namespace netero::graphics {
         this->createIndexBuffer(instanceCount);
     }
 
-    // not supposed to actually call vkAllocateMemory for every individual buffer. Use one big buffer and offsets
     void VertexBuffer::createVertexBuffer() {
         const VkDeviceSize size = sizeof(Vertex) * vertices.size();
         auto [ stagingBuffer, stagingBufferMemory ] = vkUtils::AllocBuffer(this->_device,

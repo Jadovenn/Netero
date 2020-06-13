@@ -40,24 +40,26 @@ endif()
 ##====================================
 
 list(APPEND PUBLIC_HEADER
+        ${HEADERS_DIRECTORY}/graphics/window.hpp
         ${HEADERS_DIRECTORY}/graphics/application.hpp
         ${HEADERS_DIRECTORY}/graphics/context.hpp
+        ${HEADERS_DIRECTORY}/graphics/device.hpp
+        ${HEADERS_DIRECTORY}/graphics/axis.hpp
+        ${HEADERS_DIRECTORY}/graphics/instance.hpp
         ${HEADERS_DIRECTORY}/graphics/model.hpp
         ${HEADERS_DIRECTORY}/graphics/shader.hpp
         ${HEADERS_DIRECTORY}/graphics/vertex.hpp
-        ${HEADERS_DIRECTORY}/graphics/device.hpp
-        ${HEADERS_DIRECTORY}/graphics/pipeline.hpp
-        ${HEADERS_DIRECTORY}/graphics/window.hpp)
+        ${HEADERS_DIRECTORY}/graphics/pipeline.hpp)
+
 list(APPEND SRCS
         application.cpp
         context.cpp
         device.cpp
-        vertex.cpp
-        pipeline.cpp
+        pipeline/pipeline.cpp
+        pipeline/vk_pipeline_uniform_buffer.cpp
         model/model.cpp
+        model/vertex.cpp
         model/vk_model_pipeline.cpp
-        model/vk_model_uniform_buffer.cpp
-        model/instance.cpp
         utils/vkUtils.hpp
         utils/vkCheckValidationLayerSupport.cpp
         utils/vkExtentionLoaders.cpp

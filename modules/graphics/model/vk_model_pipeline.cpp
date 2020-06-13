@@ -12,7 +12,7 @@ namespace netero::graphics {
 
     void Model::createInstanceBuffer(size_t framesCount) {
         const size_t slot_count = this->_modelInstances.size() * framesCount;
-        const size_t size = sizeof(Instance::InstanceData) * slot_count;
+        const size_t size = sizeof(Instance::Data) * slot_count;
         auto [buffer, bufferMemory] = vkUtils::AllocBuffer(this->_device,
             size,
             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
@@ -26,12 +26,12 @@ namespace netero::graphics {
             &data);
         for (size_t idx = 0; idx < this->_modelInstances.size(); ++idx) {
             this->_modelInstances[idx]->offset = idx;
-            glm::mat4* model = this->_modelInstances[idx]->getModelMat();
+            Instance::Data* shared = this->_modelInstances[idx]->update();
             for (size_t frameIdx = 0; frameIdx < framesCount; ++frameIdx) {
-                const size_t offset = frameIdx * this->_modelInstances.size() * sizeof(Instance::InstanceData);
-                std::memcpy(static_cast<char*>(data) + (offset + idx * sizeof(Instance::InstanceData)),
-                    model,
-                    sizeof(Instance::InstanceData));
+                const size_t offset = frameIdx * this->_modelInstances.size() * sizeof(Instance::Data);
+                std::memcpy(static_cast<char*>(data) + (offset + idx * sizeof(Instance::Data)),
+                    shared,
+                    sizeof(Instance::Data));
             }
         }
         vkUnmapMemory(this->_device->logicalDevice,
@@ -189,7 +189,7 @@ namespace netero::graphics {
         VkBuffer vertexBuffer[] = { this->_vertexBuffer.vertexBuffer };
         VkDeviceSize    offsets[] = { 0 };
         VkBuffer instanceBuffer[] = { this->instanceBuffer };
-        VkDeviceSize    instanceOffsets[] = { sizeof(Instance::InstanceData) * this->_modelInstances.size() * frameIdx };
+        VkDeviceSize    instanceOffsets[] = { sizeof(Instance::Data) * this->_modelInstances.size() * frameIdx };
         vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffer, offsets);
         vkCmdBindVertexBuffers(cmdBuffer, 1, 1, instanceBuffer, instanceOffsets);
         vkCmdBindIndexBuffer(cmdBuffer, this->_vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
@@ -213,15 +213,15 @@ namespace netero::graphics {
         void* data = nullptr;
         vkMapMemory(this->_device->logicalDevice,
            this->instanceBufferMemory,
-           frameIndex * this->_modelInstances.size() * sizeof(Instance::InstanceData),
-           this->_modelInstances.size() * sizeof(Instance::InstanceData),
+           frameIndex * this->_modelInstances.size() * sizeof(Instance::Data),
+           this->_modelInstances.size() * sizeof(Instance::Data),
            0,
            &data);
        for (size_t idx = 0; idx < this->_modelInstances.size(); ++idx) {
-           glm::mat4* model = this->_modelInstances[idx]->getModelMat();
-           std::memcpy(static_cast<char*>(data) + (idx * sizeof(Instance::InstanceData)),
-               model,
-               sizeof(Instance::InstanceData));
+           Instance::Data* shared = this->_modelInstances[idx]->update();
+           std::memcpy(static_cast<char*>(data) + (idx * sizeof(Instance::Data)),
+               shared,
+               sizeof(Instance::Data));
        }
        vkUnmapMemory(this->_device->logicalDevice, this->instanceBufferMemory);
     }

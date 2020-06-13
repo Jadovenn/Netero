@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <netero/graphics/model.hpp>
 #include <netero/graphics/pipeline.hpp>
-#include <netero/graphics/vertex.hpp>
 
 #include "utils/vkUtils.hpp"
 
@@ -36,9 +35,6 @@ namespace netero::graphics {
     }
 
     void Pipeline::build(std::vector<Model*>& models) {
-        //for (auto* model : models) {
-            //model->transferVertexBuffer();
-        //}
         this->createSwapchain();
         this->createUniformBuffers();
         this->createDescriptorPool();
@@ -46,7 +42,6 @@ namespace netero::graphics {
         this->createDescriptorSets();
         this->createImageViews();
         this->createRenderPass();
-        //this->createGraphicsPipeline(models);
         this->buildModels(models);
         this->createFrameBuffers();
         this->createCommandPool();
@@ -71,9 +66,6 @@ namespace netero::graphics {
     }
 
     void Pipeline::rebuild(std::vector<Model*>& models) {
-        //for (auto* model: models) {
-            //model->release();
-        //}
         this->release();
         this->createSwapchain();
         this->createUniformBuffers();
@@ -81,27 +73,26 @@ namespace netero::graphics {
         this->createDescriptorSets();
         this->createImageViews();
         this->createRenderPass();
-        //this->createGraphicsPipeline(models);
         this->rebuildModels(models);
         this->createFrameBuffers();
         this->createCommandBuffers(models);
     }
 
-    void Pipeline::buildModels(std::vector<Model*>& models) {
+    void Pipeline::buildModels(std::vector<Model*>& models) const {
         const size_t swapchainImagesCount = this->swapchainImages.size();
         for (auto* model : models) {
             model->build(swapchainImagesCount, this->_renderPass, this->_descriptorSetLayout, this->swapchainExtent);
         }
     }
 
-    void Pipeline::rebuildModels(std::vector<Model*>& models) {
+    void Pipeline::rebuildModels(std::vector<Model*>& models) const {
         const size_t swapchainImagesCount = this->swapchainImages.size();
         for (auto* model : models) {
             model->rebuild(swapchainImagesCount, this->_renderPass, this->_descriptorSetLayout, this->swapchainExtent);
         }
     }
 
-    void Pipeline::releaseModels(std::vector<Model*>& models) {
+    void Pipeline::releaseModels(std::vector<Model*>& models) const {
         const size_t swapchainImagesCount = this->swapchainImages.size();
         for (auto* model : models) {
             model->release(swapchainImagesCount);
@@ -154,73 +145,6 @@ namespace netero::graphics {
         this->_swapchainImageFormat = surfaceFormat.format;
         this->swapchainExtent = extent;
     }
-
-    /**
-    // TODO: Do not allocate multiple buffers, allocate one buffer and use offsets
-    void Pipeline::createUniformBuffers() {
-        const VkDeviceSize    size = sizeof(UniformBufferObject);
-        const size_t swapchainImagesCount = this->swapchainImages.size();
-        this->uniformBuffers.resize(swapchainImagesCount);
-        this->uniformBuffersMemory.resize(swapchainImagesCount);
-        for (size_t idx = 0; idx < swapchainImagesCount; ++idx) {
-            auto [buffer, bufferMemory] = vkUtils::AllocBuffer(this->_device,
-                size,
-                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-            this->uniformBuffers[idx] = buffer;
-            this->uniformBuffersMemory[idx] = bufferMemory;
-        }
-    }
-        */
-
-        /**
-    void Pipeline::createDescriptorPool() {
-        VkDescriptorPoolSize poolSize{};
-        poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        poolSize.descriptorCount = static_cast<uint32_t>(this->swapchainImages.size());
-        VkDescriptorPoolCreateInfo poolInfo{};
-        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        poolInfo.poolSizeCount = 1;
-        poolInfo.pPoolSizes = &poolSize;
-        poolInfo.maxSets = static_cast<uint32_t>(this->swapchainImages.size());
-        if (vkCreateDescriptorPool(this->_device->logicalDevice , &poolInfo, nullptr, &this->_descriptorPool) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor pool!");
-        }
-    }
-        */
-
-        /**
-    void Pipeline::createDescriptorSets() {
-        std::vector<VkDescriptorSetLayout> layouts(this->swapchainImages.size(), this->_descriptorSetLayout);
-        VkDescriptorSetAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = this->_descriptorPool;
-        allocInfo.descriptorSetCount = static_cast<uint32_t>(this->swapchainImages.size());
-        allocInfo.pSetLayouts = layouts.data();
-        this->_descriptorSets.resize(this->swapchainImages.size());
-        if (vkAllocateDescriptorSets(this->_device->logicalDevice, &allocInfo, this->_descriptorSets.data()) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate descriptor sets!");
-        }
-        for (size_t i = 0; i < this->swapchainImages.size(); i++) {
-            VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = uniformBuffers[i];
-            bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(UniformBufferObject);
-            VkWriteDescriptorSet descriptorWrite{};
-            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrite.dstSet = this->_descriptorSets[i];
-            descriptorWrite.dstBinding = 0;
-            descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pBufferInfo = &bufferInfo;
-            descriptorWrite.pImageInfo = nullptr; // Optional
-            descriptorWrite.pTexelBufferView = nullptr; // Optional
-            vkUpdateDescriptorSets(this->_device->logicalDevice, 1, &descriptorWrite, 0, nullptr);
-        }
-    }
-        */
-
 
     void Pipeline::createImageViews() {
         VkImageViewCreateInfo   createInfo = {};
@@ -291,35 +215,6 @@ namespace netero::graphics {
             throw std::runtime_error("Failed to create render pass!");
         }
     }
-
-        /**
-    void Pipeline::createDescriptorSetLayout() {
-        VkDescriptorSetLayoutBinding    uboBinding{};
-        uboBinding.binding = 0;
-        uboBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uboBinding.descriptorCount = 1;
-        uboBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        uboBinding.pImmutableSamplers = nullptr;
-
-        VkDescriptorSetLayoutCreateInfo layoutInfo{};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 1;
-        layoutInfo.pBindings = &uboBinding;
-
-        VkResult result = vkCreateDescriptorSetLayout(this->_device->logicalDevice, &layoutInfo, nullptr, &this->_descriptorSetLayout);
-        if (result != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create descriptor set layout.");
-        }
-    }
-        */
-
-    /**
-    void Pipeline::createGraphicsPipeline(std::vector<Model*> &models) {
-        for (auto* model: models) {
-            model->createGraphicsPipeline(this->_renderPass, this->swapchainExtent);
-        }
-    }
-    */
 
     void Pipeline::createFrameBuffers() {
         this->_swapchainFrameBuffers.resize(this->_swapchainImageViews.size());

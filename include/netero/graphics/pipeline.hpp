@@ -17,17 +17,15 @@ namespace netero::graphics {
     struct Pipeline {
    private:
         void createSwapchain();
-        void createUniformBuffers(); // Model
-        void createDescriptorPool(); // Model
-        void createDescriptorSets(); // Model
-        void createDescriptorSetLayout(); // Model
+        void createUniformBuffers();
+        void createDescriptorPool();
+        void createDescriptorSets();
+        void createDescriptorSetLayout();
         void createImageViews();
         void createRenderPass();
-        //void createGraphicsPipeline(std::vector<Model*>&);
         void createFrameBuffers();
         void createCommandPool();
         void createCommandBuffers(std::vector<Model*>&);
-
 
         VkInstance          _instance;
         Device*             _device;
@@ -36,10 +34,6 @@ namespace netero::graphics {
         VkPipeline          _graphicsPipeline;
         VkCommandPool       _commandPool;
         VkFormat            _swapchainImageFormat = VK_FORMAT_UNDEFINED;
-        //UniformBufferObject _ubo {};
-        //VkDescriptorPool    _descriptorPool; // Model
-        //VkDescriptorSetLayout           _descriptorSetLayout; // Model
-        //std::vector<VkDescriptorSet>    _descriptorSets; // Model
         std::vector<VkImageView>        _swapchainImageViews;
         std::vector<VkFramebuffer>      _swapchainFrameBuffers;
 
@@ -63,16 +57,14 @@ namespace netero::graphics {
         void    release();
         void    update(uint32_t);
 
-        void buildModels(std::vector<Model*>&);
-        void rebuildModels(std::vector<Model*>&);
-        void releaseModels(std::vector<Model*>&);
+        void buildModels(std::vector<Model*>&) const;
+        void rebuildModels(std::vector<Model*>&) const;
+        void releaseModels(std::vector<Model*>&) const;
 
         VkSwapchainKHR                  swapchain;
         VkExtent2D                      swapchainExtent = {0, 0};
         std::vector<VkImage>            swapchainImages;
         std::vector<VkCommandBuffer>    commandBuffers;
-        //std::vector<VkBuffer>           uniformBuffers; // Model
-        //std::vector<VkDeviceMemory>     uniformBuffersMemory; // Model
     };
 
 }

@@ -55,7 +55,7 @@ namespace netero::graphics {
         void    AllocateAndTransfer(int);
         void    release();
 
-            VkBuffer            vertexBuffer;
+        VkBuffer            vertexBuffer;
         VkDeviceMemory      vertexBufferMemory;
         std::vector<Vertex> vertices;
         VkBuffer                indexBuffer;

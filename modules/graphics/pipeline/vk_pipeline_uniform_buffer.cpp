@@ -104,14 +104,13 @@ namespace netero::graphics {
             100.f);
         UniformBufferObject* data = nullptr;
         vkMapMemory(this->_device->logicalDevice,
-        this->_uniformBuffersMemory[frameIndex],
+            this->_uniformBuffersMemory[frameIndex],
             0,
             sizeof(UniformBufferObject),
             0,
             reinterpret_cast<void**>(&data));
         std::memcpy(data, &ubo, sizeof(UniformBufferObject));
-        vkUnmapMemory(this->_device->logicalDevice,
-            this->_uniformBuffersMemory[frameIndex]);
+        vkUnmapMemory(this->_device->logicalDevice, this->_uniformBuffersMemory[frameIndex]);
     }
 }
 
