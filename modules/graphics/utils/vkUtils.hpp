@@ -58,7 +58,15 @@ namespace vkUtils {
     int32_t                             FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
     std::pair<VkBuffer, VkDeviceMemory> AllocBuffer(netero::graphics::Device*, VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags);
     std::pair<VkImage, VkDeviceMemory>  AllocImage(netero::graphics::Device*, uint32_t, uint32_t, VkFormat, VkImageTiling, VkImageUsageFlags, VkMemoryPropertyFlags);
-    void                                TransferBuffer(netero::graphics::Device* device, VkBuffer source, VkBuffer destination, VkDeviceSize size);
+
+    // Transfer and Command Buffer
+    VkCommandBuffer BeginCommandBufferRecording(VkDevice, VkCommandPool, VkCommandBufferUsageFlags);
+    void            TerminateCommandBufferRecording(VkDevice, VkQueue, VkCommandPool, VkCommandBuffer);
+    void            FlushCommandBuffer(VkDevice, VkQueue, VkCommandPool, VkCommandBuffer);
+
+    void    TransferBuffer(netero::graphics::Device* device, VkBuffer source, VkBuffer destination, VkDeviceSize size);
+    void    TransitionImageLayout(netero::graphics::Device* device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+    void    TransferImage(netero::graphics::Device* device, VkBuffer source, VkImage destination, uint32_t width, uint32_t height);
 
     // Validation layers related
     std::vector<const char*>    getRequiredExtensions();
