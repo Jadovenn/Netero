@@ -71,7 +71,7 @@ namespace netero::graphics {
         }
     }
 
-    void Pipeline::createDescriptorSetLayout() {
+    void Pipeline::createDescriptorSetLayoutBinding() {
         VkDescriptorSetLayoutBinding    uboBinding{};
         uboBinding.binding = 0;
         uboBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;

@@ -27,11 +27,7 @@ namespace vkUtils {
             cmdBuffer);
     }
 
-    void    TransferImage(netero::graphics::Device* device, VkBuffer source, VkImage destination, uint32_t width, uint32_t height) {
-        VkCommandBuffer cmdBuffer = BeginCommandBufferRecording(device->logicalDevice,
-            device->transferCommandPool,
-            VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
+    void    TransferImage(VkCommandBuffer cmdBuffer, VkBuffer source, VkImage destination, uint32_t width, uint32_t height) {
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
         region.bufferRowLength = 0;
@@ -56,17 +52,9 @@ namespace vkUtils {
             1,
             &region
         );
-        FlushCommandBuffer(device->logicalDevice,
-            device->transferQueue,
-            device->transferCommandPool,
-            cmdBuffer);
     }
 
-    void    TransitionImageLayout(netero::graphics::Device* device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
-        VkCommandBuffer cmdBuffer = BeginCommandBufferRecording(device->logicalDevice,
-            device->transferCommandPool,
-            VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
+    void    TransitionImageLayout(VkCommandBuffer cmdBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
         barrier.oldLayout = oldLayout;
@@ -111,12 +99,26 @@ namespace vkUtils {
             0, nullptr,
             1, &barrier
         );
-
-        FlushCommandBuffer(device->logicalDevice,
-            device->transferQueue,
-            device->transferCommandPool,
-            cmdBuffer);
     }
+
+    VkImageView    CreateImageView(VkDevice device, VkImage image, VkFormat format) {
+        VkImageView imageView;
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = format;
+        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+        if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create texture image view!");
+        }
+        return imageView;
+    }
+
 
 }
 

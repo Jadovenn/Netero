@@ -62,7 +62,7 @@ void    InitializeApp(GraphicSampleApp* myApp) {
     myApp->square->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
     myApp->square->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
     myApp->square->addVertices(squareVertices, squareIndices);
-    myApp->square->loadTexture(g_texture);
+    myApp->square->loadTexture(g_texture, netero::graphics::TextureSamplingMode::REPEAT);
     myApp->triangle = myApp->context->createModel();
     myApp->triangle->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
     myApp->triangle->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);

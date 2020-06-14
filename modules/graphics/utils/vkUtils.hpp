@@ -65,8 +65,11 @@ namespace vkUtils {
     void            FlushCommandBuffer(VkDevice, VkQueue, VkCommandPool, VkCommandBuffer);
 
     void    TransferBuffer(netero::graphics::Device* device, VkBuffer source, VkBuffer destination, VkDeviceSize size);
-    void    TransitionImageLayout(netero::graphics::Device* device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-    void    TransferImage(netero::graphics::Device* device, VkBuffer source, VkImage destination, uint32_t width, uint32_t height);
+    void    TransitionImageLayout(VkCommandBuffer cmdBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+    void    TransferImage(VkCommandBuffer cmdBuffer, VkBuffer source, VkImage destination, uint32_t width, uint32_t height);
+
+    // Image related
+    VkImageView    CreateImageView(VkDevice, VkImage, VkFormat);
 
     // Validation layers related
     std::vector<const char*>    getRequiredExtensions();

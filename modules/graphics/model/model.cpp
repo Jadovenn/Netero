@@ -31,8 +31,7 @@ namespace netero::graphics {
             _graphicsPipeline(nullptr),
             _instanceBuffer(nullptr),
             _instanceBufferMemory(nullptr),
-            _image(nullptr),
-            _imageMemory(nullptr)
+            _textures(device)
     {}
 
     Model::~Model() {
@@ -45,10 +44,6 @@ namespace netero::graphics {
         this->_vertexBuffer.release();
         vkDestroyBuffer(this->_device->logicalDevice, this->_instanceBuffer, nullptr);
         vkFreeMemory(this->_device->logicalDevice, this->_instanceBufferMemory, nullptr);
-        if (this->_image) {
-            vkDestroyImage(this->_device->logicalDevice, this->_image, nullptr);
-            vkFreeMemory(this->_device->logicalDevice, this->_imageMemory, nullptr);
-        }
     }
     
     void Model::release(size_t imageCount) {
@@ -60,6 +55,7 @@ namespace netero::graphics {
     void Model::build(size_t framesCount, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout, VkExtent2D extent) {
         if (this->_modelInstances.empty()) { return; }
         this->_vertexBuffer.AllocateAndTransfer(this->_modelInstances.size());
+        this->_textures.build();
         this->createInstanceBuffer(framesCount);
         this->createGraphicsPipeline(renderPass, extent, descriptorSetLayout);
     }

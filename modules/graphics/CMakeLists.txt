@@ -49,6 +49,7 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/model.hpp
         ${HEADERS_DIRECTORY}/graphics/shader.hpp
         ${HEADERS_DIRECTORY}/graphics/vertex.hpp
+        ${HEADERS_DIRECTORY}/graphics/texture.hpp
         ${HEADERS_DIRECTORY}/graphics/pipeline.hpp)
 
 list(APPEND SRCS
@@ -61,6 +62,7 @@ list(APPEND SRCS
         model/vertex.cpp
         model/vk_model_pipeline.cpp
         model/vk_model_texture.cpp
+        texture/vkTexture.cpp
         utils/vkUtils.hpp
         utils/vkCheckValidationLayerSupport.cpp
         utils/vkExtentionLoaders.cpp

@@ -74,6 +74,7 @@ namespace netero::graphics {
     void Device::createLogicalDevice(VkPhysicalDevice device) {
         auto indices = vkUtils::findQueueFamilies(device, this->_surface);
         VkPhysicalDeviceFeatures    deviceFeatures{};
+        deviceFeatures.samplerAnisotropy = VK_TRUE;
         VkDeviceCreateInfo          deviceCreateInfo{};
 
         float   queuePriority = 1.f;

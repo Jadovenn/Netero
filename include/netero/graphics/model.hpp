@@ -11,6 +11,7 @@
 #include <netero/graphics/shader.hpp>
 #include <netero/graphics/device.hpp>
 #include <netero/graphics/vertex.hpp>
+#include <netero/graphics/texture.hpp>
 #include <netero/graphics/instance.hpp>
 
 namespace netero::graphics {
@@ -48,8 +49,7 @@ namespace netero::graphics {
         VkDeviceMemory      _instanceBufferMemory;
 
         // Texture
-        VkImage         _image;
-        VkDeviceMemory  _imageMemory;
+        Texture _textures;
     public:
         Model(const Model&) = delete;
         Model(Model&&) = delete;
@@ -62,7 +62,7 @@ namespace netero::graphics {
         void    addVertices(std::vector<Vertex>&);
         void    addVertices(std::vector<Vertex>&, std::vector<uint16_t>&);
         int     loadShader(const std::string&, ShaderStage);
-        void    loadTexture(const std::string&);
+        void    loadTexture(const std::string&, TextureSamplingMode);
     };
 }
 

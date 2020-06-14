@@ -20,7 +20,7 @@ namespace netero::graphics {
         void createUniformBuffers();
         void createDescriptorPool();
         void createDescriptorSets();
-        void createDescriptorSetLayout();
+        void createDescriptorSetLayoutBinding();
         void createImageViews();
         void createRenderPass();
         void createFrameBuffers();
