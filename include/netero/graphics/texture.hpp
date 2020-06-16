@@ -21,16 +21,6 @@ namespace netero::graphics {
         CLAMP_TO_BORDER = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
     };
 
-    struct Image {
-        uint32_t width = 0;
-        uint32_t height = 0;
-        std::pair<VkBuffer, VkDeviceMemory> stagingBuffer = {nullptr, nullptr};
-        std::pair<VkImage, VkDeviceMemory>  image = {nullptr, nullptr};
-        VkImageView imageView;
-        TextureSamplingMode samplingMode = TextureSamplingMode::REPEAT;
-        VkSampler textureSampler = nullptr;
-    };
-
     class Texture {
         void    transferTextureToGPU();
         void    createTexturesView();
@@ -41,17 +31,30 @@ namespace netero::graphics {
 
         Device* _device;
 
-        VkDescriptorPool                _descriptorPool;
-        VkDescriptorSetLayout           _descriptorSetLayout;
+        VkDescriptorPool                _descriptorPool = nullptr;
+        VkDescriptorSetLayout           _descriptorSetLayout = nullptr;
         std::vector<VkDescriptorSet>    _descriptorSets;
+
+        uint32_t    _width = 0;
+        uint32_t    _height = 0;
+        VkBuffer        _stagingBuffer = nullptr;
+        VkDeviceMemory  _stagingBufferMemory = nullptr;
+        VkImage         _image = nullptr;
+        VkDeviceMemory  _imageMemory = nullptr;
+        VkImageView     _imageView;
+        VkSampler       _textureSampler = nullptr;
+        TextureSamplingMode _samplingMode = TextureSamplingMode::REPEAT;
+
     public:
         Texture(Device*);
         ~Texture();
 
         void    loadTexture(const std::string&, TextureSamplingMode);
         void    build(uint32_t);
-
-        std::vector<Image>  textures;
+        void    rebuild(uint32_t);
+        void    release();
+        [[nodiscard]] bool    empty() const;
+        [[nodiscard]] VkDescriptorSetLayout getDescriptorSetLayout() const;
     };
 
 }

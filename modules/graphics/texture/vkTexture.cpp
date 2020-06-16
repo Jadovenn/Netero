@@ -16,94 +16,91 @@ namespace netero::graphics {
     {}
 
     Texture::~Texture() {
-        for (const auto& texture: textures) {
-            if (texture.stagingBuffer.first) {
-                vkDestroyBuffer(this->_device->logicalDevice, texture.stagingBuffer.first, nullptr);
-                vkFreeMemory(this->_device->logicalDevice, texture.stagingBuffer.second, nullptr);
-            }
-            if (texture.image.first) {
-                vkDestroyImageView(this->_device->logicalDevice, texture.imageView, nullptr);
-                vkDestroyImage(this->_device->logicalDevice, texture.image.first, nullptr);
-                vkFreeMemory(this->_device->logicalDevice, texture.image.second, nullptr);
-            }
+        this->release();
+        if (this->_stagingBuffer) {
+            vkDestroyBuffer(this->_device->logicalDevice, this->_stagingBuffer, nullptr);
+            vkFreeMemory(this->_device->logicalDevice, this->_stagingBufferMemory, nullptr);
+        }
+        if (this->_image) {
+            vkDestroyImageView(this->_device->logicalDevice, this->_imageView, nullptr);
+            vkDestroyImage(this->_device->logicalDevice, this->_image, nullptr);
+            vkFreeMemory(this->_device->logicalDevice, this->_imageMemory, nullptr);
+            vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
         }
     }
+
+    void Texture::release() {
+        vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
+    }
+
 
     void Texture::transferTextureToGPU() {
         VkCommandBuffer transferCmd = vkUtils::BeginCommandBufferRecording(this->_device->logicalDevice,
             this->_device->transferCommandPool,
             VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-        for (auto& texture : this->textures) {
-            auto [image, imageMemory] = vkUtils::AllocImage(this->_device,
-                texture.width,
-                texture.height,
-                VK_FORMAT_R8G8B8A8_SRGB,
-                VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-            texture.image.first = image;
-            texture.image.second = imageMemory;
-            vkUtils::TransitionImageLayout(transferCmd,
-                image,
-                VK_FORMAT_R8G8B8A8_SRGB,
-                VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-            vkUtils::TransferImage(transferCmd,
-                texture.stagingBuffer.first,
-                texture.image.first,
-                texture.width,
-                texture.height);
-            vkUtils::TransitionImageLayout(transferCmd,
-                texture.image.first,
-                VK_FORMAT_R8G8B8A8_SRGB,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        auto [image, imageMemory] = vkUtils::AllocImage(this->_device,
+            this->_width,
+            this->_height,
+            VK_FORMAT_R8G8B8A8_SRGB,
+            VK_IMAGE_TILING_OPTIMAL,
+            VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        this->_image = image;
+        this->_imageMemory = imageMemory;
+        vkUtils::TransitionImageLayout(transferCmd,
+            image,
+            VK_FORMAT_R8G8B8A8_SRGB,
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        vkUtils::TransferImage(transferCmd,
+            this->_stagingBuffer,
+            this->_image,
+            this->_width,
+            this->_height);
+        vkUtils::TransitionImageLayout(transferCmd,
+            this->_image,
+            VK_FORMAT_R8G8B8A8_SRGB,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-        }
         vkUtils::FlushCommandBuffer(this->_device->logicalDevice,
             this->_device->transferQueue,
             this->_device->transferCommandPool,
             transferCmd);
-        for (auto& texture : this->textures) {
-            vkDestroyBuffer(this->_device->logicalDevice, texture.stagingBuffer.first, nullptr);
-            vkFreeMemory(this->_device->logicalDevice, texture.stagingBuffer.second, nullptr);
-            texture.stagingBuffer.first = nullptr;
-            texture.stagingBuffer.second = nullptr;
-        }
+        vkDestroyBuffer(this->_device->logicalDevice, this->_stagingBuffer, nullptr);
+        vkFreeMemory(this->_device->logicalDevice, this->_stagingBufferMemory, nullptr);
+        this->_stagingBuffer = nullptr;
+        this->_stagingBufferMemory = nullptr;
     }
 
     void Texture::createTexturesView() {
-        for (auto& texture : this->textures) {
-            texture.imageView = vkUtils::CreateImageView(this->_device->logicalDevice,
-                texture.image.first,
-                VK_FORMAT_R8G8B8A8_SRGB);
-        }
+        this->_imageView = vkUtils::CreateImageView(this->_device->logicalDevice,
+            this->_image,
+            VK_FORMAT_R8G8B8A8_SRGB);
     }
 
     void Texture::createTexturesSampler() {
-        for (auto& texture : this->textures) {
-            VkSamplerCreateInfo samplerInfo{};
-            samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-            samplerInfo.magFilter = VK_FILTER_LINEAR;
-            samplerInfo.minFilter = VK_FILTER_LINEAR;
-            samplerInfo.addressModeU = static_cast<VkSamplerAddressMode>(texture.samplingMode);
-            samplerInfo.addressModeV = static_cast<VkSamplerAddressMode>(texture.samplingMode);
-            samplerInfo.addressModeW = static_cast<VkSamplerAddressMode>(texture.samplingMode);
-            samplerInfo.anisotropyEnable = VK_TRUE;
-            samplerInfo.maxAnisotropy = 16.0f;
-            samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-            samplerInfo.unnormalizedCoordinates = VK_FALSE;
-            samplerInfo.compareEnable = VK_FALSE;
-            samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-            samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-            samplerInfo.mipLodBias = 0.0f;
-            samplerInfo.minLod = 0.0f;
-            samplerInfo.maxLod = 0.0f;
-            if (vkCreateSampler(this->_device->logicalDevice, &samplerInfo, nullptr, &texture.textureSampler) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create texture sampler!");
-            }
-        } 
+        VkSamplerCreateInfo samplerInfo{};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = static_cast<VkSamplerAddressMode>(this->_samplingMode);
+        samplerInfo.addressModeV = static_cast<VkSamplerAddressMode>(this->_samplingMode);
+        samplerInfo.addressModeW = static_cast<VkSamplerAddressMode>(this->_samplingMode);
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.maxAnisotropy = 16.0f;
+        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.mipLodBias = 0.0f;
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 0.0f;
+        if (vkCreateSampler(this->_device->logicalDevice, &samplerInfo, nullptr, &this->_textureSampler) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create texture sampler!");
+        }
     }
 
     void Texture::loadTexture(const std::string& path, TextureSamplingMode samplingMode) {
@@ -131,12 +128,12 @@ namespace netero::graphics {
         memcpy(data, pixels, static_cast<size_t>(imageSize));
         vkUnmapMemory(this->_device->logicalDevice, stagingBufferMemory);
         stbi_image_free(pixels);
-        Image image{};
-        image.width = width;
-        image.height = height;
-        image.stagingBuffer = { stagingBuffer, stagingBufferMemory };
-        image.samplingMode = samplingMode;
-        this->textures.emplace_back(image);
+
+        this->_width = width;
+        this->_height = height;
+        this->_stagingBuffer = stagingBuffer;
+        this->_stagingBufferMemory = stagingBufferMemory;
+        this->_samplingMode = samplingMode;
     }
 
     void Texture::createDescriptorPool(uint32_t frameCount) {
@@ -167,28 +164,72 @@ namespace netero::graphics {
         for (size_t i = 0; i < frameCount; i++) {
             VkDescriptorImageInfo   imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            // je suis ici
+            imageInfo.imageView = this->_imageView;
+            imageInfo.sampler = this->_textureSampler;
             VkWriteDescriptorSet descriptorWrite{};
             descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrite.dstSet = this->_descriptorSets[i];
-            descriptorWrite.dstBinding = 0;
+            descriptorWrite.dstBinding = 1;
             descriptorWrite.dstArrayElement = 0;
             descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pBufferInfo = &bufferInfo;
-            descriptorWrite.pImageInfo = nullptr; // Optional
-            descriptorWrite.pTexelBufferView = nullptr; // Optional
+            descriptorWrite.pBufferInfo = nullptr;
+            descriptorWrite.pImageInfo = &imageInfo;
+            descriptorWrite.pTexelBufferView = nullptr;
             vkUpdateDescriptorSets(this->_device->logicalDevice, 1, &descriptorWrite, 0, nullptr);
         }
     }
 
+    void Texture::createDescriptorLayout() {
+        VkDescriptorSetLayoutBinding    uboBinding{};
+        uboBinding.binding = 1;
+        uboBinding.descriptorCount = 1;
+        uboBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        uboBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        uboBinding.pImmutableSamplers = nullptr;
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 1;
+        layoutInfo.pBindings = &uboBinding;
+
+        const VkResult result = vkCreateDescriptorSetLayout(this->_device->logicalDevice,
+            &layoutInfo,
+            nullptr,
+            &this->_descriptorSetLayout);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create descriptor set layout.");
+        }
+    }
 
     void Texture::build(uint32_t frameCount) {
+        if (this->empty()) { // There is no texture this time
+            return;
+        }
         this->transferTextureToGPU();
         this->createTexturesView();
         this->createDescriptorPool(frameCount);
-        this->createDescriptorSets();
+        this->createDescriptorSets(frameCount);
         this->createDescriptorLayout();
     }
+
+    void Texture::rebuild(uint32_t frameCount) {
+        if (this->empty()) {
+            return;
+        }
+        this->release();
+        this->createDescriptorPool(frameCount);
+        this->createDescriptorSets(frameCount);
+        this->createDescriptorLayout();
+    }
+
+    bool Texture::empty() const {
+        return !this->_stagingBuffer && !this->_descriptorSetLayout;
+    }
+
+    VkDescriptorSetLayout Texture::getDescriptorSetLayout() const {
+        return this->_descriptorSetLayout;
+    }
+
 }
 
