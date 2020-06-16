@@ -38,7 +38,7 @@ namespace netero::graphics {
         this->createSwapchain();
         this->createUniformBuffers();
         this->createDescriptorPool();
-        this->createDescriptorSetLayout();
+        this->createDescriptorSetLayoutBinding();
         this->createDescriptorSets();
         this->createImageViews();
         this->createRenderPass();
