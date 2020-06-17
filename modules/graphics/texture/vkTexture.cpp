@@ -171,7 +171,7 @@ namespace netero::graphics {
             descriptorWrite.dstSet = this->_descriptorSets[i];
             descriptorWrite.dstBinding = 1;
             descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             descriptorWrite.descriptorCount = 1;
             descriptorWrite.pBufferInfo = nullptr;
             descriptorWrite.pImageInfo = &imageInfo;

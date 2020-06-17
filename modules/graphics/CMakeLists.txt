@@ -47,6 +47,7 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/axis.hpp
         ${HEADERS_DIRECTORY}/graphics/instance.hpp
         ${HEADERS_DIRECTORY}/graphics/model.hpp
+        ${HEADERS_DIRECTORY}/graphics/descriptor.hpp
         ${HEADERS_DIRECTORY}/graphics/shader.hpp
         ${HEADERS_DIRECTORY}/graphics/vertex.hpp
         ${HEADERS_DIRECTORY}/graphics/texture.hpp
@@ -56,6 +57,7 @@ list(APPEND SRCS
         application.cpp
         context.cpp
         device.cpp
+        descriptor.cpp
         pipeline/pipeline.cpp
         pipeline/vk_pipeline_uniform_buffer.cpp
         model/model.cpp
