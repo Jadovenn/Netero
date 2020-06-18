@@ -7,7 +7,6 @@
 
 #include <string>
 #include <vector>
-#include <utility>
 #include <vulkan/vulkan.h>
 #include <netero/graphics/device.hpp>
 
