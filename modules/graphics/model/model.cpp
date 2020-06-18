@@ -55,7 +55,7 @@ namespace netero::graphics {
     void Model::build(size_t framesCount, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout, VkExtent2D extent) {
         if (this->_modelInstances.empty()) { return; }
         this->_vertexBuffer.AllocateAndTransfer(this->_modelInstances.size());
-        this->_textures.build();
+        this->_textures.build(framesCount);
         this->createInstanceBuffer(framesCount);
         this->createGraphicsPipeline(renderPass, extent, descriptorSetLayout);
     }
