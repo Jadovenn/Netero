@@ -7,8 +7,8 @@
 
 #include <vector>
 #include <vulkan/vulkan.h>
-#include <glm/glm.hpp>
 #include <netero/graphics/device.hpp>
+#include <netero/graphics/descriptor.hpp>
 
 namespace netero::graphics {
 
@@ -18,9 +18,9 @@ namespace netero::graphics {
    private:
         void createSwapchain();
         void createUniformBuffers();
-        void createDescriptorPool();
-        void createDescriptorSets();
-        void createDescriptorSetLayoutBinding();
+        //void createDescriptorPool();
+        //void createDescriptorSets();
+        //void createDescriptorSetLayoutBinding();
         void createImageViews();
         void createRenderPass();
         void createFrameBuffers();
@@ -28,6 +28,7 @@ namespace netero::graphics {
         void createCommandBuffers(std::vector<Model*>&);
 
         VkInstance          _instance;
+        uint32_t            _imageCount;
         Device*             _device;
         VkRenderPass        _renderPass;
         VkPipelineLayout    _pipelineLayout;
@@ -40,9 +41,10 @@ namespace netero::graphics {
         // UBO related
         std::vector<VkBuffer>           _uniformBuffers;
         std::vector<VkDeviceMemory>     _uniformBuffersMemory;
-        VkDescriptorPool                _descriptorPool;
-        VkDescriptorSetLayout           _descriptorSetLayout;
-        std::vector<VkDescriptorSet>    _descriptorSets;
+        DescriptorSets                  _uniformBufferDescriptorSets;
+        //VkDescriptorPool                _descriptorPool;
+        //VkDescriptorSetLayout           _descriptorSetLayout;
+        //std::vector<VkDescriptorSet>    _descriptorSets;
 
     public:
         Pipeline(VkInstance, Device*);

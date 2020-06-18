@@ -25,6 +25,8 @@ namespace netero::graphics {
         }
     }
 
+    /**
+
     void Pipeline::createDescriptorPool() {
         const size_t swapchainImagesCount = this->swapchainImages.size();
         VkDescriptorPoolSize poolSize{};
@@ -92,6 +94,7 @@ namespace netero::graphics {
             throw std::runtime_error("Failed to create descriptor set layout.");
         }
     }
+    */
 
     void Pipeline::update(uint32_t frameIndex) {
         UniformBufferObject ubo{};

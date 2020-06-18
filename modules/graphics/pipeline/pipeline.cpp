@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <netero/graphics/context.hpp>
 #include <netero/graphics/model.hpp>
 #include <netero/graphics/pipeline.hpp>
 
@@ -13,15 +14,16 @@
 namespace netero::graphics {
 
     Pipeline::Pipeline(VkInstance instance, Device* device)
-        :   _instance(instance),
-            _device(device),
-            _renderPass(nullptr),
-            _pipelineLayout(nullptr),
-            _graphicsPipeline(nullptr),
-            _commandPool(nullptr),
-            _descriptorPool(nullptr),
-            _descriptorSetLayout(nullptr),
-            swapchain(nullptr)
+        : _instance(instance),
+        _device(device),
+        _renderPass(nullptr),
+        _pipelineLayout(nullptr),
+        _graphicsPipeline(nullptr),
+        _commandPool(nullptr),
+        //_descriptorPool(nullptr),
+        //_descriptorSetLayout(nullptr),
+        _uniformBufferDescriptorSets(device),
+        swapchain(nullptr)
     {
         assert(_instance);
         assert(_device);
@@ -29,20 +31,33 @@ namespace netero::graphics {
 
     Pipeline::~Pipeline() {
         this->release();
-        vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
+        //vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
         vkDestroyCommandPool(this->_device->logicalDevice, this->_commandPool, nullptr);
 
     }
 
     void Pipeline::build(std::vector<Model*>& models) {
+        // 1. create Swapchain
         this->createSwapchain();
+        // 2. create UniformBuffer and related DescriptorSet
         this->createUniformBuffers();
-        this->createDescriptorPool();
-        this->createDescriptorSetLayoutBinding();
-        this->createDescriptorSets();
+        this->_uniformBufferDescriptorSets.setSetsCount(this->_imageCount);
+        this->_uniformBufferDescriptorSets.setDescriptorSetType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+        this->_uniformBufferDescriptorSets.setShaderStage(VK_SHADER_STAGE_VERTEX_BIT);
+        this->_uniformBufferDescriptorSets.setBinding(0);
+        this->_uniformBufferDescriptorSets.build();
+        for (size_t idx = 0; idx < this->_imageCount; ++idx) {
+            this->_uniformBufferDescriptorSets.write(idx, this->_uniformBuffers[idx], 0, sizeof(UniformBufferObject));
+        }
+        //this->createDescriptorPool();
+        //this->createDescriptorSetLayoutBinding();
+        //this->createDescriptorSets();
+        // 3. Create Image views and render pass
         this->createImageViews();
         this->createRenderPass();
+        // 4. Build model
         this->buildModels(models);
+        // 5. Create FrameBuffers and command pool/buffer
         this->createFrameBuffers();
         this->createCommandPool();
         this->createCommandBuffers(models);
@@ -62,15 +77,20 @@ namespace netero::graphics {
             vkDestroyBuffer(this->_device->logicalDevice, _uniformBuffers[idx], nullptr);
             vkFreeMemory(this->_device->logicalDevice, _uniformBuffersMemory[idx], nullptr);
         }
-        vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
+        //vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
     }
 
     void Pipeline::rebuild(std::vector<Model*>& models) {
+        // 1. First release resources to be recreated
         this->release();
+        // 2. Recreate swapchain
         this->createSwapchain();
+        // 3. Recreate uniformBuffers and rewrite them to descriptorSets
         this->createUniformBuffers();
-        this->createDescriptorPool();
-        this->createDescriptorSets();
+        //this->_uniformBufferDescriptorSets.rebuild();
+        for (size_t idx = 0; idx < this->_imageCount; ++idx) {
+            this->_uniformBufferDescriptorSets.write(idx, this->_uniformBuffers[idx], 0, sizeof(UniformBufferObject));
+        }
         this->createImageViews();
         this->createRenderPass();
         this->rebuildModels(models);
@@ -81,14 +101,20 @@ namespace netero::graphics {
     void Pipeline::buildModels(std::vector<Model*>& models) const {
         const size_t swapchainImagesCount = this->swapchainImages.size();
         for (auto* model : models) {
-            model->build(swapchainImagesCount, this->_renderPass, this->_descriptorSetLayout, this->swapchainExtent);
+            model->build(swapchainImagesCount,
+                this->_renderPass,
+                this->_uniformBufferDescriptorSets.getLayout(),
+                this->swapchainExtent);
         }
     }
 
     void Pipeline::rebuildModels(std::vector<Model*>& models) const {
         const size_t swapchainImagesCount = this->swapchainImages.size();
         for (auto* model : models) {
-            model->rebuild(swapchainImagesCount, this->_renderPass, this->_descriptorSetLayout, this->swapchainExtent);
+            model->rebuild(swapchainImagesCount,
+                this->_renderPass,
+                this->_uniformBufferDescriptorSets.getLayout(),
+                this->swapchainExtent);
         }
     }
 
@@ -107,14 +133,14 @@ namespace netero::graphics {
         const VkSurfaceFormatKHR surfaceFormat = vkUtils::ChooseSwapSurfaceFormat(swapChainSupport.formats);
         const VkPresentModeKHR presentMode = vkUtils::ChooseSwapPresentMode(swapChainSupport.presentMode);
         const VkExtent2D extent = vkUtils::ChooseSwapExtent(swapChainSupport.capabilities, this->_device->getSurfaceHeight(), this->_device->getSurfaceWidth());
-        uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-        if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
-            imageCount = swapChainSupport.capabilities.maxImageCount;
+        this->_imageCount = swapChainSupport.capabilities.minImageCount + 1;
+        if (swapChainSupport.capabilities.maxImageCount > 0 && this->_imageCount > swapChainSupport.capabilities.maxImageCount) {
+            this->_imageCount = swapChainSupport.capabilities.maxImageCount;
         }
         VkSwapchainCreateInfoKHR createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         createInfo.surface = this->_device->getAssociatedSurface();
-        createInfo.minImageCount = imageCount;
+        createInfo.minImageCount = this->_imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
         createInfo.imageExtent = extent;
@@ -139,9 +165,9 @@ namespace netero::graphics {
         if (result != VK_SUCCESS) {
             throw std::runtime_error("Failed to create the swapchain.");
         }
-        vkGetSwapchainImagesKHR(this->_device->logicalDevice, this->swapchain, &imageCount, nullptr);
-        this->swapchainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(this->_device->logicalDevice, this->swapchain, &imageCount, this->swapchainImages.data());
+        vkGetSwapchainImagesKHR(this->_device->logicalDevice, this->swapchain, &this->_imageCount, nullptr);
+        this->swapchainImages.resize(this->_imageCount);
+        vkGetSwapchainImagesKHR(this->_device->logicalDevice, this->swapchain, &this->_imageCount, this->swapchainImages.data());
         this->_swapchainImageFormat = surfaceFormat.format;
         this->swapchainExtent = extent;
     }
@@ -281,7 +307,7 @@ namespace netero::graphics {
             renderPassInfo.pClearValues = &clearColor;
             vkCmdBeginRenderPass(this->commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             for (auto* model: models) {
-                model->commitRenderCommand(commandBuffers[i], this->_descriptorSets[i], i);
+                model->commitRenderCommand(commandBuffers[i], this->_uniformBufferDescriptorSets.at(i), i);
             }
             vkCmdEndRenderPass(this->commandBuffers[i]);
             if (vkEndCommandBuffer(this->commandBuffers[i]) != VK_SUCCESS) {
