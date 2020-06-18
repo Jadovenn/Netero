@@ -23,9 +23,10 @@ namespace netero::graphics {
             INDEX_OUT_OF_BOUND
         };
 
-        DescriptorSets(Device* device, uint32_t descriptorSetCount);
+        explicit DescriptorSets(Device* device, uint32_t descriptorSetCount = 0);
         ~DescriptorSets();
 
+        void    setSetsCount(uint32_t);
         void    setDescriptorSetType(VkDescriptorType);
         void    setShaderStage(VkShaderStageFlags);
         void    setBinding(uint32_t);

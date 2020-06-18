@@ -3,6 +3,7 @@
  * see LICENSE.txt
  */
 
+#include <cassert>
 #include <stdexcept>
 #include <netero/graphics/descriptor.hpp>
 
@@ -13,11 +14,17 @@ namespace netero::graphics {
     DescriptorSets::DescriptorSets(Device* device, uint32_t descriptorSetCount)
         :   _device(device),
             _descriptorCount(descriptorSetCount)
-    {}
+    {
+        assert(_device != nullptr);
+    }
 
     DescriptorSets::~DescriptorSets() {
         this->release();
         vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
+    }
+
+    void DescriptorSets::setSetsCount(uint32_t descriptorSetCount) {
+        this->_descriptorCount = descriptorSetCount;
     }
 
     void DescriptorSets::setDescriptorSetType(VkDescriptorType descriptorType) {
@@ -33,12 +40,13 @@ namespace netero::graphics {
     }
 
     void DescriptorSets::build() {
+        this->_createDescriptorSetLayout();
         this->_createDescriptorSetPool();
         this->_createDescriptorSets();
-        this->_createDescriptorSetLayout();
     }
 
     void DescriptorSets::rebuild() {
+        this->release();
         this->_createDescriptorSetPool();
         this->_createDescriptorSets();
     }
