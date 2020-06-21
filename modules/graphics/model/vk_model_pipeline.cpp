@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <netero/graphics/model.hpp>
+#include <netero/graphics/context.hpp>
 
 #include "utils/vkUtils.hpp"
 
@@ -40,7 +41,88 @@ namespace netero::graphics {
         this->_instanceBufferMemory = bufferMemory;
     }
 
-    void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout) {
+    void Model::createDescriptors(uint32_t frameCount) {
+        this->_uboDescriptor.binding = 0;
+        this->_uboDescriptor.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        this->_uboDescriptor.shaderStage = VK_SHADER_STAGE_VERTEX_BIT;
+        this->_descriptorSets.add(this->_uboDescriptor);
+        if (!this->_textures.empty()) {
+            this->_textureDescriptor.binding = 1;
+            this->_textureDescriptor.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            this->_textureDescriptor.shaderStage = VK_SHADER_STAGE_FRAGMENT_BIT;
+            this->_descriptorSets.add(this->_textureDescriptor);
+        }
+        this->_descriptorSets.setSetsCount(frameCount);
+        this->_descriptorSets.build();
+    }
+
+    void Model::writeToDescriptorSet(uint32_t frameCount, std::vector<VkBuffer>& uboBuffers) {
+        for (unsigned idx = 0; idx < frameCount; ++idx) {
+            this->_descriptorSets.write(this->_uboDescriptor,
+                idx,
+                uboBuffers[idx],
+                0,
+                sizeof(UniformBufferObject));
+        }
+        if (!this->_textures.empty()) {
+            this->_descriptorSets.write(this->_textureDescriptor,
+                DescriptorSets::WHOLE_SIZE,
+                this->_textures.getImageView(),
+                this->_textures.getSampler()
+                );
+        }
+    }
+
+    /*
+    void Model::createDescriptorSetsLayout(DescriptorSets* uniform) {
+        std::vector<VkDescriptorSetLayoutBinding>   bindings;
+
+        if (this->_textures.empty()) {
+        }
+        else {
+        }
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = bindings.size();
+        layoutInfo.pBindings = bindings.data();
+
+        const VkResult result = vkCreateDescriptorSetLayout(this->_device->logicalDevice,
+            &layoutInfo,
+            nullptr,
+            &this->_descriptorSetLayout);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create descriptor set layout.");
+        }
+    }
+
+
+    void Model::createDescriptorSetVector(uint32_t frameCount, DescriptorSets* uniform) {
+        if (this->_textures.empty()) {
+            this->_descriptorSet.resize(frameCount);
+            this->_descriptorSetLayout.resize(1);
+            this->_descriptorSetLayout[0] = uniform->getLayout();
+            for (unsigned idx = 0; idx < frameCount; ++idx) {
+                this->_descriptorSet[idx].resize(1);
+                this->_descriptorSet[idx][0] = uniform->at(idx);
+            }
+        }
+        else {
+            this->_descriptorSet.resize(frameCount);
+            this->_descriptorSetLayout.resize(2);
+            this->_descriptorSetLayout[0] = uniform->getLayout();
+            this->_descriptorSetLayout[1] = this->_textures.descriptorSet.getLayout();
+            for (unsigned idx = 0; idx < frameCount; ++idx) {
+                this->_descriptorSet[idx].resize(2);
+                this->_descriptorSet[idx][0] = uniform->at(idx);
+                this->_descriptorSet[idx][1] = this->_textures.descriptorSet.at(idx);
+            }
+        }
+    }
+    */
+
+
+    void Model::createGraphicsPipeline(VkRenderPass renderPass, VkExtent2D swapchainExtent) {
         if (this->_modelInstances.empty()) { return; }
         std::vector<VkPipelineShaderStageCreateInfo> shaderStage;
         for (const auto& shader : this->_shaderModules) {
@@ -74,6 +156,7 @@ namespace netero::graphics {
         std::vector<VkVertexInputAttributeDescription>  vertexAttributes = {
             vertexAttributeDescriptions[0],
             vertexAttributeDescriptions[1],
+            vertexAttributeDescriptions[2],
             instanceAttributeDescriptions[0],
             instanceAttributeDescriptions[1],
             instanceAttributeDescriptions[2],
@@ -155,7 +238,7 @@ namespace netero::graphics {
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = this->_descriptorSets.getLayout();
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
         if (vkCreatePipelineLayout(this->_device->logicalDevice, &pipelineLayoutInfo, nullptr, &this->_pipelineLayout) != VK_SUCCESS) {
@@ -183,7 +266,7 @@ namespace netero::graphics {
         }
     }
 
-    void Model::commitRenderCommand(VkCommandBuffer cmdBuffer, VkDescriptorSet descriptorSet, size_t frameIdx) {
+    void Model::commitRenderCommand(VkCommandBuffer cmdBuffer, size_t frameIdx) {
         if (this->_modelInstances.empty()) { return; }
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->_graphicsPipeline);
         VkBuffer vertexBuffer[] = { this->_vertexBuffer.vertexBuffer };
@@ -198,7 +281,7 @@ namespace netero::graphics {
             this->_pipelineLayout,
             0,
             1,
-            &descriptorSet,
+            this->_descriptorSets.at(frameIdx),
             0,
             nullptr);
         vkCmdDrawIndexed(cmdBuffer,

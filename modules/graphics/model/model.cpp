@@ -31,7 +31,8 @@ namespace netero::graphics {
             _graphicsPipeline(nullptr),
             _instanceBuffer(nullptr),
             _instanceBufferMemory(nullptr),
-            _textures(device)
+            _textures(device),
+            _descriptorSets(device)
     {}
 
     Model::~Model() {
@@ -52,18 +53,22 @@ namespace netero::graphics {
         vkDestroyPipelineLayout(this->_device->logicalDevice, this->_pipelineLayout, nullptr);
     }
 
-    void Model::build(size_t framesCount, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout, VkExtent2D extent) {
+    void Model::build(size_t framesCount, std::vector<VkBuffer>& uboBuffers, VkRenderPass renderPass, VkExtent2D extent) {
         if (this->_modelInstances.empty()) { return; }
         this->_vertexBuffer.AllocateAndTransfer(this->_modelInstances.size());
         this->_textures.build(framesCount);
         this->createInstanceBuffer(framesCount);
-        this->createGraphicsPipeline(renderPass, extent, descriptorSetLayout);
+        this->createDescriptors(framesCount);
+        this->writeToDescriptorSet(framesCount, uboBuffers);
+        this->createGraphicsPipeline(renderPass, extent);
     }
 
-    void Model::rebuild(size_t imageCount, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout, VkExtent2D extent) {
+    void Model::rebuild(size_t imageCount, std::vector<VkBuffer>& uboBuffers, VkRenderPass renderPass, VkExtent2D extent) {
         if (this->_modelInstances.empty()) { return; }
         this->release(imageCount);
-        this->createGraphicsPipeline(renderPass, extent, descriptorSetLayout);
+        this->_descriptorSets.rebuild();
+        this->writeToDescriptorSet(imageCount, uboBuffers);
+        this->createGraphicsPipeline(renderPass, extent);
     }
 
     Instance* Model::createInstance() {

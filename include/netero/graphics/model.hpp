@@ -13,6 +13,7 @@
 #include <netero/graphics/vertex.hpp>
 #include <netero/graphics/texture.hpp>
 #include <netero/graphics/instance.hpp>
+#include <netero/graphics/descriptor_set.hpp>
 
 namespace netero::graphics {
 
@@ -27,13 +28,17 @@ namespace netero::graphics {
         friend class Context;
         Model(VkInstance, Device*);
 
-        void build(size_t, VkRenderPass, VkDescriptorSetLayout, VkExtent2D);
-        void rebuild(size_t, VkRenderPass, VkDescriptorSetLayout, VkExtent2D);
+        void build(size_t, std::vector<VkBuffer>&, VkRenderPass, VkExtent2D);
+        void rebuild(size_t, std::vector<VkBuffer>&, VkRenderPass, VkExtent2D);
         void release(size_t);
 
         void createInstanceBuffer(size_t);
-        void createGraphicsPipeline(VkRenderPass, VkExtent2D, VkDescriptorSetLayout);
-        void commitRenderCommand(VkCommandBuffer, VkDescriptorSet, size_t);
+        //void createDescriptorSetsLayout(DescriptorSets*);
+        //void createDescriptorSetVector(uint32_t, DescriptorSets*);
+        void createDescriptors(uint32_t);
+        void writeToDescriptorSet(uint32_t, std::vector<VkBuffer>&);
+        void createGraphicsPipeline(VkRenderPass, VkExtent2D);
+        void commitRenderCommand(VkCommandBuffer, size_t);
         void update(uint32_t);
 
         VkInstance          _instance;
@@ -50,6 +55,11 @@ namespace netero::graphics {
 
         // Texture
         Texture _textures;
+
+        // Descriptors
+        DescriptorSets  _descriptorSets;
+        Descriptor      _uboDescriptor;
+        Descriptor      _textureDescriptor;
     public:
         Model(const Model&) = delete;
         Model(Model&&) = delete;
