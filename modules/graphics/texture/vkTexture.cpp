@@ -12,8 +12,7 @@
 namespace netero::graphics {
 
     Texture::Texture(Device* device)
-        :   _device(device),
-            descriptorSet(device)
+        :   _device(device)
     {}
 
     Texture::~Texture() {
@@ -143,12 +142,6 @@ namespace netero::graphics {
         this->transferTextureToGPU();
         this->createTexturesView();
         this->createTexturesSampler();
-        this->descriptorSet.setBinding(1);
-        this->descriptorSet.setSetsCount(frameCount);
-        this->descriptorSet.setShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT);
-        this->descriptorSet.setDescriptorSetType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-        this->descriptorSet.build();
-        this->descriptorSet.write(DescriptorSets::WHOLE_SIZE, this->_imageView, this->_textureSampler);
     }
 
     void Texture::rebuild(uint32_t frameCount) {
@@ -156,8 +149,6 @@ namespace netero::graphics {
             return;
         }
         this->release();
-        this->descriptorSet.rebuild();
-        this->descriptorSet.write(DescriptorSets::WHOLE_SIZE, this->_imageView, this->_textureSampler);
     }
 
     bool Texture::empty() const {

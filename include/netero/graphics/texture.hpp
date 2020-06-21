@@ -8,7 +8,6 @@
 #include <string>
 #include <vulkan/vulkan.h>
 #include <netero/graphics/device.hpp>
-#include <netero/graphics/descriptor.hpp>
 
 namespace netero::graphics {
 
@@ -41,13 +40,13 @@ namespace netero::graphics {
         Texture(Device*);
         ~Texture();
 
-        DescriptorSets  descriptorSet;
-
         void    loadTexture(const std::string&, TextureSamplingMode);
         void    build(uint32_t);
         void    rebuild(uint32_t);
         void    release();
-        [[nodiscard]] bool    empty() const;
+        [[nodiscard]] bool          empty() const;
+        [[nodiscard]] VkImageView   getImageView() const { return this->_imageView; };
+        [[nodiscard]] VkSampler     getSampler() const { return this->_textureSampler; }
     };
 
 }
