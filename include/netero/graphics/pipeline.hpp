@@ -8,7 +8,6 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <netero/graphics/device.hpp>
-#include <netero/graphics/descriptor.hpp>
 
 namespace netero::graphics {
 
@@ -41,7 +40,6 @@ namespace netero::graphics {
         // UBO related
         std::vector<VkBuffer>           _uniformBuffers;
         std::vector<VkDeviceMemory>     _uniformBuffersMemory;
-        DescriptorSets                  _uniformBufferDescriptorSets;
         //VkDescriptorPool                _descriptorPool;
         //VkDescriptorSetLayout           _descriptorSetLayout;
         //std::vector<VkDescriptorSet>    _descriptorSets;
@@ -59,8 +57,8 @@ namespace netero::graphics {
         void    release();
         void    update(uint32_t);
 
-        void buildModels(std::vector<Model*>&) const;
-        void rebuildModels(std::vector<Model*>&) const;
+        void buildModels(std::vector<Model*>&);
+        void rebuildModels(std::vector<Model*>&);
         void releaseModels(std::vector<Model*>&) const;
 
         VkSwapchainKHR                  swapchain;
