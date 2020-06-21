@@ -71,19 +71,19 @@ namespace netero::graphics {
             std::array<VkVertexInputAttributeDescription, 4>    attributeDescriptions{};
 
             attributeDescriptions[0].binding = 1;
-            attributeDescriptions[0].location = 2;
+            attributeDescriptions[0].location = 3;
             attributeDescriptions[0].format = VK_FORMAT_R32G32B32A32_SFLOAT;
             attributeDescriptions[0].offset = 0;
             attributeDescriptions[1].binding = 1;
-            attributeDescriptions[1].location = 3;
+            attributeDescriptions[1].location = 4;
             attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
             attributeDescriptions[1].offset = sizeof(glm::vec4);
             attributeDescriptions[2].binding = 1;
-            attributeDescriptions[2].location = 4;
+            attributeDescriptions[2].location = 5;
             attributeDescriptions[2].format = VK_FORMAT_R32G32B32A32_SFLOAT;
             attributeDescriptions[2].offset = sizeof(glm::vec4) * 2;
             attributeDescriptions[3].binding = 1;
-            attributeDescriptions[3].location = 5;
+            attributeDescriptions[3].location = 6;
             attributeDescriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
             attributeDescriptions[3].offset = sizeof(glm::vec4) * 3;
             return attributeDescriptions;

@@ -16,6 +16,7 @@ namespace netero::graphics {
     struct Vertex {
         glm::vec2   pos;
         glm::vec3   color;
+        glm::vec2   texCord = {0, 0};
 
         static VkVertexInputBindingDescription  getBindingDescription() {
             VkVertexInputBindingDescription bindingDescription = {};
@@ -26,8 +27,8 @@ namespace netero::graphics {
             return bindingDescription;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 2>    getAttributeDescription() {
-            std::array<VkVertexInputAttributeDescription, 2>    attributeDescriptions{};
+        static std::array<VkVertexInputAttributeDescription, 3>    getAttributeDescription() {
+            std::array<VkVertexInputAttributeDescription, 3>    attributeDescriptions{};
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
             attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
@@ -36,6 +37,11 @@ namespace netero::graphics {
             attributeDescriptions[1].location = 1;
             attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
             attributeDescriptions[1].offset = offsetof(Vertex, color);
+            attributeDescriptions[2].binding = 0;
+            attributeDescriptions[2].location = 2;
+            attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[2].offset = offsetof(Vertex, texCord);
+
             return attributeDescriptions;
         }
     };
