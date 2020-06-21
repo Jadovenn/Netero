@@ -5,7 +5,7 @@
 
 #include <cassert>
 #include <stdexcept>
-#include <netero/graphics/descriptor.hpp>
+#include <netero/graphics/descriptor_set.hpp>
 
 namespace netero::graphics {
 
@@ -27,16 +27,8 @@ namespace netero::graphics {
         this->_descriptorCount = descriptorSetCount;
     }
 
-    void DescriptorSets::setDescriptorSetType(VkDescriptorType descriptorType) {
-        this->_descriptorType = descriptorType;
-    }
-
-    void DescriptorSets::setShaderStage(VkShaderStageFlags shaderStage) {
-        this->_shaderStage = shaderStage;
-    }
-
-    void DescriptorSets::setBinding(uint32_t binding) {
-        this->_binding = binding;
+    void DescriptorSets::add(Descriptor& descriptor) {
+        this->_descriptors.push_back(descriptor);
     }
 
     void DescriptorSets::build() {
@@ -51,15 +43,15 @@ namespace netero::graphics {
         this->_createDescriptorSets();
     }
 
-    VkDescriptorSetLayout DescriptorSets::getLayout() const {
-        return this->_descriptorSetLayout;
+    VkDescriptorSetLayout* DescriptorSets::getLayout() {
+        return &this->_descriptorSetLayout;
     }
 
-    VkDescriptorSet DescriptorSets::at(uint32_t index) const {
+    VkDescriptorSet* DescriptorSets::at(uint32_t index) {
         if (index >= this->_descriptorSets.size()) {
             return nullptr;
         }
-        return this->_descriptorSets[index];
+        return &this->_descriptorSets[index];
     }
 
     void DescriptorSets::release() {
@@ -67,13 +59,17 @@ namespace netero::graphics {
     }
 
     void DescriptorSets::_createDescriptorSetPool() {
-        VkDescriptorPoolSize poolSize{};
-        poolSize.type = this->_descriptorType;
-        poolSize.descriptorCount = this->_descriptorCount;
+        std::vector<VkDescriptorPoolSize>   poolSizes;
+        for (auto& desc: this->_descriptors) {
+            VkDescriptorPoolSize poolSize{};
+            poolSize.type = desc.descriptorType;
+            poolSize.descriptorCount = this->_descriptorCount;
+            poolSizes.push_back(poolSize);
+        }
         VkDescriptorPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        poolInfo.poolSizeCount = 1;
-        poolInfo.pPoolSizes = &poolSize;
+        poolInfo.poolSizeCount = poolSizes.size();
+        poolInfo.pPoolSizes = poolSizes.data();
         poolInfo.maxSets = this->_descriptorCount;
         if (vkCreateDescriptorPool(this->_device->logicalDevice, &poolInfo, nullptr, &this->_descriptorPool) != VK_SUCCESS) {
             throw std::runtime_error("failed to create descriptor pool!");
@@ -81,17 +77,22 @@ namespace netero::graphics {
     }
 
     void DescriptorSets::_createDescriptorSetLayout() {
-        VkDescriptorSetLayoutBinding    uboBinding{};
-        uboBinding.binding = this->_binding;
-        uboBinding.descriptorCount = this->_descriptorCountPerSet;
-        uboBinding.descriptorType = this->_descriptorType;
-        uboBinding.stageFlags = this->_shaderStage;
-        uboBinding.pImmutableSamplers = nullptr;
+        std::vector<VkDescriptorSetLayoutBinding>   bindings;
+
+        for (auto& desc: this->_descriptors) {
+            VkDescriptorSetLayoutBinding    binding{};
+            binding.binding = desc.binding;
+            binding.descriptorCount = this->_descriptorCountPerSet;
+            binding.descriptorType = desc.descriptorType;
+            binding.stageFlags = desc.shaderStage;
+            binding.pImmutableSamplers = nullptr;
+            bindings.push_back(binding);
+        }
 
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 1;
-        layoutInfo.pBindings = &uboBinding;
+        layoutInfo.bindingCount = bindings.size();
+        layoutInfo.pBindings = bindings.data();
 
         const VkResult result = vkCreateDescriptorSetLayout(this->_device->logicalDevice,
             &layoutInfo,
@@ -115,11 +116,11 @@ namespace netero::graphics {
         }
     }
 
-    DescriptorSets::Error    DescriptorSets::write(int setIdx, VkImageView imageView, VkSampler sampler) {
+    DescriptorSets::Error    DescriptorSets::write(Descriptor& descriptor, int setIdx, VkImageView imageView, VkSampler sampler) {
         if (this->_descriptorSets.empty()) {
             return Error::EMPTY_DESCRIPTOR_SET;
         }
-        if (this->_descriptorType != VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+        if (descriptor.descriptorType != VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
             return Error::BAD_DESCRIPTOR_TYPE;
         }
         if (setIdx != WHOLE_SIZE && setIdx < 0 && setIdx >= this->_descriptorSets.size()) {
@@ -129,15 +130,15 @@ namespace netero::graphics {
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.imageView = imageView;
         imageInfo.sampler = sampler;
-        this->_write(setIdx, nullptr, &imageInfo);
+        this->_write(descriptor, setIdx, nullptr, &imageInfo);
         return Error::SUCCESS;
     }
 
-    DescriptorSets::Error    DescriptorSets::write(int setIdx, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range) {
+    DescriptorSets::Error    DescriptorSets::write(Descriptor& desc, int setIdx, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range) {
         if (this->_descriptorSets.empty()) {
             return Error::EMPTY_DESCRIPTOR_SET;
         }
-        if (this->_descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
+        if (desc.descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
             return Error::BAD_DESCRIPTOR_TYPE;
         }
         if (setIdx != WHOLE_SIZE && setIdx < 0 && setIdx >= this->_descriptorSets.size()) {
@@ -147,19 +148,19 @@ namespace netero::graphics {
         bufferInfo.buffer = buffer;
         bufferInfo.offset = offset;
         bufferInfo.range = range;
-        this->_write(setIdx, &bufferInfo, nullptr);
+        this->_write(desc, setIdx, &bufferInfo, nullptr);
         return Error::SUCCESS;
     }
 
-    DescriptorSets::Error    DescriptorSets::_write(int setIdx, VkDescriptorBufferInfo* bufferInfo, VkDescriptorImageInfo* imageInfo) {
+    DescriptorSets::Error    DescriptorSets::_write(Descriptor& descriptor, int setIdx, VkDescriptorBufferInfo* bufferInfo, VkDescriptorImageInfo* imageInfo) {
         if (setIdx == WHOLE_SIZE) {
             for (size_t i = 0; i < this->_descriptorCount; i++) {
                 VkWriteDescriptorSet descriptorWrite{};
                 descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                 descriptorWrite.dstSet = this->_descriptorSets[i];
-                descriptorWrite.dstBinding = this->_binding;
                 descriptorWrite.dstArrayElement = 0;
-                descriptorWrite.descriptorType = this->_descriptorType;
+                descriptorWrite.dstBinding = descriptor.binding;
+                descriptorWrite.descriptorType = descriptor.descriptorType;
                 descriptorWrite.descriptorCount = this->_descriptorCountPerSet;
                 descriptorWrite.pBufferInfo = bufferInfo ? bufferInfo : nullptr;
                 descriptorWrite.pImageInfo = imageInfo ? imageInfo : nullptr;
@@ -171,9 +172,9 @@ namespace netero::graphics {
             VkWriteDescriptorSet descriptorWrite{};
             descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrite.dstSet = this->_descriptorSets[setIdx];
-            descriptorWrite.dstBinding = this->_binding;
+            descriptorWrite.dstBinding = descriptor.binding;
             descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = this->_descriptorType;
+            descriptorWrite.descriptorType = descriptor.descriptorType;
             descriptorWrite.descriptorCount = this->_descriptorCountPerSet;
             descriptorWrite.pBufferInfo = bufferInfo ? bufferInfo : nullptr;
             descriptorWrite.pImageInfo = imageInfo ? imageInfo : nullptr;
