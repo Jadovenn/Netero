@@ -10,15 +10,17 @@
 #include <netero/graphics/context.hpp>
 #include <netero/graphics/vertex.hpp>
 
-const std::string g_3DObjectVertexShader_path = netero::os::getBundlePath() + "/shaders/ModelVertex.spv";
+const std::string g_ModelVertexShader_path = netero::os::getBundlePath() + "/shaders/ModelVertex.spv";
 const std::string g_ColorFragmentShader_path = netero::os::getBundlePath() + "/shaders/ColorFragment.spv";
+const std::string g_TexturedModelVertexShader_path = netero::os::getBundlePath() + "/shaders/TexturedModelVertex.spv";
+const std::string g_TexturedColorFragmentShader_path = netero::os::getBundlePath() + "/shaders/TexturedColorFragment.spv";
 const std::string g_texture = netero::os::getBundlePath() + "/textures/cat.png";
 
 std::vector<netero::graphics::Vertex>   squareVertices {
-    {{-0.5f, -0.5f}, {1.f, 0.0f, 0.f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.f, 0.0f, 1.f}},
-    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.f, 0.0f, 0.f}, {0.f, 0.f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.f, 0.f}},
+    {{0.5f, 0.5f}, {0.f, 0.0f, 1.f}, {1.f, 1.f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.f, 1.f}}
 };
 
 std::vector<uint16_t>    squareIndices{
@@ -59,12 +61,12 @@ void    InitializeApp(GraphicSampleApp* myApp) {
     myApp->handle = netero::graphics::Application::Initialize("GraphicsSample");
     myApp->context = myApp->handle->newWindowedContext(800, 600, netero::graphics::WindowMode::RESIZABLE);
     myApp->square = myApp->context->createModel();
-    myApp->square->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
-    myApp->square->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
+    myApp->square->loadShader(g_TexturedModelVertexShader_path, netero::graphics::ShaderStage::VERTEX);
+    myApp->square->loadShader(g_TexturedColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
     myApp->square->addVertices(squareVertices, squareIndices);
-    //myApp->square->loadTexture(g_texture, netero::graphics::TextureSamplingMode::REPEAT);
+    myApp->square->loadTexture(g_texture, netero::graphics::TextureSamplingMode::REPEAT);
     myApp->triangle = myApp->context->createModel();
-    myApp->triangle->loadShader(g_3DObjectVertexShader_path, netero::graphics::ShaderStage::VERTEX);
+    myApp->triangle->loadShader(g_ModelVertexShader_path, netero::graphics::ShaderStage::VERTEX);
     myApp->triangle->loadShader(g_ColorFragmentShader_path, netero::graphics::ShaderStage::FRAGMENT);
     myApp->triangle->addVertices(triangleVertices);
     myApp->squareInstance1 = myApp->square->createInstance();
