@@ -12,7 +12,8 @@
 namespace netero::graphics {
 
     Texture::Texture(Device* device)
-        :   _device(device)
+        :   _device(device),
+            descriptorSet(device)
     {}
 
     Texture::~Texture() {
@@ -25,14 +26,13 @@ namespace netero::graphics {
             vkDestroyImageView(this->_device->logicalDevice, this->_imageView, nullptr);
             vkDestroyImage(this->_device->logicalDevice, this->_image, nullptr);
             vkFreeMemory(this->_device->logicalDevice, this->_imageMemory, nullptr);
-            vkDestroyDescriptorSetLayout(this->_device->logicalDevice, this->_descriptorSetLayout, nullptr);
+            vkDestroySampler(this->_device->logicalDevice, this->_textureSampler, nullptr);
         }
     }
 
     void Texture::release() {
-        vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
+        //vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
     }
-
 
     void Texture::transferTextureToGPU() {
         VkCommandBuffer transferCmd = vkUtils::BeginCommandBufferRecording(this->_device->logicalDevice,
@@ -136,81 +136,19 @@ namespace netero::graphics {
         this->_samplingMode = samplingMode;
     }
 
-    void Texture::createDescriptorPool(uint32_t frameCount) {
-        VkDescriptorPoolSize poolSize{};
-        poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSize.descriptorCount = frameCount;
-        VkDescriptorPoolCreateInfo poolInfo{};
-        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        poolInfo.poolSizeCount = 1;
-        poolInfo.pPoolSizes = &poolSize;
-        poolInfo.maxSets = frameCount;
-        if (vkCreateDescriptorPool(this->_device->logicalDevice, &poolInfo, nullptr, &this->_descriptorPool) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor pool!");
-        }
-    }
-
-    void Texture::createDescriptorSets(uint32_t frameCount) {
-        std::vector<VkDescriptorSetLayout> layouts(frameCount, this->_descriptorSetLayout);
-        VkDescriptorSetAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = this->_descriptorPool;
-        allocInfo.descriptorSetCount = frameCount;
-        allocInfo.pSetLayouts = layouts.data();
-        this->_descriptorSets.resize(frameCount);
-        if (vkAllocateDescriptorSets(this->_device->logicalDevice, &allocInfo, this->_descriptorSets.data()) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate descriptor sets!");
-        }
-        for (size_t i = 0; i < frameCount; i++) {
-            VkDescriptorImageInfo   imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = this->_imageView;
-            imageInfo.sampler = this->_textureSampler;
-            VkWriteDescriptorSet descriptorWrite{};
-            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrite.dstSet = this->_descriptorSets[i];
-            descriptorWrite.dstBinding = 1;
-            descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pBufferInfo = nullptr;
-            descriptorWrite.pImageInfo = &imageInfo;
-            descriptorWrite.pTexelBufferView = nullptr;
-            vkUpdateDescriptorSets(this->_device->logicalDevice, 1, &descriptorWrite, 0, nullptr);
-        }
-    }
-
-    void Texture::createDescriptorLayout() {
-        VkDescriptorSetLayoutBinding    uboBinding{};
-        uboBinding.binding = 1;
-        uboBinding.descriptorCount = 1;
-        uboBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        uboBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        uboBinding.pImmutableSamplers = nullptr;
-
-        VkDescriptorSetLayoutCreateInfo layoutInfo{};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 1;
-        layoutInfo.pBindings = &uboBinding;
-
-        const VkResult result = vkCreateDescriptorSetLayout(this->_device->logicalDevice,
-            &layoutInfo,
-            nullptr,
-            &this->_descriptorSetLayout);
-        if (result != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create descriptor set layout.");
-        }
-    }
-
     void Texture::build(uint32_t frameCount) {
         if (this->empty()) { // There is no texture this time
             return;
         }
         this->transferTextureToGPU();
         this->createTexturesView();
-        this->createDescriptorPool(frameCount);
-        this->createDescriptorSets(frameCount);
-        this->createDescriptorLayout();
+        this->createTexturesSampler();
+        this->descriptorSet.setBinding(1);
+        this->descriptorSet.setSetsCount(frameCount);
+        this->descriptorSet.setShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT);
+        this->descriptorSet.setDescriptorSetType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        this->descriptorSet.build();
+        this->descriptorSet.write(DescriptorSets::WHOLE_SIZE, this->_imageView, this->_textureSampler);
     }
 
     void Texture::rebuild(uint32_t frameCount) {
@@ -218,17 +156,12 @@ namespace netero::graphics {
             return;
         }
         this->release();
-        this->createDescriptorPool(frameCount);
-        this->createDescriptorSets(frameCount);
-        this->createDescriptorLayout();
+        this->descriptorSet.rebuild();
+        this->descriptorSet.write(DescriptorSets::WHOLE_SIZE, this->_imageView, this->_textureSampler);
     }
 
     bool Texture::empty() const {
-        return !this->_stagingBuffer && !this->_descriptorSetLayout;
-    }
-
-    VkDescriptorSetLayout Texture::getDescriptorSetLayout() const {
-        return this->_descriptorSetLayout;
+        return !this->_stagingBuffer && !this->_image;
     }
 
 }

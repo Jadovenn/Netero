@@ -6,9 +6,9 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <vulkan/vulkan.h>
 #include <netero/graphics/device.hpp>
+#include <netero/graphics/descriptor.hpp>
 
 namespace netero::graphics {
 
@@ -24,15 +24,8 @@ namespace netero::graphics {
         void    transferTextureToGPU();
         void    createTexturesView();
         void    createTexturesSampler();
-        void    createDescriptorPool(uint32_t);
-        void    createDescriptorSets(uint32_t);
-        void    createDescriptorLayout();
 
         Device* _device;
-
-        VkDescriptorPool                _descriptorPool = nullptr;
-        VkDescriptorSetLayout           _descriptorSetLayout = nullptr;
-        std::vector<VkDescriptorSet>    _descriptorSets;
 
         uint32_t    _width = 0;
         uint32_t    _height = 0;
@@ -48,12 +41,13 @@ namespace netero::graphics {
         Texture(Device*);
         ~Texture();
 
+        DescriptorSets  descriptorSet;
+
         void    loadTexture(const std::string&, TextureSamplingMode);
         void    build(uint32_t);
         void    rebuild(uint32_t);
         void    release();
         [[nodiscard]] bool    empty() const;
-        [[nodiscard]] VkDescriptorSetLayout getDescriptorSetLayout() const;
     };
 
 }
