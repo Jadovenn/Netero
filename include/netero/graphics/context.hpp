@@ -43,27 +43,47 @@ namespace netero::graphics {
         ~Context();
 
         /**
-         * Allocate and set up necessary ressources related to the context
-         * and underlaying objects.
+         * Allocate and set up necessary resources related to the context
+         * and underlying objects.
          * @details You should call this method once before performing
          * any update of the context.
          */
         void build();
 
         /**
-         * Release any allocated ressources, the context become unusable
+         * Release any allocated resources, the context become unusable
          * after any call of this method.
          */
         void release();
 
-
+        /**
+         * Update the context, this will basically process a frame.
+         */
         void update();
+
+        /**
+         * Return true if the context must be destroy.
+         */
         [[nodiscard]] bool shouldClose() const;
 
+        /**
+         * Create a model to be rendered.
+         */
         [[nodiscard]] Model*    createModel();
+
+        /**
+         * Destroy a model.
+         */
         void                    deleteModel(Model*);
 
+        /**
+         * Return the list of physical GPU devices.
+         */
         [[nodiscard]] std::vector<std::string>  getPhysicalDevices() const;
+
+        /**
+         * Return the name of the GPU device in use.
+         */
         [[nodiscard]] std::string   getCurrentPhysicalDeviceName() const;
 
     private:
@@ -74,7 +94,7 @@ namespace netero::graphics {
 
         VkInstance  _vulkanInstance; /**< Vulkan instance*/
         int         _height; /**< Height of the surface. Might be updated if the swapchain is recreated. */
-        int         _width; /**< Widht of the surface. Mught be updated if the swapchain is recreated. */
+        int         _width; /**< Width of the surface. Might be updated if the swapchain is recreated. */
         WindowMode  _windowMode;
         const std::string   _name;
         const std::string   _deviceName;
@@ -84,17 +104,17 @@ namespace netero::graphics {
         VertexBuffer*   _vertexBuffer = nullptr;
         Pipeline*       _pipeline = nullptr;
         std::vector<Shader>         _shaderModules;
-        std::vector<Model*>         _models;
-        std::vector<VkSemaphore>    _imageAvailableSemaphore;
-        std::vector<VkSemaphore>    _renderFinishedSemaphore; /** */
-        std::vector<VkFence>        _inFlightFences; /**< Fence to synchromise fences in flight. Synchronise GPU/CPU. */
+        std::vector<Model*>         _models; /** Vector of model. */
+        std::vector<VkSemaphore>    _imageAvailableSemaphore; /**< Semaphore synchronizing available image to be rendered. */
+        std::vector<VkSemaphore>    _renderFinishedSemaphore; /**< Semaphore synchronizing end of frame. */
+        std::vector<VkFence>        _inFlightFences; /**< Fence to synchronise fences in flight. Synchronise GPU/CPU. */
         std::vector<VkFence>        _imagesInFlight; /**< Fence to synchronise frame in flight vs it is still on processing from GPU. Synchronise GPU/CPU. */
         size_t                      _currentFrame = 0; /**< The current index of the frame in processing. */
         const int   MAX_FRAMES_IN_FLIGHT = 2; /**< The maximum number of frame to be processed at the same time. */
 
 
         struct impl;
-        std::unique_ptr<impl>   _pImpl; /**< Underlaying member that hide GLFW usage. */
+        std::unique_ptr<impl>   _pImpl; /**< Underlying member that hide GLFW usage. */
     };
 }
 
