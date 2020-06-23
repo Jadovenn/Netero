@@ -24,6 +24,7 @@ namespace netero::graphics {
     }
 
     void DescriptorSets::setSetsCount(uint32_t descriptorSetCount) {
+
         this->_descriptorCount = descriptorSetCount;
     }
 
@@ -32,6 +33,7 @@ namespace netero::graphics {
     }
 
     void DescriptorSets::build() {
+        this->_descriptors.shrink_to_fit();
         this->_createDescriptorSetLayout();
         this->_createDescriptorSetPool();
         this->_createDescriptorSets();
@@ -134,11 +136,11 @@ namespace netero::graphics {
         return Error::SUCCESS;
     }
 
-    DescriptorSets::Error    DescriptorSets::write(Descriptor& desc, int setIdx, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range) {
+    DescriptorSets::Error    DescriptorSets::write(Descriptor& descriptor, int setIdx, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range) {
         if (this->_descriptorSets.empty()) {
             return Error::EMPTY_DESCRIPTOR_SET;
         }
-        if (desc.descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
+        if (descriptor.descriptorType != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
             return Error::BAD_DESCRIPTOR_TYPE;
         }
         if (setIdx != WHOLE_SIZE && setIdx < 0 && setIdx >= this->_descriptorSets.size()) {
@@ -148,7 +150,7 @@ namespace netero::graphics {
         bufferInfo.buffer = buffer;
         bufferInfo.offset = offset;
         bufferInfo.range = range;
-        this->_write(desc, setIdx, &bufferInfo, nullptr);
+        this->_write(descriptor, setIdx, &bufferInfo, nullptr);
         return Error::SUCCESS;
     }
 
