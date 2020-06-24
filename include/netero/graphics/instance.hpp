@@ -28,7 +28,7 @@ namespace netero::graphics {
 
     private:
         struct Data {
-            glm::mat4   model;
+            glm::mat4   model; /**< Transform matrix for the given model instance. */
         };
 
         Data    shared; /**< Shared struct with the instance buffer. */
