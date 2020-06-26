@@ -79,13 +79,13 @@ namespace netero::graphics {
         /**
          * @brief Add vertices to the model
          * @param vertices Vertices to be added to the model.
-         * @details This methode will generate automatically indices for the given vertices
+         * @details This method will generate automatically indices for the given vertices
          * @attention This method will not automatically optimize vertices/indices
          */
         void    addVertices(std::vector<Vertex>& vectices);
 
         /**
-         * @brief Avertices and indices to the model.
+         * @brief Add vertices and indices to the model.
          * @param vertices Vertices to be added to the model.
          * @param indices Related indices to be added to the model.
          */
@@ -101,8 +101,8 @@ namespace netero::graphics {
         /**
          * @brief Load the given texture to the model.
          * @attention The model must have a fragment shader that accept a 2D sampler as uniform binding 1.
-         * @param path A valide path to a texture.
-         * @param samplingMode A valide sampling mode.
+         * @param path A valid path to a texture.
+         * @param samplingMode A valid sampling mode.
          */
         void    loadTexture(const std::string& path, TextureSamplingMode samplingMode);
     };
