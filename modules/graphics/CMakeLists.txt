@@ -47,18 +47,22 @@ list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/graphics/axis.hpp
         ${HEADERS_DIRECTORY}/graphics/instance.hpp
         ${HEADERS_DIRECTORY}/graphics/model.hpp
+        ${HEADERS_DIRECTORY}/graphics/descriptor_set.hpp
         ${HEADERS_DIRECTORY}/graphics/shader.hpp
         ${HEADERS_DIRECTORY}/graphics/vertex.hpp
+        ${HEADERS_DIRECTORY}/graphics/texture.hpp
         ${HEADERS_DIRECTORY}/graphics/pipeline.hpp)
 
 list(APPEND SRCS
         application.cpp
         context.cpp
-        device.cpp
+        vk_device.cpp
+        vk_descriptor_set.cpp
+        vk_texture.cpp
+        vk_vertex_buffer.cpp
         pipeline/pipeline.cpp
         pipeline/vk_pipeline_uniform_buffer.cpp
         model/model.cpp
-        model/vertex.cpp
         model/vk_model_pipeline.cpp
         utils/vkUtils.hpp
         utils/vkCheckValidationLayerSupport.cpp
@@ -66,7 +70,9 @@ list(APPEND SRCS
         utils/vkDebugCallbacks.cpp
         utils/vkFindQueueFamilies.cpp
         utils/vkSwapChainSupport.cpp
-        utils/vkMemory.cpp)
+        utils/vkCommandBuffer.cpp
+        utils/vkMemory.cpp
+        utils/vkTransferCommand.cpp)
 
 ##====================================
 ##  Target

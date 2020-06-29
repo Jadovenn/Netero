@@ -42,5 +42,5 @@ namespace netero::graphics {
         VkDebugReportCallbackEXT    _debugReport = nullptr;  // NOLINT(clang-diagnostic-unused-private-field)
         std::vector<Context*>       _activeContext;
     };
-} 
+}
 

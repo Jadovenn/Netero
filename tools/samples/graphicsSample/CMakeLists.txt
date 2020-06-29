@@ -31,5 +31,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} netero Netero::Graphics)
 target_add_shader(${PROJECT_NAME} shaders/ModelVertex.vert)
 target_add_shader(${PROJECT_NAME} shaders/ColorFragment.frag)
+target_add_shader(${PROJECT_NAME} shaders/TexturedModelVertex.vert)
+target_add_shader(${PROJECT_NAME} shaders/TexturedColorFragment.frag)
 target_add_texture(${PROJECT_NAME} textures/cat.png)
 

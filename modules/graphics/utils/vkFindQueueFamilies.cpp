@@ -4,17 +4,20 @@
  */
 
 #include <set>
+
 #include "utils/vkUtils.hpp"
 
 const std::vector<const char*> vkUtils::defaultDeviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-vkUtils::QueueFamilyIndices    vkUtils::findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface) {
-    QueueFamilyIndices  indices;
-    uint32_t            queueFamilyCount = 0;
+vkUtils::QueueFamilyIndices vkUtils::findQueueFamilies(VkPhysicalDevice device,
+                                                       VkSurfaceKHR     surface)
+{
+    QueueFamilyIndices indices;
+    uint32_t           queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-    std::vector<VkQueueFamilyProperties>    queueFamilies(queueFamilyCount);
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
     int idx = 0;
     for (const auto& queueFamily : queueFamilies) {
@@ -33,54 +36,58 @@ vkUtils::QueueFamilyIndices    vkUtils::findQueueFamilies(VkPhysicalDevice devic
     return indices;
 }
 
-bool    vkUtils::checkDeviceSuitable(VkPhysicalDevice device, const std::vector<const char*> extensions) {
-    uint32_t    extensionCount = 0;
+bool vkUtils::checkDeviceSuitable(VkPhysicalDevice               device,
+                                  const std::vector<const char*> extensions)
+{
+    uint32_t extensionCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-    std::vector<VkExtensionProperties>  availableExtension(extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtension.data());
-    std::set<std::string>   requiredExtensions(extensions.begin(), extensions.end());
-    for (const auto& ext: availableExtension) {
+    std::vector<VkExtensionProperties> availableExtension(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device,
+                                         nullptr,
+                                         &extensionCount,
+                                         availableExtension.data());
+    std::set<std::string> requiredExtensions(extensions.begin(), extensions.end());
+    for (const auto& ext : availableExtension) {
         requiredExtensions.erase(ext.extensionName);
     }
     return requiredExtensions.empty();
 }
 
-int vkUtils::rateDeviceSuitability(VkPhysicalDevice device, VkSurfaceKHR surface) {
+int vkUtils::rateDeviceSuitability(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
     int score = 0;
-    if (!device) { return -1; }
-    VkPhysicalDeviceProperties  deviceProperties;
-    VkPhysicalDeviceFeatures    deviceFeatures;
+    if (!device) {
+        return -1;
+    }
+    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceFeatures   deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
     const auto queueFamilyIndices = vkUtils::findQueueFamilies(device, surface);
 
-    if (!queueFamilyIndices.isGraphicsSuitable()) {
+    if (!queueFamilyIndices.isGraphicsSuitable() || !deviceFeatures.samplerAnisotropy) {
         return -2;
     }
     if (queueFamilyIndices.transferFamily.has_value()) {
         score += 2000;
     }
     switch (deviceProperties.deviceType) {
-    case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-        score += 1000;
-        break;
-    case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-        score += 100;
-        break;
-    case VK_PHYSICAL_DEVICE_TYPE_CPU:
-    case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-        break;
-    default:
-        return 0;
+        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU: score += 1000; break;
+        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: score += 100; break;
+        case VK_PHYSICAL_DEVICE_TYPE_CPU:
+        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU: break;
+        default: return 0;
     }
     score += deviceProperties.limits.maxImageDimension2D;
     score += deviceProperties.limits.maxImageDimension3D;
     return score;
 }
 
-std::multimap<int, VkPhysicalDevice>    vkUtils::getRatedAvailableDevices(VkInstance instance, VkSurfaceKHR surface) {
-    std::multimap<int, VkPhysicalDevice>    devicesMap;
-    uint32_t                                deviceCount;
+std::multimap<int, VkPhysicalDevice> vkUtils::getRatedAvailableDevices(VkInstance   instance,
+                                                                       VkSurfaceKHR surface)
+{
+    std::multimap<int, VkPhysicalDevice> devicesMap;
+    uint32_t                             deviceCount;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
@@ -91,10 +98,11 @@ std::multimap<int, VkPhysicalDevice>    vkUtils::getRatedAvailableDevices(VkInst
     return devicesMap;
 }
 
-VkPhysicalDevice    vkUtils::getBestDevice(VkInstance instance, VkSurfaceKHR surface) {
-    uint32_t            deviceCount = 0;
-    VkPhysicalDevice    physicalDevice = nullptr;
-    int                 bestScore = -1;
+VkPhysicalDevice vkUtils::getBestDevice(VkInstance instance, VkSurfaceKHR surface)
+{
+    uint32_t         deviceCount = 0;
+    VkPhysicalDevice physicalDevice = nullptr;
+    int              bestScore = -1;
 
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -109,20 +117,24 @@ VkPhysicalDevice    vkUtils::getBestDevice(VkInstance instance, VkSurfaceKHR sur
     return physicalDevice;
 }
 
-std::string vkUtils::getDeviceName(VkPhysicalDevice device) {
-    if (!device) { return ""; }
-    VkPhysicalDeviceProperties  deviceProperties;
+std::string vkUtils::getDeviceName(VkPhysicalDevice device)
+{
+    if (!device) {
+        return "";
+    }
+    VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
     return deviceProperties.deviceName;
 }
 
-VkPhysicalDevice vkUtils::getDeviceByName(const char* name, VkInstance instance) {
-    uint32_t    deviceCount = 0;
+VkPhysicalDevice vkUtils::getDeviceByName(const char* name, VkInstance instance)
+{
+    uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
-    for (auto *device: devices) {
-        VkPhysicalDeviceProperties  property;
+    for (auto* device : devices) {
+        VkPhysicalDeviceProperties property;
         vkGetPhysicalDeviceProperties(device, &property);
         if (strstr(name, property.deviceName)) {
             return device;
@@ -131,18 +143,17 @@ VkPhysicalDevice vkUtils::getDeviceByName(const char* name, VkInstance instance)
     return nullptr;
 }
 
-std::vector<std::string> vkUtils::getDevicesName(VkInstance instance) {
-    uint32_t    deviceCount = 0;
+std::vector<std::string> vkUtils::getDevicesName(VkInstance instance)
+{
+    uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-    std::vector<VkPhysicalDevice>   devices(deviceCount);
-    std::vector<std::string>        devicesName(deviceCount);
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    std::vector<std::string>      devicesName(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
-    for (auto *device: devices) {
-        VkPhysicalDeviceProperties  property;
+    for (auto* device : devices) {
+        VkPhysicalDeviceProperties property;
         vkGetPhysicalDeviceProperties(device, &property);
         devicesName.emplace_back(property.deviceName);
     }
     return devicesName;
 }
-
-

@@ -14,15 +14,17 @@ layout(binding = 0) uniform uniformBufferObject {
 // INPUT_RATE_VERTEX
 layout(location = 0) in vec2 inPosition;
 layout(location = 1) in vec3 inColor;
-layout(location = 2) in vec3 inTexCord;
+layout(location = 2) in vec2 inTexCord;
 
 // INPUT_RATE_INSTANCE
 layout(location = 3) in mat4 inModel;
 
 layout(location = 0) out vec3 fragColor;
+layout(location = 1) out vec2 fragTexCord;
 
 void main() {
     gl_Position = ubo.proj * ubo.view * inModel * vec4(inPosition, 0.0, 1.0);
     fragColor = inColor;
+    fragTexCord = inTexCord;
 }
 
