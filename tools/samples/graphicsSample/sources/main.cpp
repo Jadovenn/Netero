@@ -8,6 +8,7 @@
 
 #include <netero/graphics/application.hpp>
 #include <netero/graphics/context.hpp>
+#include <netero/graphics/instance.hpp>
 #include <netero/graphics/vertex.hpp>
 #include <netero/os.hpp>
 

@@ -1,5 +1,4 @@
-﻿
----
+﻿---
 BasedOnStyle: LLVM
 AccessModifierOffset: '0'
 AlignAfterOpenBracket: Align
@@ -68,16 +67,13 @@ IncludeCategories:
   - Regex:           '<([A-Za-z0-9\/-_])+>'
     Priority:        1
   # Headers in <> from specific external libraries.
-  - Regex:           '<((\vulkan\b)|(\stb\b)|(\bglm\b))\/([A-Za-z0-9.\/-_])+>'
+  - Regex:           '<((vulkan)|(GLFW)|(glm))\/([A-Za-z0-9.\/-_])+>'
     Priority:        2
   # Headers in <> from netero.
-  - Regex:           '<((\netero\b))\/([A-Za-z0-9.\/-_])+>'
+  - Regex:           '<(netero)\/([A-Za-z0-9.\/-_])+>'
     Priority:        3
-  # Headers in <> with extension.
-  - Regex:           '<([A-Za-z0-9.\/-_])+>'
-    Priority:        4
   # Headers in "" with extension.
   - Regex:           '"([A-Za-z0-9.\/-_])+"'
-    Priority:        5
+    Priority:        4
 ...
 

@@ -7,12 +7,11 @@
 
 namespace netero::graphics {
 
-    enum class WindowMode {
-        FIX,
-        BORDERLESS,
-        RESIZABLE,
-        FULLSCREEN,
-        WINDOWED,
-    };
+enum class WindowMode {
+    FIX,
+    BORDERLESS,
+    RESIZABLE,
+    FULLSCREEN,
+    WINDOWED,
+};
 }
-

@@ -9,18 +9,17 @@
 
 namespace netero::graphics {
 
-    enum class ShaderStage {
-        VERTEX,
-        TESSELLATION,
-        GEOMETRY,
-        FRAGMENT,
-    };
+enum class ShaderStage {
+    VERTEX,
+    TESSELLATION,
+    GEOMETRY,
+    FRAGMENT,
+};
 
-    struct Shader {
-        ShaderStage         stage = ShaderStage::VERTEX;
-        std::vector<char>   byteCode;
-        VkShaderModule      shaderModule = nullptr;
-    };
+struct Shader {
+    ShaderStage       stage = ShaderStage::VERTEX;
+    std::vector<char> byteCode;
+    VkShaderModule    shaderModule = nullptr;
+};
 
-}
-
+} // namespace netero::graphics

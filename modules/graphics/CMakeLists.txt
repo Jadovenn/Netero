@@ -56,15 +56,14 @@ list(APPEND PUBLIC_HEADER
 list(APPEND SRCS
         application.cpp
         context.cpp
-        device.cpp
-        descriptor_set.cpp
+        vk_device.cpp
+        vk_descriptor_set.cpp
+        vk_texture.cpp
+        vk_vertex_buffer.cpp
         pipeline/pipeline.cpp
         pipeline/vk_pipeline_uniform_buffer.cpp
         model/model.cpp
-        model/vertex.cpp
         model/vk_model_pipeline.cpp
-        model/vk_model_texture.cpp
-        texture/vkTexture.cpp
         utils/vkUtils.hpp
         utils/vkCheckValidationLayerSupport.cpp
         utils/vkExtentionLoaders.cpp

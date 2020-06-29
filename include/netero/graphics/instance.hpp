@@ -6,10 +6,14 @@
 #pragma once
 
 #define GLM_FORCE_RADIANS
+
+#include <array>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <netero/graphics/axis.hpp>
 #include <vulkan/vulkan.h>
+
+#include <netero/graphics/axis.hpp>
 
 namespace netero::graphics {
 
