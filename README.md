@@ -6,7 +6,9 @@
 [![codecov](https://codecov.io/gh/domage-j/netero/branch/develop/graph/badge.svg)](https://codecov.io/gh/domage-j/netero)
 [![Discord](https://img.shields.io/discord/621011079417298944?color=blue&label=Netero&logo=discord)](https://discord.gg/bUMjEKj)
 
-Netero's libs help you create application with real-time problematics, events managements and deal with shared ressources.
+
+Netero's libs help you create applications with real-time problems, events management, and deal with shared resources.
+
 
 Netero aims to expose monolithic containers and patterns working beside the STL
 in the most generic way. I tried to make as much as possible Netero features supported
