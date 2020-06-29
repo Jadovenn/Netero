@@ -3,11 +3,13 @@
  * see LICENSE.txt
  */
 
-#include "utils/vkUtils.hpp"
+#include <stdexcept>
 
 #include <netero/extra/stb_image.h>
+#include <netero/graphics/device.hpp>
 #include <netero/graphics/texture.hpp>
-#include <stdexcept>
+
+#include "utils/vkUtils.hpp"
 
 namespace netero::graphics {
 Texture::Texture(Device* device): _device(device)
@@ -31,7 +33,6 @@ Texture::~Texture()
 
 void Texture::release()
 {
-    // vkDestroyDescriptorPool(this->_device->logicalDevice, this->_descriptorPool, nullptr);
 }
 
 void Texture::transferTextureToGPU()
