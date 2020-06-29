@@ -6,66 +6,59 @@
 #pragma once
 
 #include <vector>
+
 #include <vulkan/vulkan.h>
-#include <netero/graphics/device.hpp>
 
 namespace netero::graphics {
 
-    class Model;
+class Device;
+class Model;
 
-    struct Pipeline {
-   private:
-        void createSwapchain();
-        void createUniformBuffers();
-        //void createDescriptorPool();
-        //void createDescriptorSets();
-        //void createDescriptorSetLayoutBinding();
-        void createImageViews();
-        void createRenderPass();
-        void createFrameBuffers();
-        void createCommandPool();
-        void createCommandBuffers(std::vector<Model*>&);
+class Pipeline {
+    void createSwapchain();
+    void createImageViews();
+    void createUniformBuffers();
+    void createRenderPass();
+    void createFrameBuffers();
+    void createCommandPool();
+    void createCommandBuffers(std::vector<Model*>&);
 
-        VkInstance          _instance;
-        uint32_t            _imageCount;
-        Device*             _device;
-        VkRenderPass        _renderPass;
-        VkPipelineLayout    _pipelineLayout;
-        VkPipeline          _graphicsPipeline;
-        VkCommandPool       _commandPool;
-        VkFormat            _swapchainImageFormat = VK_FORMAT_UNDEFINED;
-        std::vector<VkImageView>        _swapchainImageViews;
-        std::vector<VkFramebuffer>      _swapchainFrameBuffers;
+    VkInstance                 _instance;
+    uint32_t                   _imageCount;
+    Device*                    _device;
+    VkRenderPass               _renderPass;
+    VkPipelineLayout           _pipelineLayout;
+    VkPipeline                 _graphicsPipeline;
+    VkCommandPool              _commandPool;
+    VkFormat                   _swapchainImageFormat = VK_FORMAT_UNDEFINED;
+    std::vector<VkImageView>   _swapchainImageViews;
+    std::vector<VkFramebuffer> _swapchainFrameBuffers;
 
-        // UBO related
-        std::vector<VkBuffer>           _uniformBuffers;
-        std::vector<VkDeviceMemory>     _uniformBuffersMemory;
-        //VkDescriptorPool                _descriptorPool;
-        //VkDescriptorSetLayout           _descriptorSetLayout;
-        //std::vector<VkDescriptorSet>    _descriptorSets;
+    // UBO related
+    std::vector<VkBuffer>       _uniformBuffers;
+    std::vector<VkDeviceMemory> _uniformBuffersMemory;
 
     public:
-        Pipeline(VkInstance, Device*);
-        Pipeline(const Pipeline&) = delete;
-        Pipeline(Pipeline&&) = delete;
-        Pipeline& operator=(const Pipeline&) = delete;
-        Pipeline& operator=(Pipeline&&) = delete;
-        ~Pipeline();
+    Pipeline(VkInstance, Device*);
+    Pipeline(const Pipeline&) = delete;
+    Pipeline(Pipeline&&) = delete;
+    Pipeline& operator=(const Pipeline&) = delete;
+    Pipeline& operator=(Pipeline&&) = delete;
+    ~Pipeline();
 
-        void    build(std::vector<Model*>&);
-        void    rebuild(std::vector<Model*>&);
-        void    release();
-        void    update(uint32_t);
+    void build(std::vector<Model*>&);
+    void rebuild(std::vector<Model*>&);
+    void release();
+    void update(uint32_t);
 
-        void buildModels(std::vector<Model*>&);
-        void rebuildModels(std::vector<Model*>&);
-        void releaseModels(std::vector<Model*>&) const;
+    void buildModels(std::vector<Model*>&);
+    void rebuildModels(std::vector<Model*>&);
+    void releaseModels(std::vector<Model*>&) const;
 
-        VkSwapchainKHR                  swapchain;
-        VkExtent2D                      swapchainExtent = {0, 0};
-        std::vector<VkImage>            swapchainImages;
-        std::vector<VkCommandBuffer>    commandBuffers;
-    };
+    VkSwapchainKHR               swapchain;
+    VkExtent2D                   swapchainExtent = { 0, 0 };
+    std::vector<VkImage>         swapchainImages;
+    std::vector<VkCommandBuffer> commandBuffers;
+};
 
-}
-
+} // namespace netero::graphics
