@@ -13,6 +13,7 @@ message(STATUS "Configure Netero libs")
 
 list(APPEND PUBLIC_HEADER
         ${HEADERS_DIRECTORY}/netero.hpp
+        ${HEADERS_DIRECTORY}/exception.hpp
         ${HEADERS_DIRECTORY}/type_id.hpp)
 
 ##====================================
