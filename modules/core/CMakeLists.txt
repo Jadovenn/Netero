@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.11...3.16)
-project(netero_core
+project(netero
         VERSION 1.0
         DESCRIPTION "Real time utility library"
         LANGUAGES CXX)
@@ -8,62 +8,46 @@ message(STATUS "Configure Netero libs")
 
 
 ##====================================
-##  Core Sources
+##  Sources
 ##====================================
+
+set(CORE_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
+set(CORE_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
 
 list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/netero.hpp
-        ${HEADERS_DIRECTORY}/exception.hpp
-        ${HEADERS_DIRECTORY}/type_id.hpp)
-
-##====================================
-##  Algorithms Sources
-##====================================
-
-list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/avl.hpp
-        ${HEADERS_DIRECTORY}/set.hpp
-        ${HEADERS_DIRECTORY}/buffer.hpp)
-
-##====================================
-##  Pool sources
-##====================================
-
-list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/pool/worker.hpp)
-list(APPEND SRCS
-        pool/worker.cpp)
-
-##====================================
-##  Oberver sources
-##====================================
-list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/observer/IObserverDelegate.hpp
-        ${HEADERS_DIRECTORY}/observer/signal.hpp
-        ${HEADERS_DIRECTORY}/observer/slot.hpp)
+## Core
+        public/netero/netero.hpp
+        public/netero/exception.hpp
+        public/netero/type_id.hpp
+## Algo
+        public/netero/avl.hpp
+        public/netero/set.hpp
+        public/netero/buffer.hpp
+## OS
+        public/netero/os.hpp
+)
 
 ##====================================
 ##  Os sources
 ##====================================
-list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/os.hpp)
+
 if(MOCK_INTERFACES)
     list(APPEND SRCS
-        os/mockOsHelpers.cpp)
+        private/os/mockOsHelpers.cpp)
 else()
     if(WIN32)
         list(APPEND SRCS
-            os/windowsOsHelpers.cpp)
+            private/os/windowsOsHelpers.cpp)
         list(APPEND LINK_LIBRARIES
             Userenv)
     endif(WIN32)
     if(APPLE)
         list(APPEND SRCS
-                os/macOsHelpers.cpp)
+                private/os/macOsHelpers.cpp)
     endif(APPLE)
     if(UNIX AND NOT APPLE)
         list(APPEND SRCS
-                os/unixOsHelpers.cpp)
+                private/os/unixOsHelpers.cpp)
     endif(UNIX AND NOT APPLE)
 endif(MOCK_INTERFACES)
 
@@ -71,63 +55,64 @@ endif(MOCK_INTERFACES)
 ##====================================
 ##  Targets
 ##====================================
+
 if (APPLE)
     FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
     list(APPEND LINK_LIBRARIES
             ${COREFOUNDATION_LIBRARY})
 endif(APPLE)
 
-add_library(netero STATIC ${SRCS} ${PUBLIC_HEADER})
-add_library(Netero::Core ALIAS netero)
-target_include_directories(netero
-	PUBLIC
-		$<INSTALL_INTERFACE:include>
-		$<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
-)
-target_include_directories(netero
+add_library(Netero STATIC ${SRCS} ${PUBLIC_HEADER})
+target_compile_features(Netero PUBLIC cxx_std_17)
+target_include_directories(Netero
         PUBLIC
             $<INSTALL_INTERFACE:include>
-            $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
+            $<BUILD_INTERFACE:${CORE_PUBLIC}>
 )
-target_link_libraries(netero ${LINK_LIBRARIES})
+target_link_libraries(Netero ${LINK_LIBRARIES})
+
 if(WIN32 AND WIN32_STATIC)
-    set_property(TARGET netero PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
+    set_property(TARGET Netero PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
 endif()
 
-target_compile_features(netero PUBLIC cxx_std_17)
+add_library(Netero::Netero ALIAS Netero)
+
+##====================================
+##  Global Variables
+##====================================
+
+set(Netero_FOUND True CACHE INTERNAL "Netero FOUND flag.")
+
+set(Netero_INCLUDE_DIRS
+        ${Netero_INCLUDE_DIRS}
+        ${CORE_PUBLIC} CACHE INTERNAL "Netero include directories.")
 
 ##====================================
 ##  Install rules
 ##====================================
 
-install(TARGETS netero
-        EXPORT netero-export
+install(TARGETS Netero
+        EXPORT Netero-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install(EXPORT netero-export
+install(EXPORT Netero-export
         FILE
-            neteroTargets.cmake
+            NeteroTargets.cmake
         NAMESPACE
             Netero::
         DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/lib/cmake/netero)
+            ${CMAKE_INSTALL_PREFIX}/cmake/netero)
 
-## Core directory
-install(FILES
-            ${HEADERS_DIRECTORY}/netero.hpp
-            ${HEADERS_DIRECTORY}/avl.hpp
-            ${HEADERS_DIRECTORY}/set.hpp
-        DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/include/netero)
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/core
-		DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
-		FILES_MATCHING PATTERN "*.hpp")
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/pool
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
+install(DIRECTORY public/netero
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include
         FILES_MATCHING PATTERN "*.hpp")
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/observer
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
-        FILES_MATCHING PATTERN "*.hpp")
+
+##====================================
+##  Tests
+##====================================
+
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING AND NETERO_UNIT_TEST)
+    add_subdirectory(tests)
+endif()
 

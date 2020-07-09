@@ -11,9 +11,37 @@ project(netero
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENTIONS OFF)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Real time utility library.")
+    set(CPACK_PACKAGE_VENDOR "Netero")
+    set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+    set(CPACK_PACKAGE_VERSION_MAJOR "0")
+    set(CPACK_PACKAGE_VERSION_MINOR "0")
+    set(CPACK_PACKAGE_VERSION_PATCH "1")
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
+    if(WIN32 AND NOT UNIX)
+      # There is a bug in NSI that does not handle full UNIX paths properly.
+      # Make sure there is at least one set of four backlashes.
+      set(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+      set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
+      set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
+      set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
+      set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.my-personal-home-page.com")
+      set(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
+      set(CPACK_NSIS_MODIFY_PATH ON)
+    else()
+      set(CPACK_STRIP_FILES "bin/MyExecutable")
+      set(CPACK_SOURCE_STRIP_FILES "")
+    endif()
+    set(CPACK_PACKAGE_EXECUTABLES "MyExecutable" "My Executable")
+
+
     ##find_package(Doxygen)
     include(CTest)
+    include(CPack)
     enable_testing()
+    include(cmake/add_test_project.cmake)
     if(Doxygen_FOUND)
         add_subdirectory(docs)
     else()
@@ -35,24 +63,20 @@ add_compile_options("$<$<CONFIG:RELEASE>:-O2>")
 ##====================================
 
 ## Submodule config
-OPTION(NETERO_ECS "ecs, contain Entity Component System architecture" ON)
-OPTION(NETERO_AUDIO "Audio engine" ON)
-OPTION(NETERO_GRAPHICS "Graphics component based on ecs submodule" ON)
+OPTION(NETERO_AUDIO "Audio module library." ON)
+OPTION(NETERO_GRAPHICS "Graphics module library." ON)
+OPTION(NETERO_PATTERNS "Patterns module library." ON)
 OPTION(NETERO_EXTRA "Self hosted STB lib components." ON)
-OPTION(NETERO_MEMCHECK "Lightweight memory checker." ON)
+OPTION(NETERO_MEMCHECK "Memory checker library." ON)
 
 ## Other config
 OPTION(NETERO_UNIT_TEST "Netero unit tests." OFF)
-OPTION(NETERO_TOOLS "Netero additional tools." OFF)
+OPTION(NETERO_SAMPLES "Netero samples." OFF)
 
 ## Build config mainly for CI
 OPTION(WIN32_STATIC "Link statically with win32's dll" OFF)
 OPTION(CODE_COVERAGE "Enable coverage reporting" OFF)
 OPTION(MOCK_INTERFACES "Enable mock interfaces" OFF)
-
-set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
-set(netero_INCLUDE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Add required flags (GCC & LLVM/Clang)
@@ -70,7 +94,7 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 if (NETERO_GRAPHICS)
-    include(cmake/netero-graphics-function.cmake)
+    include(cmake/add_graphics_function.cmake)
 endif(NETERO_GRAPHICS)
 
 ##====================================
@@ -82,18 +106,15 @@ if (NETERO_AUDIO)
     add_subdirectory(modules/audio)
 endif(NETERO_AUDIO)
 
-if (NETERO_ECS)
-    add_subdirectory(modules/ecs)
-endif(NETERO_ECS)
+if (NETERO_PATTERNS)
+    add_subdirectory(modules/patterns)
+endif(NETERO_PATTERNS)
 
 if (NETERO_EXTRA)
     add_subdirectory(modules/extra)
 endif(NETERO_EXTRA)
 
 if(NETERO_GRAPHICS)
-    if(NOT NETERO_ECS)
-        message(FATAL_ERROR "GRAPHICS rely on ECS, ECS must be activated")
-    endif(NOT NETERO_ECS)
     if(NOT NETERO_EXTRA)
         message(FATAL_ERROR "GRAPHICS rely on EXTRA, EXTRA must be activated")
     endif(NOT NETERO_EXTRA)
@@ -104,22 +125,13 @@ if(NETERO_MEMCHECK)
     add_subdirectory(modules/memcheck)
 endif(NETERO_MEMCHECK)
 
-if(NETERO_TOOLS)
-    add_subdirectory(tools)
-endif(NETERO_TOOLS)
+if(NETERO_SAMPLES)
+    add_subdirectory(samples)
+endif(NETERO_SAMPLES)
 
 ##====================================
 ##  Global install rules
 ##====================================
 
-install(FILES cmake/netero-config.cmake
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-
-##====================================
-##  Tests
-##====================================
-
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING AND NETERO_UNIT_TEST)
-    add_subdirectory(tests)
-endif()
-
+install(FILES cmake/Netero-config.cmake
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake)

@@ -7,54 +7,68 @@ project(neteroExtra
 message(STATUS "Configure Netero extra submodule")
 
 ##====================================
-##  Generic extra
+##  Sources
 ##====================================
 
+set(EXTRA_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
+set(EXTRA_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
+
 list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/extra/stb_image.h
-        ${HEADERS_DIRECTORY}/extra/stb_image_resize.h
-        ${HEADERS_DIRECTORY}/extra/stb_image_write.h)
+        public/netero/extra/stb_image.h
+        public/netero/extra/stb_image_resize.h
+        public/netero/extra/stb_image_write.h)
 list(APPEND SRCS
-        stb_image.c
-        stb_image_resize.c
-        stb_image_write.c)
+        private/stb_image.c
+        private/stb_image_resize.c
+        private/stb_image_write.c)
 
 ##====================================
 ##  Target
 ##====================================
 
-add_library(neteroExtra STATIC ${SRCS} ${PUBLIC_HEADER})
-add_library(Netero::Extra ALIAS neteroExtra)
-target_compile_features(neteroExtra PUBLIC cxx_std_17)
-target_include_directories(neteroExtra
+add_library(NeteroExtra STATIC ${SRCS} ${PUBLIC_HEADER})
+target_compile_features(NeteroExtra PUBLIC cxx_std_17)
+target_include_directories(NeteroExtra
         PUBLIC
             $<INSTALL_INTERFACE:include>
-            $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>)
+            $<BUILD_INTERFACE:${EXTRA_PUBLIC}>)
 
 if(WIN32 AND WIN32_STATIC)
-    set_property(TARGET neteroExtra PROPERTY
+    set_property(TARGET NeteroExtra PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
 endif()
+
+add_library(Netero::Extra ALIAS NeteroExtra)
+
+##====================================
+##  Cached Variables
+##====================================
+
+set(Netero_Extra_FOUND True CACHE INTERNAL "Netero Extra FOUND flag.")
+
+set(Netero_INCLUDE_DIRS
+        ${Netero_INCLUDE_DIRS}
+        ${Extra_PUBLIC} CACHE INTERNAL "Netero include directories.")
 
 ##====================================
 ##  Installation
 ##====================================
 
-install(TARGETS neteroExtra
-        EXPORT extra-export
+install(TARGETS NeteroExtra
+        EXPORT NeteroExtra-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install(EXPORT extra-export
+install(EXPORT NeteroExtra-export
         FILE
-            extraTargets.cmake
+            NeteroExtraTargets.cmake
         NAMESPACE
             Netero::
         DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/lib/cmake/netero)
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/extra
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
+            ${CMAKE_INSTALL_PREFIX}/cmake/netero)
+install(DIRECTORY public/netero
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include
         FILES_MATCHING PATTERN "*.hpp")
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/extra
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
+install(DIRECTORY public/netero
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include
         FILES_MATCHING PATTERN "*.h")

@@ -1,13 +1,13 @@
 cmake_minimum_required (VERSION 3.11...3.16)
-project(netero_graphics
+project(NeteroGraphics
         VERSION 0.1.0
-        DESCRIPTION "Netero graphics submodule"
+        DESCRIPTION "Netero graphics module"
         LANGUAGES CXX)
 
-message(STATUS "Configure Netero graphics submodule")
+message(STATUS "Configure Netero Grahpics module.")
 
 ##====================================
-##  Dependency
+##  Extern Dependencies
 ##====================================
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -28,93 +28,110 @@ FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm.git
 )
-FetchContent_GetProperties(glm)
-if(NOT glm_POPULATED)
-    FetchContent_Populate(glm)
-    set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
-    add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
-endif()
+FetchContent_MakeAvailable(glm)
+#FetchContent_GetProperties(glm)
+#if(NOT glm_POPULATED)
+#    FetchContent_Populate(glm)
+#    set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
+#    add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
+#endif()
 
 ##====================================
-##  Generic core
+##  Sources
 ##====================================
+
+set(GRAPHICS_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
+set(GRAPHICS_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
 
 list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/graphics/window.hpp
-        ${HEADERS_DIRECTORY}/graphics/application.hpp
-        ${HEADERS_DIRECTORY}/graphics/context.hpp
-        ${HEADERS_DIRECTORY}/graphics/device.hpp
-        ${HEADERS_DIRECTORY}/graphics/axis.hpp
-        ${HEADERS_DIRECTORY}/graphics/instance.hpp
-        ${HEADERS_DIRECTORY}/graphics/model.hpp
-        ${HEADERS_DIRECTORY}/graphics/descriptor_set.hpp
-        ${HEADERS_DIRECTORY}/graphics/shader.hpp
-        ${HEADERS_DIRECTORY}/graphics/vertex.hpp
-        ${HEADERS_DIRECTORY}/graphics/texture.hpp
-        ${HEADERS_DIRECTORY}/graphics/pipeline.hpp)
+        public/netero/graphics/window.hpp
+        public/netero/graphics/application.hpp
+        public/netero/graphics/context.hpp
+        public/netero/graphics/device.hpp
+        public/netero/graphics/axis.hpp
+        public/netero/graphics/instance.hpp
+        public/netero/graphics/model.hpp
+        public/netero/graphics/descriptor_set.hpp
+        public/netero/graphics/shader.hpp
+        public/netero/graphics/vertex.hpp
+        public/netero/graphics/texture.hpp
+        public/netero/graphics/pipeline.hpp)
 
 list(APPEND SRCS
-        application.cpp
-        context.cpp
-        vk_device.cpp
-        vk_descriptor_set.cpp
-        vk_texture.cpp
-        vk_vertex_buffer.cpp
-        pipeline/pipeline.cpp
-        pipeline/vk_pipeline_uniform_buffer.cpp
-        model/model.cpp
-        model/vk_model_pipeline.cpp
-        utils/vkUtils.hpp
-        utils/vkCheckValidationLayerSupport.cpp
-        utils/vkExtentionLoaders.cpp
-        utils/vkDebugCallbacks.cpp
-        utils/vkFindQueueFamilies.cpp
-        utils/vkSwapChainSupport.cpp
-        utils/vkCommandBuffer.cpp
-        utils/vkMemory.cpp
-        utils/vkTransferCommand.cpp)
+        private/application.cpp
+        private/context.cpp
+        private/vk_device.cpp
+        private/vk_descriptor_set.cpp
+        private/vk_texture.cpp
+        private/vk_vertex_buffer.cpp
+        private/pipeline/pipeline.cpp
+        private/pipeline/vk_pipeline_uniform_buffer.cpp
+        private/model/model.cpp
+        private/model/vk_model_pipeline.cpp
+        private/utils/vkUtils.hpp
+        private/utils/vkCheckValidationLayerSupport.cpp
+        private/utils/vkExtentionLoaders.cpp
+        private/utils/vkDebugCallbacks.cpp
+        private/utils/vkFindQueueFamilies.cpp
+        private/utils/vkSwapChainSupport.cpp
+        private/utils/vkCommandBuffer.cpp
+        private/utils/vkMemory.cpp
+        private/utils/vkTransferCommand.cpp)
 
 ##====================================
 ##  Target
 ##====================================
 
-add_library(neteroGraphics STATIC ${SRCS} ${PUBLIC_HEADER})
-add_library(Netero::Graphics ALIAS neteroGraphics)
-target_compile_features(neteroGraphics PUBLIC cxx_std_17)
-target_include_directories(neteroGraphics
+add_library(NeteroGraphics STATIC ${SRCS} ${PUBLIC_HEADER})
+add_dependencies(NeteroGraphics Netero NeteroExtra)
+target_compile_features(NeteroGraphics PUBLIC cxx_std_17)
+target_include_directories(NeteroGraphics
         PUBLIC
         $<INSTALL_INTERFACE:include>
-        $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
         $<BUILD_INTERFACE:${Vulkan_INCLUDE_DIRS}>
         $<BUILD_INTERFACE:${glm_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${GRAPHICS_PUBLIC}>
         PRIVATE
         $<BUILD_INTERFACE:${glfw_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-message(STATUS "GLM headers: ${glm_SOURCE_DIR}")
-target_link_libraries(neteroGraphics
+        $<BUILD_INTERFACE:${Netero_INCLUDE_DIRS}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>)
+target_link_libraries(NeteroGraphics
         PUBLIC
-            neteroExtra
+            Netero
+            NeteroExtra
         PRIVATE
             Vulkan::Vulkan
             glfw)
+
+add_library(Netero::Graphics ALIAS NeteroGraphics)
+
+##====================================
+##  Cached Variables
+##====================================
+
+set(Netero_Graphics_FOUND True CACHE INTERNAL "Netero graphics FOUND flag.")
+
+set(Netero_INCLUDE_DIRS
+        ${Netero_INCLUDE_DIRS}
+        ${GRAPHICS_PUBLIC} CACHE INTERNAL "Netero include directories.")
 
 ##====================================
 ##  Installation
 ##====================================
 
-install(TARGETS neteroGraphics
-        EXPORT graphics-export
+install(TARGETS NeteroGraphics
+        EXPORT NeteroGraphics-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install(EXPORT graphics-export
+install(EXPORT NeteroGraphics-export
         FILE
-            graphicsTargets.cmake
+            NeteroGraphicsTargets.cmake
         NAMESPACE
             Netero::
         DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/lib/cmake/netero)
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/graphics
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
+            ${CMAKE_INSTALL_PREFIX}/cmake/netero)
+install(DIRECTORY public/netero
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include
         FILES_MATCHING PATTERN "*.hpp")
 
