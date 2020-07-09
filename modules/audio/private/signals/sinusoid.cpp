@@ -3,6 +3,7 @@
  * see LICENSE.txt
  */
 
+#include <cmath>
 #include <netero/audio/signals.hpp>
 
 netero::audio::signals::sinusoid::sinusoid(const float amplitude,

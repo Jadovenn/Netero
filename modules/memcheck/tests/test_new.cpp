@@ -4,16 +4,18 @@
  */
 
 #include <iostream>
+
 #include <netero/memcheck/new.hpp>
 
 class test {
-public:
+    public:
     test() { std::cout << ">>> test::ctor" << std::endl; }
     ~test() { std::cout << ">>> test::dtor" << std::endl; }
     int value = 0;
 };
 
-void test_mem_corruption() {
+void test_mem_corruption()
+{
     netero::memchk::activate_memcorruption_detection();
     auto* nb = new int;
     nb[0] = 42;
@@ -22,15 +24,16 @@ void test_mem_corruption() {
     netero::memchk::deactivate_memcorruption_detection();
 }
 
-void test_ctor_call() {
+void test_ctor_call()
+{
     auto* object = new test;
     object->value = 42;
     delete object;
 }
 
-int main() {
+int main()
+{
     test_ctor_call();
     test_mem_corruption();
     return 0;
 }
-

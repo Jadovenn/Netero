@@ -47,7 +47,7 @@ namespace numbers {
 #elif defined(__has_builtin)
 
 #if __has_builtin(__builtin_debugtrap)
-#define BREAK __buitin_debugtrp()
+#define BREAK __builtin_debugtrap()
 #else // ELSE __has_builtin
 #define BREAK __asm__("int $03")
 #endif // __builtin debug trap

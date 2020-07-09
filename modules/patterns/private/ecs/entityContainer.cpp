@@ -7,20 +7,21 @@
 
 namespace netero::ecs {
 
-	EntityContainer::EntityContainer(World *world, const std::string &name)
-		:	id{name},
-			_world(world),
-			status(false)
-	{}
-
-	EntityContainer::~EntityContainer() {
-		for (auto &comp : _components) {
-			delete comp.second;
-		}
-	}
-
-	World	*EntityContainer::getWorld() {
-		return _world;
-	}
-
+EntityContainer::EntityContainer(World *world, const std::string &name)
+    : id { name }, _world(world), status(false)
+{
 }
+
+EntityContainer::~EntityContainer()
+{
+    for (auto &comp : _components) {
+        delete comp.second;
+    }
+}
+
+World *EntityContainer::getWorld()
+{
+    return _world;
+}
+
+} // namespace netero::ecs

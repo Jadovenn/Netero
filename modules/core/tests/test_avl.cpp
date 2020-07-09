@@ -9,10 +9,12 @@
 #include <cassert>
 #include <iostream>
 #include <memory>
+
 #include <netero/avl.hpp>
 
-void basic_test() {
-    netero::avl<int>        avl_tree;
+void basic_test()
+{
+    netero::avl<int> avl_tree;
 
     avl_tree.add(5);
     avl_tree.add(2);
@@ -25,7 +27,7 @@ void basic_test() {
     assert(avl_tree.search(1));
     assert(!avl_tree.search(23));
     std::cout << "Range base for-loop compatibility:" << std::endl;
-    for (const auto &e: avl_tree) { // perform in-order traversal
+    for (const auto &e : avl_tree) { // perform in-order traversal
         std::cout << e << std::endl;
     }
     avl_tree.remove(1);
@@ -35,13 +37,18 @@ void basic_test() {
     avl_tree.display();
 }
 
-void    ctor_and_operator_test() {
-    netero::avl<int>         tree1;
-    tree1.add(1);tree1.add(2);tree1.add(3);tree1.add(4);
-    netero::avl<int>          tree2(tree1);
+void ctor_and_operator_test()
+{
+    netero::avl<int> tree1;
+    tree1.add(1);
+    tree1.add(2);
+    tree1.add(3);
+    tree1.add(4);
+    netero::avl<int> tree2(tree1);
     assert(tree2.search(1));
-    std::shared_ptr<netero::avl<int>>   tree3 = std::make_shared<netero::avl<int>>();
-    tree3->add(42);tree3->add(45);
+    std::shared_ptr<netero::avl<int>> tree3 = std::make_shared<netero::avl<int>>();
+    tree3->add(42);
+    tree3->add(45);
     tree2 = *tree3;
     assert(!tree2.search(1));
     assert(tree2.search(42));
@@ -50,7 +57,8 @@ void    ctor_and_operator_test() {
     tree3.reset();
 }
 
-int     main() {
+int main()
+{
     basic_test();
     ctor_and_operator_test();
     return 0;

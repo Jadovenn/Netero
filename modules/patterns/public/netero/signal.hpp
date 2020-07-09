@@ -25,13 +25,13 @@ template<class T>
 class signal;
 
 /**
-	 * @class signal
-	 * @see netero::slot
-	 * @brief Event container that could emit signals.
-	 * @tparam rType Return type of the signals.
-	 * @tparam argsType Variadic types of arguments of the signal.
-	 * The signal container propagate a function call to multiple slot.
-	 */
+ * @class signal
+ * @see netero::slot
+ * @brief Event container that could emit signals.
+ * @tparam rType Return type of the signals.
+ * @tparam argsType Variadic types of arguments of the signal.
+ * The signal container propagate a function call to multiple slot.
+ */
 template<class rType, class... argsType>
 class signal<rType(argsType...)>: public IConnectibleDelegate {
     public:
@@ -40,15 +40,15 @@ class signal<rType(argsType...)>: public IConnectibleDelegate {
     signal() = default;
 
     /**
-	     * @brief Disconnect automatically all connected slots.
-	     */
+     * @brief Disconnect automatically all connected slots.
+     */
     ~signal() override { reset(); };
 
     /**
-		 * @brief Emit the signal.
-		 * @param args forwarded to slots.
-		 * This will emit a call to any connected slots.
-		 */
+     * @brief Emit the signal.
+     * @param args forwarded to slots.
+     * This will emit a call to any connected slots.
+     */
     void operator()(argsType... args)
     {
         std::scoped_lock<std::mutex> lock(_slotsMutex);
@@ -58,9 +58,9 @@ class signal<rType(argsType...)>: public IConnectibleDelegate {
     }
 
     /**
-		 * @brief Connect a slot.
-		 * @param connectable slot.
-		 */
+     * @brief Connect a slot.
+     * @param connectable slot.
+     */
     void connect(IConnectibleDelegate *connectable) final
     {
         std::scoped_lock<std::mutex> lock(_slotsMutex);
@@ -69,9 +69,9 @@ class signal<rType(argsType...)>: public IConnectibleDelegate {
     }
 
     /**
-		 * @brief Disconnect a slot.
-		 * @param connectable slot already connected.
-		 */
+     * @brief Disconnect a slot.
+     * @param connectable slot already connected.
+     */
     void disconnect(IConnectibleDelegate *connectable) final
     {
         std::scoped_lock<std::mutex> lock(_slotsMutex);
@@ -83,13 +83,13 @@ class signal<rType(argsType...)>: public IConnectibleDelegate {
     }
 
     /**
-		 * @return int - number of slot connected.
-		 */
+     * @return int - number of slot connected.
+     */
     int size() { return _slots.size(); }
 
     /**
-		 * @brief Reset the signal by disconnect it from all its slots.
-		 */
+     * @brief Reset the signal by disconnect it from all its slots.
+     */
     void reset()
     {
         std::scoped_lock<std::mutex> lock(_slotsMutex);

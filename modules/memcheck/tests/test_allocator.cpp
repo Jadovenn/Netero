@@ -1,21 +1,23 @@
 
 #include <iostream>
-#include <vector>
 #include <list>
+#include <vector>
+
 #include <netero/avl.hpp>
 #include <netero/memcheck/allocator.hpp>
 
 class test {
-public:
+    public:
     test() { std::cout << ">>> test::ctor" << std::endl; }
     ~test() { std::cout << ">>> test::dtor" << std::endl; }
 
     int value = 0;
 };
 
-void stl_basic_container_test() {
+void stl_basic_container_test()
+{
     std::cout << "stl_basic_container_test -- start" << std::endl;
-    std::vector<int, netero::memck::Allocator<int>>  myVector;
+    std::vector<int, netero::memck::Allocator<int>> myVector;
     myVector.push_back(42);
     myVector.resize(100);
     myVector.shrink_to_fit();
@@ -26,10 +28,12 @@ void stl_basic_container_test() {
     std::cout << "stl_basic_container_test -- end" << std::endl;
 }
 
-void on_class_test() {
+void on_class_test()
+{
     std::cout << "on_class_test -- start" << std::endl;
-    netero::memck::Allocator<test>  testAllocator;
-    auto* object = std::allocator_traits<netero::memck::Allocator<test>>::allocate(testAllocator, 1);
+    netero::memck::Allocator<test> testAllocator;
+    auto*                          object =
+        std::allocator_traits<netero::memck::Allocator<test>>::allocate(testAllocator, 1);
     std::allocator_traits<netero::memck::Allocator<test>>::construct(testAllocator, object);
     object->value = 42;
     std::allocator_traits<netero::memck::Allocator<test>>::destroy(testAllocator, object);
@@ -37,20 +41,28 @@ void on_class_test() {
     std::cout << "on_class_test -- end" << std::endl;
 }
 
-void rebind_test() {
+void rebind_test()
+{
     std::cout << "rebind_test -- start" << std::endl;
-    netero::memck::Allocator<int>  allocator;
-    netero::memck::Allocator<int>::rebind<char>::other  rebindAllocator;
+    netero::memck::Allocator<int>                      allocator;
+    netero::memck::Allocator<int>::rebind<char>::other rebindAllocator;
     auto* integer = std::allocator_traits<netero::memck::Allocator<int>>::allocate(allocator, 1);
-    auto* character = std::allocator_traits<netero::memck::Allocator<int>::rebind<char>::other>::allocate(rebindAllocator, 1);
+    auto* character =
+        std::allocator_traits<netero::memck::Allocator<int>::rebind<char>::other>::allocate(
+            rebindAllocator,
+            1);
     *integer = 42;
     *character = 'A';
-    std::allocator_traits<netero::memck::Allocator<int>::rebind<char>::other>::deallocate(rebindAllocator, character, 1);
+    std::allocator_traits<netero::memck::Allocator<int>::rebind<char>::other>::deallocate(
+        rebindAllocator,
+        character,
+        1);
     std::allocator_traits<netero::memck::Allocator<int>>::deallocate(allocator, integer, 1);
     std::cout << "rebind_test -- end" << std::endl;
 }
 
-void avl_test() {
+void avl_test()
+{
     std::cout << "avl_test -- start" << std::endl;
     netero::avl<int, netero::memck::Allocator<int>> memcheckAvl;
     memcheckAvl.add(5);
@@ -71,13 +83,15 @@ void avl_test() {
 }
 
 template<typename Allocator>
-void    test_wrong_behavior() {
-    netero::memck::Allocator<int>  allocator;
+void test_wrong_behavior()
+{
+    netero::memck::Allocator<int> allocator;
     auto* null = std::allocator_traits<netero::memck::Allocator<int>>::allocate(allocator, 0);
     auto* integer = std::allocator_traits<netero::memck::Allocator<int>>::allocate(allocator, 1);
 }
 
-int main() {
+int main()
+{
     stl_basic_container_test();
     on_class_test();
     rebind_test();
@@ -86,4 +100,3 @@ int main() {
     test_wrong_behavior<netero::memck::LoggerAllocator<int>>();
     return 0;
 }
-

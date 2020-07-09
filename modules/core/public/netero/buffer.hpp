@@ -19,13 +19,13 @@
 namespace netero {
 
 /**
-	 * @brief Thread safe circular buffer.
-	 * Buffer that support easy read and write in different threads.
-	 * It is implemented as a circular buffer, a read or write call could fail or not
-	 * write all block from the request. Be careful of returned values.
-     * @warning The size of the buffer is counted in block not byte.
-     *          For example an 32 bits integer will default construct a 4 blocks large buffer.
-	 */
+ * @brief Thread safe circular buffer.
+ * Buffer that support easy read and write in different threads.
+ * It is implemented as a circular buffer, a read or write call could fail or not
+ * write all block from the request. Be careful of returned values.
+ * @warning The size of the buffer is counted in block not byte.
+ *          For example an 32 bits integer will default construct a 4 blocks large buffer.
+ */
 template<class T,
          typename Allocator = std::allocator<T>,
          typename = std::enable_if<std::is_copy_assignable<T>::value>,
@@ -76,14 +76,14 @@ class shared_buffer {
     }
 
     /**
-         * @brief Copy operator, is deleted, because it could not safely lock copy mutex.
-         */
+     * @brief Copy operator, is deleted, because it could not safely lock copy mutex.
+     */
     shared_buffer& operator=(const shared_buffer& copy) = delete;
 
     /**
-         * @brief Move on assign operator.
-         * @warning The buffer of the container will be deleted and replaced.
-         */
+     * @brief Move on assign operator.
+     * @warning The buffer of the container will be deleted and replaced.
+     */
     shared_buffer& operator=(shared_buffer&& move) noexcept
     {
         std::scoped_lock<std::mutex> lock(this->_bufferMutex);
@@ -102,14 +102,14 @@ class shared_buffer {
     }
 
     /**
-         * Two container are equal if they point to the same buffer.
-         */
+     * Two container are equal if they point to the same buffer.
+     */
     bool operator==(const shared_buffer& other) const { return _buffer == other._buffer; }
 
     /**
-         * @brief Boolean test operator.
-         * A container is considered invalid if its buffer is null or size equal to 0.
-         */
+     * @brief Boolean test operator.
+     * A container is considered invalid if its buffer is null or size equal to 0.
+     */
     explicit operator bool() const { return !(_buffer == nullptr || _size == 0); }
 
     ~shared_buffer()
@@ -119,15 +119,15 @@ class shared_buffer {
     }
 
     /**
-         * @brief Size getter.
-         * Return the size of the internal buffer in block.
-         * @attention To have the size in byte -> bloc * sizeof(T)
-         */
+     * @brief Size getter.
+     * Return the size of the internal buffer in block.
+     * @attention To have the size in byte -> bloc * sizeof(T)
+     */
     [[nodiscard]] size_t getSize() const { return _size; }
 
     /**
-         * @brief Return the number of block valid for read operation.
-         */
+     * @brief Return the number of block valid for read operation.
+     */
     [[nodiscard]] int getPadding() const
     {
         if (_size == 0) {
@@ -149,10 +149,10 @@ class shared_buffer {
     }
 
     /**
-         * @brief Delete the internal buffer and assign a new size to it.
-         * @warning The internal buffer will be deleted.
-         * @warning May throw a bad_alloc exception!
-         */
+     * @brief Delete the internal buffer and assign a new size to it.
+     * @warning The internal buffer will be deleted.
+     * @warning May throw a bad_alloc exception!
+     */
     void reset(size_t block)
     {
         std::lock_guard<std::mutex> lock(this->_bufferMutex);
@@ -174,9 +174,9 @@ class shared_buffer {
     }
 
     /**
-         * @brief Clear the internal buffer. And reset any pending operation.
-         * @warning Any data will be lost and the buffer is now ready for write operation.
-         */
+     * @brief Clear the internal buffer. And reset any pending operation.
+     * @warning Any data will be lost and the buffer is now ready for write operation.
+     */
     void clear()
     {
         std::lock_guard<std::mutex> lock(this->_bufferMutex);
@@ -186,10 +186,10 @@ class shared_buffer {
     }
 
     /**
-         * @brief Read some blocks from the internal buffer.
-         * Perform a read operation. This will try to copy request size blocks from the internal buffer
-         * to a provided buffer. The real copied size is returned and may be different from the request.
-         */
+     * @brief Read some blocks from the internal buffer.
+     * Perform a read operation. This will try to copy request size blocks from the internal buffer
+     * to a provided buffer. The real copied size is returned and may be different from the request.
+     */
     int read(T* __restrict outBuffer, size_t blocks)
     {
         int readCount;
@@ -228,10 +228,10 @@ class shared_buffer {
     }
 
     /**
-         * @brief Write some blocks to the internal buffer.
-         * Perform a write operation. This will try to write request size blocks to the internal buffer
-         * from a provided buffer. The real written size is returned and may be different from the request.
-         */
+     * @brief Write some blocks to the internal buffer.
+     * Perform a write operation. This will try to write request size blocks to the internal buffer
+     * from a provided buffer. The real written size is returned and may be different from the request.
+     */
     int write(const T* __restrict inBuffer, size_t blocks)
     {
         int              writeCount;

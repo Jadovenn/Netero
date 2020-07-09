@@ -1,5 +1,8 @@
 
 ![Logo](docs/media/logo/logo+text.png)
+<p align="center">
+    <img src="docs/media/logo/logo+text.png" alt="Image" />
+</p>
 
 [![CircleCI](https://circleci.com/gh/domage-j/netero.svg?style=svg)](https://circleci.com/gh/domage-j/netero)
 [![Documentation](https://codedocs.xyz/domage-j/netero.svg)](https://codedocs.xyz/domage-j/netero/)

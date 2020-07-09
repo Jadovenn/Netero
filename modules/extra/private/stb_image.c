@@ -5,4 +5,3 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <netero/extra/stb_image.h>
-

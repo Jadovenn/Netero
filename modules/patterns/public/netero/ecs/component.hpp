@@ -8,14 +8,13 @@
 #include <netero/type_id.hpp>
 
 namespace netero {
-	namespace ecs {
+namespace ecs {
 
-		class Component {
-		public:
-			virtual ~Component() = default;
+    class Component {
+        public:
+        virtual ~Component() = default;
+    };
 
-		};
-
-		using ComponentTypeID = netero::TypeID<Component>;
-	}
-}
+    using ComponentTypeID = netero::TypeID<Component>;
+} // namespace ecs
+} // namespace netero
