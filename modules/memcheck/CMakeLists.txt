@@ -54,3 +54,10 @@ install(DIRECTORY public/netero/memcheck
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")
 
+##====================================
+##  Tests
+##====================================
+
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING AND NETERO_UNIT_TEST)
+    add_subdirectory(tests)
+endif()
