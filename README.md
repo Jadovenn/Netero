@@ -1,5 +1,4 @@
 
-![Logo](docs/media/logo/logo+text.png)
 <p align="center">
     <img src="docs/media/logo/logo+text.png" alt="Image" />
 </p>
