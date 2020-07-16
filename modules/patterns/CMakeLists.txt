@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.11...3.16)
-project(neteroECS
+project(neteroPattern
         VERSION 0.1.0
         DESCRIPTION "Netero patterns module"
         LANGUAGES CXX)
