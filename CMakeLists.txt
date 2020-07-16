@@ -31,6 +31,7 @@ add_compile_options("$<$<CONFIG:RELEASE>:-O2>")
 ##====================================
 
 ## Submodule config
+OPTION(NETERO_FAST "Fast module library." ON)
 OPTION(NETERO_AUDIO "Audio module library." ON)
 OPTION(NETERO_GRAPHICS "Graphics module library." ON)
 OPTION(NETERO_PATTERNS "Patterns module library." ON)
@@ -70,6 +71,11 @@ endif(NETERO_GRAPHICS)
 ##====================================
 
 add_subdirectory(modules/core)
+
+if (NETERO_FAST)
+    add_subdirectory(modules/fast)
+endif(NETERO_FAST)
+
 if (NETERO_AUDIO)
     add_subdirectory(modules/audio)
 endif(NETERO_AUDIO)
