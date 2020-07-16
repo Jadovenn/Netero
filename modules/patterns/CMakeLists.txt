@@ -20,6 +20,7 @@ list(APPEND PUBLIC_HEADER
         public/netero/ecs/component_filter.hpp
         public/netero/ecs/system.hpp
         public/netero/patterns/IObserver.hpp
+	public/netero/patterns/IFactory.hpp
         public/netero/signal.hpp
         public/netero/slot.hpp)
 list(APPEND SRCS
