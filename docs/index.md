@@ -28,9 +28,9 @@ be reuse in another submodules.
 
 Containers:
  * avl: balanced binary search tree
- * shared_buffer: thread safe circular buffer
+ * shared buffer: thread safe circular buffer
  * set: std::set with isSubsetOf and interWith feature
- * type_id: static type typeId container (needed for the ecs)
+ * type id: static type typeId container (needed for the ecs)
 
 The core contain an Observer pattern, with the following container:
  * slot: a callback holder container
@@ -45,7 +45,7 @@ Containers:
  * entity: entity container managed by a wolrd container
  * system: logic holder container fot entities
  * component: attributs holder container for entities
- * component_filter: filter container base on entities's componet for systems
+ * component filter: filter container base on entities's componet for systems
 
 ## Audio
 
