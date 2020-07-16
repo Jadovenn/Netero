@@ -1,15 +1,13 @@
 
 # Welcome to the Netero's documentation
 
-You will find all needed informations here. If you notice that something is missing,
-please open an issue on github.
+Many things are still work in progress this documentation might be very light but is better than nothing.
 
 ## Introduction
 
 Netero help you create application with real time problematics,
 events managment and deal with shared ressources.
 Netero is a set of libraries, each library is considered as a module.
-
 
 The project use cmake to generate and build the solution, it could be integrated
 using FetchContentAdd macro or threw a git submodule in your own solution. If you
