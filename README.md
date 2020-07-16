@@ -26,9 +26,9 @@ be reuse in another submodules.
 
 Containers:
  * avl: balanced binary search tree
- * shared_buffer: thread safe circular buffer
+ * shared buffer: thread safe circular buffer
  * set: std::set with isSubsetOf and interWith feature
- * type_id: static type typeId container (needed for the ecs)
+ * type id: static type typeId container (needed for the ecs)
  * os: namespace containing OS helper, like userlogin, home dir path...
 
 The core contain an Observer pattern, with the following container:
