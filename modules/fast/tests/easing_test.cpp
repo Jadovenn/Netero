@@ -10,7 +10,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(NeteoFast, test_quad_double)
+TEST(NeteroFast, test_quad_double)
 {
     double  values[] = { 0.2, 0.3 };
     __m128d xm_register = _mm_load_pd(values);
@@ -20,7 +20,7 @@ TEST(NeteoFast, test_quad_double)
     EXPECT_GT(0.1, values[1]);
 }
 
-TEST(NeterFast, test_quad_vector)
+TEST(NeteroFast, test_quad_vector)
 {
     float values[] = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 };
     netero::fast::quad(values, 8);
