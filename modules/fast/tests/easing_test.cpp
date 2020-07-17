@@ -8,56 +8,63 @@
 
 #include <netero/fast/easing.hpp>
 
-void test_quad_double()
+#include <gtest/gtest.h>
+
+TEST(NeteoFast, test_quad_double)
 {
-    double values[] = { 0.2, 0.3 };
-    std::cout << values[0] << " : " << values[1] << std::endl;
+    double  values[] = { 0.2, 0.3 };
     __m128d xm_register = _mm_load_pd(values);
     xm_register = netero::fast::quad(xm_register);
     _mm_store_pd(values, xm_register);
-    std::cout << values[0] << " : " << values[1] << std::endl;
+    EXPECT_GT(0.1, values[0]);
+    EXPECT_GT(0.1, values[1]);
 }
 
-void test_quad_vector()
+TEST(NeterFast, test_quad_vector)
 {
     float values[] = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 };
-    for (unsigned idx = 0; idx < 8; ++idx)
-        std::cout << values[idx] << " : ";
-    std::cout << std::endl;
     netero::fast::quad(values, 8);
-    for (unsigned idx = 0; idx < 8; ++idx)
-        std::cout << values[idx] << " : ";
-    std::cout << std::endl;
+    EXPECT_GT(0.1, values[0]);
+    EXPECT_GT(0.1, values[1]);
+    EXPECT_GT(0.1, values[2]);
+    EXPECT_GT(0.2, values[3]);
+    EXPECT_GT(0.3, values[4]);
+    EXPECT_GT(0.4, values[5]);
+    EXPECT_GT(0.5, values[6]);
+    EXPECT_GT(0.7, values[7]);
 }
 
-void perf_quad_classic()
+TEST(NeteroFast, compute_quad_speed)
 {
+    // Without SIMD
     float *tab = new float[8192];
     auto   start = std::chrono::high_resolution_clock::now();
     for (unsigned idx = 0; idx < 8192; ++idx)
         tab[idx] = netero::fast::quad(tab[idx]);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    std::cout << "Classic takes: " << duration << " microseconds." << std::endl;
+    std::cout << "\033[0;32m"
+              << "[     cout ] "
+              << "\033[0;0m"
+              << "Classic takes: " << duration << " microseconds." << std::endl;
     delete[] tab;
-}
 
-void perf_quad_simd()
-{
-    float *tab = new float[8192];
-    auto   start = std::chrono::high_resolution_clock::now();
+    // With SIMD
+    tab = new float[8192];
+    start = std::chrono::high_resolution_clock::now();
     netero::fast::quad(tab, 8192);
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    std::cout << "SIMD takes: " << duration << " microseconds." << std::endl;
+    end = std::chrono::high_resolution_clock::now();
+    auto duration_SIMD = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    std::cout << "\033[0;32m"
+              << "[     cout ] "
+              << "\033[0;0m"
+              << "SIMD takes: " << duration_SIMD << " microseconds." << std::endl;
     delete[] tab;
+    EXPECT_GT(duration, duration_SIMD);
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    test_quad_double();
-    test_quad_vector();
-    perf_quad_classic();
-    perf_quad_simd();
-    return 0;
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
