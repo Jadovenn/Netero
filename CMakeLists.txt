@@ -13,16 +13,22 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     include(CTest)
     include(CPack)
-    enable_testing()
     include(cmake/add_test_project.cmake)
+    include(FetchContent)
+    if(${CMAKE_VERSION} VERSION_LESS 3.14)
+        include(cmake/add_FetchContent_MakeAvailable.cmake)
+    endif()
+    if (NETERO_UNIT_TEST)
+        enable_testing()
+        FetchContent_Declare(
+            gtest
+            GIT_REPOSITORY https://github.com/google/googletest.git
+        )
+        FetchContent_MakeAvailable(gtest)
+    endif(NETERO_UNIT_TEST)
     source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
 endif()
 
-# FetchContent added in CMake 3.11, downloads during the configure step
-include(FetchContent)
-if(${CMAKE_VERSION} VERSION_LESS 3.14)
-    include(cmake/add_FetchContent_MakeAvailable.cmake)
-endif()
 
 add_compile_options("$<$<CONFIG:RELEASE>:-O2>")
 
