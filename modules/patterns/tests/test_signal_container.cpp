@@ -9,6 +9,8 @@
 
 #include <netero/signal.hpp>
 
+#include <gtest/gtest.h>
+
 class Subject {
     public:
     explicit Subject(const std::string &name): _name(name), _age(0) {}
@@ -33,15 +35,17 @@ class Observer {
 
     void notifyBirthday(const std::string &name, int age)
     {
-        std::cout << "Observer(" << this << ") ";
-        std::cout << "Happy birthday " << name;
-        std::cout << ", you have " << age << " now!" << std::endl;
+        std::cout << "\033[0;32m"
+                  << "[     cout ] "
+                  << "\033[0;0m"
+                  << "Observer(" << this << ") "
+                  << "Happy birthday " << name << ", you have " << age << " now!" << std::endl;
     }
 
     netero::slot<void(const std::string &, int)> onBirthday;
 };
 
-void basic_test()
+TEST(NeteroPatterns, basic_test)
 {
     Subject  bob("bob");
     Subject  marina("marina");
@@ -53,50 +57,39 @@ void basic_test()
 }
 
 // corrupt subject by connecting corrupted observer
-void corrupt_subject(Subject &subject)
+TEST(NeteroPatterns, corrupt_subject)
 {
+    Subject   subject("Bob");
+    Observer *notificationManager = new Observer;
+    subject.birthday.connect(&notificationManager->onBirthday);
+    delete notificationManager;
+    ++subject;
+}
+
+TEST(NeteroPatterns, corrupt_observer)
+{
+    Subject *bob = new Subject("bob");
     Observer notificationManager;
-    subject.birthday.connect(&notificationManager.onBirthday);
+    bob->birthday.connect(&notificationManager.onBirthday);
+    delete bob;
 }
 
-void delete_obs_before_call()
-{
-    auto *subject = new Subject("bob");
-    corrupt_subject(*subject);
-    ++*subject;
-}
-
-void corrupt_observer(Observer *obs)
-{
-    Subject bob("bob");
-    bob.birthday.connect(&obs->onBirthday);
-}
-
-void delete_subject_before_del_obs()
-{
-    Observer notificationManager;
-    corrupt_observer(&notificationManager);
-}
-
-void signal_connect_disconnect()
+TEST(NeteroPatterns, signal_connect_disconnect)
 {
     netero::signal<int(const int &, const int &)> signal;
     netero::slot<int(const int &, const int &)>   slot1;
     netero::slot<int(const int &, const int &)>   slot2;
     signal.connect(&slot1);
     signal.connect(&slot2);
-    assert(signal.size() == 2);
+    EXPECT_EQ(signal.size(), 2);
     signal.disconnect(&slot2);
-    assert(signal.size() == 1);
+    EXPECT_EQ(signal.size(), 1);
     signal.reset();
-    assert(signal.size() == 0);
+    EXPECT_EQ(signal.size(), 0);
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    basic_test();
-    delete_obs_before_call();
-    delete_subject_before_del_obs();
-    signal_connect_disconnect();
-    return 0;
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

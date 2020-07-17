@@ -20,11 +20,15 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     endif()
     if (NETERO_UNIT_TEST)
         enable_testing()
-        FetchContent_Declare(
-            gtest
-            GIT_REPOSITORY https://github.com/google/googletest.git
-        )
-        FetchContent_MakeAvailable(gtest)
+        find_package(GTest)
+        if (NOT GTest_FOUND)
+            message("-- Cloning GTest")
+            FetchContent_Declare(
+                GTest
+                GIT_REPOSITORY https://github.com/google/googletest.git
+            )
+            FetchContent_MakeAvailable(GTest)
+        endif(NOT GTest_FOUND)
     endif(NETERO_UNIT_TEST)
     source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
 endif()
