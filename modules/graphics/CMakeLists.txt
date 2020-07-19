@@ -93,7 +93,8 @@ target_include_directories(NeteroGraphics
         $<BUILD_INTERFACE:${GRAPHICS_PUBLIC}>
         PRIVATE
         $<BUILD_INTERFACE:${glfw_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${Netero_INCLUDE_DIRS}>
+        $<BUILD_INTERFACE:${Netero_Core_INCLUDE_DIRS}>
+        $<BUILD_INTERFACE:${Netero_Extra_INCLUDE_DIRS}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>)
 target_link_libraries(NeteroGraphics
         PUBLIC
@@ -111,9 +112,11 @@ add_library(Netero::Graphics ALIAS NeteroGraphics)
 
 set(Netero_Graphics_FOUND True CACHE INTERNAL "Netero graphics FOUND flag.")
 
+set(Netero_Graphics_INCLUDE_DIRS "${Graphics_PUBLIC}" CACHE INTERNAL "" FORCE)
+
 set(Netero_INCLUDE_DIRS
-        ${Netero_INCLUDE_DIRS}
-        ${GRAPHICS_PUBLIC} CACHE INTERNAL "Netero include directories.")
+        "${Netero_INCLUDE_DIRS}"
+        "${GRAPHICS_PUBLIC}" CACHE INTERNAL "Netero include directories.")
 
 ##====================================
 ##  Installation

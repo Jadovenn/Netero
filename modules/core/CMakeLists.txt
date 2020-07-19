@@ -83,9 +83,11 @@ add_library(Netero::Netero ALIAS Netero)
 
 set(Netero_FOUND True CACHE INTERNAL "Netero FOUND flag.")
 
+set(Netero_Core_INCLUDE_DIRS "${CORE_PUBLIC}" CACHE INTERNAL "" FORCE)
+
 set(Netero_INCLUDE_DIRS
-        ${Netero_INCLUDE_DIRS}
-        ${CORE_PUBLIC} CACHE INTERNAL "Netero include directories.")
+        "${CORE_PUBLIC}" CACHE INTERNAL "Netero include directories.")
+mark_as_advanced(Netero_INCLUDE_DIRS)
 
 ##====================================
 ##  Install rules

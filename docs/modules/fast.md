@@ -1,8 +1,10 @@
 
 # Fast Module
 
+![cat](../media/fast_cat_meme.jpg)
+
 <p align="center">
-    <img src="fast_cat_meme.jpg" height=200 alt=the fast cat meme" />
+    <img src="../media/fast_cat_meme.jpg" height=200 alt="the fast cat meme" />
 </p>
 
 The fast module expose maths functions and some are poweruped with SIMD instrics.

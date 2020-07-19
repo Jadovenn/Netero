@@ -21,18 +21,29 @@ list(APPEND SRCS
         private/new.cpp)
 
 add_library(NeteroMemcheck STATIC ${SRCS} ${PUBLIC_HEADER})
-add_dependencies(NeteroMemcheck Netero)
+add_dependencies(NeteroMemcheck Netero::Netero)
 target_compile_features(NeteroMemcheck PUBLIC cxx_std_17)
-target_link_libraries(NeteroMemcheck Netero)
 target_include_directories(NeteroMemcheck
     PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${MEMCHECK_PUBLIC}>
     PRIVATE
-        $<BUILD_INTERFACE:${Netero_INCLUDE_DIRS}>
+        $<BUILD_INTERFACE:${Netero_Core_INCLUDE_DIRS}>
 )
 
 add_library(Netero::Memcheck ALIAS NeteroMemcheck)
+
+##====================================
+##  Global Variables
+##====================================
+
+set(Netero_Memcheck_FOUND True CACHE INTERNAL "Netero Memcheck FOUND flag.")
+
+set(Netero_Memcheck_INCLUDE_DIRS "${MEMCHECK_PUBLIC}" CACHE INTERNAL "" FORCE)
+
+set(Netero_INCLUDE_DIRS
+        "${Netero_INCLUDE_DIRS}"
+        "${MEMCHECK_PUBLIC}" CACHE INTERNAL "Netero include directories.")
 
 ##====================================
 ##  Install rules

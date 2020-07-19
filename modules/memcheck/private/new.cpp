@@ -5,7 +5,6 @@
 
 #include <mutex>
 
-#include <netero/avl.hpp>
 #include <netero/memcheck/allocator.hpp>
 #include <netero/memcheck/block.hpp>
 #include <netero/netero.hpp>

@@ -12,4 +12,3 @@ add_unit_test(NAME easing_test
                 DEPENDS
                     gtest
                     Netero::Fast)
-

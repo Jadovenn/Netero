@@ -20,7 +20,7 @@ list(APPEND PUBLIC_HEADER
         public/netero/ecs/component_filter.hpp
         public/netero/ecs/system.hpp
         public/netero/patterns/IObserver.hpp
-	public/netero/patterns/IFactory.hpp
+        public/netero/patterns/IFactory.hpp
         public/netero/signal.hpp
         public/netero/slot.hpp)
 list(APPEND SRCS
@@ -33,14 +33,14 @@ list(APPEND SRCS
 ##====================================
 
 add_library(NeteroPatterns STATIC ${SRCS} ${PUBLIC_HEADER})
-add_dependencies(NeteroPatterns Netero)
+add_dependencies(NeteroPatterns Netero::Netero)
 target_compile_features(NeteroPatterns PUBLIC cxx_std_17)
 target_include_directories(NeteroPatterns
         PUBLIC
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${PATTERNS_PUBLIC}>
         PRIVATE
-            $<BUILD_INTERFACE:${Netero_INCLUDE_DIRS}>)
+            $<BUILD_INTERFACE:${Netero_Core_INCLUDE_DIRS}>)
 
 if(WIN32 AND WIN32_STATIC)
     set_property(TARGET NeteroPatterns PROPERTY
@@ -55,9 +55,11 @@ add_library(Netero::Patterns ALIAS NeteroPatterns)
 
 set(Netero_Patterns_FOUND True CACHE INTERNAL "Netero Patterns FOUND flag.")
 
+set(Netero_Patterns_INCLUDE_DIRS "${PATTERNS_PUBLIC}" CACHE INTERNAL "" FORCE)
+
 set(Netero_INCLUDE_DIRS
-        ${Netero_INCLUDE_DIRS}
-        ${PATTERNS_PUBLIC} CACHE INTERNAL "Netero include directories.")
+        "${Netero_INCLUDE_DIRS}"
+        "${PATTERNS_PUBLIC}" CACHE INTERNAL "Netero include directories.")
 
 ##====================================
 ##  Installation

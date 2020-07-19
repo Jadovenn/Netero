@@ -3,10 +3,11 @@
  * see LICENCE.txt
  */
 
-#include "netero/ecs/world.hpp"
-
 #include <algorithm>
 #include <iostream>
+
+#include <netero/ecs/world.hpp>
+#include <netero/type_id.hpp>
 
 namespace netero::ecs {
 
