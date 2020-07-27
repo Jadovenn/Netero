@@ -30,7 +30,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
 endif()
 
-
 add_compile_options("$<$<CONFIG:RELEASE>:-O2>")
 
 ##====================================
@@ -69,12 +68,20 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     endif()
 endif()
 
+##====================================
+##  Extra CMAKE script by modules
+##====================================
+
 if (NETERO_GRAPHICS)
     include(cmake/add_graphics_function.cmake)
 endif(NETERO_GRAPHICS)
 
+if (NETERO_FAST)
+    include(cmake/enable_nasm.cmake)
+endif(NETERO_FAST)
+
 ##====================================
-##  Sub-project
+##  include modules projects
 ##====================================
 
 add_subdirectory(modules/core)
