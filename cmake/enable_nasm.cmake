@@ -4,12 +4,12 @@ if(WIN32)
     set(NASM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/nasm/win64/nasm.exe")
     set(NASM_FLAGS "-f win64 -dWIN64=1")
 
-elseif(APPLE AND NOT UNIX)
+elseif(APPLE)
 
     set(NASM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/nasm/mach-o/nasm")
     set(NASM_FLAGS "-f macho64 -dMACHO64=1")
 
-else()
+else(UNIX AND NOT APPLE)
 
     set(NASM_PATH "/usr/bin/nasm")
     set(NASM_FLAGS "-f elf64 -dELF64=1")
