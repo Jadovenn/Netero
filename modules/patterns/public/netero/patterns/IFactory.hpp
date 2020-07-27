@@ -5,7 +5,9 @@
 
 #pragma once
 
-namespace netero {
+#include <memory>
+
+namespace netero::patterns {
 
 /**
  * Factory interface.
@@ -14,7 +16,11 @@ template<typename T>
 class IFactory {
     public:
     virtual ~IFactory() = 0;
-    template<class... Args>
-    T* Create(Args...);
+
+    template<class ...Args>
+    static std::unique_ptr<T> Create(Args... args) {
+        return std::make_unique<T>(std::forward<Args>(args)...);
+    }
+
 };
 } // namespace netero
