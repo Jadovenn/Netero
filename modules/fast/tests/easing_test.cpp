@@ -6,7 +6,9 @@
 #include <chrono>
 #include <iostream>
 
+#include <netero/debug.hpp>
 #include <netero/fast/easing.hpp>
+#include <netero/logger.hpp>
 
 #include <gtest/gtest.h>
 
@@ -38,15 +40,14 @@ TEST(NeteroFast, compute_quad_speed)
 {
     // Without SIMD
     float *tab = new float[8192];
-    auto   start = std::chrono::high_resolution_clock::now();
-    for (unsigned idx = 0; idx < 8192; ++idx)
+    std::memset(tab, 5, sizeof(float) * 8192);
+    auto start = std::chrono::high_resolution_clock::now();
+    for (unsigned idx = 0; idx < 8192; ++idx) {
         tab[idx] = netero::fast::quad(tab[idx]);
+    }
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    std::cout << "\033[0;32m"
-              << "[     cout ] "
-              << "\033[0;0m"
-              << "Classic takes: " << duration << " microseconds." << std::endl;
+    LOG_INFO << "Classic takes: " << duration << " microseconds." << std::endl;
     delete[] tab;
 
     // With SIMD
@@ -55,16 +56,7 @@ TEST(NeteroFast, compute_quad_speed)
     netero::fast::quad(tab, 8192);
     end = std::chrono::high_resolution_clock::now();
     auto duration_SIMD = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    std::cout << "\033[0;32m"
-              << "[     cout ] "
-              << "\033[0;0m"
-              << "SIMD takes: " << duration_SIMD << " microseconds." << std::endl;
+    LOG_INFO << "SIMD takes: " << duration_SIMD << " microseconds." << std::endl;
     delete[] tab;
     EXPECT_GT(duration, duration_SIMD);
-}
-
-int main(int argc, char **argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }

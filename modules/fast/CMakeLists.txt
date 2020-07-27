@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11...3.16)
 project(neteroFast
         VERSION 0.1.0
         DESCRIPTION "Netero fast module"
-        LANGUAGES CXX)
+        LANGUAGES C CXX)
 
 message(STATUS "Configure Netero Fast module.")
 
@@ -17,6 +17,8 @@ list(APPEND PUBLIC_HEADER
         public/netero/fast/simd.hpp
         public/netero/fast/easing.hpp)
 list(APPEND SRCS
+        private/SIMD/biquad.s
+        private/SIMD/true_pick/fp_true_pick.s
         private/easing/quadratic_easing.cpp)
 
 ##====================================

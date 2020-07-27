@@ -4,11 +4,12 @@ project(NeteroTests
         DESCRIPTION "Netero patterns unit test."
         LANGUAGES CXX)
 
-add_unit_test(NAME easing_test
+add_unit_test(NAME Fast_easing_test
                 SOURCES
                     easing_test.cpp
                 INCLUDE_DIRS
                     ${Netero_INCLUDE_DIRS}
                 DEPENDS
-                    gtest
+                    gtest_main
+                    Netero::Netero
                     Netero::Fast)
