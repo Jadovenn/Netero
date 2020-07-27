@@ -35,6 +35,7 @@ class Logger {
     friend Logger& log(Logger& logger, Level n);
 };
 
+Logger& log(Logger& logger, Level n);
 extern Logger* DefaultGlobalLogger;
 
 } // namespace netero
