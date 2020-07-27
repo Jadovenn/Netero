@@ -6,13 +6,15 @@
 // add debug info to netero, enable display method
 #define NETERO_DEBUG
 
-#include <cassert>
 #include <iostream>
 #include <memory>
 
 #include <netero/avl.hpp>
+#include <netero/logger.hpp>
 
-void basic_test()
+#include <gtest/gtest.h>
+
+TEST(NeteroCore, avl_general_usage)
 {
     netero::avl<int> avl_tree;
 
@@ -24,11 +26,11 @@ void basic_test()
     avl_tree.add(8);
     avl_tree.add(3);
     avl_tree.add(4);
-    assert(avl_tree.search(1));
-    assert(!avl_tree.search(23));
-    std::cout << "Range base for-loop compatibility:" << std::endl;
+    EXPECT_TRUE(avl_tree.search(1));
+    EXPECT_FALSE(avl_tree.search(23));
+    LOG_DEBUG << "Range base for-loop compatibility:" << std::endl;
     for (const auto &e : avl_tree) { // perform in-order traversal
-        std::cout << e << std::endl;
+        LOG_DEBUG << e << std::endl;
     }
     avl_tree.remove(1);
     assert(!avl_tree.search(1));
@@ -37,7 +39,7 @@ void basic_test()
     avl_tree.display();
 }
 
-void ctor_and_operator_test()
+TEST(NeteroCore, avl_ctor_and_operator)
 {
     netero::avl<int> tree1;
     tree1.add(1);
@@ -45,21 +47,14 @@ void ctor_and_operator_test()
     tree1.add(3);
     tree1.add(4);
     netero::avl<int> tree2(tree1);
-    assert(tree2.search(1));
+    EXPECT_TRUE(tree2.search(1));
     std::shared_ptr<netero::avl<int>> tree3 = std::make_shared<netero::avl<int>>();
     tree3->add(42);
     tree3->add(45);
     tree2 = *tree3;
-    assert(!tree2.search(1));
-    assert(tree2.search(42));
+    EXPECT_FALSE(tree2.search(1));
+    EXPECT_TRUE(tree2.search(42));
     tree1 = std::move(tree2);
-    assert(!tree2.search(42));
+    EXPECT_FALSE(tree2.search(42));
     tree3.reset();
-}
-
-int main()
-{
-    basic_test();
-    ctor_and_operator_test();
-    return 0;
 }

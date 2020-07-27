@@ -17,6 +17,8 @@ set(CORE_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
 list(APPEND PUBLIC_HEADER
 ## Core
         public/netero/netero.hpp
+        public/netero/debug.hpp
+        public/netero/logger.hpp
         public/netero/exception.hpp
         public/netero/type_id.hpp
 ## Algo
@@ -26,6 +28,9 @@ list(APPEND PUBLIC_HEADER
 ## OS
         public/netero/os.hpp
 )
+
+list(APPEND SRCS
+        private/logger/logger.cpp)
 
 ##====================================
 ##  Os sources
@@ -114,7 +119,7 @@ install(DIRECTORY public/netero
 ##  Tests
 ##====================================
 
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING AND NETERO_UNIT_TEST)
+if(BUILD_TESTING AND NETERO_UNIT_TEST)
     add_subdirectory(tests)
 endif()
 

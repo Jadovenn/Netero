@@ -3,16 +3,15 @@
  * see LICENSE.txt
  */
 
-#include <cassert>
-
 #include <netero/buffer.hpp>
 
-int main()
+#include <gtest/gtest.h>
+
+TEST(NeteroCore, shared_buffer_size_bug)
 {
     int                        tmp[5];
     netero::shared_buffer<int> buffer(0);
 
-    assert(buffer.getPadding() == 0);
-    assert(buffer.read(tmp, 5) == 0);
-    return 0;
+    EXPECT_EQ(buffer.getPadding(), 0);
+    EXPECT_EQ(buffer.read(tmp, 5), 0);
 }

@@ -3,11 +3,11 @@
  * see LICENSE.txt
  */
 
-#include <cassert>
-
 #include <netero/set.hpp>
 
-int main()
+#include <gtest/gtest.h>
+
+TEST(NeteroCore, set_basic_usage)
 {
     netero::set<int> a { 1, 2, 3, 4, 5, 6, 7, 8 };
     netero::set<int> b { 6, 7, 8 };
@@ -15,9 +15,8 @@ int main()
     netero::set<int> d(c);
     netero::set<int> e { 5, 10 };
 
-    assert(!b.isSubsetOf(c));
-    assert(b.isSubsetOf(a));
-    assert(!e.isSubsetOf(a));
-    assert(e.interWith(a));
-    return 0;
+    EXPECT_FALSE(b.isSubsetOf(c));
+    EXPECT_TRUE(b.isSubsetOf(a));
+    EXPECT_FALSE(e.isSubsetOf(a));
+    EXPECT_TRUE(e.interWith(a));
 }

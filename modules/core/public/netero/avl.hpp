@@ -193,6 +193,7 @@ class avl {
      * @brief iterator for the container to be compatible
      * with std function and for-range based loop
      * @details it build a list following a in-order traversal of the tree and iterate over it
+     * @warning This is bullshit, need to rewrite a tree class for netero
      */
     class iterator: public std::iterator<std::input_iterator_tag, T, T, const T *, const T &> {
         public:
