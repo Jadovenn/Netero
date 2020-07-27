@@ -3,10 +3,11 @@
 * see LICENSE.txt
 */
 
-#include <cassert>
 #include <memory>
 
 #include <netero/slot.hpp>
+
+#include <gtest/gtest.h>
 
 class Number {
     public:
@@ -35,7 +36,7 @@ Number &inc(Number &nb)
     return nb;
 }
 
-int main()
+TEST(NeteroPatterns, slot_ref)
 {
     Number integer(0);
 
@@ -58,6 +59,5 @@ int main()
     netero::slot<Number &(Number &)> ref_ndflt_ctor(inc);
     ref_ndflt_ctor(integer);
 
-    assert(integer.get() == 42);
-    return 0;
+    EXPECT_EQ(integer.get(), 42);
 }

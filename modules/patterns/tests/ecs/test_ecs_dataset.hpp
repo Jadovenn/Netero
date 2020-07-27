@@ -12,13 +12,6 @@
 #include <netero/ecs/component.hpp>
 #include <netero/ecs/world.hpp>
 
-netero::ecs::World  world;
-netero::ecs::Entity first = world.createEntity();
-netero::ecs::Entity second = world.createEntity();
-netero::ecs::Entity third = world.createEntity();
-netero::ecs::Entity fourth = world.createEntity();
-netero::ecs::Entity fifth = world.createEntity();
-
 struct Position: public netero::ecs::Component {
     Position(int x = 0, int y = 0): x(x), y(y) {}
     int x;

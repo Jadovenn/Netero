@@ -3,10 +3,10 @@
 * see LICENSE.txt
 */
 
-#include <cassert>
 #include <functional>
 #include <iostream>
 
+#include <netero/logger.hpp>
 #include <netero/signal.hpp>
 
 #include <gtest/gtest.h>
@@ -25,8 +25,8 @@ class Subject {
     netero::signal<void(const std::string &, int)> birthday;
 
     private:
-    const std::string &_name;
-    int                _age;
+    const std::string _name;
+    int               _age;
 };
 
 class Observer {
@@ -35,11 +35,8 @@ class Observer {
 
     void notifyBirthday(const std::string &name, int age)
     {
-        std::cout << "\033[0;32m"
-                  << "[     cout ] "
-                  << "\033[0;0m"
-                  << "Observer(" << this << ") "
-                  << "Happy birthday " << name << ", you have " << age << " now!" << std::endl;
+        LOG_INFO << "Observer(" << this << ") "
+                 << "Happy birthday " << name << ", you have " << age << " now!" << std::endl;
     }
 
     netero::slot<void(const std::string &, int)> onBirthday;
@@ -86,10 +83,4 @@ TEST(NeteroPatterns, signal_connect_disconnect)
     EXPECT_EQ(signal.size(), 1);
     signal.reset();
     EXPECT_EQ(signal.size(), 0);
-}
-
-int main(int argc, char **argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }

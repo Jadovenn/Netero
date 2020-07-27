@@ -5,7 +5,11 @@
 
 #include <iostream>
 
+#include <netero/logger.hpp>
+
 #include "test_ecs_dataset.hpp"
+
+#include <gtest/gtest.h>
 
 namespace ecs = netero::ecs;
 
@@ -29,8 +33,7 @@ class PathSystem: public ecs::System<ecs::ComponentFilter<Path<int>, Position>> 
             path.idx += 1;
             if (path.idx == path.size)
                 path.idx = 0;
-            std::cout << name.name << " move to : " << position.x << ", " << position.y
-                      << std::endl;
+            LOG_INFO << name.name << " move to : " << position.x << ", " << position.y << std::endl;
         }
     }
 };
@@ -40,16 +43,23 @@ class NameSystem: public ecs::System<ecs::ComponentFilter<Name>> {
     ~NameSystem() override = default;
     void exec() final
     {
-        std::cout << "enumerate entity with name:" << std::endl;
+        LOG_INFO << "enumerate entity with name:" << std::endl;
         for (auto entity : getActiveEntities()) {
             auto &name = entity->getComponent<Name>();
-            std::cout << name.name << std::endl;
+            LOG_INFO << name.name << std::endl;
         }
     }
 };
 
-int main()
+TEST(NeteroPatterns, ecs_system)
 {
+    netero::ecs::World  world;
+    netero::ecs::Entity first = world.createEntity();
+    netero::ecs::Entity second = world.createEntity();
+    netero::ecs::Entity third = world.createEntity();
+    netero::ecs::Entity fourth = world.createEntity();
+    netero::ecs::Entity fifth = world.createEntity();
+
     // Set up first entity
     first->addComponent<Position>(10, 4);
     first->addComponent<Name>("PNJ-1");
@@ -64,8 +74,8 @@ int main()
 
     // Set up third entity
     third->addComponent<Position>(40, 40);
-    third->addComponent<Name>("Village Pannel");
-    third->addComponent<Text>("Welecome to the village!");
+    third->addComponent<Name>("Village panel");
+    third->addComponent<Text>("Welcome to the village!");
     third.enable();
 
     // Set up fourth entity
@@ -83,5 +93,4 @@ int main()
     world.removeSystem<PathSystem>();
     world.addSystem<NameSystem>();
     world.update();
-    return 0;
 }

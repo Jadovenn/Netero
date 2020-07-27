@@ -12,11 +12,9 @@ namespace netero {
  */
 template<typename T>
 class IFactory {
-	virtual ~IFactory() = 0
-public:
-	template<class... Args>
-	T* Create(Args...);	
-
+    public:
+    virtual ~IFactory() = 0;
+    template<class... Args>
+    T* Create(Args...);
 };
 } // namespace netero
-

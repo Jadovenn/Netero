@@ -3,7 +3,6 @@
 * see LICENSE.txt
 */
 
-#include <cassert>
 #include <functional>
 #include <iostream>
 
@@ -151,10 +150,4 @@ TEST(NeteroPatterns, test_bool_operator)
     }
     slot.set(&add);
     assert(slot);
-}
-
-int main(int argc, char** argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }

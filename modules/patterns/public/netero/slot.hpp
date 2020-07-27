@@ -124,7 +124,7 @@ class slot<rType(ArgsType...)>: public netero::IConnectibleDelegate {
      * @param other slot to move.
      * @return *this
      */
-    slot<rType(ArgsType...)>& operator=(slot<rType(ArgsType...)>&& other)
+    slot<rType(ArgsType...)>& operator=(slot<rType(ArgsType...)>&& other) noexcept
     {
         std::vector<netero::IConnectibleDelegate*> tmp_signal_move;
         for (auto* signal : this->_signals) {

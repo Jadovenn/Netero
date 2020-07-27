@@ -6,6 +6,9 @@
 #include <iostream>
 
 #include <netero/ecs/world.hpp>
+#include <netero/logger.hpp>
+
+#include <gtest/gtest.h>
 
 netero::ecs::World world;
 
@@ -20,44 +23,20 @@ struct Id: public netero::ecs::Component {
     std::string lastName;
 };
 
-int component()
+TEST(NeteroPatterns, component)
 {
-    std::cout << "ecs_entity: Create entity first" << std::endl;
+    LOG_INFO << "ecs_entity: Create entity first" << std::endl;
     netero::ecs::Entity first = world.createEntity();
-    std::cout << "ecs_entity: Add Component Position to Entity first" << std::endl;
+    LOG_INFO << "ecs_entity: Add Component Position to Entity first" << std::endl;
     auto &position = first->addComponent<Position>(10, 9);
     auto &id = first->addComponent<Id>();
     id.firstName = "test";
-    try {
-        first->addComponent<Position>();
-        return 1;
-    }
-    catch (...) {
-    }
-    try {
+    EXPECT_THROW(first->addComponent<Position>(), std::runtime_error);
+    EXPECT_NO_THROW({
         auto &pos = first->getComponent<Position>();
         auto &i = first->getComponent<Id>();
-        if (pos.x != 10)
-            return 2;
-        if (i.firstName != id.firstName)
-            return 3;
-    }
-    catch (...) {
-        return 4;
-    }
-    try {
-        first->deleteComponent<Id>();
-    }
-    catch (...) {
-        return 5;
-    }
-    return 0;
-}
-
-int main()
-{
-    int ret = component();
-    if (ret != 0)
-        return ret;
-    return 0;
+        EXPECT_EQ(pos.x, 10);
+        EXPECT_EQ(i.firstName, id.firstName);
+    });
+    EXPECT_NO_THROW(first->deleteComponent<Id>());
 }

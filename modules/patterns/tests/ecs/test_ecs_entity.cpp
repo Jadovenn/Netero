@@ -3,36 +3,32 @@
  * see LICENCE.txt
  */
 
-#include <cassert>
 #include <iostream>
 
 #include <netero/ecs/world.hpp>
+#include <netero/logger.hpp>
 
-netero::ecs::World world;
+#include <gtest/gtest.h>
 
-void entityLocalScope()
+TEST(NeteroPatterns, entityLocalScope)
 {
-    std::cout << "ecs_entity: Create entity first" << std::endl;
+    netero::ecs::World world;
+
+    LOG_INFO << "ecs_entity: Create entity first" << std::endl;
     netero::ecs::Entity first = world.createEntity();
-    std::cout << "ecs_entity: Create entity second" << std::endl;
+    LOG_INFO << "ecs_entity: Create entity second" << std::endl;
     netero::ecs::Entity second = world.createEntity();
-    std::cout << "ecs_entity: Enable entity second" << std::endl;
+    LOG_INFO << "ecs_entity: Enable entity second" << std::endl;
     second.enable();
-    std::cout << "ecs_entity: entity killed" << std::endl;
+    LOG_INFO << "ecs_entity: entity killed" << std::endl;
     first.kill();
-    assert(!first.valid());
-    std::cout << "ecs_entity: update world" << std::endl;
+    EXPECT_FALSE(first.valid());
+    LOG_INFO << "ecs_entity: update world" << std::endl;
     world.update();
     auto stat = world.getStatistic();
-    assert(stat.size == 1);
-    std::cout << "ecs_entity: update world" << std::endl;
+    EXPECT_EQ(stat.size, 1);
+    LOG_INFO << "ecs_entity: update world" << std::endl;
     world.update();
     stat = world.getStatistic();
-    assert(stat.size == 1);
-}
-
-int main()
-{
-    entityLocalScope();
-    return 0;
+    EXPECT_EQ(stat.size, 1);
 }

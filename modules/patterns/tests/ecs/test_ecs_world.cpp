@@ -3,32 +3,28 @@
  * see LICENCE.txt
  */
 
-#include <cassert>
 #include <iostream>
 
 #include <netero/ecs/world.hpp>
+#include <netero/logger.hpp>
 
-netero::ecs::World world;
+#include <gtest/gtest.h>
 
-void createEntity()
+TEST(NeteroPatterns, createEntity)
 {
-    std::cout << "ecs_world: Create entity first" << std::endl;
+    netero::ecs::World world;
+
+    LOG_INFO << "ecs_world: Create entity first" << std::endl;
     netero::ecs::Entity first = world.createEntity();
-    assert(first.valid());
-    std::cout << "ecs_world: Create entity second" << std::endl;
+    EXPECT_TRUE(first.valid());
+    LOG_INFO << "ecs_world: Create entity second" << std::endl;
     netero::ecs::Entity second = world.createEntity("second");
-    assert(second.valid());
-    std::cout << "ecs_world: World size " << world.size() << std::endl;
-    assert(world.size() == 2);
-    std::cout << "ecs_world: Kill entity second" << std::endl;
+    EXPECT_TRUE(second.valid());
+    LOG_INFO << "ecs_world: World size " << world.size() << std::endl;
+    EXPECT_TRUE(world.size() == 2);
+    LOG_INFO << "ecs_world: Kill entity second" << std::endl;
     world.killEntity(first);
-    assert(!first.valid());
-    std::cout << "ecs_world: World size " << world.size() << std::endl;
-    assert(world.size() == 1);
-}
-
-int main()
-{
-    createEntity();
-    return 0;
+    EXPECT_FALSE(first.valid());
+    LOG_INFO << "ecs_world: World size " << world.size() << std::endl;
+    EXPECT_EQ(world.size(), 1);
 }
