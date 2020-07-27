@@ -4,6 +4,9 @@ project(netero_samples
     DESCRIPTION "Netero samples programmes."
     LANGUAGES CXX)
 
+add_subdirectory(os)
+add_subdirectory(memcheck)
+
 if(NETERO_AUDIO)
     add_subdirectory(audio)
 endif(NETERO_AUDIO)
