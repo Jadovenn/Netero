@@ -15,11 +15,11 @@ class Device {
 
     enum class RtCode { SUCCESS };
 
-    virtual RtCode             open() = 0;
-    virtual RtCode             close() = 0;
-    virtual bool               isValid() = 0;
-    virtual const std::string& getName() = 0;
-    virtual const std::string& getManufacturer() = 0;
+    virtual RtCode                           open() = 0;
+    virtual RtCode                           close() = 0;
+    [[nodiscard]] virtual bool               isValid() const = 0;
+    [[nodiscard]] virtual const std::string& getName() const = 0;
+    [[nodiscard]] virtual const std::string& getManufacturer() const = 0;
 };
 
 } // namespace netero::audio

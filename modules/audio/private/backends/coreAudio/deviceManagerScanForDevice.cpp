@@ -42,12 +42,43 @@ netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanFor
                                                  0,
                                                  nullptr,
                                                  &deviceSize,
-                                                 reinterpret_cast<void*>(&deviceIDList));
+                                                 reinterpret_cast<void *>(&deviceIDList));
     if (result != noErr) {
         return RtCode::NO_DEVICE_CONNECTED;
     }
+
     for (auto deviceID : deviceIDList) {
-        this->deviceMap[deviceID] = std::make_unique<DeviceImpl>(deviceID);
+        AudioBufferList *bufferList = nullptr;
+        property.mSelector = kAudioDevicePropertyStreamConfiguration;
+        property.mScope = kAudioDevicePropertyScopeOutput;
+        property.mElement = kAudioObjectPropertyElementMaster;
+        UInt32 size = 0;
+
+        result = AudioObjectGetPropertyDataSize(deviceID, &property, 0, nullptr, &size);
+        if (result != noErr) {
+            return RtCode::SYSTEM_API_ERROR;
+        }
+        if (size) {
+            auto devicePtr = std::make_unique<DeviceImpl>(deviceID);
+            clientOutputDevices.push_back(devicePtr.get());
+            outputDevices.push_back(std::move(devicePtr));
+        }
+
+        property.mScope = kAudioDevicePropertyScopeInput;
+        size = 0;
+        result = AudioObjectGetPropertyDataSize(deviceID, &property, 0, nullptr, &size);
+        if (result != noErr) {
+            return RtCode::SYSTEM_API_ERROR;
+        }
+        if (size) {
+            auto devicePtr = std::make_unique<DeviceImpl>(deviceID);
+            clientInputDevices.push_back(devicePtr.get());
+            inputDevices.push_back(std::move(devicePtr));
+        }
     }
+    outputDevices.shrink_to_fit();
+    clientOutputDevices.shrink_to_fit();
+    inputDevices.shrink_to_fit();
+    clientInputDevices.shrink_to_fit();
     return RtCode::SUCCESS;
 }

@@ -11,6 +11,10 @@
 
 #include "deviceImpl.hpp"
 
+namespace netero::audio {
+class Device;
+}
+
 class netero::audio::DeviceManager::Impl {
     public:
     Impl();
@@ -18,5 +22,9 @@ class netero::audio::DeviceManager::Impl {
 
     DeviceManager::RtCode scanForOutputDevice();
 
-    std::unordered_map<unsigned, std::unique_ptr<DeviceImpl>> deviceMap;
+    std::vector<std::unique_ptr<DeviceImpl>> outputDevices;
+    std::vector<Device*>                     clientOutputDevices;
+
+    std::vector<std::unique_ptr<DeviceImpl>> inputDevices;
+    std::vector<Device*>                     clientInputDevices;
 };

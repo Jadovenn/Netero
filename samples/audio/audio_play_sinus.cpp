@@ -3,6 +3,37 @@
  * see LICENSE.txt
  */
 
+#include <netero/logger.hpp>
+#include <netero/audio/deviceManager.hpp>
+
+int main() {
+    auto& audioDeviceManager = netero::audio::DeviceManager::GetInstance();
+
+    audioDeviceManager.scanForDevices();
+    auto audioDevices = audioDeviceManager.getOutputDevices();
+
+    LOG_INFO << "Output Devices:" << std::endl;
+    for (auto device: audioDevices) {
+        if (!device->isValid()) {
+            LOG_ERROR << "Invalid device, system related error" << std::endl;
+            continue;
+        }
+        LOG_INFO << device->getName() << " (" << device->getManufacturer() << ")" << std::endl;
+    }
+
+    audioDevices = audioDeviceManager.getInputDevices();
+    LOG_INFO << "Input Devices:" << std::endl;
+    for (auto device: audioDevices) {
+        if (!device->isValid()) {
+            LOG_ERROR << "Invalid device, system related error" << std::endl;
+            continue;
+        }
+        LOG_INFO << device->getName() << " (" << device->getManufacturer() << ")" << std::endl;
+    }
+    return 0;
+}
+
+/**
 #include <netero/audio/signals.hpp>
 #include <netero/audio/engine.hpp>
 #include <netero/audio/deviceManager.hpp>
@@ -75,3 +106,4 @@ int main() {
 	}
     return 0;
 }
+*/

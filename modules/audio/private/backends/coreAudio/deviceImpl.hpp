@@ -11,13 +11,19 @@
 
 class DeviceImpl final: public netero::audio::Device {
     public:
-    explicit DeviceImpl(UInt32 id) : _id(id) {}
-    ~DeviceImpl() final {}
+    explicit DeviceImpl(UInt32 id);
+    ~DeviceImpl() noexcept final;
 
-    RtCode open() override { return RtCode::SUCCESS; }
-    RtCode close() override { return RtCode::SUCCESS; }
-    bool   isValid() override { return false; }
+    RtCode                           open() final { return RtCode::SUCCESS; }
+    RtCode                           close() final { return RtCode::SUCCESS; }
+    [[nodiscard]] bool               isValid() const final { return this->_isValid; }
+    [[nodiscard]] const std::string& getName() const final { return this->_name; }
+    [[nodiscard]] const std::string& getManufacturer() const final { return this->_manufacturer; };
 
     private:
-    UInt32  _id;
+    bool   _isValid;
+    UInt32 _id;
+
+    std::string _name;
+    std::string _manufacturer;
 };
