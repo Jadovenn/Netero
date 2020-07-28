@@ -4,6 +4,7 @@
  */
 
 #include <chrono>
+#include <cstring>
 #include <iostream>
 
 #include <netero/debug.hpp>
