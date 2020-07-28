@@ -22,25 +22,21 @@ list(APPEND SRCS
         private/backends/coreAudio/deviceManagerImpl.cpp)
 
 ##====================================
-##  Windows sources
+##  OS dependent sources
 ##====================================
 
 if(WIN32)
     list(APPEND SRCS
-            private/backends/Wasapi/WASAPI.hpp
-            private/backends/Wasapi/WASAPI.cpp
-            private/backends/Wasapi/WASAPI_device.cpp
-            private/backends/Wasapi/WASAPI_default_devices.cpp
-            private/backends/Wasapi/WASAPI_get_devices.cpp
-            private/backends/Wasapi/WASAPI_render.cpp
-            private/backends/Wasapi/WASAPI_capture.cpp)
+            private/backends/wasapi/wasapiHelpers.hpp
+            private/backends/wasapi/wasapiHelpers.cpp
+            private/backends/wasapi/deviceManagerImpl.hpp
+            private/backends/wasapi/deviceManagerImpl.cpp
+            private/backends/wasapi/deviceManagerScanForDevice.cpp
+            private/backends/wasapi/deviceImpl.hpp
+            private/backends/wasapi/deviceImpl.cpp)
     list(APPEND LINK_LIBRARIES
             avrt)
 endif(WIN32)
-
-##====================================
-##  APPLE sources
-##====================================
 
 if (APPLE)
     FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
@@ -68,7 +64,8 @@ target_include_directories(NeteroAudio
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${AUDIO_PUBLIC}>
         PRIVATE
-            $<BUILD_INTERFACE:${Netero_INCLUDE_DIRS}>)
+            $<BUILD_INTERFACE:${Netero_Core_INCLUDE_DIRS}>
+            $<BUILD_INTERFACE:${Netero_Patterns_INCLUDE_DIRS}>)
 target_link_libraries(NeteroAudio
         PUBLIC
             Netero::Patterns
