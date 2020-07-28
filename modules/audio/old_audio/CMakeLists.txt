@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.11...3.16)
+cmake_minimum_required(VERSION 3.11...3.16)
 project(netero_audio
         VERSION 0.1.0
         DESCRIPTION "Netero audio module"
@@ -10,8 +10,8 @@ message(STATUS "Configure Netero Audio module")
 ##  Sources
 ##====================================
 
-set(AUDIO_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
-set(AUDIO_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
+set(AUDIO_PRIVATE private)
+set(AUDIO_PUBLIC public)
 
 list(APPEND PUBLIC_HEADER
         public/netero/audio/audio.hpp
@@ -40,7 +40,7 @@ list(APPEND SRCS
 ##  Windows sources
 ##====================================
 
-if(WIN32)
+if (WIN32)
     list(APPEND SRCS
             private/backends/Wasapi/WASAPI.hpp
             private/backends/Wasapi/WASAPI.cpp
@@ -51,7 +51,7 @@ if(WIN32)
             private/backends/Wasapi/WASAPI_capture.cpp)
     list(APPEND LINK_LIBRARIES
             avrt)
-endif(WIN32)
+endif (WIN32)
 
 ##====================================
 ##  APPLE sources
@@ -70,31 +70,31 @@ if (APPLE)
     ##    list(APPEND LINK_LIBRARIES
     ##            ${COREAUDIO_LIBRARY}
     ##            ${COREFOUNDATION_LIBRARY})
-endif(APPLE)
+endif (APPLE)
 
 ##====================================
 ##  Target
 ##====================================
 
 add_library(NeteroAudio STATIC ${SRCS} ${PUBLIC_HEADER})
-target_compile_features(NeteroAudio PUBLIC cxx_std_17)
+target_compile_features(NeteroAudio public cxx_std_17)
 add_dependencies(NeteroAudio Netero NeteroPatterns)
 target_include_directories(NeteroAudio
-        PUBLIC
-            $<INSTALL_INTERFACE:include>
-            $<BUILD_INTERFACE:${AUDIO_PUBLIC}>
-        PRIVATE
-            $<BUILD_INTERFACE:${Netero_INCLUDE_DIRS}>)
+        public
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${AUDIO_PUBLIC}>
+        private
+        $<BUILD_INTERFACE:${Netero_INCLUDE_DIRS}>)
 target_link_libraries(NeteroAudio
-        PUBLIC
-            Netero::Patterns
-        PRIVATE
-            ${LINK_LIBRARIES})
+        public
+        Netero::Patterns
+        private
+        ${LINK_LIBRARIES})
 
-if(WIN32 AND WIN32_STATIC)
+if (WIN32 AND WIN32_STATIC)
     set_property(TARGET NeteroAudio PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
-endif()
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
+endif ()
 
 add_library(Netero::Audio ALIAS NeteroAudio)
 
@@ -119,11 +119,11 @@ install(TARGETS NeteroAudio
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 install(EXPORT NeteroAudio-export
         FILE
-            NeteroAudioTargets.cmake
+        NeteroAudioTargets.cmake
         NAMESPACE
-            Netero::
+        Netero::
         DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/cmake/netero)
+        ${CMAKE_INSTALL_PREFIX}/cmake/netero)
 install(DIRECTORY public/netero/audio
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")
