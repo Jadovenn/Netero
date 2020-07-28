@@ -90,10 +90,6 @@ if (NETERO_FAST)
     add_subdirectory(modules/fast)
 endif(NETERO_FAST)
 
-if (NETERO_AUDIO)
-    add_subdirectory(modules/audio)
-endif(NETERO_AUDIO)
-
 if (NETERO_PATTERNS)
     add_subdirectory(modules/patterns)
 endif(NETERO_PATTERNS)
@@ -101,6 +97,10 @@ endif(NETERO_PATTERNS)
 if (NETERO_EXTRA)
     add_subdirectory(modules/extra)
 endif(NETERO_EXTRA)
+
+if (NETERO_AUDIO)
+    add_subdirectory(modules/audio)
+endif(NETERO_AUDIO)
 
 if(NETERO_GRAPHICS)
     if(NOT NETERO_EXTRA)
