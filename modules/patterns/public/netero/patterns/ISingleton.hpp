@@ -9,29 +9,21 @@
 
 namespace netero::patterns {
 
+#define SINGLETON_DECLARATION(type) friend netero::patterns::ISingleton<type>
+
 template<class T>
 class ISingleton {
     public:
-     virtual ~ISingleton() = 0;
+    virtual ~ISingleton() = 0;
 
-     template<typename ...Args>
-     static void Initialize(Args... someArguments) {
-         if (!_instance) {
-             _instance = std::make_unique<T>(std::forward(someArguments)...);
-         }
-     }
-
-     static void Release() {
-         _instance.reset();
-         _instance = nullptr;
-     }
-
-     static T* GetInstance() {
-         return _instance ? _instance : nullptr;
-     }
-
-     private:
-     static std::unique_ptr<T> _instance;
+    static T& GetInstance()
+    {
+        static T staticInstance;
+        return staticInstance;
+    }
 };
 
-}
+template<class T>
+ISingleton<T>::~ISingleton() = default;
+
+} // namespace netero::patterns
