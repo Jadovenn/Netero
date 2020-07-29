@@ -22,9 +22,13 @@ netero::audio::DeviceManager::DeviceManager()
 
 netero::audio::DeviceManager::~DeviceManager() noexcept = default;
 
+bool netero::audio::DeviceManager::isValid() {
+    return true;
+}
+
 netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::scanForDevices()
 {
-    return this->_pImpl->scanForOutputDevice();
+    return this->_pImpl->scanForDevices();
 }
 
 const std::vector<netero::audio::Device*>& netero::audio::DeviceManager::getOutputDevices()

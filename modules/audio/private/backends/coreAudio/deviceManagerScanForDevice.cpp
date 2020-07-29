@@ -3,10 +3,11 @@
  * see LICENSE.txt
  */
 
+#include <memory>
+
 #include "deviceManagerImpl.hpp"
 
 #include <CoreAudio/AudioHardware.h>
-#include <CoreAudio/CoreAudio.h>
 
 static UInt32 GetDeviceCount()
 {
@@ -25,7 +26,7 @@ static UInt32 GetDeviceCount()
     return size / sizeof(AudioDeviceID);
 }
 
-netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanForOutputDevice()
+netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanForDevices()
 {
     UInt32 deviceCount = GetDeviceCount();
     if (deviceCount == 0) {
@@ -53,27 +54,63 @@ netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanFor
         property.mScope = kAudioDevicePropertyScopeOutput;
         property.mElement = kAudioObjectPropertyElementMaster;
         UInt32 size = 0;
+        UInt32 dataSize = 0;
 
-        result = AudioObjectGetPropertyDataSize(deviceID, &property, 0, nullptr, &size);
+        result = AudioObjectGetPropertyDataSize(deviceID, &property, 0, nullptr, &dataSize);
         if (result != noErr) {
             return RtCode::SYSTEM_API_ERROR;
         }
-        if (size) {
-            auto devicePtr = std::make_unique<DeviceImpl>(deviceID);
-            clientOutputDevices.push_back(devicePtr.get());
-            outputDevices.push_back(std::move(devicePtr));
+
+        bufferList = new AudioBufferList[dataSize];
+        result = AudioObjectGetPropertyData(deviceID, &property, 0, nullptr, &dataSize, bufferList);
+        if (result != noErr) {
+            delete[] bufferList;
+            return RtCode::SYSTEM_API_ERROR;
+        }
+
+        unsigned channelCount = 0;
+        for (unsigned i = 0; i < bufferList->mNumberBuffers; ++i)
+            channelCount += bufferList->mBuffers[i].mNumberChannels;
+        delete[] bufferList;
+
+        if (channelCount > 0) {
+            auto it = std::find_if(outputDevices.begin(), outputDevices.end(), [deviceID] (auto& device) {
+                return *device == deviceID;
+            });
+            if (it == outputDevices.end()) {
+                auto devicePtr = std::make_unique<DeviceImpl>(deviceID, kAudioObjectPropertyScopeOutput);
+                clientOutputDevices.push_back(devicePtr.get());
+                outputDevices.push_back(std::move(devicePtr));
+            }
         }
 
         property.mScope = kAudioDevicePropertyScopeInput;
-        size = 0;
-        result = AudioObjectGetPropertyDataSize(deviceID, &property, 0, nullptr, &size);
+        result = AudioObjectGetPropertyDataSize(deviceID, &property, 0, nullptr, &dataSize);
         if (result != noErr) {
             return RtCode::SYSTEM_API_ERROR;
         }
-        if (size) {
-            auto devicePtr = std::make_unique<DeviceImpl>(deviceID);
-            clientInputDevices.push_back(devicePtr.get());
-            inputDevices.push_back(std::move(devicePtr));
+
+        bufferList = new AudioBufferList[dataSize];
+        result = AudioObjectGetPropertyData(deviceID, &property, 0, nullptr, &dataSize, bufferList);
+        if (result != noErr) {
+            delete[] bufferList;
+            return RtCode::SYSTEM_API_ERROR;
+        }
+
+        channelCount = 0;
+        for (unsigned i = 0; i < bufferList->mNumberBuffers; ++i)
+            channelCount += bufferList->mBuffers[i].mNumberChannels;
+        delete[] bufferList;
+
+        if (channelCount > 0) {
+            auto it = std::find_if(inputDevices.begin(), inputDevices.end(), [deviceID] (auto& device) {
+                return *device == deviceID;
+            });
+            if (it == inputDevices.end()) {
+                auto devicePtr = std::make_unique<DeviceImpl>(deviceID, kAudioObjectPropertyScopeInput);
+                clientInputDevices.push_back(devicePtr.get());
+                inputDevices.push_back(std::move(devicePtr));
+            }
         }
     }
     outputDevices.shrink_to_fit();
