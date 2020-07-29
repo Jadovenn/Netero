@@ -4,6 +4,11 @@ project(netero_audio_samples
     DESCRIPTION "Netero audio samples programmes."
     LANGUAGES CXX)
 
+add_executable(scan_audio_devices scan_audio_devices.cpp)
+add_dependencies(scan_audio_devices Netero::Netero Netero::Audio)
+target_include_directories(scan_audio_devices PUBLIC ${Netero_INCLUDE_DIRS})
+target_link_libraries(scan_audio_devices Netero::Netero Netero::Audio)
+
 add_executable(audio_recorder audio_record.cpp)
 add_dependencies(audio_recorder Netero::Netero Netero::Audio)
 target_include_directories(audio_recorder PUBLIC ${Netero_INCLUDE_DIRS})
