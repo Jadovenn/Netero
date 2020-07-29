@@ -3,44 +3,60 @@
  * see LICENSE.txt
  */
 
-#include <netero/logger.hpp>
 #include <netero/audio/deviceManager.hpp>
+#include <netero/logger.hpp>
 
-int main() {
+int main()
+{
     auto& audioDeviceManager = netero::audio::DeviceManager::GetInstance();
+
+    if (!audioDeviceManager.isValid()) {
+        LOG_ERROR << "Audio device manager not initialized correctly!" << std::endl;
+        return 1;
+    }
 
     audioDeviceManager.scanForDevices();
     auto audioDevices = audioDeviceManager.getOutputDevices();
 
     LOG_INFO << "Output Devices:" << std::endl;
-    for (auto device: audioDevices) {
+    for (auto device : audioDevices) {
         if (!device->isValid()) {
             LOG_ERROR << "Invalid device, system related error" << std::endl;
             continue;
         }
-        LOG_INFO << device->getName() << " (" << device->getManufacturer() << ")" << std::endl;
+        LOG_INFO << '\t' << device->getName() << " (" << device->getManufacturer() << ")"
+                 << std::endl;
+        auto format = device->getFormat();
+        LOG << "rate: " << format.samplingFrequency << " Hz channels: " << format.channels
+            << std::endl
+            << std::endl;
     }
 
     audioDevices = audioDeviceManager.getInputDevices();
     LOG_INFO << "Input Devices:" << std::endl;
-    for (auto device: audioDevices) {
+    for (auto device : audioDevices) {
         if (!device->isValid()) {
             LOG_ERROR << "Invalid device, system related error" << std::endl;
             continue;
         }
-        LOG_INFO << device->getName() << " (" << device->getManufacturer() << ")" << std::endl;
+        LOG_INFO << '\t' << device->getName() << " (" << device->getManufacturer() << ")"
+                 << std::endl;
+        auto format = device->getFormat();
+        LOG << "rate: " << format.samplingFrequency << " Hz channels: " << format.channels
+            << " isLoopback: " << device->isLoopback() << std::endl
+            << std::endl;
     }
     return 0;
 }
 
 /**
-#include <netero/audio/signals.hpp>
-#include <netero/audio/engine.hpp>
-#include <netero/audio/deviceManager.hpp>
-
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <thread>
+
+#include <netero/audio/deviceManager.hpp>
+#include <netero/audio/engine.hpp>
+#include <netero/audio/signals.hpp>
 
 static 
 void    deviceDisconnectionHandler(const netero::audio::device &device) {

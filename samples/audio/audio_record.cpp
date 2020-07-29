@@ -3,6 +3,12 @@
  * see LICENSE.txt
  */
 
+int main()
+{
+    return 0;
+}
+
+/**
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -93,3 +99,4 @@ int main()
     audioEngine.disconnectRenderDevice();
     return 0;
 }
+*/
