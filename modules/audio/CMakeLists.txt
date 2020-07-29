@@ -18,8 +18,7 @@ list(APPEND PUBLIC_HEADER
         public/netero/audio/device.hpp
         )
 
-list(APPEND SRCS
-        private/backends/coreAudio/deviceManagerImpl.cpp)
+##list(APPEND SRCS )
 
 ##====================================
 ##  OS dependent sources
