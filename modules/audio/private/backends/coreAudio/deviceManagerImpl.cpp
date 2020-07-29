@@ -27,10 +27,12 @@ netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::scanForDevice
     return this->_pImpl->scanForOutputDevice();
 }
 
-const std::vector<netero::audio::Device*>& netero::audio::DeviceManager::getOutputDevices() {
+const std::vector<netero::audio::Device*>& netero::audio::DeviceManager::getOutputDevices()
+{
     return this->_pImpl->clientOutputDevices;
 }
 
-const std::vector<netero::audio::Device*>& netero::audio::DeviceManager::getInputDevices() {
+const std::vector<netero::audio::Device*>& netero::audio::DeviceManager::getInputDevices()
+{
     return this->_pImpl->clientInputDevices;
 }
