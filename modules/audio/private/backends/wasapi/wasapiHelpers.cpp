@@ -5,7 +5,17 @@
 
 #include "wasapiHelpers.hpp"
 
+#include <AudioClient.h>
+#include <audiopolicy.h>
+
 namespace wasapi {
+
+const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
+const IID   IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
+const IID   IID_IAudioClient = __uuidof(IAudioClient);
+const IID   IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
+const IID   IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
+const IID   IID_IAudioSessionControl = __uuidof(IAudioSessionControl);
 
 std::string wstring_to_string(LPCWSTR str)
 {

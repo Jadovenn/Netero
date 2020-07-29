@@ -7,22 +7,55 @@
 
 #include <netero/audio/device.hpp>
 
+#include <AudioClient.h>
 #include <mmdeviceapi.h>
 
 class DeviceImpl final: public netero::audio::Device {
     public:
-    explicit DeviceImpl(IMMDevice*);
+    explicit DeviceImpl(IMMDevice*, EDataFlow);
     ~DeviceImpl() final;
 
-    RtCode             open() override { return RtCode::SUCCESS; }
-    RtCode             close() override { return RtCode::SUCCESS; }
-    bool               isValid() override { return this->_isValid; }
-    const std::string& getName() final { return this->_name; }
-    const std::string& getManufacturer() final { return this->_manufacturer; };
+    RtCode open() final { return RtCode::SUCCESS; }
+    RtCode close() final { return RtCode::SUCCESS; }
+
+    [[nodiscard]] bool isValid() const final { return this->_isValid; }
+    [[nodiscard]] bool isLoopback() const final { return _dataflow == EDataFlow::eAll; }
+    [[nodiscard]] const std::string& getName() const final { return this->_name; }
+    [[nodiscard]] const std::string& getManufacturer() const final { return this->_manufacturer; };
+
+    [[nodiscard]] const netero::audio::Format& getFormat() const final
+    {
+        return this->_deviceFomat;
+    }
+
+    void setProcessingCallback(netero::audio::Device::ProcessingCallbackHandle& cb) final
+    {
+        this->_userCallback = cb;
+    }
+
+    void setErrorCallback(netero::audio::Device::ErrorCallbackHandle& cb) final
+    {
+        this->_userErrorCallback = cb;
+    }
 
     private:
-    bool       _isValid;
-    IMMDevice* _deviceInterface;
+    void repportError(const std::string& anErrorMessage)
+    {
+        if (this->_userErrorCallback) {
+            this->_userErrorCallback(anErrorMessage);
+        }
+    }
+
+    private:
+    bool          _isValid;
+    IMMDevice*    _deviceInterface;
+    EDataFlow     _dataflow;
+    IAudioClient* _audioClient;
+    WAVEFORMATEX* _wfx;
+
+    netero::audio::Format                           _deviceFomat;
+    netero::audio::Device::ProcessingCallbackHandle _userCallback;
+    netero::audio::Device::ErrorCallbackHandle      _userErrorCallback;
 
     std::string _name;
     std::string _manufacturer;

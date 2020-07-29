@@ -12,21 +12,20 @@
 
 #include "deviceImpl.hpp"
 
-extern const CLSID CLSID_MMDeviceEnumerator;
-extern const IID   IID_IMMDeviceEnumerator;
-
 class netero::audio::DeviceManager::Impl {
     public:
     Impl();
     ~Impl();
 
     DeviceManager::RtCode scanForOutputDevice();
+    DeviceManager::RtCode scanForInputDevice();
 
+    std::vector<std::unique_ptr<DeviceImpl>> ouputDevices;
+    std::vector<Device*>                     clientOutputDevices;
+
+    std::vector<std::unique_ptr<DeviceImpl>> inputDevices;
+    std::vector<Device*>                     clientInputDevices;
+
+    bool                 isValid;
     IMMDeviceEnumerator* deviceEnumerator;
-
-    std::vector<std::unique_ptr<DeviceImpl>> internalOuputDevices;
-    std::vector<Device&>                     clientOutputDevices;
-
-    std::vector<std::unique_ptr<DeviceImpl>> internalInputDevices;
-    std::vector<Device&>                     clientInputDevices;
 };
