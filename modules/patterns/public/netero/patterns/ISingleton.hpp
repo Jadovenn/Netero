@@ -9,7 +9,7 @@
 
 namespace netero::patterns {
 
-#define SINGLETON_DECLARATION(type) friend netero::patterns::ISingleton<type>
+#define DECLARE_SINGLETON(type) friend netero::patterns::ISingleton<type>
 
 template<class T>
 class ISingleton {
