@@ -15,8 +15,9 @@
 namespace netero::audio {
 
 class DeviceManager final: public patterns::ISingleton<DeviceManager> {
-    // required by ISingleton
-    SINGLETON_DECLARATION(DeviceManager);
+    private:
+    DeviceManager();
+    DECLARE_SINGLETON(DeviceManager);
 
     public:
     enum class RtCode { SUCCESS = 0, NO_DEVICE_CONNECTED = 1, SYSTEM_API_ERROR = 2 };
@@ -27,14 +28,13 @@ class DeviceManager final: public patterns::ISingleton<DeviceManager> {
     DeviceManager& operator=(DeviceManager&&) = delete;
     ~DeviceManager() noexcept final;
 
-    RtCode scanForDevices();
+    [[nodiscard]] bool isValid();
+    RtCode             scanForDevices();
 
     const std::vector<Device*>& getOutputDevices();
     const std::vector<Device*>& getInputDevices();
 
     private:
-    DeviceManager();
-
     class Impl;
     std::unique_ptr<Impl> _pImpl;
 };
