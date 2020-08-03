@@ -24,7 +24,14 @@ class Device {
     public:
     virtual ~Device() = 0;
 
-    enum class RtCode { SUCCESS, NO_REGISTERED_CALLBACK };
+    enum class RtCode {
+        SUCCESS,
+        NO_REGISTERED_CALLBACK,
+        SYSTEM_ERROR,
+        TIME_OUT,
+        ALREADY_OPEN,
+        NOT_OPEN
+    };
 
     using ProcessingCallbackHandle = std::function<void(float*, unsigned)>;
     using AcquisitionCallbackHandle = std::function<void(const float*, unsigned)>;
