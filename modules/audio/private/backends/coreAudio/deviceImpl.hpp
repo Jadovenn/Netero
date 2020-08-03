@@ -29,29 +29,23 @@ class DeviceImpl final: public netero::audio::Device {
 
     [[nodiscard]] const netero::audio::Format& getFormat() const final { return this->_format; }
 
-    void setProcessingCallback(ProcessingCallbackHandle& cb) final {
+    void setProcessingCallback(ProcessingCallbackHandle& cb) final
+    {
         this->_processingCallback = cb;
     }
 
-    void resetProcessingCallback() final {
-        this->_processingCallback = nullptr;
-    }
+    void resetProcessingCallback() final { this->_processingCallback = nullptr; }
 
-    void setAcquisitionCallback(AcquisitionCallbackHandle& cb) final {
+    void setAcquisitionCallback(AcquisitionCallbackHandle& cb) final
+    {
         this->_acquisitionCallback = cb;
     }
 
-    void resetAcquisitionCallback() final {
-        this->_acquisitionCallback = nullptr;
-    }
+    void resetAcquisitionCallback() final { this->_acquisitionCallback = nullptr; }
 
-    void setErrorCallback(ErrorCallbackHandle& cb) final {
-        this->_errorCallback = cb;
-    }
+    void setErrorCallback(ErrorCallbackHandle& cb) final { this->_errorCallback = cb; }
 
-    void resetErrorCallback() final {
-        this->_errorCallback = nullptr;
-    }
+    void resetErrorCallback() final { this->_errorCallback = nullptr; }
 
     static OSStatus NativeCallbackHandler(AudioDeviceID inDevice,
                                           const AudioTimeStamp*,
@@ -61,7 +55,8 @@ class DeviceImpl final: public netero::audio::Device {
                                           const AudioTimeStamp*,
                                           void* context);
 
-    void reportError(const std::string& anErrorMessage) {
+    void reportError(const std::string& anErrorMessage)
+    {
         if (this->_errorCallback) {
             this->_errorCallback(anErrorMessage);
         }
@@ -69,8 +64,11 @@ class DeviceImpl final: public netero::audio::Device {
 
     private:
     bool                     _isValid;
+    bool                     _isOpen;
     UInt32                   _id;
     AudioObjectPropertyScope _scope;
+    UInt32                   _bufferIdx;
+    AudioDeviceIOProcID      _callbackID;
 
     netero::audio::Format     _format;
     ProcessingCallbackHandle  _processingCallback;
