@@ -33,6 +33,8 @@ class DeviceManager final: public patterns::ISingleton<DeviceManager> {
 
     const std::vector<Device*>& getOutputDevices();
     const std::vector<Device*>& getInputDevices();
+    [[nodiscard]] int           getDefaultOutputDeviceIdx();
+    [[nodiscard]] int           getDefaultInputDeviceIdx();
 
     private:
     class Impl;
