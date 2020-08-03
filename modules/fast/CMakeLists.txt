@@ -15,10 +15,12 @@ set(FAST_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
 
 list(APPEND PUBLIC_HEADER
         public/netero/fast/simd.hpp
-        public/netero/fast/easing.hpp)
+        public/netero/fast/easing.hpp
+        public/netero/fast/low_pass_filter.h)
 list(APPEND SRCS
         private/SIMD/biquad.s
         private/SIMD/true_pick/fp_true_pick.s
+        private/SIMD/low_pass_filter.s
         private/easing/quadratic_easing.cpp)
 
 ##====================================
