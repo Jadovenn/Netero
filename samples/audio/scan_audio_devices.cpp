@@ -17,8 +17,12 @@ int main()
 
     audioDeviceManager.scanForDevices();
     auto audioDevices = audioDeviceManager.getOutputDevices();
+    int  defaultOuputDeviceIdx = audioDeviceManager.getDefaultOutputDeviceIdx();
 
     LOG_INFO << "Output Devices:" << std::endl;
+    if (defaultOuputDeviceIdx > 0) {
+        LOG << "Default Device: " << audioDevices[defaultOuputDeviceIdx]->getName() << std::endl;
+    }
     for (auto device : audioDevices) {
         if (!device->isValid()) {
             LOG_ERROR << "Invalid device, system related error" << std::endl;
@@ -33,7 +37,12 @@ int main()
     }
 
     audioDevices = audioDeviceManager.getInputDevices();
+    int defaultInputDeviceIdx = audioDeviceManager.getDefaultInputDeviceIdx();
+
     LOG_INFO << "Input Devices:" << std::endl;
+    if (defaultInputDeviceIdx > 0) {
+        LOG << "Default Device: " << audioDevices[defaultInputDeviceIdx]->getName() << std::endl;
+    }
     for (auto device : audioDevices) {
         if (!device->isValid()) {
             LOG_ERROR << "Invalid device, system related error" << std::endl;

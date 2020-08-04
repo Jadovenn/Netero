@@ -3,9 +3,9 @@
  * see LICENSE.txt
  */
 
+#include <chrono>
 #include <cmath>
 #include <functional>
-#include <chrono>
 #include <thread>
 
 #include <netero/audio/deviceManager.hpp>
@@ -19,9 +19,13 @@ int main()
     }
 
     deviceManager.scanForDevices();
-    int defaultOutputDeviceIdx = deviceManager.getDefaultOutputDeviceIdx();
+    int   defaultOutputDeviceIdx = deviceManager.getDefaultOutputDeviceIdx();
     auto& devices = deviceManager.getOutputDevices();
-    auto* device = devices[0];
+    int   defaultOuputDeviceIdx = deviceManager.getDefaultOutputDeviceIdx();
+    if (defaultOuputDeviceIdx < 0) {
+        return 1; // Could not fetch default device properly
+    }
+    auto* device = devices[defaultOuputDeviceIdx];
 
     auto  format = device->getFormat();
     float delta = 0;
@@ -41,7 +45,9 @@ int main()
     device->open();
 
     auto start = std::chrono::system_clock::now();
-    while (10 > std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count()) {
+    while (10 > std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() -
+                                                                 start)
+                    .count()) {
         std::this_thread::yield();
     }
 
