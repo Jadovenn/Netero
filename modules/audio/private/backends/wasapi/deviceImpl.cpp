@@ -7,26 +7,27 @@
 
 #include <cassert>
 
-#include "wasapiHelpers.hpp"
-
 #include <Functiondiscoverykeys_devpkey.h>
 
 netero::audio::Device::~Device() = default;
 
 DeviceImpl::DeviceImpl(IMMDevice* aDeviceInterface, EDataFlow aDataFlow)
-    : _isValid(true),
-      _deviceInterface(aDeviceInterface),
+    : _renderingAsyncState(AsyncState::STOP),
+      _acquisitionAsyncState(AsyncState::STOP),
+      _isValid(true),
+      _isOpen(false),
+      _deviceIdentifier(aDeviceInterface),
       _dataflow(aDataFlow),
       _audioClient(nullptr),
       _wfx(nullptr)
 {
-    assert(this->_deviceInterface);
+    assert(this->_deviceIdentifier);
 
     HRESULT result =
-        this->_deviceInterface->Activate(wasapi::IID_IAudioClient,
-                                         CLSCTX_ALL,
-                                         nullptr,
-                                         reinterpret_cast<void**>(&this->_audioClient));
+        this->_deviceIdentifier->Activate(wasapi::IID_IAudioClient,
+                                          CLSCTX_ALL,
+                                          nullptr,
+                                          reinterpret_cast<void**>(&this->_audioClient));
     if (FAILED(result)) {
         this->_isValid = false;
         return;
@@ -44,7 +45,7 @@ DeviceImpl::DeviceImpl(IMMDevice* aDeviceInterface, EDataFlow aDataFlow)
     this->_deviceFomat.supportedSamplingRate.push_back(this->_wfx->nSamplesPerSec);
 
     PROPVARIANT property =
-        wasapi::GetDeviceProperty(this->_deviceInterface, PKEY_Device_FriendlyName);
+        wasapi::GetDeviceProperty(this->_deviceIdentifier, PKEY_Device_FriendlyName);
     if (!property.pwszVal) {
         this->_isValid = false;
         return;
@@ -55,7 +56,8 @@ DeviceImpl::DeviceImpl(IMMDevice* aDeviceInterface, EDataFlow aDataFlow)
         this->_name += " (loopback)";
     }
 
-    property = wasapi::GetDeviceProperty(this->_deviceInterface, PKEY_DeviceInterface_FriendlyName);
+    property =
+        wasapi::GetDeviceProperty(this->_deviceIdentifier, PKEY_DeviceInterface_FriendlyName);
     if (!property.pwszVal) {
         this->_isValid = false;
         return;
@@ -66,9 +68,49 @@ DeviceImpl::DeviceImpl(IMMDevice* aDeviceInterface, EDataFlow aDataFlow)
 
 DeviceImpl::~DeviceImpl()
 {
-    wasapi::release<IMMDevice>(&this->_deviceInterface);
+    wasapi::release<IMMDevice>(&this->_deviceIdentifier);
     wasapi::release<IAudioClient>(&this->_audioClient);
     if (this->_wfx) {
         CoTaskMemFree(this->_wfx);
     }
+}
+
+netero::audio::Device::RtCode DeviceImpl::open()
+{
+    if (this->_isOpen) {
+        return RtCode::ALREADY_OPEN;
+    }
+    if (!this->_isValid) {
+        return RtCode::SYSTEM_ERROR;
+    }
+    if (this->_dataflow == EDataFlow::eRender) {
+        if (!this->_processingCallback) {
+            return RtCode::NO_REGISTERED_CALLBACK;
+        }
+        return this->openForRendering();
+    }
+    else if (this->_dataflow == EDataFlow::eCapture || this->_dataflow == EDataFlow::eAll) {
+        if (!this->_acquisitionCallback) {
+            return RtCode::NO_REGISTERED_CALLBACK;
+        }
+        return this->openForAcquisition();
+    }
+    return RtCode::SYSTEM_ERROR;
+}
+
+netero::audio::Device::RtCode DeviceImpl::close()
+{
+    if (!this->_isOpen) {
+        return RtCode::NOT_OPEN;
+    }
+    if (!this->_isValid) {
+        return RtCode::SYSTEM_ERROR;
+    }
+    if (this->_dataflow == EDataFlow::eRender) {
+        return this->closeAfterRendering();
+    }
+    else if (this->_dataflow == EDataFlow::eCapture || this->_dataflow == EDataFlow::eAll) {
+        return this->closeAfterAcquisition();
+    }
+    return RtCode::SYSTEM_ERROR;
 }

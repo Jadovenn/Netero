@@ -32,7 +32,9 @@ if(WIN32)
             private/backends/wasapi/deviceManagerImpl.cpp
             private/backends/wasapi/deviceManagerScanForDevice.cpp
             private/backends/wasapi/deviceImpl.hpp
-            private/backends/wasapi/deviceImpl.cpp)
+            private/backends/wasapi/deviceImpl.cpp
+            private/backends/wasapi/deviceImplAcquisition.cpp
+            private/backends/wasapi/deviceImplRenderer.cpp)
     list(APPEND LINK_LIBRARIES
             avrt)
 endif(WIN32)
