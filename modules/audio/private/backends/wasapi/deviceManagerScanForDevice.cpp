@@ -28,13 +28,17 @@ netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanFor
         if (FAILED(result)) {
             continue;
         }
-
-        auto devicePtr = std::make_unique<DeviceImpl>(pEndpoint, EDataFlow::eRender);
-        this->clientOutputDevices.push_back(devicePtr.get());
-        this->ouputDevices.push_back(std::move(devicePtr));
+        auto it = std::find_if(this->outputDevices.begin(),
+                               this->outputDevices.end(),
+                               [pEndpoint](auto& device) { return *device.get() == pEndpoint; });
+        if (it == this->outputDevices.end()) {
+            auto devicePtr = std::make_unique<DeviceImpl>(pEndpoint, EDataFlow::eRender);
+            this->clientOutputDevices.push_back(devicePtr.get());
+            this->outputDevices.push_back(std::move(devicePtr));
+        }
     }
 
-    this->ouputDevices.shrink_to_fit();
+    this->outputDevices.shrink_to_fit();
     this->clientOutputDevices.shrink_to_fit();
 
     wasapi::release<IMMDeviceCollection>(&pCollection);
@@ -67,9 +71,14 @@ netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanFor
             continue;
         }
 
-        auto devicePtr = std::make_unique<DeviceImpl>(pEndpoint, EDataFlow::eCapture);
-        this->clientInputDevices.push_back(devicePtr.get());
-        this->inputDevices.push_back(std::move(devicePtr));
+        auto it = std::find_if(this->inputDevices.begin(),
+                               this->inputDevices.end(),
+                               [pEndpoint](auto& device) { return *device.get() == pEndpoint; });
+        if (it == this->inputDevices.end()) {
+            auto devicePtr = std::make_unique<DeviceImpl>(pEndpoint, EDataFlow::eCapture);
+            this->clientInputDevices.push_back(devicePtr.get());
+            this->inputDevices.push_back(std::move(devicePtr));
+        }
     }
 
     wasapi::release<IMMDeviceCollection>(&pCollection);
@@ -91,9 +100,14 @@ netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanFor
             continue;
         }
 
-        auto devicePtr = std::make_unique<DeviceImpl>(pEndpoint, EDataFlow::eAll);
-        this->clientInputDevices.push_back(devicePtr.get());
-        this->inputDevices.push_back(std::move(devicePtr));
+        auto it = std::find_if(this->inputDevices.begin(),
+                               this->inputDevices.end(),
+                               [pEndpoint](auto& device) { return *device.get() == pEndpoint; });
+        if (it == this->inputDevices.end()) {
+            auto devicePtr = std::make_unique<DeviceImpl>(pEndpoint, EDataFlow::eAll);
+            this->clientInputDevices.push_back(devicePtr.get());
+            this->inputDevices.push_back(std::move(devicePtr));
+        }
     }
 
     wasapi::release<IMMDeviceCollection>(&pCollection);

@@ -41,6 +41,50 @@ bool netero::audio::DeviceManager::isValid()
     return this->_pImpl->isValid;
 }
 
+int netero::audio::DeviceManager::getDefaultOutputDeviceIdx()
+{
+    if (this->_pImpl->outputDevices.empty()) {
+        return -1;
+    }
+    IMMDevice* deviceInterface = nullptr;
+    HRESULT    result = this->_pImpl->deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eRender,
+                                                                             ERole::eConsole,
+                                                                             &deviceInterface);
+    if (FAILED(result)) {
+        return -1;
+    }
+    int idx = 0;
+    for (auto& device : this->_pImpl->outputDevices) {
+        if (*device == deviceInterface) {
+            return idx;
+        }
+        idx += 1;
+    }
+    return -1;
+}
+
+int netero::audio::DeviceManager::getDefaultInputDeviceIdx()
+{
+    if (this->_pImpl->inputDevices.empty()) {
+        return -1;
+    }
+    IMMDevice* deviceInterface = nullptr;
+    HRESULT    result = this->_pImpl->deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture,
+                                                                             ERole::eConsole,
+                                                                             &deviceInterface);
+    if (FAILED(result)) {
+        return -1;
+    }
+    int idx = 0;
+    for (auto& device : this->_pImpl->inputDevices) {
+        if (*device == deviceInterface) {
+            return idx;
+        }
+        idx += 1;
+    }
+    return -1;
+}
+
 netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::scanForDevices()
 {
     auto result = this->_pImpl->scanForOutputDevice();

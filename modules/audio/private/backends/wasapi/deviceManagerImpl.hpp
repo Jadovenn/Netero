@@ -20,7 +20,7 @@ class netero::audio::DeviceManager::Impl {
     DeviceManager::RtCode scanForOutputDevice();
     DeviceManager::RtCode scanForInputDevice();
 
-    std::vector<std::unique_ptr<DeviceImpl>> ouputDevices;
+    std::vector<std::unique_ptr<DeviceImpl>> outputDevices;
     std::vector<Device*>                     clientOutputDevices;
 
     std::vector<std::unique_ptr<DeviceImpl>> inputDevices;
