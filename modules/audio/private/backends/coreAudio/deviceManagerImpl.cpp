@@ -98,10 +98,12 @@ int netero::audio::DeviceManager::getDefaultInputDeviceIdx()
     if (result != noErr) {
         return -1;
     }
+    int idx = 0;
     for (auto& device : this->_pImpl->inputDevices) {
         if (*device == id) {
-            return id;
+            return idx;
         }
+        idx += 1;
     }
     return -1;
 }
