@@ -40,7 +40,7 @@ int main()
     int defaultInputDeviceIdx = audioDeviceManager.getDefaultInputDeviceIdx();
 
     LOG_INFO << "Input Devices:" << std::endl;
-    if (defaultInputDeviceIdx > 0) {
+    if (defaultInputDeviceIdx >= 0) {
         LOG << "Default Device: " << audioDevices[defaultInputDeviceIdx]->getName() << std::endl;
     }
     for (auto device : audioDevices) {
