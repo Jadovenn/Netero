@@ -1,9 +1,19 @@
 
-FROM ubuntu:disco
+FROM alpine:latest
 
-RUN apt-get update && \
-    apt-get install -y g++ curl nasm python3 python3-pip cmake ninja-build lcov && \
-    pip3 install pytest pytest-cov
+RUN apk add --no-cache g++
+RUN apk add --no-cache curl
+RUN apk add --no-cache nasm
+RUN apk add --no-cache python3
+RUN apk add --no-cache perl
+RUN apk add --no-cache perl-io-gzip
+RUN apk add --no-cache perl-json
+RUN apk add --no-cache bash
+RUN apk add --no-cache cmake
+RUN apk add --no-cache make
+RUN apk add --no-cache git
+RUN apk add --no-cache gtest-dev
 
-#This layer will go away when GCC 9+ becomes default
-RUN apt-get install -y gcc-9 g++-9
+RUN git clone https://github.com/linux-test-project/lcov.git && make install -C lcov
+
+RUN pip3 install pytest pytest-cov

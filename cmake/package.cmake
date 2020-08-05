@@ -1,0 +1,25 @@
+
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Real time utility library.")
+set(CPACK_PACKAGE_VENDOR "Netero")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../README.md")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
+if(WIN32 AND NOT UNIX)
+    # There is a bug in NSI that does not handle full UNIX paths properly.
+    # Make sure there is at least one set of four backlashes.
+    set(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+    set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
+    set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
+    set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\codedoc.com")
+    set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\github.com\\\\domage_j\\\\netero")
+    set(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
+    set(CPACK_NSIS_MODIFY_PATH ON)
+else()
+    set(CPACK_STRIP_FILES "bin/MyExecutable")
+    set(CPACK_SOURCE_STRIP_FILES "")
+endif()
+set(CPACK_PACKAGE_EXECUTABLES "MyExecutable" "My Executable")
+

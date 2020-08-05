@@ -10,40 +10,58 @@ message(STATUS "Configure Netero Memcheck")
 ##  Core Sources
 ##====================================
 
+set(MEMCHECK_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
+set(MEMCHECK_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
+
 list(APPEND PUBLIC_HEADER
-        ${HEADERS_DIRECTORY}/memcheck/block.hpp
-        ${HEADERS_DIRECTORY}/memcheck/new.hpp)
+        public/netero/memcheck/block.hpp
+        public/netero/memcheck/new.hpp)
 
 list(APPEND SRCS
-        new.cpp)
+        private/new.cpp)
 
-add_library(neteroMemcheck STATIC ${SRCS} ${PUBLIC_HEADER})
-add_library(Netero::Memcheck ALIAS neteroMemcheck)
-target_include_directories(neteroMemcheck
+add_library(NeteroMemcheck STATIC ${SRCS} ${PUBLIC_HEADER})
+add_dependencies(NeteroMemcheck Netero::Netero)
+target_compile_features(NeteroMemcheck PUBLIC cxx_std_17)
+target_include_directories(NeteroMemcheck
     PUBLIC
         $<INSTALL_INTERFACE:include>
-        $<BUILD_INTERFACE:${INCLUDE_DIRECTORY_PATH}>
+        $<BUILD_INTERFACE:${MEMCHECK_PUBLIC}>
+    PRIVATE
+        $<BUILD_INTERFACE:${Netero_Core_INCLUDE_DIRS}>
 )
 
-target_compile_features(neteroMemcheck PUBLIC cxx_std_17)
+add_library(Netero::Memcheck ALIAS NeteroMemcheck)
+
+##====================================
+##  Global Variables
+##====================================
+
+set(Netero_Memcheck_FOUND True CACHE INTERNAL "Netero Memcheck FOUND flag.")
+
+set(Netero_Memcheck_INCLUDE_DIRS "${MEMCHECK_PUBLIC}" CACHE INTERNAL "" FORCE)
+
+set(Netero_INCLUDE_DIRS
+        "${Netero_INCLUDE_DIRS}"
+        "${MEMCHECK_PUBLIC}" CACHE INTERNAL "Netero include directories.")
 
 ##====================================
 ##  Install rules
 ##====================================
 
-install(TARGETS neteroMemcheck
-        EXPORT memcheck-export
+install(TARGETS NeteroMemcheck
+        EXPORT NeteroMemcheck-export
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install(EXPORT memcheck-export
+install(EXPORT NeteroMemcheck-export
         FILE
-            memcheckTargets.cmake
+            NeteroMemcheckTargets.cmake
         NAMESPACE
             Netero::
         DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/lib/cmake/netero)
-install(DIRECTORY ${INCLUDE_DIRECTORY_PATH}/netero/memcheck
+            ${CMAKE_INSTALL_PREFIX}/cmake/netero)
+install(DIRECTORY public/netero/memcheck
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")
 

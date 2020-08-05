@@ -11,21 +11,23 @@ project(netero
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENTIONS OFF)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-    ##find_package(Doxygen)
     include(CTest)
-    enable_testing()
-    if(Doxygen_FOUND)
-        add_subdirectory(docs)
-    else()
-        message(STATUS "Doxygen not found, not building docs")
-    endif(Doxygen_FOUND)
+    include(CPack)
+    include(cmake/add_test_project.cmake)
+    include(FetchContent)
+    if(${CMAKE_VERSION} VERSION_LESS 3.14)
+        include(cmake/add_FetchContent_MakeAvailable.cmake)
+    endif()
+    if (NETERO_UNIT_TEST)
+        enable_testing()
+        message("-- Cloning GTest")
+        FetchContent_Declare(
+            GTest
+            GIT_REPOSITORY https://github.com/google/googletest.git
+        )
+        FetchContent_MakeAvailable(GTest)
+    endif(NETERO_UNIT_TEST)
     source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${PUBLIC_HEADER})
-endif()
-
-# FetchContent added in CMake 3.11, downloads during the configure step
-include(FetchContent)
-if(${CMAKE_VERSION} VERSION_LESS 3.14)
-    include(cmake/add_FetchContent_MakeAvailable.cmake)
 endif()
 
 add_compile_options("$<$<CONFIG:RELEASE>:-O2>")
@@ -35,24 +37,21 @@ add_compile_options("$<$<CONFIG:RELEASE>:-O2>")
 ##====================================
 
 ## Submodule config
-OPTION(NETERO_ECS "ecs, contain Entity Component System architecture" ON)
-OPTION(NETERO_AUDIO "Audio engine" ON)
-OPTION(NETERO_GRAPHICS "Graphics component based on ecs submodule" ON)
+OPTION(NETERO_FAST "Fast module library." ON)
+OPTION(NETERO_AUDIO "Audio module library." ON)
+OPTION(NETERO_GRAPHICS "Graphics module library." ON)
+OPTION(NETERO_PATTERNS "Patterns module library." ON)
 OPTION(NETERO_EXTRA "Self hosted STB lib components." ON)
-OPTION(NETERO_MEMCHECK "Lightweight memory checker." ON)
+OPTION(NETERO_MEMCHECK "Memory checker library." ON)
 
 ## Other config
 OPTION(NETERO_UNIT_TEST "Netero unit tests." OFF)
-OPTION(NETERO_TOOLS "Netero additional tools." OFF)
+OPTION(NETERO_SAMPLES "Netero samples." OFF)
 
 ## Build config mainly for CI
 OPTION(WIN32_STATIC "Link statically with win32's dll" OFF)
 OPTION(CODE_COVERAGE "Enable coverage reporting" OFF)
 OPTION(MOCK_INTERFACES "Enable mock interfaces" OFF)
-
-set(INCLUDE_DIRECTORY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/netero)
-set(netero_INCLUDE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Add required flags (GCC & LLVM/Clang)
@@ -69,31 +68,41 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     endif()
 endif()
 
+##====================================
+##  Extra CMAKE script by modules
+##====================================
+
 if (NETERO_GRAPHICS)
-    include(cmake/netero-graphics-function.cmake)
+    include(cmake/add_graphics_function.cmake)
 endif(NETERO_GRAPHICS)
 
+if (NETERO_FAST)
+    include(cmake/enable_nasm.cmake)
+endif(NETERO_FAST)
+
 ##====================================
-##  Sub-project
+##  include modules projects
 ##====================================
 
 add_subdirectory(modules/core)
-if (NETERO_AUDIO)
-    add_subdirectory(modules/audio)
-endif(NETERO_AUDIO)
 
-if (NETERO_ECS)
-    add_subdirectory(modules/ecs)
-endif(NETERO_ECS)
+if (NETERO_FAST)
+    add_subdirectory(modules/fast)
+endif(NETERO_FAST)
+
+if (NETERO_PATTERNS)
+    add_subdirectory(modules/patterns)
+endif(NETERO_PATTERNS)
 
 if (NETERO_EXTRA)
     add_subdirectory(modules/extra)
 endif(NETERO_EXTRA)
 
+if (NETERO_AUDIO)
+    add_subdirectory(modules/audio)
+endif(NETERO_AUDIO)
+
 if(NETERO_GRAPHICS)
-    if(NOT NETERO_ECS)
-        message(FATAL_ERROR "GRAPHICS rely on ECS, ECS must be activated")
-    endif(NOT NETERO_ECS)
     if(NOT NETERO_EXTRA)
         message(FATAL_ERROR "GRAPHICS rely on EXTRA, EXTRA must be activated")
     endif(NOT NETERO_EXTRA)
@@ -104,22 +113,13 @@ if(NETERO_MEMCHECK)
     add_subdirectory(modules/memcheck)
 endif(NETERO_MEMCHECK)
 
-if(NETERO_TOOLS)
-    add_subdirectory(tools)
-endif(NETERO_TOOLS)
+if(NETERO_SAMPLES)
+    add_subdirectory(samples)
+endif(NETERO_SAMPLES)
 
 ##====================================
 ##  Global install rules
 ##====================================
 
-install(FILES cmake/netero-config.cmake
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-
-##====================================
-##  Tests
-##====================================
-
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING AND NETERO_UNIT_TEST)
-    add_subdirectory(tests)
-endif()
-
+install(FILES cmake/Netero-config.cmake
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake)

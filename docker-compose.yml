@@ -3,7 +3,7 @@ version: '3'
 services:
   ci:
     container_name: netero-ci
-    image: jadomage/ci-gcc-nasm-cmake-lcov:0.0.3
+    image: jadomage/ci-gcc-nasm-cmake-lcov:0.0.6
     volumes:
       - .:/opt/netero
     command: bash -c "
@@ -15,5 +15,6 @@ services:
       && make test
       && lcov --capture --directory . --output-file coverage.info
       && lcov --remove coverage.info '/usr/*' --output-file coverage.info
+      && lcov --remove coverage.info '/opt/netero/build/_deps/*' --output-file coverage.info
       && lcov --list coverage.info"
 
