@@ -41,7 +41,7 @@ bool WaveFile::is_open()
 WaveFile::RtCode WaveFile::open(const std::string& name, std::ios_base::openmode mode)
 {
     if (this->_isOpen) {
-        return RtCode::ALREDY_OPEN;
+        return RtCode::ALREADY_OPEN;
     }
     if (mode & std::fstream::in && mode & std::fstream::out) {
         return RtCode::BI_DIRECTIONAL_DATAFLOW_NOT_SUPPORTED;
@@ -97,7 +97,7 @@ WaveFile::RtCode WaveFile::close()
         this->_file.seekg(0, std::fstream::end);
         int length = this->_file.tellp();
         this->_file.seekg(0, std::fstream::beg);
-        int dataLength = (length - sizeof(WaveHeader)) * sizeof(float);
+        int dataLength = (length - sizeof(WaveHeader));
         this->_waveFileHeader.header.FileSize = dataLength + sizeof(WaveHeader) - 8;
         this->_waveFileHeader.data.DataSize = dataLength;
         this->_file.write(reinterpret_cast<char*>(&this->_waveFileHeader), sizeof(WaveHeader));
@@ -108,14 +108,22 @@ WaveFile::RtCode WaveFile::close()
     return RtCode::SUCCESS;
 }
 
-int WaveFile::read(float*, size_t)
+WaveFile::RtCode WaveFile::read(float* outBuffer, size_t size)
 {
-    return 0;
+    if (!(this->_mode & std::fstream::in)) {
+        return RtCode::NOT_SUPPORTED;
+    }
+    this->_file.read(reinterpret_cast<char*>(outBuffer), size * sizeof(float));
+    return RtCode::SUCCESS;
 }
 
-int WaveFile::write(const float*, size_t)
+WaveFile::RtCode WaveFile::write(const float* inBuffer, size_t size)
 {
-    return 0;
+    if (!(this->_mode & std::fstream::out)) {
+        return RtCode::NOT_SUPPORTED;
+    }
+    this->_file.write(reinterpret_cast<const char*>(inBuffer), size * sizeof(float));
+    return RtCode::SUCCESS;
 }
 
 } // namespace netero::audio
