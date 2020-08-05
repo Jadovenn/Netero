@@ -11,13 +11,12 @@
 
 Netero's libs help you create applications with real-time problems, events management, and deal with shared resources.
 
-Netero aims to expose monolithic containers and patterns working beside the STL
-in the most generic way. I tried to make as much as possible Netero features supported
-under Windows, linux based OS and macOs.
+It aims to expose monolithic containers and patterns working beside the STL.
+I tried to make as much as possible features supported under Windows, linux based OS and macOs.
+
+You'll find very basic algorithm container, patterns (like ecs, observer, ... ), math easing/function/primitive under steroids, an audio api and a very basic renderer.
 
 You can access to the documentation by clicking on the "documented" badge.
-Feel free to join the dedicated discord server to chat with me.
-
-You'll find very basic algorithm container, patterns (like ecs, observer, ... ), math primitive boosted with SIMD, an audio api and a graphics renderer.
+Feel free to join the dedicated discord server to chat.
 
 The library is in its very early stage.
