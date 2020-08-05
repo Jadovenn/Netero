@@ -9,16 +9,9 @@
 #include <string>
 #include <vector>
 
-namespace netero::audio {
+#include <netero/audio/format.hpp>
 
-struct Format {
-    unsigned           framesCount = 0;
-    unsigned           bytesPerFrame = 0;
-    unsigned           bytesPerSample = 0;
-    unsigned           channels = 0;
-    unsigned           samplingFrequency = 0;
-    std::vector<float> supportedSamplingRate = {};
-};
+namespace netero::audio {
 
 class Device {
     public:
