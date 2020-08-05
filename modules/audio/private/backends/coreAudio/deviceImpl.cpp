@@ -15,7 +15,7 @@ static std::string cf_string_to_std_string(CFStringRef &cf_str)
     int   length = CFStringGetLength(cf_str);
     char *c_str = new (std::nothrow) char[(length * 3 + 1)];
     if (!c_str) {
-        throw std::bad_alloc();
+        return "";
     }
 #if defined(UNICODE) || defined(_UNICODE)
     CFStringGetCString(cf_str, c_str, length * 3 + 1, kCFStringEncodingUTF8);
@@ -185,7 +185,7 @@ OSStatus DeviceImpl::NativeCallbackHandler(AudioDeviceID inDevice,
 static OSStatus
 RateListener(AudioObjectID inDevice, UInt32, const AudioObjectPropertyAddress *, void *ratePointer)
 {
-    auto *                     rate = reinterpret_cast<Float64*>(ratePointer);
+    auto *                     rate = reinterpret_cast<Float64 *>(ratePointer);
     UInt32                     data_size = sizeof(Float64);
     AudioObjectPropertyAddress property = { kAudioDevicePropertyNominalSampleRate,
                                             kAudioObjectPropertyScopeGlobal,
@@ -218,7 +218,7 @@ netero::audio::Device::RtCode DeviceImpl::open()
     }
     bufferList = new (std::nothrow) AudioBufferList[dataSize];
     if (!bufferList) {
-        throw std::bad_alloc();
+        return RtCode::SYSTEM_ERROR;
     }
     result = AudioObjectGetPropertyData(this->_id, &property, 0, nullptr, &dataSize, bufferList);
     if (result != noErr || dataSize == 0) {
