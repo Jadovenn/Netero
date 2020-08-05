@@ -24,7 +24,7 @@ class WaveFile {
     public:
     enum class RtCode {
         SUCCESS = 0,
-        ALREDY_OPEN = 1,
+        ALREADY_OPEN = 1,
         NOT_OPEN = 2,
         FORMAT_ERROR = 3,
         SYSTEM_ERROR = 4,
@@ -46,8 +46,8 @@ class WaveFile {
 
     bool is_open();
 
-    int read(float*, size_t);
-    int write(const float*, size_t);
+    RtCode read(float*, size_t);
+    RtCode write(const float*, size_t);
 
     [[nodiscard]] const Format& getFormat() const { return this->_fileAudioFormat; }
     RtCode                      setFormat(const Format&);
