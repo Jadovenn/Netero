@@ -16,9 +16,11 @@ set(AUDIO_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
 list(APPEND PUBLIC_HEADER
         public/netero/audio/deviceManager.hpp
         public/netero/audio/device.hpp
-        )
+        public/netero/audio/wave.hpp
+        public/netero/audio/waveFile.hpp)
 
-##list(APPEND SRCS )
+list(APPEND SRCS
+        private/waveFile.cpp)
 
 ##====================================
 ##  OS dependent sources
