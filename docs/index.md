@@ -6,8 +6,7 @@ A great place to start is the samples folder.
 
 ## Introduction
 
-Netero help you create application with real time problematics,
-events management and deal with shared resources.
+Netero help you create application with real time problematics, events management and deal with shared resources.
 Netero is a set of libraries, each library is considered as a module.
 
 The project use cmake to generate and build the solution, it could be integrated
