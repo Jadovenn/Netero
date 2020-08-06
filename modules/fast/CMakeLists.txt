@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.11...3.16)
 project(neteroFast
         VERSION 0.1.0
         DESCRIPTION "Netero fast module"
-        LANGUAGES C CXX)
+        LANGUAGES C CXX ASM_NASM)
 
 message(STATUS "Configure Netero Fast module.")
+
 
 ##====================================
 ##  Sources
@@ -18,10 +19,8 @@ list(APPEND PUBLIC_HEADER
         public/netero/fast/easing.hpp
         public/netero/fast/low_pass_filter.h)
 list(APPEND SRCS
-        private/SIMD/biquad.s
-        private/SIMD/true_pick/fp_true_pick.s
-        private/SIMD/low_pass_filter.s
-        private/easing/quadratic_easing.cpp)
+        private/easing_quadratic.cpp
+        private/low_pass_filter.asm)
 
 ##====================================
 ##  Target
