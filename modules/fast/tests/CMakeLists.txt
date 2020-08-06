@@ -7,7 +7,6 @@ project(NeteroTests
 add_unit_test(NAME Fast_easing_test
                 SOURCES
                     easing_test.cpp
-                    low_pass_filter.cpp
                 INCLUDE_DIRS
                     ${Netero_INCLUDE_DIRS}
                 DEPENDS

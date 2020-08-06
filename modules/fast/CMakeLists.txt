@@ -16,11 +16,9 @@ set(FAST_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
 
 list(APPEND PUBLIC_HEADER
         public/netero/fast/simd.hpp
-        public/netero/fast/easing.hpp
-        public/netero/fast/low_pass_filter.h)
+        public/netero/fast/easing.hpp)
 list(APPEND SRCS
-        private/easing_quadratic.cpp
-        private/low_pass_filter.asm)
+        private/easing_quadratic.cpp)
 
 ##====================================
 ##  Target
