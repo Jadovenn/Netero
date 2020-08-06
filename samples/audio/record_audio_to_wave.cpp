@@ -24,6 +24,7 @@ int ChooseDevice()
     int idx = 0;
     for (auto& device : devices) {
         LOG << idx << ": " << device->getName() << std::endl;
+        idx += 1;
     }
 
     LOG << "idx ? => ";
