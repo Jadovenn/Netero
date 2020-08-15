@@ -14,14 +14,15 @@ namespace netero::graphics {
 class Device;
 class Model;
 
+// Pipeline should be Renderer
 class Pipeline {
     void createSwapchain();
     void createImageViews();
     void createUniformBuffers();
     void createRenderPass();
+    void createDepthResources();
     void createFrameBuffers();
     void createCommandPool();
-    void createDepthRessources();
     void createCommandBuffers(std::vector<Model*>&);
 
     VkInstance                 _instance;
