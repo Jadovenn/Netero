@@ -82,7 +82,8 @@ void Texture::createTexturesView()
 {
     this->_imageView = vkUtils::CreateImageView(this->_device->logicalDevice,
                                                 this->_image,
-                                                VK_FORMAT_R8G8B8A8_SRGB);
+                                                VK_FORMAT_R8G8B8A8_SRGB,
+                                                VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 void Texture::createTexturesSampler()

@@ -9,7 +9,8 @@
 
 namespace vkUtils {
 
-VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format)
+VkImageView
+CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
 {
     VkImageView           imageView;
     VkImageViewCreateInfo viewInfo {};
@@ -17,7 +18,7 @@ VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format)
     viewInfo.image = image;
     viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
     viewInfo.format = format;
-    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.aspectMask = aspectFlags;
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -57,7 +58,8 @@ VkFormat FindDepthBufferingImageFormat(netero::graphics::Device& device)
         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 }
 
-bool HasStencilComponent(VkFormat format) {
+bool HasStencilComponent(VkFormat format)
+{
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 

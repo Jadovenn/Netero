@@ -92,7 +92,7 @@ void TransferImage(VkCommandBuffer cmdBuffer,
                    uint32_t        height);
 
 // Image related
-VkImageView CreateImageView(VkDevice, VkImage, VkFormat);
+VkImageView CreateImageView(VkDevice, VkImage, VkFormat, VkImageAspectFlags);
 VkFormat    SelectSupportedImageFormat(netero::graphics::Device&,
                                        const std::vector<VkFormat>&,
                                        VkImageTiling,
