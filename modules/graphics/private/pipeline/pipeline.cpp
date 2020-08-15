@@ -47,13 +47,17 @@ void Pipeline::build(std::vector<Model*>& models)
     // 4. Build model
     this->buildModels(models);
     // 5. Create FrameBuffers and command pool/buffer
-    this->createFrameBuffers();
     this->createCommandPool();
+    this->createDepthResources();
+    this->createFrameBuffers();
     this->createCommandBuffers(models);
 }
 
 void Pipeline::release()
 {
+    vkDestroyImageView(_device->logicalDevice, _depthImageView, nullptr);
+    vkDestroyImage(_device->logicalDevice, _depthImage, nullptr);
+    vkFreeMemory(_device->logicalDevice, _depthImageMemory, nullptr);
     for (auto* frameBuffer : this->_swapchainFrameBuffers) {
         vkDestroyFramebuffer(this->_device->logicalDevice, frameBuffer, nullptr);
     }
@@ -83,6 +87,7 @@ void Pipeline::rebuild(std::vector<Model*>& models)
     this->createImageViews();
     this->createRenderPass();
     this->rebuildModels(models);
+    this->createDepthResources();
     this->createFrameBuffers();
     this->createCommandBuffers(models);
 }
@@ -226,10 +231,25 @@ void Pipeline::createRenderPass()
     VkAttachmentReference colorAttachmentRef;
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentDescription depthAttachment {};
+    depthAttachment.format = vkUtils::FindDepthBufferingImageFormat(*_device);
+    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    VkAttachmentReference depthAttachmentRef {};
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
     VkSubpassDescription subpass {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
     VkSubpassDependency dependency {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
@@ -237,10 +257,12 @@ void Pipeline::createRenderPass()
     dependency.srcAccessMask = 0;
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    VkRenderPassCreateInfo renderPassInfo {};
+
+    std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+    VkRenderPassCreateInfo                 renderPassInfo {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassInfo.pAttachments = attachments.data();
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
     renderPassInfo.dependencyCount = 1;
@@ -254,17 +276,37 @@ void Pipeline::createRenderPass()
     }
 }
 
+void Pipeline::createDepthResources()
+{
+    VkFormat depthFormat = vkUtils::FindDepthBufferingImageFormat(*this->_device);
+    assert(depthFormat != VK_FORMAT_UNDEFINED);
+    auto [image, imageMemory] = vkUtils::AllocImage(this->_device,
+                                                    swapchainExtent.width,
+                                                    swapchainExtent.height,
+                                                    depthFormat,
+                                                    VK_IMAGE_TILING_OPTIMAL,
+                                                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    _depthImage = image;
+    _depthImageMemory = imageMemory;
+    _depthImageView = vkUtils::CreateImageView(_device->logicalDevice,
+                                               _depthImage,
+                                               depthFormat,
+                                               VK_IMAGE_ASPECT_DEPTH_BIT);
+}
+
 void Pipeline::createFrameBuffers()
 {
     this->_swapchainFrameBuffers.resize(this->_swapchainImageViews.size());
     for (size_t i = 0; i < this->_swapchainImageViews.size(); i++) {
-        VkImageView attachments[] = { this->_swapchainImageViews[i] };
+        std::array<VkImageView, 2> attachments = { this->_swapchainImageViews[i],
+                                                   this->_depthImageView };
 
         VkFramebufferCreateInfo frameBufferInfo {};
         frameBufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         frameBufferInfo.renderPass = this->_renderPass;
-        frameBufferInfo.attachmentCount = 1;
-        frameBufferInfo.pAttachments = attachments;
+        frameBufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        frameBufferInfo.pAttachments = attachments.data();
         frameBufferInfo.width = this->swapchainExtent.width;
         frameBufferInfo.height = this->swapchainExtent.height;
         frameBufferInfo.layers = 1;
@@ -319,15 +361,18 @@ void Pipeline::createCommandBuffers(std::vector<Model*>& models)
         if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
             throw std::runtime_error("Failed to begin recording command buffer.");
         }
-        VkClearValue          clearColor = { 0.f, 0.f, 0.f, 1.f };
+        std::array<VkClearValue, 2> clearValues {};
+        clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+        clearValues[1].depthStencil = { 1.0f, 0 };
+
         VkRenderPassBeginInfo renderPassInfo {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = this->_renderPass;
         renderPassInfo.framebuffer = this->_swapchainFrameBuffers[i];
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = this->swapchainExtent;
-        renderPassInfo.clearValueCount = 1;
-        renderPassInfo.pClearValues = &clearColor;
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
         vkCmdBeginRenderPass(this->commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         for (auto* model : models) {
             model->commitRenderCommand(commandBuffers[i], i);

@@ -14,11 +14,13 @@ namespace netero::graphics {
 class Device;
 class Model;
 
+// Pipeline should be Renderer
 class Pipeline {
     void createSwapchain();
     void createImageViews();
     void createUniformBuffers();
     void createRenderPass();
+    void createDepthResources();
     void createFrameBuffers();
     void createCommandPool();
     void createCommandBuffers(std::vector<Model*>&);
@@ -30,6 +32,9 @@ class Pipeline {
     VkPipelineLayout           _pipelineLayout;
     VkPipeline                 _graphicsPipeline;
     VkCommandPool              _commandPool;
+    VkImage                    _depthImage;
+    VkDeviceMemory             _depthImageMemory;
+    VkImageView                _depthImageView;
     VkFormat                   _swapchainImageFormat = VK_FORMAT_UNDEFINED;
     std::vector<VkImageView>   _swapchainImageViews;
     std::vector<VkFramebuffer> _swapchainFrameBuffers;

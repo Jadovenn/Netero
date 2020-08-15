@@ -62,7 +62,7 @@ int32_t FindMemoryType(VkPhysicalDevice      physicalDevice,
                        uint32_t              typeFilter,
                        VkMemoryPropertyFlags properties);
 std::pair<VkBuffer, VkDeviceMemory>
-                                   AllocBuffer(netero::graphics::Device*, VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags);
+AllocBuffer(netero::graphics::Device*, VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags);
 std::pair<VkImage, VkDeviceMemory> AllocImage(netero::graphics::Device*,
                                               uint32_t,
                                               uint32_t,
@@ -92,7 +92,13 @@ void TransferImage(VkCommandBuffer cmdBuffer,
                    uint32_t        height);
 
 // Image related
-VkImageView CreateImageView(VkDevice, VkImage, VkFormat);
+VkImageView CreateImageView(VkDevice, VkImage, VkFormat, VkImageAspectFlags);
+VkFormat    SelectSupportedImageFormat(netero::graphics::Device&,
+                                       const std::vector<VkFormat>&,
+                                       VkImageTiling,
+                                       VkFormatFeatureFlags);
+VkFormat    FindDepthBufferingImageFormat(netero::graphics::Device&);
+bool        HasStencilComponent(VkFormat format);
 
 // Validation layers related
 std::vector<const char*> getRequiredExtensions();

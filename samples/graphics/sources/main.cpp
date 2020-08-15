@@ -23,18 +23,18 @@ const std::string g_TexturedColorFragmentShader_path =
 const std::string g_texture = netero::os::getBundlePath() + "/textures/cat.png";
 
 std::vector<netero::graphics::Vertex> squareVertices {
-    { { -0.5f, -0.5f }, { 1.f, 0.0f, 0.f }, { 0.f, 0.f } },
-    { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.f, 0.f } },
-    { { 0.5f, 0.5f }, { 0.f, 0.0f, 1.f }, { 1.f, 1.f } },
-    { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.f, 1.f } }
+    { { -0.5f, -0.5f, 0.f }, { 1.f, 0.0f, 0.f }, { 0.f, 0.f } },
+    { { 0.5f, -0.5f, 0.f }, { 0.0f, 1.0f, 0.0f }, { 1.f, 0.f } },
+    { { 0.5f, 0.5f, 0.f }, { 0.f, 0.0f, 1.f }, { 1.f, 1.f } },
+    { { -0.5f, 0.5f, 0.f }, { 1.0f, 1.0f, 1.0f }, { 0.f, 1.f } }
 };
 
 std::vector<uint16_t> squareIndices { 0, 1, 2, 2, 3, 0 };
 
 std::vector<netero::graphics::Vertex> triangleVertices {
-    { { 0.f, -0.2f }, { 1.f, 0.0f, 0.f } },
-    { { 0.25f, 0.25f }, { 0.0f, 1.0f, 0.0f } },
-    { { -0.25f, 0.25f }, { 0.f, 0.0f, 1.f } },
+    { { 0.f, -0.2f, 0.f }, { 1.f, 0.0f, 0.f } },
+    { { 0.25f, 0.25f, 0.f }, { 0.0f, 1.0f, 0.0f } },
+    { { -0.25f, 0.25f, 0.f }, { 0.f, 0.0f, 1.f } },
 };
 
 struct GraphicSampleApp {
@@ -44,6 +44,7 @@ struct GraphicSampleApp {
     netero::graphics::Model*       triangle = nullptr;
     netero::graphics::Instance*    squareInstance1 = nullptr;
     netero::graphics::Instance*    squareInstance2 = nullptr;
+    netero::graphics::Instance*    squareInstance3 = nullptr;
     netero::graphics::Instance*    triangleInstance1 = nullptr;
 };
 
@@ -57,7 +58,7 @@ void RunApplication(GraphicSampleApp* myApp)
             std::chrono::duration<float, std::chrono::seconds::period>(now - startTime).count();
         myApp->triangleInstance1->z.rotate(time * glm::radians(45.0f));
         myApp->squareInstance1->z.rotate(time * glm::radians(90.0f));
-        myApp->squareInstance2->z.rotate(-1 * time * glm::radians(30.0f));
+        myApp->squareInstance3->z.rotate(-1 * time * glm::radians(30.0f));
         myApp->context->update();
     }
     myApp->context->release();
@@ -83,23 +84,30 @@ void InitializeApp(GraphicSampleApp* myApp)
     myApp->squareInstance1 = myApp->square->createInstance();
     myApp->squareInstance1->x = 0.5;
     myApp->squareInstance1->y = -0.25;
+    myApp->squareInstance1->z = 0;
     myApp->squareInstance1->x.scale(0.5);
     myApp->squareInstance1->y.scale(0.5);
     myApp->squareInstance2 = myApp->square->createInstance();
-    myApp->squareInstance2->x = -0.5;
+    myApp->squareInstance2->x = 0;
     myApp->squareInstance2->y = -0.25;
+    myApp->squareInstance2->z = -0.25;
     myApp->squareInstance2->x.scale(0.5);
     myApp->squareInstance2->y.scale(0.5);
+    myApp->squareInstance3 = myApp->square->createInstance();
+    myApp->squareInstance3->x = -0.5;
+    myApp->squareInstance3->y = -0.25;
+    myApp->squareInstance3->z = -0.5;
+    myApp->squareInstance3->x.scale(0.5);
+    myApp->squareInstance3->y.scale(0.5);
     myApp->triangleInstance1 = myApp->triangle->createInstance();
-    myApp->triangleInstance1->y = 0.25;
-    myApp->triangleInstance1->x.scale(2);
-    myApp->triangleInstance1->y.scale(2);
+    myApp->triangleInstance1->y = 0.5;
 }
 
 void CleanUpApp(GraphicSampleApp* myApp)
 {
     myApp->square->deleteInstance(myApp->squareInstance1);
     myApp->square->deleteInstance(myApp->squareInstance2);
+    myApp->square->deleteInstance(myApp->squareInstance3);
     myApp->triangle->deleteInstance(myApp->triangleInstance1);
     myApp->context->deleteModel(myApp->square);
     myApp->context->deleteModel(myApp->triangle);
