@@ -21,6 +21,7 @@ class Pipeline {
     void createRenderPass();
     void createFrameBuffers();
     void createCommandPool();
+    void createDepthRessources();
     void createCommandBuffers(std::vector<Model*>&);
 
     VkInstance                 _instance;
@@ -30,6 +31,9 @@ class Pipeline {
     VkPipelineLayout           _pipelineLayout;
     VkPipeline                 _graphicsPipeline;
     VkCommandPool              _commandPool;
+    VkImage                    _depthImage;
+    VkDeviceMemory             _depthImageMemory;
+    VkImageView                _depthImageView;
     VkFormat                   _swapchainImageFormat = VK_FORMAT_UNDEFINED;
     std::vector<VkImageView>   _swapchainImageViews;
     std::vector<VkFramebuffer> _swapchainFrameBuffers;

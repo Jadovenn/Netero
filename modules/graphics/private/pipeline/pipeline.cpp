@@ -296,6 +296,10 @@ void Pipeline::createCommandPool()
     }
 }
 
+void Pipeline::createDepthRessources()
+{
+}
+
 void Pipeline::createCommandBuffers(std::vector<Model*>& models)
 {
     this->commandBuffers.resize(this->_swapchainFrameBuffers.size());

@@ -69,6 +69,7 @@ list(APPEND SRCS
         private/model/model.cpp
         private/model/vk_model_pipeline.cpp
         private/utils/vkUtils.hpp
+        private/utils/VkImage.cpp
         private/utils/vkCheckValidationLayerSupport.cpp
         private/utils/vkExtentionLoaders.cpp
         private/utils/vkDebugCallbacks.cpp
