@@ -23,18 +23,18 @@ const std::string g_TexturedColorFragmentShader_path =
 const std::string g_texture = netero::os::getBundlePath() + "/textures/cat.png";
 
 std::vector<netero::graphics::Vertex> squareVertices {
-    { { -0.5f, -0.5f }, { 1.f, 0.0f, 0.f }, { 0.f, 0.f } },
-    { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.f, 0.f } },
-    { { 0.5f, 0.5f }, { 0.f, 0.0f, 1.f }, { 1.f, 1.f } },
-    { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.f, 1.f } }
+    { { -0.5f, -0.5f, 0.f }, { 1.f, 0.0f, 0.f }, { 0.f, 0.f } },
+    { { 0.5f, -0.5f, 0.f }, { 0.0f, 1.0f, 0.0f }, { 1.f, 0.f } },
+    { { 0.5f, 0.5f, 0.f }, { 0.f, 0.0f, 1.f }, { 1.f, 1.f } },
+    { { -0.5f, 0.5f, 0.f }, { 1.0f, 1.0f, 1.0f }, { 0.f, 1.f } }
 };
 
 std::vector<uint16_t> squareIndices { 0, 1, 2, 2, 3, 0 };
 
 std::vector<netero::graphics::Vertex> triangleVertices {
-    { { 0.f, -0.2f }, { 1.f, 0.0f, 0.f } },
-    { { 0.25f, 0.25f }, { 0.0f, 1.0f, 0.0f } },
-    { { -0.25f, 0.25f }, { 0.f, 0.0f, 1.f } },
+    { { 0.f, -0.2f, 0.f }, { 1.f, 0.0f, 0.f } },
+    { { 0.25f, 0.25f, 0.f }, { 0.0f, 1.0f, 0.0f } },
+    { { -0.25f, 0.25f, 0.f }, { 0.f, 0.0f, 1.f } },
 };
 
 struct GraphicSampleApp {
