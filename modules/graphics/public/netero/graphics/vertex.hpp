@@ -5,10 +5,14 @@
 
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <array>
+#include <utility>
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
 #include <vulkan/vulkan.h>
 
 #include <netero/graphics/device.hpp>
@@ -48,6 +52,11 @@ struct Vertex {
 
         return attributeDescriptions;
     }
+
+    bool operator==(const Vertex& other) const
+    {
+        return pos == other.pos && color == other.color && texCord == other.texCord;
+    }
 };
 
 class VertexBuffer {
@@ -75,3 +84,14 @@ class VertexBuffer {
 };
 
 } // namespace netero::graphics
+
+namespace std {
+template<>
+struct hash<netero::graphics::Vertex> {
+    size_t operator()(netero::graphics::Vertex const& vertex) const
+    {
+        return ((hash<glm::vec3>()(vertex.pos) ^ hash<glm::vec3>()(vertex.color) << 1)) >> 1 ^
+            (hash<glm::vec2>()(vertex.texCord) << 1);
+    }
+};
+} // namespace std
