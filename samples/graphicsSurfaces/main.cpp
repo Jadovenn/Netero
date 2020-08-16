@@ -66,7 +66,7 @@ void RunApplication(GraphicSampleApp* myApp)
 
 void InitializeApp(GraphicSampleApp* myApp)
 {
-    myApp->handle = netero::graphics::Application::Initialize("GraphicsSample");
+    myApp->handle = netero::graphics::Application::Initialize("Netero Graphics Surface");
     myApp->context =
         myApp->handle->newWindowedContext(800, 600, netero::graphics::WindowMode::RESIZABLE);
     myApp->square = myApp->context->createModel();
