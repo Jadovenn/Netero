@@ -12,6 +12,7 @@ if(NETERO_AUDIO)
 endif(NETERO_AUDIO)
 
 if (NETERO_GRAPHICS)
-    add_subdirectory(graphics)
+    add_subdirectory(graphicsSurfaces)
+    add_subdirectory(graphicsModel)
 endif(NETERO_GRAPHICS)
 

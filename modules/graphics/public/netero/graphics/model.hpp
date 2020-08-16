@@ -92,7 +92,7 @@ class Model {
      * @param vertices Vertices to be added to the model.
      * @param indices Related indices to be added to the model.
      */
-    void addVertices(std::vector<Vertex>& vertices, std::vector<uint16_t>& indices);
+    void addVertices(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
 
     /**
      * @brief Load the given shader to the model's pipeline.

@@ -122,7 +122,7 @@ void Model::addVertices(std::vector<Vertex>& vertices)
                                         vertices.end());
 }
 
-void Model::addVertices(std::vector<Vertex>& vertices, std::vector<uint16_t>& indices)
+void Model::addVertices(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
 {
     this->_vertexBuffer.vertices.insert(this->_vertexBuffer.vertices.end(),
                                         vertices.begin(),

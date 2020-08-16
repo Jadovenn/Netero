@@ -35,7 +35,7 @@ void Pipeline::update(uint32_t frameIndex)
 {
     UniformBufferObject ubo {};
     ubo.view =
-        glm::lookAt(glm::vec3(0.f, 0.f, 2.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+        glm::lookAt(glm::vec3(3.f, 0.f, 1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 0.f, 0.f));
     ubo.proj = glm::perspectiveRH(glm::radians(45.f),
                                   this->swapchainExtent.width /
                                       static_cast<float>(this->swapchainExtent.height),
