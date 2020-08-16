@@ -75,8 +75,8 @@ void VertexBuffer::createVertexBuffer()
 
 void VertexBuffer::createIndexBuffer(int instanceCount)
 {
-    const size_t       vertices_size = sizeof(uint16_t) * indices.size();
-    const VkDeviceSize size = sizeof(uint16_t) * indices.size() * instanceCount;
+    const size_t       vertices_size = sizeof(uint32_t) * indices.size();
+    const VkDeviceSize size = sizeof(uint32_t) * indices.size() * instanceCount;
     auto [stagingBuffer, stagingBufferMemory] = vkUtils::AllocBuffer(
         this->_device,
         size,

@@ -241,7 +241,7 @@ void Model::commitRenderCommand(VkCommandBuffer cmdBuffer, size_t frameIdx)
                                        frameIdx };
     vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffer, offsets);
     vkCmdBindVertexBuffers(cmdBuffer, 1, 1, instanceBuffer, instanceOffsets);
-    vkCmdBindIndexBuffer(cmdBuffer, this->_vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+    vkCmdBindIndexBuffer(cmdBuffer, this->_vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
     vkCmdBindDescriptorSets(cmdBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS,
                             this->_pipelineLayout,

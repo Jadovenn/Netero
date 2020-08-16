@@ -71,7 +71,7 @@ class VertexBuffer {
     std::vector<Vertex>   vertices;
     VkBuffer              indexBuffer;
     VkDeviceMemory        indexBufferMemory;
-    std::vector<uint16_t> indices;
+    std::vector<uint32_t> indices;
 };
 
 } // namespace netero::graphics
