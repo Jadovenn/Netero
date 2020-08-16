@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.11...3.16)
+cmake_minimum_required(VERSION 3.11...3.16)
 project(neteroExtra
         VERSION 0.1.0
         DESCRIPTION "Netero extra submodule"
@@ -16,11 +16,13 @@ set(EXTRA_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
 list(APPEND PUBLIC_HEADER
         public/netero/extra/stb_image.h
         public/netero/extra/stb_image_resize.h
-        public/netero/extra/stb_image_write.h)
+        public/netero/extra/stb_image_write.h
+        public/netero/extra/tiny_obj_loader.hpp)
 list(APPEND SRCS
         private/stb_image.c
         private/stb_image_resize.c
-        private/stb_image_write.c)
+        private/stb_image_write.c
+        private/tiny_obj_loader.cpp)
 
 ##====================================
 ##  Target
@@ -30,13 +32,13 @@ add_library(NeteroExtra STATIC ${SRCS} ${PUBLIC_HEADER})
 target_compile_features(NeteroExtra PUBLIC cxx_std_17)
 target_include_directories(NeteroExtra
         PUBLIC
-            $<INSTALL_INTERFACE:include>
-            $<BUILD_INTERFACE:${EXTRA_PUBLIC}>)
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${EXTRA_PUBLIC}>)
 
-if(WIN32 AND WIN32_STATIC)
+if (WIN32 AND WIN32_STATIC)
     set_property(TARGET NeteroExtra PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
-endif()
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
+endif ()
 
 add_library(Netero::Extra ALIAS NeteroExtra)
 
@@ -63,11 +65,11 @@ install(TARGETS NeteroExtra
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 install(EXPORT NeteroExtra-export
         FILE
-            NeteroExtraTargets.cmake
+        NeteroExtraTargets.cmake
         NAMESPACE
-            Netero::
+        Netero::
         DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/cmake/netero)
+        ${CMAKE_INSTALL_PREFIX}/cmake/netero)
 install(DIRECTORY public/netero
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include
         FILES_MATCHING PATTERN "*.hpp")
