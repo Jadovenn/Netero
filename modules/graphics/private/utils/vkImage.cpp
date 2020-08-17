@@ -3,6 +3,8 @@
  * see LICENSE.txt
  */
 
+#include <stdexcept>
+
 #include <netero/graphics/device.hpp>
 
 #include "vkUtils.hpp"
