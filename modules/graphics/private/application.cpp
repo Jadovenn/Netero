@@ -31,7 +31,7 @@ netero::graphics::Application::Initialize(const std::string& ApplicationName)
     s_instance->_vulkanAppInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     s_instance->_vulkanAppInfo.pEngineName = "Netero";
     s_instance->_vulkanAppInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    s_instance->_vulkanAppInfo.apiVersion = VK_API_VERSION_1_0;
+    s_instance->_vulkanAppInfo.apiVersion = VK_API_VERSION_1_2;
 
     VkInstanceCreateInfo createInfo = {};
 
