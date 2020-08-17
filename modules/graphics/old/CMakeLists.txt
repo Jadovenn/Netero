@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.11...3.16)
+cmake_minimum_required(VERSION 3.11...3.16)
 project(NeteroGraphics
         VERSION 0.1.0
         DESCRIPTION "Netero graphics module"
@@ -15,9 +15,9 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 find_package(Vulkan)
-if(NOT Vulkan_FOUND)
+if (NOT Vulkan_FOUND)
     message(FATAL_ERROR "Please install vulkan SDK.")
-endif()
+endif ()
 
 FetchContent_Declare(
         glfw
@@ -25,8 +25,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glfw)
 FetchContent_Declare(
-    glm
-    GIT_REPOSITORY https://github.com/g-truc/glm.git
+        glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
 )
 FetchContent_MakeAvailable(glm)
 #FetchContent_GetProperties(glm)
@@ -58,7 +58,7 @@ list(APPEND PUBLIC_HEADER
         public/netero/graphics/pipeline.hpp)
 
 list(APPEND SRCS
-        private/application.cpp
+        private/Application.cpp
         private/context.cpp
         private/vk_device.cpp
         private/vk_descriptor_set.cpp
@@ -99,11 +99,11 @@ target_include_directories(NeteroGraphics
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>)
 target_link_libraries(NeteroGraphics
         PUBLIC
-            Netero
-            NeteroExtra
+        Netero
+        NeteroExtra
         PRIVATE
-            Vulkan::Vulkan
-            glfw)
+        Vulkan::Vulkan
+        glfw)
 
 add_library(Netero::Graphics ALIAS NeteroGraphics)
 
@@ -130,11 +130,11 @@ install(TARGETS NeteroGraphics
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 install(EXPORT NeteroGraphics-export
         FILE
-            NeteroGraphicsTargets.cmake
+        NeteroGraphicsTargets.cmake
         NAMESPACE
-            Netero::
+        Netero::
         DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/cmake/netero)
+        ${CMAKE_INSTALL_PREFIX}/cmake/netero)
 install(DIRECTORY public/netero
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include
         FILES_MATCHING PATTERN "*.hpp")
