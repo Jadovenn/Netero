@@ -114,13 +114,13 @@ if (NETERO_MEMCHECK)
     add_subdirectory(modules/memcheck)
 endif (NETERO_MEMCHECK)
 
-if(NETERO_CONSOLE)
+if (NETERO_CONSOLE)
     add_subdirectory(modules/console)
 endif(NETERO_CONSOLE)
 
-if(NETERO_SAMPLES)
+if (NETERO_SAMPLES)
     add_subdirectory(samples)
-endif(NETERO_SAMPLES)
+endif (NETERO_SAMPLES)
 
 ##====================================
 ##  Global install rules
