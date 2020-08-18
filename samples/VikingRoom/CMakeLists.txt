@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.11...3.16)
-project(NeteroGraphicsModel
+project(VikingRoom
         VERSION 1.0
-        DESCRIPTION "Graphics example program using netero_graphics."
+        DESCRIPTION "Program using Netero::Graphics to display a 3d model"
         LANGUAGES CXX)
 
-message(STATUS "Configure Netero Sample graphics")
+message(STATUS "Configure Viking Room sample app")
 
 set(SOURCES
         main.cpp)
@@ -29,8 +29,8 @@ endif (APPLE)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} Netero::Netero Netero::Graphics Netero::Extra)
-target_add_shader(${PROJECT_NAME} shaders/VikingHouseVertexShader.vert)
-target_add_shader(${PROJECT_NAME} shaders/VikingHouseFragmentShader.frag)
-target_add_resource(${PROJECT_NAME} vikingHouseAsset object/viking_house.OBJ)
-target_add_resource(${PROJECT_NAME} vikingHouseAsset object/viking_house.png)
+target_add_shader(${PROJECT_NAME} shaders/VikingRoomVertexShader.vert)
+target_add_shader(${PROJECT_NAME} shaders/VikingRoomFragmentShader.frag)
+target_add_resource(${PROJECT_NAME} vikingRoomAsset object/vikingRoom.OBJ)
+target_add_resource(${PROJECT_NAME} vikingRoomAsset object/vikingRoom.png)
 

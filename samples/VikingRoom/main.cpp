@@ -15,13 +15,13 @@
 #include <netero/os.hpp>
 
 const std::string VikingHouseVertexShaderPath =
-    netero::os::getBundlePath() + "/shaders/VikingHouseVertexShader.spv";
+    netero::os::getBundlePath() + "/shaders/VikingRoomVertexShader.spv";
 const std::string VikingHouseFragmentShaderPath =
-    netero::os::getBundlePath() + "/shaders/VikingHouseFragmentShader.spv";
+    netero::os::getBundlePath() + "/shaders/VikingRoomFragmentShader.spv";
 const std::string VikingHouseModelPath =
-    netero::os::getBundlePath() + "/resources/VikingHouseAsset/viking_house.OBJ";
+    netero::os::getBundlePath() + "/resources/VikingRoomAsset/vikingRoom.OBJ";
 const std::string VikingHouseTexturePath =
-    netero::os::getBundlePath() + "/resources/VikingHouseAsset/viking_house.png";
+    netero::os::getBundlePath() + "/resources/VikingRoomAsset/vikingRoom.png";
 
 struct GraphicSampleApp {
     netero::graphics::Application* handle = nullptr;
@@ -46,7 +46,7 @@ void RunApplication(GraphicSampleApp* myApp)
 
 void InitializeApp(GraphicSampleApp* myApp)
 {
-    myApp->handle = netero::graphics::Application::Initialize("Netero Viking House");
+    myApp->handle = netero::graphics::Application::Initialize("Viking Room");
     myApp->context =
         myApp->handle->newWindowedContext(800, 600, netero::graphics::WindowMode::RESIZABLE);
     myApp->vikingHouse = myApp->context->createModel();
