@@ -8,11 +8,7 @@
 #include <cstdint>
 #include <string>
 
-#include <Netero/Graphics/Errors.hpp>
-
 namespace Netero::Gfx {
-
-class Renderer;
 
 enum class WindowMode : uint8_t {
     FIX = 0x01,
@@ -26,23 +22,15 @@ class Window {
     public:
     virtual ~Window() = default;
 
-    virtual GfxResult Show() = 0;
-    virtual GfxResult Hide() = 0;
-    virtual GfxResult Close() = 0;
-    virtual GfxResult Update() = 0;
-    virtual GfxResult PullEvent() = 0;
+    virtual void SetTitle(const std::string&) = 0;
+    [[nodiscard]] virtual  const std::string& GetTitle() = 0;
 
-    virtual void                             SetTitle(const std::string&) = 0;
-    [[nodiscard]] virtual const std::string& GetTitle() = 0;
-
-    virtual void                   SetWidth(uint32_t) = 0;
-    virtual void                   SetHeight(uint32_t) = 0;
+    virtual void SetWidth(uint32_t) = 0;
+    virtual void SetHeight(uint32_t) = 0;
     [[nodiscard]] virtual uint32_t GetWidth() = 0;
     [[nodiscard]] virtual uint32_t GetHeight() = 0;
 
     virtual void SetPosition(uint32_t anXAxis, uint32_t anYAxis) = 0;
-
-    virtual Renderer* GetRenderer() = 0;
 };
 
 } // namespace Netero::Gfx

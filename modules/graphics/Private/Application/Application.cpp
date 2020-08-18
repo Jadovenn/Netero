@@ -4,35 +4,25 @@
  */
 
 #include <memory>
-#include <set>
 
 #include <Vulkan/VkUtils.hpp>
 
-#include <netero/logger.hpp>
 #include <netero/netero.hpp>
 
 #include <Application/ApplicationImpl.hpp>
 
 namespace Netero::Gfx {
 
-VulkanApplication::VulkanApplication(const std::string& anApplicationName)
-    : myApplicationName(anApplicationName), myVulkanApplicationInfo {}
+Application::Impl::Impl(const std::string& anApplicationName)
+    : myApplicationName(anApplicationName), myVulkanApplicationInfo {}, myVulkanInstance(nullptr)
 {
 }
 
-VulkanApplication::~VulkanApplication() = default;
+Application::Impl::~Impl() = default;
 
-static std::unique_ptr<VulkanApplication> myImpl;
-
-VkInstance VulkanApplication::GetInstance()
+Application::RtCode Application::Initialize(const std::string& anApplicationName)
 {
-    assert(myImpl);
-    return myImpl->myVulkanInstance;
-}
-
-GfxResult Application::Initialize(const std::string& anApplicationName)
-{
-    myImpl = std::make_unique<VulkanApplication>(anApplicationName);
+    Application::myImpl = std::make_unique<Application::Impl>(anApplicationName);
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     myImpl->myVulkanApplicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -43,7 +33,7 @@ GfxResult Application::Initialize(const std::string& anApplicationName)
     myImpl->myVulkanApplicationInfo.apiVersion = VK_API_VERSION_1_2;
 
     if (netero::isDebugMode && !VkUtils::CheckValidationLayerSupport()) {
-        return GfxResult::DEBUG_MISSING_VALIDATION_LAYERS;
+        return RtCode::DEBUG_MISSING_VALIDATION_LAYERS;
     }
 
     VkInstanceCreateInfo createInfo {};
@@ -54,7 +44,6 @@ GfxResult Application::Initialize(const std::string& anApplicationName)
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extension.size());
     createInfo.ppEnabledExtensionNames = glfwExtensions;
     createInfo.pNext = nullptr;
-
     if (netero::isDebugMode) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(VkUtils::ValidationLayers.size());
         createInfo.ppEnabledLayerNames = VkUtils::ValidationLayers.data();
@@ -63,12 +52,10 @@ GfxResult Application::Initialize(const std::string& anApplicationName)
         createInfo.enabledLayerCount = 0;
         createInfo.ppEnabledLayerNames = nullptr;
     }
-
     VkResult result = vkCreateInstance(&createInfo, nullptr, &myImpl->myVulkanInstance);
     if (result != VK_SUCCESS) {
-        return GfxResult::DRIVER_CALL_FAILED;
+        throw std::runtime_error("Failed to create instance, vkCode: " + std::to_string(result));
     }
-
     if (netero::isDebugMode) {
         VkDebugReportCallbackCreateInfoEXT reporterCreateInfo = {};
         VkUtils::PopulateDebugReportCreateInfo(reporterCreateInfo);
@@ -77,9 +64,8 @@ GfxResult Application::Initialize(const std::string& anApplicationName)
                                                nullptr,
                                                &myImpl->myDebugReport);
         if (result != VK_SUCCESS) {
-            return GfxResult::DEBUG_FAILED_TO_SETUP_CALLBACKS;
+            return RtCode::DEBUG_FAILED_TO_SETUP_CALLBACKS;
         }
-
         VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo;
         VkUtils::PopulateDebugMessengerCreateInfo(messengerCreateInfo);
         result = VkUtils::CreateDebugMessengerEXT(myImpl->myVulkanInstance,
@@ -87,19 +73,14 @@ GfxResult Application::Initialize(const std::string& anApplicationName)
                                                   nullptr,
                                                   &myImpl->myDebugMessenger);
         if (result != VK_SUCCESS) {
-            return GfxResult::DEBUG_FAILED_TO_SETUP_CALLBACKS;
+            return RtCode::DEBUG_FAILED_TO_SETUP_CALLBACKS;
         }
     }
-
-    return GfxResult::SUCCESS;
+    return RtCode::SUCCESS;
 }
 
 void Application::Terminate()
 {
-    for (auto aWindow : myImpl->myWindows) {
-        aWindow->Close();
-        aWindow.reset();
-    }
     if (netero::isDebugMode) {
         VkUtils::DestroyDebugReportEXT(myImpl->myVulkanInstance, myImpl->myDebugReport, nullptr);
         VkUtils::DestroyDebugMessengerEXT(myImpl->myVulkanInstance,
@@ -111,52 +92,14 @@ void Application::Terminate()
     myImpl.reset(nullptr);
 }
 
-std::pair<int, int> Application::GetScreenDimension()
+std::pair<uint32_t, uint32_t> Application::GetScreenDimension()
 {
-    GLFWmonitor*        aMonitor = glfwGetPrimaryMonitor();
-    std::pair<int, int> screenDimension;
-    glfwGetMonitorWorkarea(aMonitor,
-                           nullptr,
-                           nullptr,
-                           &screenDimension.first,
-                           &screenDimension.second);
-    return screenDimension;
+    return { 0xFFFFFFFF, 0xFFFFFFFF };
 }
 
-std::shared_ptr<Window>
-Application::CreateWindow(int aWidth, int anHeight, WindowMode aMode, const std::string& aTitle)
+Window* Application::CreateWindow(uint32_t aWidth, uint32_t anHeight, WindowMode aMode)
 {
-    assert(myImpl);
-    if (aWidth <= 0 || anHeight <= 0) {
-        return nullptr;
-    }
-    std::shared_ptr<Window> aWindow;
-    if (aTitle.empty()) {
-        aWindow = myImpl->myWindowFactory.Create(myImpl->myVulkanInstance,
-                                                 aWidth,
-                                                 anHeight,
-                                                 aMode,
-                                                 myImpl->myApplicationName);
-    }
-    else {
-        aWindow = myImpl->myWindowFactory.Create(myImpl->myVulkanInstance,
-                                                 aWidth,
-                                                 anHeight,
-                                                 aMode,
-                                                 aTitle);
-    }
-    myImpl->myWindows.push_back(aWindow);
-    return aWindow;
-}
-
-void Application::DestroyWindow(std::shared_ptr<Window>& aWindow)
-{
-    auto it = std::find(myImpl->myWindows.begin(), myImpl->myWindows.end(), aWindow);
-    if (it != myImpl->myWindows.end()) {
-        myImpl->myWindows.erase(it);
-        aWindow->Close();
-        aWindow.reset();
-    }
+    return nullptr;
 }
 
 }; // namespace Netero::Gfx
