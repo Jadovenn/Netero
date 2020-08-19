@@ -15,12 +15,8 @@ namespace netero::patterns {
 template<typename T>
 class IFactory {
     public:
-    virtual ~IFactory() = 0;
+    virtual ~IFactory() = default;
 
-    template<class ...Args>
-    static std::unique_ptr<T> Create(Args... args) {
-        return std::make_unique<T>(std::forward<Args>(args)...);
-    }
-
+    virtual std::shared_ptr<T> Create() = 0;
 };
-} // namespace netero
+} // namespace netero::patterns
