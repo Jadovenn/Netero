@@ -77,6 +77,7 @@ if (NETERO_GRAPHICS)
 endif(NETERO_GRAPHICS)
 
 if (NETERO_FAST)
+    include(cmake/enable_ispc.cmake)
     include(cmake/enable_nasm.cmake)
 endif(NETERO_FAST)
 
