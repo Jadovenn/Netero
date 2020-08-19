@@ -44,6 +44,7 @@ Application::RtCode Application::Initialize(const std::string& anApplicationName
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extension.size());
     createInfo.ppEnabledExtensionNames = glfwExtensions;
     createInfo.pNext = nullptr;
+
     if (netero::isDebugMode) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(VkUtils::ValidationLayers.size());
         createInfo.ppEnabledLayerNames = VkUtils::ValidationLayers.data();
@@ -52,10 +53,12 @@ Application::RtCode Application::Initialize(const std::string& anApplicationName
         createInfo.enabledLayerCount = 0;
         createInfo.ppEnabledLayerNames = nullptr;
     }
+
     VkResult result = vkCreateInstance(&createInfo, nullptr, &myImpl->myVulkanInstance);
     if (result != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create instance, vkCode: " + std::to_string(result));
+        return RtCode::DRIVER_CALL_FAILED;
     }
+
     if (netero::isDebugMode) {
         VkDebugReportCallbackCreateInfoEXT reporterCreateInfo = {};
         VkUtils::PopulateDebugReportCreateInfo(reporterCreateInfo);
@@ -66,6 +69,7 @@ Application::RtCode Application::Initialize(const std::string& anApplicationName
         if (result != VK_SUCCESS) {
             return RtCode::DEBUG_FAILED_TO_SETUP_CALLBACKS;
         }
+
         VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo;
         VkUtils::PopulateDebugMessengerCreateInfo(messengerCreateInfo);
         result = VkUtils::CreateDebugMessengerEXT(myImpl->myVulkanInstance,
@@ -76,6 +80,7 @@ Application::RtCode Application::Initialize(const std::string& anApplicationName
             return RtCode::DEBUG_FAILED_TO_SETUP_CALLBACKS;
         }
     }
+
     return RtCode::SUCCESS;
 }
 
@@ -92,14 +97,30 @@ void Application::Terminate()
     myImpl.reset(nullptr);
 }
 
-std::pair<uint32_t, uint32_t> Application::GetScreenDimension()
+std::pair<int, int> Application::GetScreenDimension()
 {
-    return { 0xFFFFFFFF, 0xFFFFFFFF };
+    GLFWmonitor*        aMonitor = glfwGetPrimaryMonitor();
+    std::pair<int, int> screenDimension;
+    glfwGetMonitorWorkarea(aMonitor,
+                           nullptr,
+                           nullptr,
+                           &screenDimension.first,
+                           &screenDimension.second);
+    return screenDimension;
 }
 
-Window* Application::CreateWindow(uint32_t aWidth, uint32_t anHeight, WindowMode aMode)
+std::shared_ptr<Window> Application::CreateWindow(uint32_t           aWidth,
+                                                  uint32_t           anHeight,
+                                                  WindowMode         aMode,
+                                                  const std::string& aTitle)
 {
-    return nullptr;
+    if (!myImpl) {
+        return nullptr;
+    }
+    if (aTitle.empty()) {
+        return myImpl->myWindowFactory.Create(aWidth, anHeight, aMode, myImpl->myApplicationName);
+    }
+    return myImpl->myWindowFactory.Create(aWidth, anHeight, aMode, aTitle);
 }
 
 }; // namespace Netero::Gfx

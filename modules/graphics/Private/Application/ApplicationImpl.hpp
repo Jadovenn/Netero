@@ -5,10 +5,15 @@
 
 #pragma once
 
+#pragma warning(push)
+#pragma warning(disable : 26812)
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#pragma warning(pop)
 
 #include <Netero/Graphics/Application.hpp>
+
+#include <Window/WindowFactory.hpp>
 
 namespace Netero::Gfx {
 
@@ -23,6 +28,8 @@ class Application::Impl {
 
     VkDebugUtilsMessengerEXT myDebugMessenger = nullptr;
     VkDebugReportCallbackEXT myDebugReport = nullptr;
+
+    WindowFactory myWindowFactory;
 };
 
 } // namespace Netero::Gfx
