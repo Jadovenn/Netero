@@ -9,7 +9,12 @@ if (WIN32)
 elseif(APPLE)
 
     set(ISPC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/ispc/mach-o/ispc")
-    set(ISPC_FLAGS "")
+    set(ISPC_FLAGS "-o2 --target ${ISPC_ISA_TARGETS}")
+
+elseif(UNIX AND NOT APPLE)
+
+    set(ISPC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/ispc/elf64/ispc")
+    set(ISPC_FLAGS "-o2 --target ${ISPC_ISA_TARGETS}")
 
 endif(WIN32)
 
