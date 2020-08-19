@@ -7,9 +7,11 @@ project(NeteroTests
 add_unit_test(NAME Fast_easing_test
                 SOURCES
                     easing_test.cpp
+                    mandlebrot.cpp
                 INCLUDE_DIRS
                     ${Netero_INCLUDE_DIRS}
                 DEPENDS
                     gtest_main
                     Netero::Netero
-                    Netero::Fast)
+                    Netero::Fast
+                    Netero::Extra)

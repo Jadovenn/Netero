@@ -15,9 +15,11 @@ set(FAST_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
 set(FAST_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
 
 list(APPEND PUBLIC_HEADER
+        public/netero/fast/mandlebrot.hpp
         public/netero/fast/simd.hpp
         public/netero/fast/easing.hpp)
 list(APPEND SRCS
+        private/mandlebrot/mandlebrot.cpp
         private/easing_quadratic.cpp)
 
 ##====================================
@@ -25,6 +27,7 @@ list(APPEND SRCS
 ##====================================
 
 add_library(NeteroFast STATIC ${SRCS} ${PUBLIC_HEADER})
+target_add_ispc_sources(TARGET NeteroFast ISPC_SOURCES private/mandlebrot/mandlebrot.ispc)
 ##add_dependencies(NeteroFast Netero::Netero)
 target_compile_features(NeteroFast PUBLIC cxx_std_17)
 target_include_directories(NeteroFast
