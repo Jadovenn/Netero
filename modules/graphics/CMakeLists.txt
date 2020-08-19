@@ -59,6 +59,9 @@ list(APPEND SRCS
         Private/Vulkan/Utils/VkValidationLayerCallbacks.cpp
         Private/Application/ApplicationImpl.hpp
         Private/Application/Application.cpp
+        Private/Window/Window_GLFW.cpp
+        Private/Window/Window_GLFW.hpp
+        Private/Window/WindowFactory.hpp
         )
 
 ##====================================
