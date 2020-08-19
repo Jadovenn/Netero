@@ -109,18 +109,18 @@ std::pair<int, int> Application::GetScreenDimension()
     return screenDimension;
 }
 
-std::shared_ptr<Window> Application::CreateWindow(uint32_t           aWidth,
-                                                  uint32_t           anHeight,
+std::shared_ptr<Window> Application::CreateWindow(int aWidth,
+                                                  int anHeight,
                                                   WindowMode         aMode,
                                                   const std::string& aTitle)
 {
-    if (!myImpl) {
+    if (!myImpl || aWidth <= 0 || anHeight <= 0) {
         return nullptr;
     }
     if (aTitle.empty()) {
-        return myImpl->myWindowFactory.Create(aWidth, anHeight, aMode, myImpl->myApplicationName);
+        return myImpl->myWindowFactory.Create(myImpl->myVulkanInstance, aWidth, anHeight, aMode, myImpl->myApplicationName);
     }
-    return myImpl->myWindowFactory.Create(aWidth, anHeight, aMode, aTitle);
+    return myImpl->myWindowFactory.Create(myImpl->myVulkanInstance, aWidth, anHeight, aMode, aTitle);
 }
 
 }; // namespace Netero::Gfx

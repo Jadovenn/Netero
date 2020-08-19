@@ -29,10 +29,8 @@ class Application {
 
     static std::pair<int, int> GetScreenDimension();
 
-    static std::shared_ptr<Window> CreateWindow(uint32_t           aWidth,
-                                                uint32_t           anHeight,
-                                                WindowMode         aMode,
-                                                const std::string& aTitle = "");
+    static std::shared_ptr<Window>
+    CreateWindow(int aWidth, int anHeight, WindowMode aMode, const std::string& aTitle = "");
 
     private:
     class Impl;
