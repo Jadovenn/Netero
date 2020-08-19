@@ -54,6 +54,8 @@ list(APPEND PUBLIC_HEADER
 
 list(APPEND SRCS
         Private/Vulkan/Vulkan.hpp
+        Private/Vulkan/Context/Context.hpp
+        Private/Vulkan/Context/Context.cpp
         Private/Vulkan/VkUtils.hpp
         Private/Vulkan/Utils/VkValidationLayerSupport.cpp
         Private/Vulkan/Utils/VkValidationLayerCallbacks.cpp
@@ -62,7 +64,8 @@ list(APPEND SRCS
         Private/Window/Window_GLFW.cpp
         Private/Window/Window_GLFW.hpp
         Private/Window/WindowFactory.hpp
-        )
+        Private/Renderer/Renderer.hpp
+        Private/Renderer/Renderer.cpp)
 
 ##====================================
 ##  Target
