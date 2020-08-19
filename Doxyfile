@@ -51,7 +51,7 @@ PROJECT_BRIEF          = "Real time utility library."
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = C:/Users/jean-/source/repos/netero/docs/media/logo/logo.png
+PROJECT_LOGO           = ./docs/media/logo/logo.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -360,7 +360,7 @@ BUILTIN_STL_SUPPORT    = YES
 # enable parsing support.
 # The default value is: NO.
 
-CPP_CLI_SUPPORT        = NO
+CPP_CLI_SUPPORT        = YES
 
 # Set the SIP_SUPPORT tag to YES if your project consists of sip (see:
 # https://www.riverbankcomputing.com/software/sip/intro) sources only. Doxygen
@@ -461,7 +461,7 @@ LOOKUP_CACHE_SIZE      = 0
 # normally produced when WARNINGS is set to YES.
 # The default value is: NO.
 
-EXTRACT_ALL            = NO
+EXTRACT_ALL            = YES
 
 # If the EXTRACT_PRIVATE tag is set to YES, all private members of a class will
 # be included in the documentation.
@@ -735,7 +735,7 @@ FILE_VERSION_FILTER    =
 # DoxygenLayout.xml, doxygen will parse it automatically even if the LAYOUT_FILE
 # tag is left empty.
 
-LAYOUT_FILE            = DoxygenLayout.xml
+LAYOUT_FILE            =
 
 # The CITE_BIB_FILES tag can be used to specify one or more bib files containing
 # the reference definitions. This must be a list of .bib files. The .bib
@@ -823,8 +823,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = include \
-                         modules \
+INPUT                  = modules \
                          docs
 
 # This tag can be used to specify the character encoding of the source files
@@ -913,9 +912,8 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = audio/backends \
-                         docs/logo \
-                         tools
+EXCLUDE                = modules/audio/backends \
+                         modules/extra
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -931,7 +929,7 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       =
+EXCLUDE_PATTERNS       = */tests/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -948,14 +946,14 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           =
+EXAMPLE_PATH           = samples
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
 # *.h) to filter out the source-files in the directories. If left blank all
 # files are included.
 
-EXAMPLE_PATTERNS       = *
+EXAMPLE_PATTERNS       =
 
 # If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be
 # searched for input files to be used with the \include or \dontinclude commands
@@ -968,7 +966,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = docs/media
+IMAGE_PATH             = docs
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -1394,7 +1392,7 @@ GENERATE_HTMLHELP      = NO
 # written to the html output directory.
 # This tag requires that the tag GENERATE_HTMLHELP is set to YES.
 
-CHM_FILE               =
+CHM_FILE               = netero.chm
 
 # The HHC_LOCATION tag can be used to specify the location (absolute path
 # including file name) of the HTML help compiler (hhc.exe). If non-empty,
@@ -1402,7 +1400,7 @@ CHM_FILE               =
 # The file has to be specified with full path.
 # This tag requires that the tag GENERATE_HTMLHELP is set to YES.
 
-HHC_LOCATION           =
+HHC_LOCATION           = "C:/Program Files (x86)/HTML Help Workshop/hhc.exe"
 
 # The GENERATE_CHI flag controls if a separate .chi index file is generated
 # (YES) or that it should be included in the master .chm file (NO).
@@ -1423,14 +1421,14 @@ CHM_INDEX_ENCODING     =
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTMLHELP is set to YES.
 
-BINARY_TOC             = NO
+BINARY_TOC             = YES
 
 # The TOC_EXPAND flag can be set to YES to add extra items for group members to
 # the table of contents of the HTML help documentation and to the tree view.
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTMLHELP is set to YES.
 
-TOC_EXPAND             = NO
+TOC_EXPAND             = YES
 
 # If the GENERATE_QHP tag is set to YES and both QHP_NAMESPACE and
 # QHP_VIRTUAL_FOLDER are set, an additional index file will be generated that

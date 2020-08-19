@@ -17,7 +17,7 @@ to give a try at catching thems at each api calls. A try catch
 block at the very begining of your program or at strategic sementic point is sufficient.
 
 <p align="center">
-    <img src="media/cat_exception_meme.PNG" height=300 alt="Image" />
+    <img src="cat_exception_meme.PNG" height=300 alt="Exception cat meme" />
 </p>
 
 In case of exception there is noting else to do, than notify the user of a fatal
