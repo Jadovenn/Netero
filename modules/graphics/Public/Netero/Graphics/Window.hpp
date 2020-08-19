@@ -22,6 +22,16 @@ class Window {
     public:
     virtual ~Window() = default;
 
+    enum class RtCode {
+        SUCCESS,
+        EXIT,
+        DRIVER_CALL_ERROR,
+    };
+
+    virtual RtCode Show() = 0;
+    virtual RtCode Update() = 0;
+    virtual RtCode PullEvent() = 0;
+
     virtual void SetTitle(const std::string&) = 0;
     [[nodiscard]] virtual  const std::string& GetTitle() = 0;
 

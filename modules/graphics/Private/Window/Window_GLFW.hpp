@@ -7,7 +7,9 @@
 
 #include <string>
 
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <Vulkan/Context/Context.hpp>
 
 #include <Netero/Graphics/Window.hpp>
 
@@ -18,10 +20,18 @@ class WindowFactory;
 class WindowGLFW final: public Window {
     friend WindowFactory;
 
-    WindowGLFW(uint32_t aWidth, uint32_t anHeight, WindowMode aMode, const std::string& aTitle);
+    WindowGLFW(VkInstance         aVulkanInstance,
+               int                aWidth,
+               int                anHeight,
+               WindowMode         aMode,
+               const std::string& aTitle);
 
     public:
-    ~WindowGLFW() final = default;
+    ~WindowGLFW() final;
+
+    RtCode Show() final;
+    RtCode Update() final;
+    RtCode PullEvent() final;
 
     void               SetTitle(const std::string& aTitle) final { myTitle = aTitle; }
     const std::string& GetTitle() final { return myTitle; }
@@ -34,12 +44,13 @@ class WindowGLFW final: public Window {
     void SetPosition(uint32_t anXAxis, uint32_t anYAxis);
 
     private:
-    uint32_t    myWidth;
-    uint32_t    myHeight;
+    int         myWidth;
+    int         myHeight;
     WindowMode  myMode;
     std::string myTitle;
 
     GLFWwindow* myWindow;
+    Context     myContext;
 };
 
 } // namespace Netero::Gfx

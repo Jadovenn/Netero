@@ -7,6 +7,8 @@
 
 #include <cassert>
 
+#include <Vulkan/Vulkan.hpp>
+
 #include <netero/patterns/IFactory.hpp>
 
 #include <Window/Window_GLFW.hpp>
@@ -25,9 +27,9 @@ class WindowFactory final: netero::patterns::IFactory<Window> {
     }
 
     std::shared_ptr<Window>
-    Create(uint32_t aWidth, uint32_t anHeight, WindowMode aMode, const std::string& aTitle)
+    Create(VkInstance aVulkanInstance, int aWidth, int anHeight, WindowMode aMode, const std::string& aTitle)
     {
-        std::shared_ptr<WindowGLFW> aWindow(new WindowGLFW(aWidth, aWidth, aMode, aTitle));
+        std::shared_ptr<WindowGLFW> aWindow(new WindowGLFW(aVulkanInstance, aWidth, anHeight, aMode, aTitle));
         return aWindow;
     }
 };
