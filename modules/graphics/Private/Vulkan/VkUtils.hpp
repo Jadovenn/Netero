@@ -5,11 +5,51 @@
 
 #pragma once
 
+#include <map>
+#include <optional>
 #include <vector>
 
 #include <Vulkan/Vulkan.hpp>
 
 namespace VkUtils {
+
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
+    std::optional<uint32_t> transferFamily;
+
+    [[nodiscard]] bool isGraphicsSuitable() const
+    {
+        return graphicsFamily.has_value() && presentFamily.has_value();
+    }
+};
+
+extern const std::vector<const char*> DefaultDeviceExtensions;
+
+#pragma region Device related
+
+QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+bool CheckDeviceSuitable(VkPhysicalDevice device, const std::vector<const char*> extensions);
+int  RateDeviceSuitability(VkPhysicalDevice device, VkSurfaceKHR surface);
+std::multimap<int, VkPhysicalDevice> GetRatedAvailableDevices(VkInstance   instance,
+                                                              VkSurfaceKHR surface);
+VkPhysicalDevice                     GetBestDevice(VkInstance instance, VkSurfaceKHR surface);
+std::string                          GetDeviceName(VkPhysicalDevice device);
+VkPhysicalDevice                     GetDeviceByName(const char* name, VkInstance instance);
+std::vector<std::string>             GetDevicesName(VkInstance instance);
+
+#pragma region Swapchain Support Helpers
+
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR        capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR>   presentMode;
+};
+
+SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice, VkSurfaceKHR);
+VkSurfaceFormatKHR      ChooseSwapSurfaceFormat(std::vector<VkSurfaceFormatKHR>&);
+VkPresentModeKHR        ChooseSwapPresentMode(std::vector<VkPresentModeKHR>&);
+VkExtent2D              ChooseSwapExtent(const VkSurfaceCapabilitiesKHR&, uint32_t, uint32_t);
 
 #pragma region Validation layers
 
