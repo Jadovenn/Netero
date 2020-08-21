@@ -9,21 +9,25 @@
 
 #include <Netero/Graphics/Renderer.hpp>
 
+#include <Swapchain/Swapchain.hpp>
+
 namespace Netero::Gfx {
 
 class RendererImpl final: public Renderer {
-    private:
-    explicit RendererImpl(Context& aContext);
-
     public:
+    explicit RendererImpl(Context& aContext);
     ~RendererImpl() final = default;
 
-    enum class RtCode {
-        SUCCESS
-    };
+    enum class RtCode { SUCCESS, SWAPCHAIN_OUT_OF_DATE };
 
-    RtCode Build();
+    // Initialization related
+    RtCode Initialize();
     RtCode Teardown();
+
+    // Runtime related
+    RtCode Build();
+    RtCode Release();
+    RtCode ReBuild();
     RtCode Update();
 
     void RegisterDrawable() final;
@@ -33,4 +37,4 @@ class RendererImpl final: public Renderer {
     Context& myContext;
 };
 
-}
+} // namespace Netero::Gfx

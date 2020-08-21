@@ -13,16 +13,18 @@
 
 namespace Netero::Gfx {
 
-Application::Impl::Impl(const std::string& anApplicationName)
+VulkanApplication::VulkanApplication(const std::string& anApplicationName)
     : myApplicationName(anApplicationName), myVulkanApplicationInfo {}, myVulkanInstance(nullptr)
 {
 }
 
-Application::Impl::~Impl() = default;
+VulkanApplication::~VulkanApplication() = default;
+
+static std::unique_ptr<VulkanApplication> myImpl;
 
 Application::RtCode Application::Initialize(const std::string& anApplicationName)
 {
-    Application::myImpl = std::make_unique<Application::Impl>(anApplicationName);
+    myImpl = std::make_unique<VulkanApplication>(anApplicationName);
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     myImpl->myVulkanApplicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -86,6 +88,10 @@ Application::RtCode Application::Initialize(const std::string& anApplicationName
 
 void Application::Terminate()
 {
+    for (auto aWindow : myImpl->myWindows) {
+        aWindow->Close();
+        aWindow.reset();
+    }
     if (netero::isDebugMode) {
         VkUtils::DestroyDebugReportEXT(myImpl->myVulkanInstance, myImpl->myDebugReport, nullptr);
         VkUtils::DestroyDebugMessengerEXT(myImpl->myVulkanInstance,
@@ -109,18 +115,39 @@ std::pair<int, int> Application::GetScreenDimension()
     return screenDimension;
 }
 
-std::shared_ptr<Window> Application::CreateWindow(int aWidth,
-                                                  int anHeight,
-                                                  WindowMode         aMode,
-                                                  const std::string& aTitle)
+std::shared_ptr<Window>
+Application::CreateWindow(int aWidth, int anHeight, WindowMode aMode, const std::string& aTitle)
 {
     if (!myImpl || aWidth <= 0 || anHeight <= 0) {
         return nullptr;
     }
+    std::shared_ptr<Window> aWindow;
     if (aTitle.empty()) {
-        return myImpl->myWindowFactory.Create(myImpl->myVulkanInstance, aWidth, anHeight, aMode, myImpl->myApplicationName);
+        aWindow = myImpl->myWindowFactory.Create(myImpl->myVulkanInstance,
+                                                 aWidth,
+                                                 anHeight,
+                                                 aMode,
+                                                 myImpl->myApplicationName);
     }
-    return myImpl->myWindowFactory.Create(myImpl->myVulkanInstance, aWidth, anHeight, aMode, aTitle);
+    else {
+        aWindow = myImpl->myWindowFactory.Create(myImpl->myVulkanInstance,
+                                                 aWidth,
+                                                 anHeight,
+                                                 aMode,
+                                                 aTitle);
+    }
+    myImpl->myWindows.push_back(aWindow);
+    return aWindow;
+}
+
+void Application::DestroyWindow(std::shared_ptr<Window>& aWindow)
+{
+    auto it = std::find(myImpl->myWindows.begin(), myImpl->myWindows.end(), aWindow);
+    if (it != myImpl->myWindows.end()) {
+        myImpl->myWindows.erase(it);
+        aWindow->Close();
+        aWindow.reset();
+    }
 }
 
 }; // namespace Netero::Gfx

@@ -59,11 +59,15 @@ list(APPEND SRCS
         Private/Vulkan/VkUtils.hpp
         Private/Vulkan/Utils/VkValidationLayerSupport.cpp
         Private/Vulkan/Utils/VkValidationLayerCallbacks.cpp
+        private/Vulkan/Utils/VkSwapchainSupport.cpp
+        private/Vulkan/Utils/VkDeviceSupport.cpp
         Private/Application/ApplicationImpl.hpp
         Private/Application/Application.cpp
         Private/Window/Window_GLFW.cpp
         Private/Window/Window_GLFW.hpp
         Private/Window/WindowFactory.hpp
+        Private/Swapchain/Swapchain.hpp
+        Private/Swapchain/Swapchain.cpp
         Private/Renderer/Renderer.hpp
         Private/Renderer/Renderer.cpp)
 

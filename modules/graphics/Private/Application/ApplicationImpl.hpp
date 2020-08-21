@@ -17,10 +17,10 @@
 
 namespace Netero::Gfx {
 
-class Application::Impl {
+class VulkanApplication {
     public:
-    explicit Impl(const std::string& anApplicationName);
-    ~Impl();
+    explicit VulkanApplication(const std::string& anApplicationName);
+    ~VulkanApplication();
 
     const std::string myApplicationName;
     VkApplicationInfo myVulkanApplicationInfo;
@@ -30,6 +30,8 @@ class Application::Impl {
     VkDebugReportCallbackEXT myDebugReport = nullptr;
 
     WindowFactory myWindowFactory;
+
+    std::vector<std::shared_ptr<Window>> myWindows;
 };
 
 } // namespace Netero::Gfx

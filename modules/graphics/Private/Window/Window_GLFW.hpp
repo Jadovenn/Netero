@@ -13,6 +13,9 @@
 
 #include <Netero/Graphics/Window.hpp>
 
+#include <Renderer/Renderer.hpp>
+#include <Swapchain/Swapchain.hpp>
+
 namespace Netero::Gfx {
 
 class WindowFactory;
@@ -30,6 +33,8 @@ class WindowGLFW final: public Window {
     ~WindowGLFW() final;
 
     RtCode Show() final;
+    RtCode Hide() final;
+    RtCode Close() final;
     RtCode Update() final;
     RtCode PullEvent() final;
 
@@ -44,13 +49,19 @@ class WindowGLFW final: public Window {
     void SetPosition(uint32_t anXAxis, uint32_t anYAxis);
 
     private:
+    RtCode PickPhysicalDevice();
+    RtCode CreateLogicalDevice();
+    RtCode CreateTransferQueue();
+
     int         myWidth;
     int         myHeight;
     WindowMode  myMode;
     std::string myTitle;
 
-    GLFWwindow* myWindow;
-    Context     myContext;
+    GLFWwindow*  myWindow;
+    Context      myContext;
+    Swapchain    mySwapchain;
+    RendererImpl myRenderer;
 };
 
 } // namespace Netero::Gfx
