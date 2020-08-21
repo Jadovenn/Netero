@@ -26,17 +26,20 @@ class Window {
         SUCCESS,
         EXIT,
         DRIVER_CALL_ERROR,
+        PHYSICAL_DEVICE_ERROR,
     };
 
     virtual RtCode Show() = 0;
+    virtual RtCode Hide() = 0;
+    virtual RtCode Close() = 0;
     virtual RtCode Update() = 0;
     virtual RtCode PullEvent() = 0;
 
-    virtual void SetTitle(const std::string&) = 0;
-    [[nodiscard]] virtual  const std::string& GetTitle() = 0;
+    virtual void                             SetTitle(const std::string&) = 0;
+    [[nodiscard]] virtual const std::string& GetTitle() = 0;
 
-    virtual void SetWidth(uint32_t) = 0;
-    virtual void SetHeight(uint32_t) = 0;
+    virtual void                   SetWidth(uint32_t) = 0;
+    virtual void                   SetHeight(uint32_t) = 0;
     [[nodiscard]] virtual uint32_t GetWidth() = 0;
     [[nodiscard]] virtual uint32_t GetHeight() = 0;
 

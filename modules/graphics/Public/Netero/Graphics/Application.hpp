@@ -30,11 +30,8 @@ class Application {
     static std::pair<int, int> GetScreenDimension();
 
     static std::shared_ptr<Window>
-    CreateWindow(int aWidth, int anHeight, WindowMode aMode, const std::string& aTitle = "");
-
-    private:
-    class Impl;
-    static std::unique_ptr<Impl> myImpl;
+                CreateWindow(int aWidth, int anHeight, WindowMode aMode, const std::string& aTitle = "");
+    static void DestroyWindow(std::shared_ptr<Window>& aWindow);
 };
 
 } // namespace Netero::Gfx
