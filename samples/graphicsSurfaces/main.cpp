@@ -6,6 +6,24 @@
 #include <chrono>
 #include <iostream>
 
+#include <Netero/Graphics/Application.hpp>
+
+void main()
+{
+    Netero::Gfx::Application::Initialize("Cube");
+    auto window = Netero::Gfx::Application::CreateWindow(800,
+                                                         600,
+                                                         Netero::Gfx::WindowMode::RESIZABLE,
+                                                         "Cube Application");
+    window->Show();
+    while (window->PullEvent() != Netero::Gfx::Window::RtCode::EXIT) {
+        window->Update();
+    }
+    Netero::Gfx::Application::DestroyWindow(window);
+    Netero::Gfx::Application::Terminate();
+}
+
+/**
 #include <netero/graphics/application.hpp>
 #include <netero/graphics/context.hpp>
 #include <netero/graphics/instance.hpp>
@@ -140,3 +158,4 @@ int main()
     }
     return rtCode;
 }
+*/
