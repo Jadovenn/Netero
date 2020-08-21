@@ -3,7 +3,7 @@
  * see LICENSE.txt
  */
 
-#include <Context/Context.hpp>
+#include <Vulkan/Context/Context.hpp>
 
 namespace Netero::Gfx {
 
