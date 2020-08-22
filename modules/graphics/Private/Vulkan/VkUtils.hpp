@@ -11,6 +11,10 @@
 
 #include <Vulkan/Vulkan.hpp>
 
+namespace Netero::Gfx {
+class Context;
+}
+
 namespace VkUtils {
 
 struct QueueFamilyIndices {
@@ -37,6 +41,36 @@ VkPhysicalDevice                     GetBestDevice(VkInstance instance, VkSurfac
 std::string                          GetDeviceName(VkPhysicalDevice device);
 VkPhysicalDevice                     GetDeviceByName(const char* name, VkInstance instance);
 std::vector<std::string>             GetDevicesName(VkInstance instance);
+
+#pragma region Memory Helpers
+
+int32_t FindMemoryType(VkPhysicalDevice      physicalDevice,
+                       uint32_t              typeFilter,
+                       VkMemoryPropertyFlags properties);
+
+std::pair<VkBuffer, VkDeviceMemory> AllocBuffer(Netero::Gfx::Context& aContext,
+                                                VkDeviceSize          size,
+                                                VkBufferUsageFlags    usages,
+                                                VkMemoryPropertyFlags properties);
+
+std::pair<VkImage, VkDeviceMemory> AllocImage(Netero::Gfx::Context& aContext,
+                                              uint32_t              width,
+                                              uint32_t              height,
+                                              VkFormat              format,
+                                              VkImageTiling         tiling,
+                                              VkImageUsageFlags     usages,
+                                              VkMemoryPropertyFlags properties);
+
+#pragma region Image Helpers
+
+VkImageView
+CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+VkFormat SelectSupportedImageFormat(VkPhysicalDevice             physicalDevice,
+                                    const std::vector<VkFormat>& candidates,
+                                    VkImageTiling                tiling,
+                                    VkFormatFeatureFlags         features);
+VkFormat FindDepthBufferingImageFormat(VkPhysicalDevice physicalDevice);
+bool HasStencilComponent(VkFormat format);
 
 #pragma region Swapchain Support Helpers
 
