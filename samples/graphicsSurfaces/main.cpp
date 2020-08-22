@@ -8,7 +8,7 @@
 
 #include <Netero/Graphics/Application.hpp>
 
-void main()
+int main()
 {
     Netero::Gfx::Application::Initialize("Cube");
     auto window = Netero::Gfx::Application::CreateWindow(800,
@@ -21,6 +21,7 @@ void main()
     }
     Netero::Gfx::Application::DestroyWindow(window);
     Netero::Gfx::Application::Terminate();
+    return 0;
 }
 
 /**
@@ -118,7 +119,9 @@ void InitializeApp(GraphicSampleApp* myApp)
     myApp->squareInstance3->x.scale(0.5);
     myApp->squareInstance3->y.scale(0.5);
     myApp->triangleInstance1 = myApp->triangle->createInstance();
-    myApp->triangleInstance1->y = 0.5;
+    myApp->triangleInstance1->x = 0.5;
+    myApp->triangleInstance1->y = -0.25;
+    myApp->triangleInstance1->z = 0.1;
 }
 
 void CleanUpApp(GraphicSampleApp* myApp)
