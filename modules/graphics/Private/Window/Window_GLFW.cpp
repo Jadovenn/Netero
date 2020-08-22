@@ -112,9 +112,10 @@ Window::RtCode WindowGLFW::Hide()
 
 Window::RtCode WindowGLFW::Update()
 {
+    Frame aFrame {};
     assert(myContext.myLogicalDevice != nullptr); // Do you have call Show() before update?
     assert(myContext.mySurface != nullptr);
-    Swapchain::RtCode result = mySwapchain.PrepareFrame();
+    Swapchain::RtCode result = mySwapchain.PrepareFrame(aFrame);
     if (result == Swapchain::RtCode::OUT_OF_DATE_SWAPCHAIN) {
         vkDeviceWaitIdle(myContext.myLogicalDevice);
         glfwGetFramebufferSize(myWindow, &myContext.myWidth, &myContext.myHeight);
@@ -124,7 +125,7 @@ Window::RtCode WindowGLFW::Update()
         }
         mySwapchain.ReBuild();
         myRenderer.ReBuild();
-        return Update();
+        return RtCode::SUCCESS;
     }
     else if (result != Swapchain::RtCode::SUCCESS) {
         return RtCode::DRIVER_CALL_ERROR;
@@ -132,7 +133,13 @@ Window::RtCode WindowGLFW::Update()
     if (myRenderer.Update() != RendererImpl::RtCode::SUCCESS) {
         return RtCode::DRIVER_CALL_ERROR;
     }
-    if (mySwapchain.SubmitFrame() != Swapchain::RtCode::SUCCESS) {
+    result = mySwapchain.SubmitFrame(aFrame);
+    if (result == Swapchain::RtCode::OUT_OF_DATE_SWAPCHAIN) {
+        mySwapchain.ReBuild();
+        myRenderer.ReBuild();
+        return RtCode::SUCCESS;
+    }
+    else if (result != Swapchain::RtCode::SUCCESS) {
         return RtCode::DRIVER_CALL_ERROR;
     }
     return RtCode::SUCCESS;
