@@ -8,6 +8,8 @@
 #include <cstdint>
 #include <string>
 
+#include <Netero/Graphics/Errors.hpp>
+
 namespace Netero::Gfx {
 
 enum class WindowMode : uint8_t {
@@ -22,18 +24,11 @@ class Window {
     public:
     virtual ~Window() = default;
 
-    enum class RtCode {
-        SUCCESS,
-        EXIT,
-        DRIVER_CALL_ERROR,
-        PHYSICAL_DEVICE_ERROR,
-    };
-
-    virtual RtCode Show() = 0;
-    virtual RtCode Hide() = 0;
-    virtual RtCode Close() = 0;
-    virtual RtCode Update() = 0;
-    virtual RtCode PullEvent() = 0;
+    virtual GfxResult Show() = 0;
+    virtual GfxResult Hide() = 0;
+    virtual GfxResult Close() = 0;
+    virtual GfxResult Update() = 0;
+    virtual GfxResult PullEvent() = 0;
 
     virtual void                             SetTitle(const std::string&) = 0;
     [[nodiscard]] virtual const std::string& GetTitle() = 0;

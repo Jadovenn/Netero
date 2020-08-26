@@ -7,6 +7,7 @@
 
 #include <Vulkan/Context/Context.hpp>
 
+#include <Netero/Graphics/Errors.hpp>
 #include <Netero/Graphics/Renderer.hpp>
 
 #include <Swapchain/Swapchain.hpp>
@@ -18,17 +19,15 @@ class RendererImpl final: public Renderer {
     explicit RendererImpl(Context& aContext);
     ~RendererImpl() final = default;
 
-    enum class RtCode { SUCCESS, SWAPCHAIN_OUT_OF_DATE };
-
     // Initialization related
-    RtCode Initialize();
-    RtCode Teardown();
+    GfxResult Initialize();
+    GfxResult Teardown();
 
     // Runtime related
-    RtCode Build();
-    RtCode Release();
-    RtCode ReBuild();
-    RtCode Update();
+    GfxResult Build();
+    GfxResult Release();
+    GfxResult ReBuild();
+    GfxResult Update();
 
     void RegisterDrawable() final;
     void UnRegisterDrawable() final;

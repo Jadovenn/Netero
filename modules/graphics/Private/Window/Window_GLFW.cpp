@@ -63,7 +63,7 @@ WindowGLFW::~WindowGLFW()
 {
 }
 
-Window::RtCode WindowGLFW::Show()
+GfxResult WindowGLFW::Show()
 {
     if (!myContext.mySurface) {
         const VkResult result = glfwCreateWindowSurface(myContext.myVulkanInstance,
@@ -71,16 +71,16 @@ Window::RtCode WindowGLFW::Show()
                                                         nullptr,
                                                         &myContext.mySurface);
         if (result != VK_SUCCESS) {
-            return RtCode::DRIVER_CALL_ERROR;
+            return GfxResult::DRIVER_CALL_FAILED;
         }
-        if (PickPhysicalDevice() != RtCode::SUCCESS) {
-            return RtCode::DRIVER_CALL_ERROR;
+        if (PickPhysicalDevice() != GfxResult::SUCCESS) {
+            return GfxResult::DRIVER_CALL_FAILED;
         }
-        if (CreateLogicalDevice() != RtCode::SUCCESS) {
-            return RtCode::DRIVER_CALL_ERROR;
+        if (CreateLogicalDevice() != GfxResult::SUCCESS) {
+            return GfxResult::DRIVER_CALL_FAILED;
         }
-        if (CreateTransferQueue() != RtCode::SUCCESS) {
-            return RtCode::DRIVER_CALL_ERROR;
+        if (CreateTransferQueue() != GfxResult::SUCCESS) {
+            return GfxResult::DRIVER_CALL_FAILED;
         }
         mySwapchain.Initialize();
         myRenderer.Initialize();
@@ -88,10 +88,10 @@ Window::RtCode WindowGLFW::Show()
         myRenderer.Build();
     }
     glfwShowWindow(myWindow);
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Window::RtCode WindowGLFW::Close()
+GfxResult WindowGLFW::Close()
 {
     if (myContext.mySurface) {
         myRenderer.Teardown();
@@ -101,22 +101,22 @@ Window::RtCode WindowGLFW::Close()
         vkDestroyDevice(myContext.myLogicalDevice, nullptr);
         glfwDestroyWindow(myWindow);
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Window::RtCode WindowGLFW::Hide()
+GfxResult WindowGLFW::Hide()
 {
     glfwHideWindow(myWindow);
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Window::RtCode WindowGLFW::Update()
+GfxResult WindowGLFW::Update()
 {
     Frame aFrame {};
     assert(myContext.myLogicalDevice != nullptr); // Do you have call Show() before update?
     assert(myContext.mySurface != nullptr);
-    Swapchain::RtCode result = mySwapchain.PrepareFrame(aFrame);
-    if (result == Swapchain::RtCode::OUT_OF_DATE_SWAPCHAIN) {
+    GfxResult result = mySwapchain.PrepareFrame(aFrame);
+    if (result == GfxResult::OUT_OF_DATE_SWAPCHAIN) {
         vkDeviceWaitIdle(myContext.myLogicalDevice);
         glfwGetFramebufferSize(myWindow, &myContext.myWidth, &myContext.myHeight);
         while (myContext.myWidth == 0 || myContext.myHeight == 0) {
@@ -125,64 +125,64 @@ Window::RtCode WindowGLFW::Update()
         }
         mySwapchain.ReBuild();
         myRenderer.ReBuild();
-        return RtCode::SUCCESS;
+        return GfxResult::SUCCESS;
     }
-    else if (result != Swapchain::RtCode::SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+    else if (result != GfxResult::SUCCESS) {
+        return GfxResult::DRIVER_CALL_FAILED;
     }
-    if (myRenderer.Update() != RendererImpl::RtCode::SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+    if (myRenderer.Update() != GfxResult::SUCCESS) {
+        return GfxResult::DRIVER_CALL_FAILED;
     }
     result = mySwapchain.SubmitFrame(aFrame);
-    if (result == Swapchain::RtCode::OUT_OF_DATE_SWAPCHAIN) {
+    if (result == GfxResult::OUT_OF_DATE_SWAPCHAIN) {
         mySwapchain.ReBuild();
         myRenderer.ReBuild();
-        return RtCode::SUCCESS;
+        return GfxResult::SUCCESS;
     }
-    else if (result != Swapchain::RtCode::SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+    else if (result != GfxResult::SUCCESS) {
+        return GfxResult::DRIVER_CALL_FAILED;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Window::RtCode WindowGLFW::PullEvent()
+GfxResult WindowGLFW::PullEvent()
 {
     glfwPollEvents();
     if (glfwWindowShouldClose(myWindow)) {
-        return RtCode::EXIT;
+        return GfxResult::EXIT;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
 void WindowGLFW::SetPosition(uint32_t anXAxis, uint32_t anYAxis)
 {
 }
 
-Window::RtCode WindowGLFW::PickPhysicalDevice()
+GfxResult WindowGLFW::PickPhysicalDevice()
 {
     myContext.myPhysicalDevice =
         VkUtils::GetBestDevice(myContext.myVulkanInstance, myContext.mySurface);
     if (!myContext.myPhysicalDevice) {
         LOG_ERROR << "No suitable physical device found!" << std::endl;
-        return RtCode::PHYSICAL_DEVICE_ERROR;
+        return GfxResult::PHYSICAL_DEVICE_ERROR;
     }
     if (!VkUtils::CheckDeviceSuitable(myContext.myPhysicalDevice,
                                       VkUtils::DefaultDeviceExtensions)) {
         LOG_ERROR << "The device \'" << VkUtils::GetDeviceName(myContext.myPhysicalDevice)
                   << "\' is not suitable for windowed context." << std::endl;
-        return RtCode::PHYSICAL_DEVICE_ERROR;
+        return GfxResult::PHYSICAL_DEVICE_ERROR;
     }
     const auto swapChainDetails =
         VkUtils::QuerySwapChainSupport(myContext.myPhysicalDevice, myContext.mySurface);
     if (swapChainDetails.formats.empty() || swapChainDetails.presentMode.empty()) {
         LOG_ERROR << "The device \'" << VkUtils::GetDeviceName(myContext.myPhysicalDevice)
                   << "\' has no suitable swapchain." << std::endl;
-        return RtCode::PHYSICAL_DEVICE_ERROR;
+        return GfxResult::PHYSICAL_DEVICE_ERROR;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Window::RtCode WindowGLFW::CreateLogicalDevice()
+GfxResult WindowGLFW::CreateLogicalDevice()
 {
     auto indices = VkUtils::FindQueueFamilies(myContext.myPhysicalDevice, myContext.mySurface);
     VkPhysicalDeviceFeatures deviceFeatures {};
@@ -223,7 +223,7 @@ Window::RtCode WindowGLFW::CreateLogicalDevice()
                                            nullptr,
                                            &myContext.myLogicalDevice);
     if (result != VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
     vkGetDeviceQueue(myContext.myLogicalDevice,
                      indices.graphicsFamily.value(),
@@ -242,10 +242,10 @@ Window::RtCode WindowGLFW::CreateLogicalDevice()
     else {
         myContext.myTransferQueue = myContext.myPresentQueue;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Window::RtCode WindowGLFW::CreateTransferQueue()
+GfxResult WindowGLFW::CreateTransferQueue()
 {
     VkUtils::QueueFamilyIndices queueFamilyIndices =
         VkUtils::FindQueueFamilies(myContext.myPhysicalDevice, myContext.mySurface);
@@ -263,9 +263,9 @@ Window::RtCode WindowGLFW::CreateTransferQueue()
                             &poolInfo,
                             nullptr,
                             &myContext.myTransferCommandPool) != VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
 } // namespace Netero::Gfx

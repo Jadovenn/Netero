@@ -10,6 +10,8 @@
 #include <Vulkan/RenderPass/RenderPass.hpp>
 #include <Vulkan/Vulkan.hpp>
 
+#include <Netero/Graphics/Errors.hpp>
+
 namespace Netero::Gfx {
 
 class Context;
@@ -21,44 +23,37 @@ struct Frame {
 
 class Swapchain {
     public:
-    enum class RtCode {
-        SUCCESS,
-        DRIVER_CALL_ERROR,
-        OUT_OF_DATE_SWAPCHAIN,
-        MEMORY_ALLOCATION_ERROR
-    };
-
     Swapchain(Context& aContext, uint32_t aMaxInFlightFrameCount);
 
 #pragma region Initialization Methods
 
-    RtCode Initialize();
-    RtCode Teardown();
+    GfxResult Initialize();
+    GfxResult Teardown();
 
 #pragma region Runtime Methods
 
-    RtCode Build();
-    RtCode ReBuild();
-    RtCode Release();
+    GfxResult Build();
+    GfxResult ReBuild();
+    GfxResult Release();
 
 #pragma region Utility Methods
 
-    VkFormat GetSwapchainImagesFormat() { return mySwapchainImageFormat; }
-    unsigned GetCurrentFrameIdx() { return myCurrentFrame; }
-    uint32_t GetFrameCount() { return myFrameCount; }
-    RtCode   PrepareFrame(Frame& aFrame);
-    RtCode   SubmitFrame(Frame& aFrame);
+    VkFormat  GetSwapchainImagesFormat() { return mySwapchainImageFormat; }
+    unsigned  GetCurrentFrameIdx() { return myCurrentFrame; }
+    uint32_t  GetFrameCount() { return myFrameCount; }
+    GfxResult PrepareFrame(Frame& aFrame);
+    GfxResult SubmitFrame(Frame& aFrame);
 
 #pragma region Private Utility Methods
 
     private:
-    RtCode CreateSwapchain();
-    RtCode CreateImageViews();
-    RtCode CreateRenderPass();
-    RtCode CreateDepthResources();
-    RtCode CreateFrameBuffer();
-    RtCode CreateGraphicsCommandPool();
-    RtCode CreateCommandBuffers();
+    GfxResult CreateSwapchain();
+    GfxResult CreateImageViews();
+    GfxResult CreateRenderPass();
+    GfxResult CreateDepthResources();
+    GfxResult CreateFrameBuffer();
+    GfxResult CreateGraphicsCommandPool();
+    GfxResult CreateCommandBuffers();
 
 #pragma region Private Attributes
 

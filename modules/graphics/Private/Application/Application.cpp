@@ -22,7 +22,7 @@ VulkanApplication::~VulkanApplication() = default;
 
 static std::unique_ptr<VulkanApplication> myImpl;
 
-Application::RtCode Application::Initialize(const std::string& anApplicationName)
+GfxResult Application::Initialize(const std::string& anApplicationName)
 {
     myImpl = std::make_unique<VulkanApplication>(anApplicationName);
     glfwInit();
@@ -35,7 +35,7 @@ Application::RtCode Application::Initialize(const std::string& anApplicationName
     myImpl->myVulkanApplicationInfo.apiVersion = VK_API_VERSION_1_2;
 
     if (netero::isDebugMode && !VkUtils::CheckValidationLayerSupport()) {
-        return RtCode::DEBUG_MISSING_VALIDATION_LAYERS;
+        return GfxResult::DEBUG_MISSING_VALIDATION_LAYERS;
     }
 
     VkInstanceCreateInfo createInfo {};
@@ -58,7 +58,7 @@ Application::RtCode Application::Initialize(const std::string& anApplicationName
 
     VkResult result = vkCreateInstance(&createInfo, nullptr, &myImpl->myVulkanInstance);
     if (result != VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_FAILED;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
 
     if (netero::isDebugMode) {
@@ -69,7 +69,7 @@ Application::RtCode Application::Initialize(const std::string& anApplicationName
                                                nullptr,
                                                &myImpl->myDebugReport);
         if (result != VK_SUCCESS) {
-            return RtCode::DEBUG_FAILED_TO_SETUP_CALLBACKS;
+            return GfxResult::DEBUG_FAILED_TO_SETUP_CALLBACKS;
         }
 
         VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo;
@@ -79,11 +79,11 @@ Application::RtCode Application::Initialize(const std::string& anApplicationName
                                                   nullptr,
                                                   &myImpl->myDebugMessenger);
         if (result != VK_SUCCESS) {
-            return RtCode::DEBUG_FAILED_TO_SETUP_CALLBACKS;
+            return GfxResult::DEBUG_FAILED_TO_SETUP_CALLBACKS;
         }
     }
 
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
 void Application::Terminate()

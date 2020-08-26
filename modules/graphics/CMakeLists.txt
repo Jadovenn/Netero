@@ -44,14 +44,14 @@ set(Graphics_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
 set(Graphics_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Public)
 
 list(APPEND PUBLIC_HEADER
-        Public/Netero/Graphics/Axis.hpp
+        Public/Netero/Graphics/Geometry.hpp
         Public/Netero/Graphics/Application.hpp
         Public/Netero/Graphics/Window.hpp
         Public/Netero/Graphics/Renderer.hpp
         Public/Netero/Graphics/Mesh.hpp
-        Public/Netero/Graphics/Surface.hpp
         Public/Netero/Graphics/Shader.hpp
-        Public/Netero/Graphics/Texture.hpp)
+        Public/Netero/Graphics/Texture.hpp
+        Public/Netero/Graphics/Loaders.hpp)
 
 list(APPEND SRCS
         Private/Vulkan/Vulkan.hpp

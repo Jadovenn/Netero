@@ -10,6 +10,8 @@
 #include <Vulkan/Context/Context.hpp>
 #include <Vulkan/VkUtils.hpp>
 
+#include <Netero/Graphics/Errors.hpp>
+
 namespace Netero::Gfx {
 
 class RenderPass {
@@ -19,14 +21,7 @@ class RenderPass {
     {
     }
 
-    operator VkRenderPass() {
-        return myRenderPass;
-    }
-
-    enum class RtCode {
-        SUCCESS,
-        DRIVER_CALL_ERROR
-    };
+    operator VkRenderPass() { return myRenderPass; }
 
     void AddColorAttachment(VkAttachmentDescription& anAttachment,
                             VkAttachmentReference&   aReference);
@@ -35,9 +30,9 @@ class RenderPass {
 
     void Reset();
 
-    RtCode Build();
-    RtCode Release();
-    RtCode Rebuild();
+    GfxResult Build();
+    GfxResult Release();
+    GfxResult Rebuild();
 
     private:
     Context& myContext;

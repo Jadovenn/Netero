@@ -30,7 +30,7 @@ void RenderPass::Reset()
     myAttachmentDescriptions.clear();
 }
 
-RenderPass::RtCode RenderPass::Build()
+GfxResult RenderPass::Build()
 {
     VkSubpassDescription subpass {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -56,28 +56,28 @@ RenderPass::RtCode RenderPass::Build()
     const VkResult result =
         vkCreateRenderPass(myContext.myLogicalDevice, &renderPassInfo, nullptr, &myRenderPass);
     if (result != VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-RenderPass::RtCode RenderPass::Release()
+GfxResult RenderPass::Release()
 {
     vkDestroyRenderPass(myContext.myLogicalDevice, myRenderPass, nullptr);
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-RenderPass::RtCode RenderPass::Rebuild()
+GfxResult RenderPass::Rebuild()
 {
     auto result = Release();
-    if (result != RtCode::SUCCESS) {
+    if (result != GfxResult::SUCCESS) {
         return result;
     }
     result = Build();
-    if (result != RtCode::SUCCESS) {
+    if (result != GfxResult::SUCCESS) {
         return result;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
 } // namespace Netero::Gfx

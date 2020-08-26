@@ -7,7 +7,24 @@
 
 #include <atomic>
 
+#include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
+
 namespace Netero::Gfx {
+
+struct Vertex {
+    Vertex(): myCoordonite(0, 0, 0), myColor(0, 0, 0), myTextureCoordonite(0, 0) {}
+
+    glm::vec3 myCoordonite;
+    glm::vec3 myColor;
+    glm::vec2 myTextureCoordonite;
+
+    bool operator==(const Vertex& anOther)
+    {
+        return myCoordonite == anOther.myCoordonite && myColor == anOther.myColor &&
+            myTextureCoordonite == anOther.myTextureCoordonite;
+    }
+};
 
 /**
  * @brief An axis container with value, rotation and scale ratio attributes.
@@ -75,5 +92,18 @@ class Axis {
     std::atomic<float> myScale = 1;         /**< Scale ratio to be applied to the axis. */
     std::atomic<bool>  myHasChanged = true; /**< Not used please ignore. */
 };
+
+namespace std {
+    template<>
+    struct hash<Netero::Gfx::Vertex> {
+        size_t operator()(Netero::Gfx::Vertex const& aVertex) const
+        {
+            return ((hash<glm::vec3>()(aVertex.myCoordonite) ^
+                     hash<glm::vec3>()(aVertex.myColor) << 1)) >>
+                1 ^
+                (hash<glm::vec2>()(aVertex.myTextureCoordonite) << 1);
+        }
+    };
+} // namespace std
 
 } // namespace Netero::Gfx

@@ -32,11 +32,11 @@ class WindowGLFW final: public Window {
     public:
     ~WindowGLFW() final;
 
-    RtCode Show() final;
-    RtCode Hide() final;
-    RtCode Close() final;
-    RtCode Update() final;
-    RtCode PullEvent() final;
+    GfxResult Show() final;
+    GfxResult Hide() final;
+    GfxResult Close() final;
+    GfxResult Update() final;
+    GfxResult PullEvent() final;
 
     void               SetTitle(const std::string& aTitle) final { myTitle = aTitle; }
     const std::string& GetTitle() final { return myTitle; }
@@ -49,9 +49,9 @@ class WindowGLFW final: public Window {
     void SetPosition(uint32_t anXAxis, uint32_t anYAxis);
 
     private:
-    RtCode PickPhysicalDevice();
-    RtCode CreateLogicalDevice();
-    RtCode CreateTransferQueue();
+    GfxResult PickPhysicalDevice();
+    GfxResult CreateLogicalDevice();
+    GfxResult CreateTransferQueue();
 
     int         myWidth;
     int         myHeight;

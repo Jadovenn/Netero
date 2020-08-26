@@ -19,35 +19,35 @@ void RendererImpl::UnRegisterDrawable()
 {
 }
 
-RendererImpl::RtCode RendererImpl::Initialize()
+GfxResult RendererImpl::Initialize()
 {
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-RendererImpl::RtCode RendererImpl::Teardown()
+GfxResult RendererImpl::Teardown()
 {
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-RendererImpl::RtCode RendererImpl::Build()
+GfxResult RendererImpl::Build()
 {
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-RendererImpl::RtCode RendererImpl::Release()
+GfxResult RendererImpl::Release()
 {
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-RendererImpl::RtCode RendererImpl::ReBuild()
+GfxResult RendererImpl::ReBuild()
 {
     Release();
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-RendererImpl::RtCode RendererImpl::Update()
+GfxResult RendererImpl::Update()
 {
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
 } // namespace Netero::Gfx

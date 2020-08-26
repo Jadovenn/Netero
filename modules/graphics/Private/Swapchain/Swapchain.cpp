@@ -29,7 +29,7 @@ Swapchain::Swapchain(Context& aContext, uint32_t aMaxInFlightFrameCount)
 {
 }
 
-Swapchain::RtCode Swapchain::Initialize()
+GfxResult Swapchain::Initialize()
 {
     assert(myContext.myLogicalDevice != nullptr);  // Logical must be ready at this point
     assert(myContext.myPhysicalDevice != nullptr); // Physical must be ready at this point
@@ -50,25 +50,24 @@ Swapchain::RtCode Swapchain::Initialize()
                                             nullptr,
                                             &myAvailableFrameSemaphore[idx]);
         if (result != VK_SUCCESS) {
-            return RtCode::DRIVER_CALL_ERROR;
+            return GfxResult::DRIVER_CALL_FAILED;
         }
         result = vkCreateSemaphore(myContext.myLogicalDevice,
                                    &semaphoreInfo,
                                    nullptr,
                                    &myRenderedFrameSemaphore[idx]);
         if (result != VK_SUCCESS) {
-            return RtCode::DRIVER_CALL_ERROR;
+            return GfxResult::DRIVER_CALL_FAILED;
         }
-        result =
-            vkCreateFence(myContext.myLogicalDevice, &fenceInfo, nullptr, &myInFlyFence[idx]);
+        result = vkCreateFence(myContext.myLogicalDevice, &fenceInfo, nullptr, &myInFlyFence[idx]);
         if (result != VK_SUCCESS) {
-            return RtCode::DRIVER_CALL_ERROR;
+            return GfxResult::DRIVER_CALL_FAILED;
         }
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::Teardown()
+GfxResult Swapchain::Teardown()
 {
     Release();
     for (int idx = 0; idx < myMaximumInFlightFrames; idx++) {
@@ -76,10 +75,10 @@ Swapchain::RtCode Swapchain::Teardown()
         vkDestroySemaphore(myContext.myLogicalDevice, myRenderedFrameSemaphore[idx], nullptr);
         vkDestroyFence(myContext.myLogicalDevice, myInFlyFence[idx], nullptr);
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::Build()
+GfxResult Swapchain::Build()
 {
     CreateImageViews();
     CreateRenderPass();
@@ -87,10 +86,10 @@ Swapchain::RtCode Swapchain::Build()
     CreateFrameBuffer();
     CreateGraphicsCommandPool();
     CreateCommandBuffers();
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::ReBuild()
+GfxResult Swapchain::ReBuild()
 {
     Release();
     CreateSwapchain();
@@ -100,10 +99,10 @@ Swapchain::RtCode Swapchain::ReBuild()
     CreateFrameBuffer();
     CreateGraphicsCommandPool();
     CreateCommandBuffers();
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::Release()
+GfxResult Swapchain::Release()
 {
     vkDeviceWaitIdle(myContext.myLogicalDevice);
     vkDestroyImageView(myContext.myLogicalDevice, myDepthImageView, nullptr);
@@ -122,10 +121,10 @@ Swapchain::RtCode Swapchain::Release()
         vkDestroyImageView(myContext.myLogicalDevice, imageView, nullptr);
     }
     vkDestroySwapchainKHR(myContext.myLogicalDevice, mySwapchain, nullptr);
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::PrepareFrame(Frame& aFrame)
+GfxResult Swapchain::PrepareFrame(Frame& aFrame)
 {
     vkWaitForFences(myContext.myLogicalDevice,
                     1,
@@ -139,10 +138,10 @@ Swapchain::RtCode Swapchain::PrepareFrame(Frame& aFrame)
                                             nullptr,
                                             &myFrameIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        return RtCode::OUT_OF_DATE_SWAPCHAIN;
+        return GfxResult::OUT_OF_DATE_SWAPCHAIN;
     }
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
     aFrame.myFrameIdx = myFrameIndex;
 
@@ -163,7 +162,7 @@ Swapchain::RtCode Swapchain::PrepareFrame(Frame& aFrame)
     beginInfo.pInheritanceInfo = nullptr;
 
     if (vkBeginCommandBuffer(aFrame.myCommandBuffer, &beginInfo) != VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
     std::array<VkClearValue, 2> clearValues {};
     clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -178,14 +177,14 @@ Swapchain::RtCode Swapchain::PrepareFrame(Frame& aFrame)
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
     vkCmdBeginRenderPass(aFrame.myCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::SubmitFrame(Frame& aFrame)
+GfxResult Swapchain::SubmitFrame(Frame& aFrame)
 {
     vkCmdEndRenderPass(aFrame.myCommandBuffer);
     if (vkEndCommandBuffer(aFrame.myCommandBuffer) != VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
     VkSemaphore          waitSemaphores[] = { myAvailableFrameSemaphore[myCurrentFrame] };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -200,12 +199,10 @@ Swapchain::RtCode Swapchain::SubmitFrame(Frame& aFrame)
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
     vkResetFences(myContext.myLogicalDevice, 1, &myInFlyFence[myCurrentFrame]);
-    VkResult result = vkQueueSubmit(myContext.myGraphicsQueue,
-                                    1,
-                                    &submitInfo,
-                                    myInFlyFence[myCurrentFrame]);
+    VkResult result =
+        vkQueueSubmit(myContext.myGraphicsQueue, 1, &submitInfo, myInFlyFence[myCurrentFrame]);
     if (result != VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
     VkPresentInfoKHR presentInfo {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -218,16 +215,16 @@ Swapchain::RtCode Swapchain::SubmitFrame(Frame& aFrame)
     presentInfo.pResults = nullptr;
     result = vkQueuePresentKHR(myContext.myPresentQueue, &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        return RtCode::OUT_OF_DATE_SWAPCHAIN;
+        return GfxResult::OUT_OF_DATE_SWAPCHAIN;
     }
     else if (result != VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
     myCurrentFrame = (myCurrentFrame + 1) % myMaximumInFlightFrames;
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::CreateSwapchain()
+GfxResult Swapchain::CreateSwapchain()
 {
     VkUtils::SwapChainSupportDetails swapChainSupport =
         VkUtils::QuerySwapChainSupport(myContext.myPhysicalDevice, myContext.mySurface);
@@ -275,7 +272,7 @@ Swapchain::RtCode Swapchain::CreateSwapchain()
     const VkResult result =
         vkCreateSwapchainKHR(myContext.myLogicalDevice, &createInfo, nullptr, &mySwapchain);
     if (result != VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
     vkGetSwapchainImagesKHR(myContext.myLogicalDevice, mySwapchain, &myFrameCount, nullptr);
     mySwapchainImages.resize(myFrameCount);
@@ -285,10 +282,10 @@ Swapchain::RtCode Swapchain::CreateSwapchain()
                             mySwapchainImages.data());
     mySwapchainImageFormat = surfaceFormat.format;
     mySwapchainExtent = extent;
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::CreateImageViews()
+GfxResult Swapchain::CreateImageViews()
 {
     VkImageViewCreateInfo createInfo = {};
 
@@ -313,13 +310,13 @@ Swapchain::RtCode Swapchain::CreateImageViews()
                                                   nullptr,
                                                   &mySwapchainImageViews[idx]);
         if (result != VK_SUCCESS) {
-            return RtCode::DRIVER_CALL_ERROR;
+            return GfxResult::DRIVER_CALL_FAILED;
         }
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::CreateRenderPass()
+GfxResult Swapchain::CreateRenderPass()
 {
     myRenderPass.Reset();
 
@@ -351,13 +348,13 @@ Swapchain::RtCode Swapchain::CreateRenderPass()
 
     myRenderPass.AddDepthStencilAttachment(depthAttachment, depthAttachmentRef);
 
-    if (myRenderPass.Build() != RenderPass::RtCode::SUCCESS) {
-        return Swapchain::RtCode::DRIVER_CALL_ERROR;
+    if (myRenderPass.Build() != GfxResult::SUCCESS) {
+        return GfxResult::DRIVER_CALL_FAILED;
     }
-    return Swapchain::RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::CreateDepthResources()
+GfxResult Swapchain::CreateDepthResources()
 {
     VkFormat depthFormat = VkUtils::FindDepthBufferingImageFormat(myContext.myPhysicalDevice);
     assert(depthFormat != VK_FORMAT_UNDEFINED);
@@ -371,19 +368,19 @@ Swapchain::RtCode Swapchain::CreateDepthResources()
     myDepthImage = image;
     myDepthImageMemory = imageMemory;
     if (!myDepthImage) {
-        return RtCode::MEMORY_ALLOCATION_ERROR;
+        return GfxResult::MEMORY_ALLOCATION_FAILED;
     }
     myDepthImageView = VkUtils::CreateImageView(myContext.myLogicalDevice,
                                                 myDepthImage,
                                                 depthFormat,
                                                 VK_IMAGE_ASPECT_DEPTH_BIT);
     if (!myDepthImageView) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::CreateFrameBuffer()
+GfxResult Swapchain::CreateFrameBuffer()
 {
     mySwapchainFrameBuffers.resize(myFrameCount);
     for (size_t i = 0; i < myFrameCount; i++) {
@@ -402,13 +399,13 @@ Swapchain::RtCode Swapchain::CreateFrameBuffer()
                                 &frameBufferInfo,
                                 nullptr,
                                 &mySwapchainFrameBuffers[i]) != VK_SUCCESS) {
-            return RtCode::DRIVER_CALL_ERROR;
+            return GfxResult::DRIVER_CALL_FAILED;
         }
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::CreateGraphicsCommandPool()
+GfxResult Swapchain::CreateGraphicsCommandPool()
 {
     VkUtils::QueueFamilyIndices queueFamilyIndices =
         VkUtils::FindQueueFamilies(myContext.myPhysicalDevice, myContext.mySurface);
@@ -419,12 +416,12 @@ Swapchain::RtCode Swapchain::CreateGraphicsCommandPool()
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     if (vkCreateCommandPool(myContext.myLogicalDevice, &poolInfo, nullptr, &myCommandPool) !=
         VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
-Swapchain::RtCode Swapchain::CreateCommandBuffers()
+GfxResult Swapchain::CreateCommandBuffers()
 {
     myCommandBuffers.resize(myFrameCount);
     VkCommandBufferAllocateInfo allocInfo {};
@@ -435,9 +432,9 @@ Swapchain::RtCode Swapchain::CreateCommandBuffers()
 
     if (vkAllocateCommandBuffers(myContext.myLogicalDevice, &allocInfo, myCommandBuffers.data()) !=
         VK_SUCCESS) {
-        return RtCode::DRIVER_CALL_ERROR;
+        return GfxResult::DRIVER_CALL_FAILED;
     }
-    return RtCode::SUCCESS;
+    return GfxResult::SUCCESS;
 }
 
 } // namespace Netero::Gfx
