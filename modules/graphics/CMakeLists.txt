@@ -55,6 +55,8 @@ list(APPEND PUBLIC_HEADER
 
 list(APPEND SRCS
         Private/Vulkan/Vulkan.hpp
+        Private/Vulkan/Buffer/Buffer.hpp
+        Private/Vulkan/Buffer/Buffer.cpp
         Private/Vulkan/Context/Context.hpp
         Private/Vulkan/Context/Context.cpp
         Private/Vulkan/RenderPass/RenderPass.hpp

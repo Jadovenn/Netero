@@ -16,7 +16,7 @@ int main()
                                                          Netero::Gfx::WindowMode::RESIZABLE,
                                                          "Cube Application");
     window->Show();
-    while (window->PullEvent() != Netero::Gfx::Window::RtCode::EXIT) {
+    while (window->PullEvent() != Netero::GfxResult::EXIT) {
         window->Update();
     }
     Netero::Gfx::Application::DestroyWindow(window);
