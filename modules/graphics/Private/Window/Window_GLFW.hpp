@@ -48,6 +48,8 @@ class WindowGLFW final: public Window {
 
     void SetPosition(uint32_t anXAxis, uint32_t anYAxis);
 
+    Renderer*   GetRenderer() override { return &myRenderer; }
+
     private:
     GfxResult PickPhysicalDevice();
     GfxResult CreateLogicalDevice();

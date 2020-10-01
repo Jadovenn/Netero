@@ -12,6 +12,8 @@
 
 namespace Netero::Gfx {
 
+class Renderer;
+
 enum class WindowMode : uint8_t {
     FIX = 0x01,
     BORDERLESS = 0x2,
@@ -39,6 +41,8 @@ class Window {
     [[nodiscard]] virtual uint32_t GetHeight() = 0;
 
     virtual void SetPosition(uint32_t anXAxis, uint32_t anYAxis) = 0;
+
+    virtual Renderer* GetRenderer() = 0;
 };
 
 } // namespace Netero::Gfx

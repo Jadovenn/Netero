@@ -82,6 +82,7 @@ GfxResult WindowGLFW::Show()
         if (CreateTransferQueue() != GfxResult::SUCCESS) {
             return GfxResult::DRIVER_CALL_FAILED;
         }
+
         mySwapchain.Initialize();
         myRenderer.Initialize();
         mySwapchain.Build();
