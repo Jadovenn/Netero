@@ -48,15 +48,12 @@ list(APPEND PUBLIC_HEADER
         Public/Netero/Graphics/Application.hpp
         Public/Netero/Graphics/Window.hpp
         Public/Netero/Graphics/Renderer.hpp
-        Public/Netero/Graphics/Mesh.hpp
         Public/Netero/Graphics/Shader.hpp
-        Public/Netero/Graphics/Texture.hpp
-        Public/Netero/Graphics/Loaders.hpp)
+        Public/Netero/Graphics/Texture.hpp)
 
 list(APPEND SRCS
         Private/Vulkan/Vulkan.hpp
         Private/Vulkan/Buffer/Buffer.hpp
-        Private/Vulkan/Buffer/Buffer.cpp
         Private/Vulkan/Context/Context.hpp
         Private/Vulkan/Context/Context.cpp
         Private/Vulkan/RenderPass/RenderPass.hpp
@@ -76,13 +73,21 @@ list(APPEND SRCS
         Private/Swapchain/Swapchain.hpp
         Private/Swapchain/Swapchain.cpp
         Private/Renderer/Renderer.hpp
-        Private/Renderer/Renderer.cpp)
+        Private/Renderer/Renderer.cpp
+        Private/Renderer/Drawable/Drawable.hpp
+        Private/Renderer/Drawable/Geometry.hpp
+        Private/Renderer/Drawable/Geometry.cpp)
+
+set(BUILT_IN_SHADERS
+        Private/Renderer/Shader/Default/DefaultVertex.vert
+        Private/Renderer/Shader/Default/DefaultFragment.frag)
 
 ##====================================
 ##  Target
 ##====================================
 
 add_library(NeteroGraphics STATIC ${SRCS} ${PUBLIC_HEADER})
+target_add_shaders(TARGET NeteroGraphics SOURCES ${BUILT_IN_SHADERS})
 add_dependencies(NeteroGraphics Netero NeteroPatterns NeteroExtra)
 target_compile_features(NeteroGraphics PUBLIC cxx_std_17)
 target_include_directories(NeteroGraphics

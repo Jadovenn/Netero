@@ -84,6 +84,22 @@ function(target_add_shader TARGET SHADER_PATH)
     target_sources(${TARGET} PRIVATE ${CURRENT_SHADER_OUTPUT_PATH})
 endfunction(target_add_shader)
 
+function(target_add_shaders)
+    cmake_parse_arguments(
+            PARSED_ARGS
+            ""
+            "TARGET"
+            "SOURCES"
+            ${ARGN}
+    )
+    if(NOT PARSED_ARGS_TARGET)
+        message(FATAL_ERROR "target_add_shaders: You must provide a target")
+    endif(NOT PARSED_ARGS_TARGET)
+    foreach(SHADER ${PARSED_ARGS_SOURCES})
+        target_add_shader(${PARSED_ARGS_TARGET} ${SHADER})
+    endforeach()
+endfunction(target_add_shaders)
+
 ## move texture/image to the bin directory
 function(target_export_texture TARGET TEXTURE_PATH)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/textures)
