@@ -46,7 +46,7 @@ class WindowGLFW final: public Window {
     [[nodiscard]] uint32_t GetWidth() final { return myWidth; }
     [[nodiscard]] uint32_t GetHeight() final { return myHeight; }
 
-    void SetPosition(uint32_t anXAxis, uint32_t anYAxis);
+    void SetPosition(uint32_t anXAxis, uint32_t anYAxis) override;
 
     Renderer*   GetRenderer() override { return &myRenderer; }
 
