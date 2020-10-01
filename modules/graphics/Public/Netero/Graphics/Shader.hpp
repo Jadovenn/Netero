@@ -5,13 +5,14 @@
 
 #pragma once
 
+
 namespace Netero::Gfx {
 
-enum class ShaderState {
-    VERTEX,
-    TESSELLATION,
-    GEOMETRY,
-    FRAGMENT,
+enum class ShaderStage {
+    VERTEX = 0,
+    TESSELLATION = 1,
+    GEOMETRY = 2,
+    FRAGMENT = 3,
 };
 
 class Shader {
