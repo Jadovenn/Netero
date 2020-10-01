@@ -29,8 +29,8 @@ endif (APPLE)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} Netero::Netero Netero::Graphics Netero::Extra)
-target_add_shader(${PROJECT_NAME} shaders/VikingRoomVertexShader.vert)
-target_add_shader(${PROJECT_NAME} shaders/VikingRoomFragmentShader.frag)
-target_add_resource(${PROJECT_NAME} vikingRoomAsset object/vikingRoom.OBJ)
-target_add_resource(${PROJECT_NAME} vikingRoomAsset object/vikingRoom.png)
+target_export_shader(${PROJECT_NAME} shaders/VikingRoomVertexShader.vert)
+target_export_shader(${PROJECT_NAME} shaders/VikingRoomFragmentShader.frag)
+target_export_resource(${PROJECT_NAME} vikingRoomAsset object/vikingRoom.OBJ)
+target_export_resource(${PROJECT_NAME} vikingRoomAsset object/vikingRoom.png)
 
