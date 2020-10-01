@@ -4,9 +4,11 @@
  */
 
 #include <memory>
+#include <set>
 
 #include <Vulkan/VkUtils.hpp>
 
+#include <netero/logger.hpp>
 #include <netero/netero.hpp>
 
 #include <Application/ApplicationImpl.hpp>
@@ -14,13 +16,19 @@
 namespace Netero::Gfx {
 
 VulkanApplication::VulkanApplication(const std::string& anApplicationName)
-    : myApplicationName(anApplicationName), myVulkanApplicationInfo {}, myVulkanInstance(nullptr)
+    : myApplicationName(anApplicationName), myVulkanApplicationInfo {}
 {
 }
 
 VulkanApplication::~VulkanApplication() = default;
 
 static std::unique_ptr<VulkanApplication> myImpl;
+
+VkInstance VulkanApplication::GetInstance()
+{
+    assert(myImpl);
+    return myImpl->myVulkanInstance;
+}
 
 GfxResult Application::Initialize(const std::string& anApplicationName)
 {
@@ -118,7 +126,8 @@ std::pair<int, int> Application::GetScreenDimension()
 std::shared_ptr<Window>
 Application::CreateWindow(int aWidth, int anHeight, WindowMode aMode, const std::string& aTitle)
 {
-    if (!myImpl || aWidth <= 0 || anHeight <= 0) {
+    assert(myImpl);
+    if (aWidth <= 0 || anHeight <= 0) {
         return nullptr;
     }
     std::shared_ptr<Window> aWindow;

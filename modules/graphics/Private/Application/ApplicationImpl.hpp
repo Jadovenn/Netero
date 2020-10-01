@@ -14,6 +14,7 @@
 #include <Netero/Graphics/Application.hpp>
 
 #include <Window/WindowFactory.hpp>
+#include <Vulkan/Context/Context.hpp>
 
 namespace Netero::Gfx {
 
@@ -22,9 +23,11 @@ class VulkanApplication {
     explicit VulkanApplication(const std::string& anApplicationName);
     ~VulkanApplication();
 
-    const std::string myApplicationName;
-    VkApplicationInfo myVulkanApplicationInfo;
-    VkInstance        myVulkanInstance;
+    static VkInstance GetInstance();
+
+    const std::string   myApplicationName;
+    VkApplicationInfo   myVulkanApplicationInfo;
+    VkInstance          myVulkanInstance;
 
     VkDebugUtilsMessengerEXT myDebugMessenger = nullptr;
     VkDebugReportCallbackEXT myDebugReport = nullptr;
