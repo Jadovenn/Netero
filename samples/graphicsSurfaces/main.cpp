@@ -5,20 +5,65 @@
 
 #include <chrono>
 #include <iostream>
+#include <vector>
 
 #include <Netero/Graphics/Application.hpp>
+#include <Netero/Graphics/Geometry.hpp>
+
+
+std::vector<Netero::Gfx::Vertex> squareVertices {
+    { { -0.5f, -0.5f, 0.f }, { 1.f, 0.0f, 0.f }, { 0.f, 0.f } },
+    { { 0.5f, -0.5f, 0.f }, { 0.0f, 1.0f, 0.0f }, { 1.f, 0.f } },
+    { { 0.5f, 0.5f, 0.f }, { 0.f, 0.0f, 1.f }, { 1.f, 1.f } },
+    { { -0.5f, 0.5f, 0.f }, { 1.0f, 1.0f, 1.0f }, { 0.f, 1.f } }
+};
+
+std::vector<uint32_t> squareIndices { 0, 1, 2, 2, 3, 0 };
 
 int main()
 {
+
+    /********************************************
+     * Step 1.
+     * Create a Netero graphic application,
+     * a window and grab a renderer.
+     ********************************************/
+
     Netero::Gfx::Application::Initialize("Cube");
     auto window = Netero::Gfx::Application::CreateWindow(800,
                                                          600,
                                                          Netero::Gfx::WindowMode::RESIZABLE,
                                                          "Cube Application");
+    // Look at the renderer, it depend on the window you create
+    // This is because it depend on the surface attributes that are
+    // provided with the window
+    auto renderer = window->GetRenderer();
+
+    /********************************************
+     * Step 2.
+     * Create a drawable object to display
+     ********************************************/
+    auto square = Netero::Gfx::Geometry::New();
+    square->SetVerticesWithIndices(squareVertices, squareIndices);
+
+   /********************************************
+    * Step 3.
+    * Show the window and run our application loop
+    ********************************************/
     window->Show();
     while (window->PullEvent() != Netero::GfxResult::EXIT) {
+        // Update the object state here
+        // Look at the update, it is the last operation
+        // graphics' object are not thread safe. Please update
+        // the graphics' object and the window in the same thread.
         window->Update();
     }
+
+    /********************************************
+     * Step 5.
+     * Cleanup and terminate the Netero graphics
+     * application.
+     ********************************************/
     Netero::Gfx::Application::DestroyWindow(window);
     Netero::Gfx::Application::Terminate();
     return 0;
