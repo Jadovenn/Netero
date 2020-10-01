@@ -64,13 +64,14 @@ int RateDeviceSuitability(VkPhysicalDevice device, VkSurfaceKHR surface)
     VkPhysicalDeviceFeatures   deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-    const auto queueFamilyIndices = FindQueueFamilies(device, surface);
-
-    if (!queueFamilyIndices.isGraphicsSuitable() || !deviceFeatures.samplerAnisotropy) {
-        return -2;
-    }
-    if (queueFamilyIndices.transferFamily.has_value()) {
-        score += 2000;
+    if (surface) {
+        const auto queueFamilyIndices = FindQueueFamilies(device, surface);
+        if (!queueFamilyIndices.isGraphicsSuitable() || !deviceFeatures.samplerAnisotropy) {
+            return -2;
+        }
+        if (queueFamilyIndices.transferFamily.has_value()) {
+            score += 2000;
+        }
     }
     switch (deviceProperties.deviceType) {
         case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU: score += 1000; break;
