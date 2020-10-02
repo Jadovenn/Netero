@@ -10,7 +10,6 @@ set(SOURCES
         main.cpp)
 
 include_directories(${PROJECT_NAME} ${Netero_INCLUDE_DIRS})
-message(STATUS "Include Dirs : ${Netero_INCLUDE_DIRS}")
 
 if (WIN32)
     if (WIN_APP)
