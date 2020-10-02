@@ -75,5 +75,5 @@ install(DIRECTORY Public/Netero
 ##====================================
 
 if (BUILD_TESTING AND NETERO_UNIT_TEST)
-    add_subdirectory(tests)
+    add_subdirectory(Tests)
 endif ()
