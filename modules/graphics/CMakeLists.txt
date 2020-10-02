@@ -7,6 +7,12 @@ project(NeteroGraphics
 message(STATUS "Configure Netero Graphics module.")
 
 ##====================================
+##  Tools
+##====================================
+
+add_subdirectory(Tools/SpvToH)
+
+##====================================
 ##  Extern Dependencies
 ##====================================
 
@@ -44,29 +50,51 @@ set(Graphics_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
 set(Graphics_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Public)
 
 list(APPEND PUBLIC_HEADER
+        Public/Netero/Graphics/Geometry.hpp
         Public/Netero/Graphics/Application.hpp
         Public/Netero/Graphics/Window.hpp
         Public/Netero/Graphics/Renderer.hpp
-        Public/Netero/Graphics/Mesh.hpp
-        Public/Netero/Graphics/Surface.hpp
         Public/Netero/Graphics/Shader.hpp
         Public/Netero/Graphics/Texture.hpp)
 
 list(APPEND SRCS
         Private/Vulkan/Vulkan.hpp
+        Private/Vulkan/Buffer/Buffer.hpp
+        Private/Vulkan/Context/Context.hpp
+        Private/Vulkan/Context/Context.cpp
+        Private/Vulkan/RenderPass/RenderPass.hpp
+        Private/Vulkan/RenderPass/RenderPass.cpp
         Private/Vulkan/VkUtils.hpp
         Private/Vulkan/Utils/VkValidationLayerSupport.cpp
         Private/Vulkan/Utils/VkValidationLayerCallbacks.cpp
+        Private/Vulkan/Utils/VkSwapchainSupport.cpp
+        Private/Vulkan/Utils/VkDeviceSupport.cpp
+        Private/Vulkan/Utils/VkImageSupport.cpp
+        Private/Vulkan/Utils/VkMemory.cpp
         Private/Application/ApplicationImpl.hpp
         Private/Application/Application.cpp
-        )
+        Private/Window/Window_GLFW.cpp
+        Private/Window/Window_GLFW.hpp
+        Private/Window/WindowFactory.hpp
+        Private/Swapchain/Swapchain.hpp
+        Private/Swapchain/Swapchain.cpp
+        Private/Renderer/Renderer.hpp
+        Private/Renderer/Renderer.cpp
+        Private/Renderer/Drawable/Drawable.hpp
+        Private/Renderer/Drawable/Geometry.hpp
+        Private/Renderer/Drawable/Geometry.cpp)
+
+set(BUILT_IN_SHADERS
+        Private/Renderer/Shader/Default/DefaultVertex.vert
+        Private/Renderer/Shader/Default/DefaultFragment.frag)
 
 ##====================================
 ##  Target
 ##====================================
 
 add_library(NeteroGraphics STATIC ${SRCS} ${PUBLIC_HEADER})
-add_dependencies(NeteroGraphics Netero NeteroPatterns NeteroExtra)
+target_add_shaders(TARGET NeteroGraphics SOURCES ${BUILT_IN_SHADERS})
+add_dependencies(NeteroGraphics Netero NeteroPatterns NeteroExtra SpvToH)
 target_compile_features(NeteroGraphics PUBLIC cxx_std_17)
 target_include_directories(NeteroGraphics
         PUBLIC
