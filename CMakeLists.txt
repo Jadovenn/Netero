@@ -36,6 +36,10 @@ add_compile_options("$<$<CONFIG:RELEASE>:-O2>")
 ##  Modules declaration
 ##====================================
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
 ## Submodule config
 OPTION(NETERO_FAST "Fast module library." ON)
 OPTION(NETERO_AUDIO "Audio module library." ON)
@@ -103,20 +107,20 @@ if (NETERO_AUDIO)
     add_subdirectory(modules/audio)
 endif (NETERO_AUDIO)
 
+if (NETERO_CONSOLE)
+    add_subdirectory(modules/console)
+endif(NETERO_CONSOLE)
+
 if (NETERO_GRAPHICS)
-    if (NOT NETERO_EXTRA)
-        message(FATAL_ERROR "GRAPHICS rely on EXTRA, EXTRA must be activated")
-    endif (NOT NETERO_EXTRA)
+    if (NOT NETERO_EXTRA OR NOT NETERO_CONSOLE)
+        message(FATAL_ERROR "GRAPHICS rely on EXTRA and CONSOLE")
+    endif (NOT NETERO_EXTRA OR NOT NETERO_CONSOLE)
     add_subdirectory(modules/graphics)
 endif (NETERO_GRAPHICS)
 
 if (NETERO_MEMCHECK)
     add_subdirectory(modules/memcheck)
 endif (NETERO_MEMCHECK)
-
-if (NETERO_CONSOLE)
-    add_subdirectory(modules/console)
-endif(NETERO_CONSOLE)
 
 if (NETERO_SAMPLES)
     add_subdirectory(samples)
