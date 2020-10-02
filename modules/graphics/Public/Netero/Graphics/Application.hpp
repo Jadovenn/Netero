@@ -8,6 +8,7 @@
 #include <memory>
 #include <utility>
 
+#include <Netero/Graphics/Errors.hpp>
 #include <Netero/Graphics/Window.hpp>
 
 namespace Netero::Gfx {
@@ -16,23 +17,15 @@ class Application {
     public:
     virtual ~Application() = 0;
 
-    enum class RtCode {
-        SUCCESS,
-        GFX_NOT_INITIALIZED,
-        DEBUG_MISSING_VALIDATION_LAYERS,
-        DEBUG_FAILED_TO_SETUP_CALLBACKS
-    };
+    static GfxResult Initialize(const std::string& anApplicationName);
+    static void      Terminate();
 
-    static RtCode Initialize(const std::string& anApplicationName);
-    static void Terminate();
+    static std::pair<int, int> GetScreenDimension();
 
-    static std::pair<uint32_t, uint32_t> GetScreenDimension();
+    static std::shared_ptr<Window>
+    CreateWindow(int aWidth, int anHeight, WindowMode aMode, const std::string& aTitle);
 
-    static Window* CreateWindow(uint32_t aWidth, uint32_t anHeight, WindowMode aMode);
-
-    private:
-    class Impl;
-    static std::unique_ptr<Impl> myImpl;
+    static void DestroyWindow(std::shared_ptr<Window>& aWindow);
 };
 
 } // namespace Netero::Gfx
