@@ -15,21 +15,19 @@
 
 namespace Netero::Gfx {
 
-class WindowFactory final: netero::patterns::IFactory<Window> {
+class WindowFactory final
+    : netero::patterns::IFactory<Window, VkInstance, int, int, WindowMode, const std::string&> {
     public:
-    virtual ~WindowFactory() = default;
+    ~WindowFactory() final = default;
 
-    std::shared_ptr<Window> Create() final
+    std::shared_ptr<Window> Create(VkInstance         aVulkanInstance,
+                                   int                aWidth,
+                                   int                anHeight,
+                                   WindowMode         aMode,
+                                   const std::string& aTitle) final
     {
-        // Could not call default ctor
-        assert(false);
-        return nullptr;
-    }
-
-    std::shared_ptr<Window>
-    Create(VkInstance aVulkanInstance, int aWidth, int anHeight, WindowMode aMode, const std::string& aTitle)
-    {
-        std::shared_ptr<WindowGLFW> aWindow(new WindowGLFW(aVulkanInstance, aWidth, anHeight, aMode, aTitle));
+        std::shared_ptr<WindowGLFW> aWindow(
+            new WindowGLFW(aVulkanInstance, aWidth, anHeight, aMode, aTitle));
         return aWindow;
     }
 };

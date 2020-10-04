@@ -12,11 +12,11 @@ namespace netero::patterns {
 /**
  * Factory interface.
  */
-template<typename T>
+template<typename T, typename ...ARGS>
 class IFactory {
     public:
     virtual ~IFactory() = default;
 
-    virtual std::shared_ptr<T> Create() = 0;
+    virtual std::shared_ptr<T> Create(ARGS...) = 0;
 };
 } // namespace netero::patterns
