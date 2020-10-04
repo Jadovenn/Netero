@@ -32,6 +32,8 @@ class RendererImpl final: public Renderer {
     void RegisterDrawable() final;
     void UnRegisterDrawable() final;
 
+    [[nodiscard]] Context& GetContext() const { return myContext; }
+
     private:
     Context& myContext;
 };
