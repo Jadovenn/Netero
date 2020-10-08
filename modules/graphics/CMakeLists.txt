@@ -81,16 +81,18 @@ list(APPEND SRCS
         Private/Renderer/Renderer.hpp
         Private/Renderer/Renderer.cpp
         Private/Renderer/Drawable/Drawable.hpp
-        Private/Renderer/Drawable/Geometry.hpp
-        Private/Renderer/Drawable/Geometry.cpp
+        Private/Renderer/Drawable/Geometry/Geometry.hpp
+        Private/Renderer/Drawable/Geometry/Geometry.cpp
         Private/Renderer/Shader/Shader.hpp
         Private/Renderer/Shader/Shader.cpp
         Private/Renderer/Shader/DefaultShaders.hpp
-        Private/Renderer/Shader/DefaultShaders.cpp)
+        Private/Renderer/Shader/DefaultShaders.cpp
+        Private/Renderer/Pipeline/Pipeline.hpp
+        Private/Renderer/Pipeline/Pipeline.cpp)
 
 set(BUILT_IN_SHADERS
-        Private/Renderer/Shader/Default/DefaultVertex.vert
-        Private/Renderer/Shader/Default/DefaultFragment.frag)
+        Private/Renderer/Shader/Default/GeometryVertex.vert
+        Private/Renderer/Shader/Default/GeometryFragment.frag)
 
 ##====================================
 ##  Target
