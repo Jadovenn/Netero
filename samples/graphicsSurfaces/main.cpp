@@ -10,7 +10,6 @@
 #include <Netero/Graphics/Application.hpp>
 #include <Netero/Graphics/Geometry.hpp>
 
-
 std::vector<Netero::Gfx::Vertex> squareVertices {
     { { -0.5f, -0.5f, 0.f }, { 1.f, 0.0f, 0.f }, { 0.f, 0.f } },
     { { 0.5f, -0.5f, 0.f }, { 0.0f, 1.0f, 0.0f }, { 1.f, 0.f } },
@@ -22,11 +21,10 @@ std::vector<uint32_t> squareIndices { 0, 1, 2, 2, 3, 0 };
 
 int main()
 {
-
     /********************************************
      * Step 1.
      * Create a Netero graphic application,
-     * a window and grab a renderer.
+     * a window and retrieve a renderer.
      ********************************************/
 
     Netero::Gfx::Application::Initialize("Cube");
@@ -43,10 +41,10 @@ int main()
      * Step 2.
      * Create a drawable object to display
      ********************************************/
-    auto square = Netero::Gfx::Geometry::New();
+    auto square = Netero::Gfx::Geometry::New(*renderer);
     square->SetVerticesWithIndices(squareVertices, squareIndices);
 
-   /********************************************
+    /********************************************
     * Step 3.
     * Show the window and run our application loop
     ********************************************/
