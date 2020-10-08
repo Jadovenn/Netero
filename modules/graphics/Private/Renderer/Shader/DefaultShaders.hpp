@@ -12,24 +12,24 @@ namespace Netero::Gfx {
 
 using ShaderFactory = netero::patterns::IFactory<Shader, Renderer&>;
 
-class DefaultFragmentShaderFactory final
+class GeometryFragmentShaderFactory final
     : ShaderFactory {
     public:
-    ~DefaultFragmentShaderFactory() final = default;
+    ~GeometryFragmentShaderFactory() final = default;
 
     std::shared_ptr<Shader> Create(Renderer& aRenderer) final;
 };
 
-extern DefaultFragmentShaderFactory DefaultFragmentSF;
+extern GeometryFragmentShaderFactory DefaultFragmentSF;
 
-class DefaultVertexShaderFactory final
+class GeometryVertexShaderFactory final
     : ShaderFactory {
     public:
-    ~DefaultVertexShaderFactory() final = default;
+    ~GeometryVertexShaderFactory() final = default;
 
     std::shared_ptr<Shader> Create(Renderer& aRenderer) final;
 };
 
-extern DefaultVertexShaderFactory DefaultVertexSF;
+extern GeometryVertexShaderFactory DefaultVertexSF;
 
 } // namespace Netero::Gfx

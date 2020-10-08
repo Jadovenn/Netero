@@ -5,28 +5,28 @@
 
 #include "Renderer/Shader/DefaultShaders.hpp"
 
-#include "Renderer/Shader/Default/DefaultFragment.h"
-#include "Renderer/Shader/Default/DefaultVertex.h"
+#include "Renderer/Shader/Default/GeometryVertex.h"
+#include "Renderer/Shader/Default/GeometryFragment.h"
 
 namespace Netero::Gfx {
 
-DefaultFragmentShaderFactory DefaultFragmentSF;
+GeometryFragmentShaderFactory DefaultFragmentSF;
 
-std::shared_ptr<Shader> DefaultFragmentShaderFactory::Create(Renderer &aRenderer)
+std::shared_ptr<Shader> GeometryFragmentShaderFactory::Create(Renderer &aRenderer)
 {
     return Shader::New(aRenderer,
-                       DefaultFragmentData,
-                       DefaultFragmentWordCount * sizeof(unsigned),
+                       GeometryFragmentData,
+                       GeometryFragmentWordCount * sizeof(unsigned),
                        ShaderStage::FRAGMENT);
 }
 
-DefaultVertexShaderFactory DefaultVertexSF;
+GeometryVertexShaderFactory DefaultVertexSF;
 
-std::shared_ptr<Shader> DefaultVertexShaderFactory::Create(Renderer &aRenderer)
+std::shared_ptr<Shader> GeometryVertexShaderFactory::Create(Renderer &aRenderer)
 {
     return Shader::New(aRenderer,
-                       DefaultVertexData,
-                       DefaultVertexWordCount * sizeof(unsigned),
+                       GeometryVertexData,
+                       GeometryVertexWordCount * sizeof(unsigned),
                        ShaderStage::FRAGMENT);
 }
 
