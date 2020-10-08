@@ -31,4 +31,9 @@ class Shader {
     Shader() = default;
 };
 
+class ShaderEnvironment {
+    public:
+    virtual void SetShader(std::shared_ptr<Shader>) = 0;
+};
+
 } // namespace Netero::Gfx
