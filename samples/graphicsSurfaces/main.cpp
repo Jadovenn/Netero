@@ -9,6 +9,7 @@
 
 #include <Netero/Graphics/Application.hpp>
 #include <Netero/Graphics/Geometry.hpp>
+#include <Netero/Graphics/Renderer.hpp>
 
 std::vector<Netero::Gfx::Vertex> squareVertices {
     { { -0.5f, -0.5f, 0.f }, { 1.f, 0.0f, 0.f }, { 0.f, 0.f } },
@@ -49,6 +50,7 @@ int main()
     * Show the window and run our application loop
     ********************************************/
     window->Show();
+    renderer->RegisterDrawable(square);
     while (window->PullEvent() != Netero::GfxResult::EXIT) {
         // Update the object state here
         // Look at the update, it is the last operation
@@ -56,6 +58,7 @@ int main()
         // the graphics' object and the window in the same thread.
         window->Update();
     }
+    renderer->UnRegisterDrawable(square);
 
     /********************************************
      * Step 5.
