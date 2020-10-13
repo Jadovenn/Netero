@@ -43,6 +43,7 @@ OPTION(NETERO_GRAPHICS "Graphics module library." ON)
 OPTION(NETERO_PATTERNS "Patterns module library." ON)
 OPTION(NETERO_EXTRA "Self hosted STB lib components." ON)
 OPTION(NETERO_MEMCHECK "Memory checker library." ON)
+OPTION(NETERO_CONSOLE "Console helper library." ON)
 
 ## Other config
 OPTION(NETERO_UNIT_TEST "Netero unit tests." OFF)
@@ -112,6 +113,10 @@ endif(NETERO_GRAPHICS)
 if(NETERO_MEMCHECK)
     add_subdirectory(modules/memcheck)
 endif(NETERO_MEMCHECK)
+
+if(NETERO_CONSOLE)
+    add_subdirectory(modules/console)
+endif(NETERO_CONSOLE)
 
 if(NETERO_SAMPLES)
     add_subdirectory(samples)
