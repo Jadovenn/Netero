@@ -12,14 +12,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
 
-#include <Netero/Graphics/Shader.hpp>
+#include <Netero/Graphics/GfxObject.hpp>
 
 namespace Netero::Gfx {
 
 class Renderer;
 
 struct Vertex {
-
     glm::vec3 myCoordonite;
     glm::vec3 myColor;
     glm::vec2 myTextureCoordonite;
@@ -101,14 +100,13 @@ class Axis {
     std::atomic<bool>  myHasChanged = true; /**< Not used please ignore. */
 };
 
-class Geometry: public ShaderEnvironment {
+class Geometry: public GfxObject {
     public:
     static std::shared_ptr<Geometry> New(Renderer&);
 
     virtual void SetVertices(const Vertices& someVertices) = 0;
     virtual void SetVerticesWithIndices(const Vertices& someVertices,
                                         const Indices&  someIndices) = 0;
-
 };
 
 } // namespace Netero::Gfx

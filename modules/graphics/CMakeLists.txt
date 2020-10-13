@@ -50,11 +50,12 @@ set(Graphics_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
 set(Graphics_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Public)
 
 list(APPEND PUBLIC_HEADER
-        Public/Netero/Graphics/Geometry.hpp
         Public/Netero/Graphics/Application.hpp
         Public/Netero/Graphics/Window.hpp
         Public/Netero/Graphics/Renderer.hpp
         Public/Netero/Graphics/Shader.hpp
+        Public/Netero/Graphics/GfxObject.hpp
+        Public/Netero/Graphics/Geometry.hpp
         Public/Netero/Graphics/Texture.hpp)
 
 list(APPEND SRCS
@@ -65,6 +66,7 @@ list(APPEND SRCS
         Private/Vulkan/RenderPass/RenderPass.hpp
         Private/Vulkan/RenderPass/RenderPass.cpp
         Private/Vulkan/VkUtils.hpp
+        Private/Vulkan/Utils/VkCommandBuffer.cpp
         Private/Vulkan/Utils/VkValidationLayerSupport.cpp
         Private/Vulkan/Utils/VkValidationLayerCallbacks.cpp
         Private/Vulkan/Utils/VkSwapchainSupport.cpp
@@ -83,6 +85,7 @@ list(APPEND SRCS
         Private/Renderer/Drawable/Drawable.hpp
         Private/Renderer/Drawable/Geometry/Geometry.hpp
         Private/Renderer/Drawable/Geometry/Geometry.cpp
+        Private/Renderer/Drawable/Geometry/GeometryDrawable.cpp
         Private/Renderer/Shader/Shader.hpp
         Private/Renderer/Shader/Shader.cpp
         Private/Renderer/Shader/DefaultShaders.hpp

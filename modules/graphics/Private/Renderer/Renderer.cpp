@@ -3,9 +3,10 @@
 * see LICENSE.txt
 */
 
-#include <Vulkan/Buffer/Buffer.hpp>
+#include "Renderer/Renderer.hpp"
 
-#include <Renderer/Renderer.hpp>
+#include "Renderer/Drawable/Drawable.hpp"
+#include "Vulkan/Buffer/Buffer.hpp"
 
 namespace Netero::Gfx {
 
@@ -13,12 +14,20 @@ RendererImpl::RendererImpl(Context &aContext): myContext(aContext)
 {
 }
 
-void RendererImpl::RegisterDrawable()
+void RendererImpl::RegisterDrawable(std::shared_ptr<GfxObject> anObject)
 {
+    auto result = myDrawables.insert(std::dynamic_pointer_cast<Drawable>(anObject));
+    if (result.second) {
+        (*result.first)->Initialize();
+    }
 }
 
-void RendererImpl::UnRegisterDrawable()
+void RendererImpl::UnRegisterDrawable(std::shared_ptr<GfxObject> anObject)
 {
+    if (auto drawable = std::dynamic_pointer_cast<Drawable>(anObject)) {
+        drawable->Teardown();
+        myDrawables.erase(drawable);
+    }
 }
 
 GfxResult RendererImpl::Initialize()

@@ -3,7 +3,7 @@
  * see LICENSE.txt
  */
 
-#include "Renderer/Drawable/Geometry.hpp"
+#include "Renderer/Drawable/Geometry/Geometry.hpp"
 
 #include <memory>
 
@@ -12,7 +12,14 @@
 
 namespace Netero::Gfx {
 
-GeometryImpl::GeometryImpl(Context &aContext): myContext(aContext)
+GeometryImpl::GeometryImpl(Context &aContext)
+    : myContext(aContext),
+      myVerticesBuffer(myContext,
+                       VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT),
+      myIndicesBuffer(myContext,
+                      VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
 {
 }
 

@@ -42,6 +42,17 @@ std::string                          GetDeviceName(VkPhysicalDevice device);
 VkPhysicalDevice                     GetDeviceByName(const char* name, VkInstance instance);
 std::vector<std::string>             GetDevicesName(VkInstance instance);
 
+#pragma region Transfer / Command Buffer
+
+VkCommandBuffer BeginCommandBufferRecording(VkDevice                  aDevice,
+                                            VkCommandPool             aCommandPool,
+                                            VkCommandBufferUsageFlags someFlags);
+void            EndCommandBuffer(VkCommandBuffer aCommandBuffer);
+void            FlushCommandBuffer(VkDevice        aDevice,
+                                   VkQueue         aQueue,
+                                   VkCommandPool   aCommandPool,
+                                   VkCommandBuffer aCommandBuffer);
+
 #pragma region Memory Helpers
 
 int32_t FindMemoryType(VkPhysicalDevice      physicalDevice,

@@ -12,8 +12,8 @@
 #include <Netero/Graphics/Geometry.hpp>
 
 #include "Renderer/Drawable/Drawable.hpp"
-#include "Vulkan/Context/Context.hpp"
 #include "Vulkan/Buffer/Buffer.hpp"
+#include "Vulkan/Context/Context.hpp"
 
 namespace Netero::Gfx {
 
@@ -27,6 +27,9 @@ class GeometryImpl final: public Drawable, public Geometry {
 
     void SetShader(std::shared_ptr<Shader>) override;
 
+    GfxResult Initialize() final;
+    GfxResult Teardown() final;
+
     private:
     Context&                               myContext;
     std::array<std::shared_ptr<Shader>, 4> myShaders;
@@ -34,8 +37,8 @@ class GeometryImpl final: public Drawable, public Geometry {
     Vertices myVertices;
     Indices  myIndices;
 
-    Buffer<int> myVerticesBuffer;
-    Buffer<int> myIndicesBuffer;
+    Buffer<Vertex>   myVerticesBuffer;
+    Buffer<uint32_t> myIndicesBuffer;
 };
 
 } // namespace Netero::Gfx

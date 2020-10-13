@@ -63,6 +63,27 @@ class Buffer {
         vkUnmapMemory(myContext.myLogicalDevice, myBufferMemory);
     }
 
+    void operator>>(Buffer& aBuffer)
+    {
+        aBuffer.Reserve(myItemCount);
+        VkCommandBuffer cmdBuffer =
+            VkUtils::BeginCommandBufferRecording(myContext.myLogicalDevice,
+                                                 myContext.myTransferCommandPool,
+                                                 VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+        VkBufferCopy copyRegion {};
+        copyRegion.srcOffset = 0;
+        copyRegion.dstOffset = 0;
+        copyRegion.size = mySizeInByte;
+        vkCmdCopyBuffer(cmdBuffer, myBuffer, aBuffer.myBuffer, 1, &copyRegion);
+        VkUtils::EndCommandBuffer(cmdBuffer);
+
+        VkUtils::FlushCommandBuffer(myContext.myLogicalDevice,
+                                    myContext.myTransferQueue,
+                                    myContext.myTransferCommandPool,
+                                    cmdBuffer);
+    }
+
     size_t   Size() { return myItemCount; }
     size_t   SizeInByte() { return mySizeInByte; }
     VkBuffer Data() { return myBuffer; }
@@ -100,7 +121,7 @@ class Buffer {
         return GfxResult::SUCCESS;
     }
 
-    Context               myContext;
+    Context&              myContext;
     VkBufferUsageFlags    myBufferFlags;
     VkMemoryPropertyFlags myMemoryFlags;
 

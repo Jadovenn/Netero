@@ -5,14 +5,18 @@
 
 #pragma once
 
+#include <memory>
+
 namespace Netero::Gfx {
+
+class GfxObject;
 
 class Renderer {
     public:
     virtual ~Renderer() = default;
 
-    virtual void RegisterDrawable() = 0;
-    virtual void UnRegisterDrawable() = 0;
+    virtual void RegisterDrawable(std::shared_ptr<GfxObject> anObject) = 0;
+    virtual void UnRegisterDrawable(std::shared_ptr<GfxObject> anObject) = 0;
 };
 
 } // namespace Netero::Gfx
