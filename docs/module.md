@@ -1,4 +1,4 @@
-﻿# Modules {#modules}
+﻿# Modules
 
 The library is organised in module. Even the core of the library is a module.
 
