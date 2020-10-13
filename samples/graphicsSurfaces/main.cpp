@@ -5,7 +5,72 @@
 
 #include <chrono>
 #include <iostream>
+#include <vector>
 
+#include <Netero/Graphics/Application.hpp>
+#include <Netero/Graphics/Geometry.hpp>
+#include <Netero/Graphics/Renderer.hpp>
+
+std::vector<Netero::Gfx::Vertex> squareVertices {
+    { { -0.5f, -0.5f, 0.f }, { 1.f, 0.0f, 0.f }, { 0.f, 0.f } },
+    { { 0.5f, -0.5f, 0.f }, { 0.0f, 1.0f, 0.0f }, { 1.f, 0.f } },
+    { { 0.5f, 0.5f, 0.f }, { 0.f, 0.0f, 1.f }, { 1.f, 1.f } },
+    { { -0.5f, 0.5f, 0.f }, { 1.0f, 1.0f, 1.0f }, { 0.f, 1.f } }
+};
+
+std::vector<uint32_t> squareIndices { 0, 1, 2, 2, 3, 0 };
+
+int main()
+{
+    /********************************************
+     * Step 1.
+     * Create a Netero graphic application,
+     * a window and retrieve a renderer.
+     ********************************************/
+
+    Netero::Gfx::Application::Initialize("Cube");
+    auto window = Netero::Gfx::Application::CreateWindow(800,
+                                                         600,
+                                                         Netero::Gfx::WindowMode::RESIZABLE,
+                                                         "Cube Application");
+    // Look at the renderer, it depend on the window you create
+    // This is because it depend on the surface attributes that are
+    // provided with the window
+    auto renderer = window->GetRenderer();
+
+    /********************************************
+     * Step 2.
+     * Create a drawable object to display
+     ********************************************/
+    auto square = Netero::Gfx::Geometry::New(*renderer);
+    square->SetVerticesWithIndices(squareVertices, squareIndices);
+
+    /********************************************
+    * Step 3.
+    * Show the window and run our application loop
+    ********************************************/
+    window->Show();
+    renderer->RegisterDrawable(square);
+    while (window->PullEvent() != Netero::GfxResult::EXIT) {
+        // Update the object state here
+        // Look at the update, it is the last operation
+        // graphics' object are not thread safe. Please update
+        // the graphics' object and the window in the same thread.
+        window->Update();
+    }
+    renderer->UnRegisterDrawable(square);
+
+    /********************************************
+     * Step 5.
+     * Cleanup and terminate the Netero graphics
+     * application.
+     ********************************************/
+    Netero::Gfx::Application::DestroyWindow(window);
+    Netero::Gfx::Application::Terminate();
+    return 0;
+}
+
+/**
 #include <netero/graphics/application.hpp>
 #include <netero/graphics/context.hpp>
 #include <netero/graphics/instance.hpp>
@@ -100,7 +165,9 @@ void InitializeApp(GraphicSampleApp* myApp)
     myApp->squareInstance3->x.scale(0.5);
     myApp->squareInstance3->y.scale(0.5);
     myApp->triangleInstance1 = myApp->triangle->createInstance();
-    myApp->triangleInstance1->y = 0.5;
+    myApp->triangleInstance1->x = 0.5;
+    myApp->triangleInstance1->y = -0.25;
+    myApp->triangleInstance1->z = 0.1;
 }
 
 void CleanUpApp(GraphicSampleApp* myApp)
@@ -140,3 +207,4 @@ int main()
     }
     return rtCode;
 }
+*/

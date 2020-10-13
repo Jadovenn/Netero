@@ -67,10 +67,10 @@ IncludeCategories:
   - Regex:           '<([A-Za-z0-9\/-_])+>'
     Priority:        1
   # Headers in <> from specific external libraries.
-  - Regex:           '<((vulkan)|(GLFW)|(glm))\/([A-Za-z0-9.\/-_])+>'
+  - Regex:           '<((Vulkan)|(GLFW)|(glm))\/([A-Za-z0-9.\/-_])+>'
     Priority:        2
   # Headers in <> from netero.
-  - Regex:           '<(netero)\/([A-Za-z0-9.\/-_])+>'
+  - Regex:           '<((netero)|(Netero))\/([A-Za-z0-9.\/-_])+>'
     Priority:        3
   # Headers in "" with extension.
   - Regex:           '"([A-Za-z0-9.\/-_])+"'

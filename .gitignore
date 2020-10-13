@@ -37,3 +37,4 @@ build/
 cmake-build*/
 out/
 /Documentation
+modules/graphics/Private/Renderer/Shader/*.h

@@ -49,7 +49,7 @@ else ()
 endif ()
 
 ## Compile and move shader to the bin directory
-function(target_add_shader TARGET SHADER_PATH)
+function(target_export_shader TARGET SHADER_PATH)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/shaders)
     get_filename_component(SHADER ${SHADER_PATH} NAME_WE)
     set(CURRENT_SHADER_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER}.spv)
@@ -66,10 +66,49 @@ function(target_add_shader TARGET SHADER_PATH)
         set_source_files_properties(${CURRENT_SHADER_OUTPUT_PATH} PROPERTIES
                 MACOSX_PACKAGE_LOCATION "Shaders")
     endif (APPLE)
+endfunction(target_export_shader)
+
+function(target_add_shader TARGET SHADER_PATH)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/shaders)
+    get_filename_component(SHADER ${SHADER_PATH} NAME_WE)
+    get_filename_component(SHADER_PATH_ONLY ${SHADER_PATH} DIRECTORY)
+    set(CURRENT_SHADER_SPV_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${SHADER_PATH_ONLY}/${SHADER}.spv)
+    set(CURRENT_SHADER_HEADER_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${SHADER_PATH_ONLY}/${SHADER}.h)
+    set(CURRENT_SHADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${SHADER_PATH})
+    add_custom_command(
+            OUTPUT ${CURRENT_SHADER_SPV_OUTPUT_PATH}
+            COMMAND ${GLSLC_PATH} -mfmt=c ${CURRENT_SHADER_PATH} -o ${CURRENT_SHADER_SPV_OUTPUT_PATH}
+            DEPENDS ${CURRENT_SHADER_PATH}
+            IMPLICIT_DEPENDS CXX ${CURRENT_SHADER_PATH}
+            VERBATIM)
+    add_custom_command(
+            OUTPUT ${CURRENT_SHADER_HEADER_OUTPUT_PATH}
+            COMMAND ${CMAKE_BINARY_DIR}/bin/SpvToH ${SHADER} ${CURRENT_SHADER_SPV_OUTPUT_PATH} ${CURRENT_SHADER_HEADER_OUTPUT_PATH}
+            DEPENDS ${CURRENT_SHADER_SPV_OUTPUT_PATH}
+            IMPLICIT_DEPENDS CXX ${CURRENT_SHADER_SPV_PATH}
+            VERBATIM)
+    set_source_files_properties(${CURRENT_SHADER_HEADER_OUTPUT_PATH} PROPERTIES GENERATED TRUE)
+    target_sources(${TARGET} PRIVATE ${CURRENT_SHADER_HEADER_OUTPUT_PATH})
 endfunction(target_add_shader)
 
+function(target_add_shaders)
+    cmake_parse_arguments(
+            PARSED_ARGS
+            ""
+            "TARGET"
+            "SOURCES"
+            ${ARGN}
+    )
+    if(NOT PARSED_ARGS_TARGET)
+        message(FATAL_ERROR "target_add_shaders: You must provide a target")
+    endif(NOT PARSED_ARGS_TARGET)
+    foreach(SHADER ${PARSED_ARGS_SOURCES})
+        target_add_shader(${PARSED_ARGS_TARGET} ${SHADER})
+    endforeach()
+endfunction(target_add_shaders)
+
 ## move texture/image to the bin directory
-function(target_add_texture TARGET TEXTURE_PATH)
+function(target_export_texture TARGET TEXTURE_PATH)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/textures)
     get_filename_component(TEXTURE ${TEXTURE_PATH} NAME)
     set(TEXTURE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/textures/${TEXTURE})
@@ -84,9 +123,9 @@ function(target_add_texture TARGET TEXTURE_PATH)
         set_source_files_properties(${TEXTURE_OUTPUT_PATH} PROPERTIES
                 MACOSX_PACKAGE_LOCATION "Textures")
     endif (APPLE)
-endfunction(target_add_texture)
+endfunction(target_export_texture)
 
-function(target_add_resource TARGET BUNDLE_PATH RESOURCE_PATH)
+function(target_export_resource TARGET BUNDLE_PATH RESOURCE_PATH)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Resources/${BUNDLE_PATH})
     get_filename_component(RESOURCE ${RESOURCE_PATH} NAME)
     set(RESOURCE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/Resources/${BUNDLE_PATH}/${RESOURCE})
@@ -101,4 +140,4 @@ function(target_add_resource TARGET BUNDLE_PATH RESOURCE_PATH)
         set_source_files_properties(${RESOURCE_OUTPUT_PATH} PROPERTIES
                 MACOSX_PACKAGE_LOCATION "Resources/${BUNDLE_PATH}")
     endif (APPLE)
-endfunction(target_add_resource)
+endfunction(target_export_resource)

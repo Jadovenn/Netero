@@ -58,7 +58,7 @@ namespace ecs {
         netero::type_id componentID = ComponentTypeID::getTypeID<T>();
         auto            it = _componentsFilterSet.find(componentID);
         if (it != _componentsFilterSet.end())
-            throw std::runtime_error("One entitie could not own the same component twice.");
+            throw std::runtime_error("One entity could not own the same component twice.");
         T *dataPtr = new (std::nothrow) T { std::forward<Args>(args)... };
         if (!dataPtr)
             throw std::bad_alloc();

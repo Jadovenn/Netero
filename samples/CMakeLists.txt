@@ -13,6 +13,6 @@ endif(NETERO_AUDIO)
 
 if (NETERO_GRAPHICS)
     add_subdirectory(graphicsSurfaces)
-    add_subdirectory(graphicsModel)
+    add_subdirectory(VikingRoom)
 endif(NETERO_GRAPHICS)
 

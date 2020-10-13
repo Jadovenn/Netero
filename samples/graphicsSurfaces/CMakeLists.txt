@@ -4,7 +4,7 @@ project(NeteroGraphicsSurface
         DESCRIPTION "Graphics example program using netero_graphics."
         LANGUAGES CXX)
 
-message(STATUS "Configure Netero Sample graphics")
+message(STATUS "Configure Netero Surface Sample graphics")
 
 set(SOURCES
         main.cpp)
@@ -29,9 +29,9 @@ endif (APPLE)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} Netero::Netero Netero::Graphics)
-target_add_shader(${PROJECT_NAME} shaders/ModelVertex.vert)
-target_add_shader(${PROJECT_NAME} shaders/ColorFragment.frag)
-target_add_shader(${PROJECT_NAME} shaders/TexturedModelVertex.vert)
-target_add_shader(${PROJECT_NAME} shaders/TexturedColorFragment.frag)
-target_add_texture(${PROJECT_NAME} textures/cat.png)
+target_export_shader(${PROJECT_NAME} shaders/ModelVertex.vert)
+target_export_shader(${PROJECT_NAME} shaders/ColorFragment.frag)
+target_export_shader(${PROJECT_NAME} shaders/TexturedModelVertex.vert)
+target_export_shader(${PROJECT_NAME} shaders/TexturedColorFragment.frag)
+target_export_texture(${PROJECT_NAME} textures/cat.png)
 
