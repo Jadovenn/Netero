@@ -7,16 +7,16 @@
 #include <ctime>
 #include <iostream>
 
-#include <netero/logger.hpp>
+#include <Netero/Logger.hpp>
 
-namespace netero {
+namespace Netero {
 
 Logger  StandardOuputLogger(std::cout);
 Logger* DefaultGlobalLogger = &StandardOuputLogger;
 
 static std::array<const char*, 4> LevelString { "DEBUG", "ERROR", "WARNING", "INFO" };
 
-Logger::Logger(std::ostream& stream): _stream(&stream), _level(Level::info)
+Logger::Logger(std::ostream& stream): _stream(&stream), _level(Level::Info)
 {
 }
 
@@ -38,10 +38,10 @@ void Logger::printPlaceholder() const
     *_stream << "(" << buffer << ") [" << this->level_c_str(this->_level) << "] ";
 }
 
-Logger& log(Logger& logger, Level n)
+Logger& Log(Logger& logger, Level n)
 {
     logger._level = n;
     return logger;
 }
 
-} // namespace netero
+} // namespace Netero

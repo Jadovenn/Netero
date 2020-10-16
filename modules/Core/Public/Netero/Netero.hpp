@@ -13,22 +13,22 @@
 /**
  * @brief Netero namespace.
  */
-namespace netero {
-constexpr char const *version = "0.0.1"; /**< Version string. */
+namespace Netero {
+constexpr char const *Version = "0.0.1"; /**< Version string. */
 
 #if !defined(NDEBUG)
-constexpr bool isDebugMode = true;
+constexpr bool IsDebugMode = true;
 #else
-constexpr bool isDebugMode = false; /**< Debug mode flag. Evaluate to true if NDEBUG is defined. */
+constexpr bool IsDebugMode = false; /**< Debug mode flag. Evaluate to true if NDEBUG is defined. */
 #endif // NDEBUG
 
 /**
  * @brief Constant numbers namespace.
  */
-namespace numbers {
+namespace Numbers {
     constexpr float pi = 3.14159265358979323846F; /**< Pi constant. */
 }
-} // namespace netero
+} // namespace Netero
 
 #if defined __GNUC__ || defined __clang__
 #define likely(x)   __builtin_expect(!!(x), 1)

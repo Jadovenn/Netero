@@ -89,7 +89,7 @@ endif (NETERO_FAST)
 ##  include modules projects
 ##====================================
 
-add_subdirectory(modules/core)
+add_subdirectory(modules/Core)
 
 if (NETERO_FAST)
     add_subdirectory(modules/fast)

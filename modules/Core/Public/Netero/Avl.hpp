@@ -6,7 +6,7 @@
 #pragma once
 
 /**
- * @file avl.hpp
+ * @file Avl.hpp
  * @brief Balanced binary search tree.
  */
 
@@ -16,7 +16,7 @@
 #include <new>
 #include <type_traits>
 
-namespace netero {
+namespace Netero {
 /**
  * @brief Adelson Velsky Landis (AVL) tree
  * @tparam T the type hold by the container
@@ -24,7 +24,7 @@ namespace netero {
 template<class T,
          class Allocator = std::allocator<T>,
          typename = std::enable_if<std::is_copy_constructible<T>::value>>
-class avl {
+class Avl {
     /**
      * @brief structure representing a node in the tree,
      * it hold the data provide by the client
@@ -201,9 +201,9 @@ class avl {
               * @brief build an iterator from a tree and start at the bottom left
               * @param tree - to iterate over
               */
-        explicit iterator(avl &tree)
+        explicit iterator(Avl &tree)
         {
-            tree.inOrder([&](const auto &e) { list.push_back(e); });
+            tree.InOrder([&](const auto &e) { list.push_back(e); });
             idx = list.front();
             list.pop_front();
             isListEmpty = false;
@@ -276,40 +276,40 @@ class avl {
     iterator end()
     {
         T data;
-        this->inOrder([&](const auto &e) { data = e; });
+        this->InOrder([&](const auto &e) { data = e; });
         return iterator(data);
     }
 
     // default ctor
-    avl(): root(nullptr) {};
+    Avl(): root(nullptr) {};
 
     // copy ctor, not efficient
-    explicit avl(const avl<T> &copy): root(nullptr)
+    explicit Avl(const Avl<T> &copy): root(nullptr)
     {
-        copy.inOrder([&](const auto &value) { this->add(value); });
+        copy.InOrder([&](const auto &value) { this->Insert(value); });
     }
 
     // move ctor
-    explicit avl(avl<T> &&move): root(nullptr)
+    explicit Avl(Avl<T> &&move): root(nullptr)
     {
         this->root = move.root;
         move.root = nullptr;
     }
 
     // copy operator
-    avl &operator=(const avl<T> &copy)
+    Avl &operator=(const Avl<T> &copy)
     {
         if (this == &copy) {
             return *this;
         }
         this->deleteTree(root);
         root = nullptr;
-        copy.inOrder([&](const auto &value) { this->add(value); });
+        copy.InOrder([&](const auto &value) { this->Insert(value); });
         return *this;
     }
 
     // move operator
-    avl &operator=(avl<T> &&move) noexcept
+    Avl &operator=(Avl<T> &&move) noexcept
     {
         this->deleteTree(root);
         this->root = move.root;
@@ -318,13 +318,13 @@ class avl {
     }
 
     // eql operator
-    bool operator==(const avl<T> &other) { return this->root == other.root; }
+    bool operator==(const Avl<T> &other) { return this->root == other.root; }
 
     // not eql operator
-    bool operator!=(const avl<T> &other) { return this->root != other.root; }
+    bool operator!=(const Avl<T> &other) { return this->root != other.root; }
 
     // destructor
-    virtual ~avl()
+    virtual ~Avl()
     {
         deleteTree(root);
         root = nullptr;
@@ -334,10 +334,10 @@ class avl {
      * @brief inOrder traversal of the tree
      * @param callback
      */
-    void inOrder(std::function<void(const T &)> callback) const
+    void InOrder(std::function<void(const T &)> callback) const
     {
         node *idx = root;
-        inOrder(callback, idx);
+        InOrder(callback, idx);
     } // O(n) = n
 
     private:
@@ -346,24 +346,24 @@ class avl {
      * @param callBack
      * @param idx
      */
-    void inOrder(std::function<void(const T &)> &callBack, node *idx) const
+    void InOrder(std::function<void(const T &)> &callBack, node *idx) const
     {
         if (!idx)
             return;
         if (idx->lhs)
-            inOrder(callBack, idx->lhs);
+            InOrder(callBack, idx->lhs);
         callBack(*idx->data);
         if (idx->rhs)
-            inOrder(callBack, idx->rhs);
+            InOrder(callBack, idx->rhs);
     } // O(n) = n
 
     public:
     /**
-     * @brief search if the given item exist in the tree
+     * @brief Find if the given item exist in the tree
      * @param data - the item to look for
      * @return true if it is found or false otherwise
      */
-    bool search(const T &data)
+    bool Find(const T &data)
     {
         for (node *idx = root; idx;) {
             if ((*idx->data) == data)
@@ -376,19 +376,19 @@ class avl {
         return false;
     } // O(n) = n log(n)
 
-    void add(const T &item)
+    void Insert(const T &item)
     {
         //             T    *data = new T(item);
         T *data = std::allocator_traits<Allocator>::allocate(_allocator, 1);
         std::allocator_traits<Allocator>::construct(_allocator, data, item);
-        add(data);
+        Insert(data);
     }
 
     /**
      * @brief add a new node to the tree
      * @param data - the new item to add
      */
-    virtual void add(T *data)
+    virtual void Insert(T *data)
     {
         if (!data) // Special case, given pointer is null
             return;
@@ -437,7 +437,7 @@ class avl {
     /**
      * @brief remove the given item from the tree.
      */
-    void remove(const T &item)
+    void Remove(const T &item)
     {
         node *idx = root;
         if (!idx) // Special case, tree is empty
@@ -479,44 +479,6 @@ class avl {
             computeBalance(parent);
     }
 
-#ifdef NETERO_DEBUG
-    void display()
-    {
-        std::cout << "--Display-----------------" << std::endl;
-        if (root) {
-            node *idx = root;
-            inOrderTraversal(idx);
-        }
-        else
-            std::cout << "[empty]" << std::endl;
-        std::cout << "--------------------------" << std::endl;
-    }
-
-    void inOrderTraversal(node *idx)
-    {
-        if (!idx)
-            return;
-        inOrderTraversal(idx->lhs);
-        std::cout << "data: " << *idx->data << ", parent: ";
-        if (idx->parent)
-            std::cout << *idx->parent->data;
-        else
-            std::cout << "nullptr";
-        std::cout << ", lhs: ";
-        if (idx->lhs)
-            std::cout << *idx->lhs->data;
-        else
-            std::cout << "nullptr";
-        std::cout << ", rhs: ";
-        if (idx->rhs)
-            std::cout << *idx->rhs->data;
-        else
-            std::cout << "nullptr";
-        std::cout << ", balance: ";
-        std::cout << idx->balance << std::endl;
-        inOrderTraversal(idx->rhs);
-    }
-#endif
     private:
     /**
      * @brief Delete the entire tree.
@@ -592,4 +554,5 @@ class avl {
     Allocator _allocator; /**< The default standard allocator. Only changed for debugging purpose.*/
     NodeAllocator _nodeAllocator; /** The node allocator. It is based on the provide allocator. */
 };
-} // namespace netero
+
+} // namespace Netero

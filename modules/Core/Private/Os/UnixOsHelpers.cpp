@@ -6,8 +6,8 @@
 #include <atomic>
 #include <mutex>
 
-#include <netero/netero.hpp>
-#include <netero/os.hpp>
+#include <Netero/Netero.hpp>
+#include <Netero/Os.hpp>
 
 #include <limits.h>
 #include <pwd.h>
@@ -16,7 +16,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-std::string netero::os::getSessionUsername()
+namespace Netero::Os {
+
+std::string GetSessionUsername()
 {
     uid_t          uid = getuid();
     struct passwd *userInfo = getpwuid(uid);
@@ -26,7 +28,7 @@ std::string netero::os::getSessionUsername()
     return std::string();
 }
 
-std::string netero::os::getUserHomeDirectoryPath()
+std::string GetUserHomeDirectoryPath()
 {
     uid_t          uid = getuid();
     struct passwd *userInfo = getpwuid(uid);
@@ -36,7 +38,7 @@ std::string netero::os::getUserHomeDirectoryPath()
     return std::string();
 }
 
-std::string netero::os::getUserAppDataRoamingPath()
+std::string GetUserAppDataRoamingPath()
 {
     uid_t          uid = getuid();
     struct passwd *userInfo = getpwuid(uid);
@@ -46,12 +48,12 @@ std::string netero::os::getUserAppDataRoamingPath()
     return std::string();
 }
 
-std::string netero::os::getBundlePath()
+std::string GetBundlePath()
 {
     return netero::isDebugMode ? "." : "/usr/share";
 }
 
-std::string netero::os::getExecutablePath()
+std::string GetExecutablePath()
 {
     char path[PATH_MAX];
     char dest[PATH_MAX];
@@ -68,24 +70,26 @@ std::string netero::os::getExecutablePath()
 static std::atomic<int> g_com_library_locks = 0;
 static std::mutex       g_com_lock_mutex;
 
-void netero::os::acquireSystemResources()
+void AcquireSystemResources()
 {
     g_com_library_locks += 1;
 }
 
-void netero::os::releaseSystemResources()
+void ReleaseSystemResources()
 {
     if (g_com_library_locks.load(std::memory_order_acquire) > 0) {
         g_com_library_locks -= 1;
     }
 }
 
-int netero::os::getSystemResourcesLocks()
+int GetSystemResourcesLocks()
 {
     return g_com_library_locks.load(std::memory_order_acquire);
 }
 
-bool netero::os::isSystemLibraryHolder()
+bool IsSystemLibraryHolder()
 {
     return false;
 }
+
+} // namespace Netero::Os

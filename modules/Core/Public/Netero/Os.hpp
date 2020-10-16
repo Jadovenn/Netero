@@ -15,36 +15,36 @@
 /**
  * Namespace related to os specific resources.
  */
-namespace netero::os {
+namespace Netero::Os {
 
 /**
  * @brief Get the logged user's username.
  * @return A string containing the username of logged user.
  */
-std::string getSessionUsername();
+std::string GetSessionUsername();
 
 /**
  * @brief Get the user's home directory path.
  */
-std::string getUserHomeDirectoryPath();
+std::string GetUserHomeDirectoryPath();
 
 /**
  * @brief Get the user's app data path.
  * This is the directory you are likely to create a folder
  * with the name of your application and store config files.
  */
-std::string getUserAppDataRoamingPath();
+std::string GetUserAppDataRoamingPath();
 
 /**
  * @brief Return the path to the application bundle if there is.
  * On linux this may return ".".
  */
-std::string getBundlePath();
+std::string GetBundlePath();
 
 /**
  * @brief Return path to the current executable
  */
-std::string getExecutablePath();
+std::string GetExecutablePath();
 
 /**
  * @brief Perform necessary init call if needed
@@ -55,21 +55,22 @@ std::string getExecutablePath();
  * library, if it can not it will simply conform to the current
  * initialization. This is used by the audio submodule.
  */
-void acquireSystemResources();
+void AcquireSystemResources();
 
 /**
  * @brief Release the OS handle if necessary
  */
-void releaseSystemResources();
+void ReleaseSystemResources();
 
 /**
  * @brief Return the number of locks, might be non zero, netero submodule
  * may use this function set to access COM interfaces for example.
  */
-int getSystemResourcesLocks();
+int GetSystemResourcesLocks();
 
 /**
  * @brief Tell you if Netero have preform initialization.
  */
-bool isSystemLibraryHolder();
-} // namespace netero::os
+bool IsSystemLibraryHolder();
+
+} // namespace Netero::Os

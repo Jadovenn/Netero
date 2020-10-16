@@ -16,7 +16,7 @@
 #include <mutex>
 #include <type_traits>
 
-namespace netero {
+namespace Netero {
 
 /**
  * @brief Thread safe circular buffer.
@@ -30,14 +30,14 @@ template<class T,
          typename Allocator = std::allocator<T>,
          typename = std::enable_if<std::is_copy_assignable<T>::value>,
          typename = std::enable_if<std::is_default_constructible<T>::value>>
-class shared_buffer {
+class SharedBuffer {
     public:
     /**
      * The default constructor construct a buffer of size sizeof(T)
      * @param size is the number of block to allocate.
      * @warning May throw a bad_alloc exception!
      */
-    explicit shared_buffer(const size_t size = sizeof(T))
+    explicit SharedBuffer(const size_t size = sizeof(T))
         : _size(size), _readOffset(-1), _writeOffset(0)
     {
         _buffer = std::allocator_traits<Allocator>::allocate(_allocator, _size);
@@ -46,7 +46,7 @@ class shared_buffer {
         }
     }
 
-    shared_buffer(shared_buffer& copy)
+    SharedBuffer(SharedBuffer& copy)
     {
         std::scoped_lock<std::mutex> lock(copy._bufferMutex);
 
@@ -62,7 +62,7 @@ class shared_buffer {
         this->_readOffset = copy._readOffset;
     }
 
-    shared_buffer(shared_buffer&& move) noexcept: _allocator(std::move(move._allocator))
+    SharedBuffer(SharedBuffer&& move) noexcept: _allocator(std::move(move._allocator))
     {
         std::scoped_lock<std::mutex> lock(move._bufferMutex);
         this->_buffer = move._buffer;
@@ -78,13 +78,13 @@ class shared_buffer {
     /**
      * @brief Copy operator, is deleted, because it could not safely lock copy mutex.
      */
-    shared_buffer& operator=(const shared_buffer& copy) = delete;
+    SharedBuffer& operator=(const SharedBuffer& copy) = delete;
 
     /**
      * @brief Move on assign operator.
      * @warning The buffer of the container will be deleted and replaced.
      */
-    shared_buffer& operator=(shared_buffer&& move) noexcept
+    SharedBuffer& operator=(SharedBuffer&& move) noexcept
     {
         std::scoped_lock<std::mutex> lock(this->_bufferMutex);
         std::scoped_lock<std::mutex> otherLock(move._bufferMutex);
@@ -104,7 +104,7 @@ class shared_buffer {
     /**
      * Two container are equal if they point to the same buffer.
      */
-    bool operator==(const shared_buffer& other) const { return _buffer == other._buffer; }
+    bool operator==(const SharedBuffer& other) const { return _buffer == other._buffer; }
 
     /**
      * @brief Boolean test operator.
@@ -112,7 +112,7 @@ class shared_buffer {
      */
     explicit operator bool() const { return !(_buffer == nullptr || _size == 0); }
 
-    ~shared_buffer()
+    ~SharedBuffer()
     {
         //delete _buffer;
         std::allocator_traits<Allocator>::deallocate(_allocator, _buffer, _size);
@@ -123,12 +123,12 @@ class shared_buffer {
      * Return the size of the internal buffer in block.
      * @attention To have the size in byte -> bloc * sizeof(T)
      */
-    [[nodiscard]] size_t getSize() const { return _size; }
+    [[nodiscard]] size_t GetSize() const { return _size; }
 
     /**
      * @brief Return the number of block valid for read operation.
      */
-    [[nodiscard]] int getPadding() const
+    [[nodiscard]] int GetPadding() const
     {
         if (_size == 0) {
             return 0;
@@ -149,11 +149,11 @@ class shared_buffer {
     }
 
     /**
-     * @brief Delete the internal buffer and assign a new size to it.
+     * @brief Resize the internal buffer and assign a new size to it.
      * @warning The internal buffer will be deleted.
      * @warning May throw a bad_alloc exception!
      */
-    void reset(size_t block)
+    void Resize(size_t block)
     {
         std::lock_guard<std::mutex> lock(this->_bufferMutex);
         std::allocator_traits<Allocator>::deallocate(_allocator, _buffer, _size);
@@ -177,7 +177,7 @@ class shared_buffer {
      * @brief Clear the internal buffer. And reset any pending operation.
      * @warning Any data will be lost and the buffer is now ready for write operation.
      */
-    void clear()
+    void Clear()
     {
         std::lock_guard<std::mutex> lock(this->_bufferMutex);
         std::memset(this->_buffer, 0, this->_size * sizeof(T));
@@ -190,7 +190,7 @@ class shared_buffer {
      * Perform a read operation. This will try to copy request size blocks from the internal buffer
      * to a provided buffer. The real copied size is returned and may be different from the request.
      */
-    int read(T* __restrict outBuffer, size_t blocks)
+    int Read(T* __restrict outBuffer, size_t blocks)
     {
         int readCount;
 
@@ -232,7 +232,7 @@ class shared_buffer {
      * Perform a write operation. This will try to write request size blocks to the internal buffer
      * from a provided buffer. The real written size is returned and may be different from the request.
      */
-    int write(const T* __restrict inBuffer, size_t blocks)
+    int Write(const T* __restrict inBuffer, size_t blocks)
     {
         int              writeCount;
         std::scoped_lock lock(_bufferMutex);
@@ -269,4 +269,4 @@ class shared_buffer {
     int        _writeOffset;      /**< The the write offset. */
     Allocator  _allocator;
 };
-} // namespace netero
+} // namespace Netero

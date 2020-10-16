@@ -6,14 +6,14 @@
 #pragma once
 
 /**
- * @file type_id.hpp
+ * @file TypeId.hpp
  * @brief A compile time typeid mechanism.
  */
 
 #include <atomic>
 #include <cstddef>
 
-namespace netero {
+namespace Netero {
 
 using type_id = std::size_t;
 
@@ -28,17 +28,17 @@ class TypeID {
      * @return The unique ID assigned to the template parameter.
      */
     template<typename SubType>
-    static type_id getTypeID()
+    static type_id GetTypeID()
     {
-        static const type_id localTypeID = _baseTypeCounter++;
+        static const type_id localTypeID = myBaseTypeCounter++;
         return localTypeID;
     }
 
     private:
-    static std::atomic<type_id> _baseTypeCounter; /**< Id counter. */
+    static std::atomic<type_id> myBaseTypeCounter; /**< Id counter. */
 };
 
 template<typename BaseClass>
-std::atomic<type_id> TypeID<BaseClass>::_baseTypeCounter { 0 };
+std::atomic<type_id> TypeID<BaseClass>::myBaseTypeCounter { 0 };
 
-} // namespace netero
+} // namespace Netero

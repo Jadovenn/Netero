@@ -15,11 +15,14 @@
 #include <atomic>
 #include <mutex>
 
-#include <netero/os.hpp>
+#include <Netero/Os.hpp>
 
 // clang-format off
 
-std::string netero::os::getSessionUsername()
+namespace Netero::Os {
+
+
+std::string Netero::Os::GetSessionUsername()
 {
     char  username[UNLEN + 1];
     DWORD len = UNLEN + 1;
@@ -30,7 +33,7 @@ std::string netero::os::getSessionUsername()
     return std::string();
 }
 
-std::string netero::os::getUserHomeDirectoryPath()
+std::string GetUserHomeDirectoryPath()
 {
     char  path[32];
     DWORD len = 32;
@@ -41,7 +44,7 @@ std::string netero::os::getUserHomeDirectoryPath()
     return std::string();
 }
 
-std::string netero::os::getUserAppDataRoamingPath()
+std::string GetUserAppDataRoamingPath()
 {
     PWSTR str;
 
@@ -67,7 +70,7 @@ std::string netero::os::getUserAppDataRoamingPath()
     return string;
 }
 
-std::string netero::os::getBundlePath()
+std::string GetBundlePath()
 {
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(nullptr, path, MAX_PATH);
@@ -93,7 +96,7 @@ std::string netero::os::getBundlePath()
     return string;
 }
 
-std::string netero::os::getExecutablePath()
+std::string GetExecutablePath()
 {
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(nullptr, path, MAX_PATH);
@@ -119,7 +122,7 @@ static std::atomic<int>  g_com_library_locks = 0;
 static std::mutex        g_com_lock_mutex;
 static std::atomic<bool> g_is_com_holder = false;
 
-void netero::os::acquireSystemResources()
+void AcquireSystemResources()
 {
     if (g_com_library_locks.load(std::memory_order_acquire) == 0) {
         std::scoped_lock<std::mutex> lock(g_com_lock_mutex);
@@ -134,7 +137,7 @@ void netero::os::acquireSystemResources()
     }
 }
 
-void netero::os::releaseSystemResources()
+void ReleaseSystemResources()
 {
     if (g_com_library_locks.load(std::memory_order_acquire) > 0) {
         g_com_library_locks -= 1;
@@ -147,12 +150,14 @@ void netero::os::releaseSystemResources()
     }
 }
 
-int netero::os::getSystemResourcesLocks()
+int GetSystemResourcesLocks()
 {
     return g_com_library_locks.load(std::memory_order_acquire);
 }
 
-bool netero::os::isSystemLibraryHolder()
+bool IsSystemLibraryHolder()
 {
     return g_is_com_holder.load(std::memory_order_acquire);
 }
+
+} // namespace Netero::Os
