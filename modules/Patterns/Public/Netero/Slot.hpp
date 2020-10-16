@@ -92,8 +92,8 @@ class Slot<rType(ArgsType...)>: public Netero::IConnectibleDelegate {
     {
         this->_function = std::move(other._function);
         for (auto* signal : other._signals) {
-            signal->disconnect(&other);
-            signal->connect(this);
+            signal->Disconnect(&other);
+            signal->Connect(this);
         }
         other._signals.clear();
     }
