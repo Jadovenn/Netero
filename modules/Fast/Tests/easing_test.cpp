@@ -7,9 +7,9 @@
 #include <cstring>
 #include <iostream>
 
-#include <netero/debug.hpp>
-#include <netero/fast/easing.hpp>
-#include <netero/logger.hpp>
+#include <Netero/Debug.hpp>
+#include <Netero/Fast/Easing.hpp>
+#include <Netero/Logger.hpp>
 
 #include <gtest/gtest.h>
 
@@ -17,7 +17,7 @@ TEST(NeteroFast, test_quad_double)
 {
     double  values[] = { 0.2, 0.3 };
     __m128d xm_register = _mm_load_pd(values);
-    xm_register = netero::fast::quad(xm_register);
+    xm_register = Netero::Fast::Quad(xm_register);
     _mm_store_pd(values, xm_register);
     EXPECT_GT(0.1, values[0]);
     EXPECT_GT(0.1, values[1]);
@@ -26,7 +26,7 @@ TEST(NeteroFast, test_quad_double)
 TEST(NeteroFast, test_quad_vector)
 {
     float values[] = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 };
-    netero::fast::quad(values, 8);
+    Netero::Fast::Quad(values, 8);
     EXPECT_GT(0.1, values[0]);
     EXPECT_GT(0.1, values[1]);
     EXPECT_GT(0.1, values[2]);
@@ -44,7 +44,7 @@ TEST(NeteroFast, compute_quad_speed)
     std::memset(tab, 5, sizeof(float) * 8192);
     auto start = std::chrono::high_resolution_clock::now();
     for (unsigned idx = 0; idx < 8192; ++idx) {
-        tab[idx] = netero::fast::quad(tab[idx]);
+        tab[idx] = Netero::Fast::Quad(tab[idx]);
     }
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -54,7 +54,7 @@ TEST(NeteroFast, compute_quad_speed)
     // With SIMD
     tab = new float[8192];
     start = std::chrono::high_resolution_clock::now();
-    netero::fast::quad(tab, 8192);
+    Netero::Fast::Quad(tab, 8192);
     end = std::chrono::high_resolution_clock::now();
     auto duration_SIMD = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
     LOG_INFO << "SIMD takes: " << duration_SIMD << " microseconds." << std::endl;

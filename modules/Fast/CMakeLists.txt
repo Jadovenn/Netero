@@ -11,12 +11,12 @@ message(STATUS "Configure Netero Fast module.")
 ##  Sources
 ##====================================
 
-set(FAST_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
-set(FAST_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
+set(FAST_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
+set(FAST_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Public)
 
 list(APPEND PUBLIC_HEADER
-        public/netero/fast/simd.hpp
-        public/netero/fast/easing.hpp)
+        Public/Netero/fast/Simd.hpp
+        Public/Netero/fast/Easing.hpp)
 list(APPEND SRCS
         private/easing_quadratic.cpp)
 
@@ -78,5 +78,5 @@ install(DIRECTORY public/netero
 ##====================================
 
 if (BUILD_TESTING AND NETERO_UNIT_TEST)
-    add_subdirectory(tests)
+    add_subdirectory(Tests)
 endif ()

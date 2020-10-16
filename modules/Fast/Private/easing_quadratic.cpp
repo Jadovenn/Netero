@@ -3,31 +3,31 @@
  * see LICENSE.txt
  */
 
-#include <netero/fast/easing.hpp>
+#include <Netero/Fast/Easing.hpp>
 
-namespace netero::fast {
+namespace Netero::Fast {
 
-float quad(float k)
+float Quad(float k)
 {
     return k * k;
 }
 
-double quad(double k)
+double Quad(double k)
 {
     return k * k;
 }
 
-__m128d quad(__m128d k)
+__m128d Quad(__m128d k)
 {
     return _mm_mul_pd(k, k);
 }
 
-__m128 quad_f(__m128 k)
+__m128 Quad_f(__m128 k)
 {
     return _mm_mul_ps(k, k);
 }
 
-void quad(float* data, const size_t size)
+void Quad(float* data, const size_t size)
 {
     unsigned idx = 0;
     while ((size - idx) % 4) {
@@ -42,4 +42,4 @@ void quad(float* data, const size_t size)
     }
 }
 
-} // namespace netero::fast
+} // namespace Netero::Fast

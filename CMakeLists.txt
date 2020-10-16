@@ -92,7 +92,7 @@ endif (NETERO_FAST)
 add_subdirectory(modules/Core)
 
 if (NETERO_FAST)
-    add_subdirectory(modules/fast)
+    add_subdirectory(modules/Fast)
 endif (NETERO_FAST)
 
 if (NETERO_PATTERNS)
