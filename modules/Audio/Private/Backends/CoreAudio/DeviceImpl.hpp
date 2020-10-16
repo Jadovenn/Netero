@@ -5,47 +5,47 @@
 
 #pragma once
 
-#include <netero/audio/device.hpp>
+#include <Netero/Audio/Device.hpp>
 
 #include <CoreAudio/CoreAudio.h>
 
 static constexpr unsigned SamplingRates[] = { 4000,  5512,  8000,  9600,  11025, 16000,  22050,
                                               32000, 44100, 48000, 88200, 96000, 176400, 192000 };
 
-class DeviceImpl final: public netero::audio::Device {
+class DeviceImpl final: public Netero::Audio::Device {
     public:
     explicit DeviceImpl(UInt32 id, AudioObjectPropertyScope scope);
     ~DeviceImpl() noexcept final;
 
     bool operator==(UInt32 deviceUID) const noexcept { return this->_id == deviceUID; }
 
-    RtCode open() final;
-    RtCode close() final;
+    RtCode Open() final;
+    RtCode Close() final;
 
-    [[nodiscard]] bool               isValid() const final { return this->_isValid; }
-    [[nodiscard]] bool               isLoopback() const final { return false; }
-    [[nodiscard]] const std::string& getName() const final { return this->_name; }
-    [[nodiscard]] const std::string& getManufacturer() const final { return this->_manufacturer; };
+    [[nodiscard]] bool               IsValid() const final { return this->_isValid; }
+    [[nodiscard]] bool               IsLoopback() const final { return false; }
+    [[nodiscard]] const std::string& GetName() const final { return this->_name; }
+    [[nodiscard]] const std::string& GetManufacturer() const final { return this->_manufacturer; };
 
-    [[nodiscard]] const netero::audio::Format& getFormat() const final { return this->_format; }
+    [[nodiscard]] const Netero::Audio::Format& GetFormat() const final { return this->_format; }
 
-    void setProcessingCallback(ProcessingCallbackHandle& cb) final
+    void SetProcessingCallback(ProcessingCallbackHandle& cb) final
     {
         this->_processingCallback = cb;
     }
 
-    void resetProcessingCallback() final { this->_processingCallback = nullptr; }
+    void ResetProcessingCallback() final { this->_processingCallback = nullptr; }
 
-    void setAcquisitionCallback(AcquisitionCallbackHandle& cb) final
+    void SetAcquisitionCallback(AcquisitionCallbackHandle& cb) final
     {
         this->_acquisitionCallback = cb;
     }
 
-    void resetAcquisitionCallback() final { this->_acquisitionCallback = nullptr; }
+    void ResetAcquisitionCallback() final { this->_acquisitionCallback = nullptr; }
 
-    void setErrorCallback(ErrorCallbackHandle& cb) final { this->_errorCallback = cb; }
+    void SetErrorCallback(ErrorCallbackHandle& cb) final { this->_errorCallback = cb; }
 
-    void resetErrorCallback() final { this->_errorCallback = nullptr; }
+    void ResetErrorCallback() final { this->_errorCallback = nullptr; }
 
     static OSStatus NativeCallbackHandler(AudioDeviceID inDevice,
                                           const AudioTimeStamp*,
@@ -55,7 +55,7 @@ class DeviceImpl final: public netero::audio::Device {
                                           const AudioTimeStamp*,
                                           void* context);
 
-    void reportError(const std::string& anErrorMessage)
+    void ReportError(const std::string& anErrorMessage)
     {
         if (this->_errorCallback) {
             this->_errorCallback(anErrorMessage);
@@ -70,7 +70,7 @@ class DeviceImpl final: public netero::audio::Device {
     UInt32                   _bufferIdx;
     AudioDeviceIOProcID      _callbackID;
 
-    netero::audio::Format     _format;
+    Netero::Audio::Format     _format;
     ProcessingCallbackHandle  _processingCallback;
     AcquisitionCallbackHandle _acquisitionCallback;
     ErrorCallbackHandle       _errorCallback;

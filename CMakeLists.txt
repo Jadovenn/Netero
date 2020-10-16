@@ -104,7 +104,7 @@ if (NETERO_EXTRA)
 endif (NETERO_EXTRA)
 
 if (NETERO_AUDIO)
-    add_subdirectory(modules/audio)
+    add_subdirectory(modules/Audio)
 endif (NETERO_AUDIO)
 
 if (NETERO_CONSOLE)

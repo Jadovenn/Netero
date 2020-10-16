@@ -3,7 +3,7 @@
  * see LICENSE.txt
  */
 
-#include "wasapiHelpers.hpp"
+#include "WasapiHelpers.hpp"
 
 #include <AudioClient.h>
 #include <audiopolicy.h>

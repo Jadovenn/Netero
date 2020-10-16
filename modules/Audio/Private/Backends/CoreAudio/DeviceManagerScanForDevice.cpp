@@ -5,7 +5,7 @@
 
 #include <memory>
 
-#include "deviceManagerImpl.hpp"
+#include "DeviceManagerImpl.hpp"
 
 #include <CoreAudio/AudioHardware.h>
 
@@ -26,7 +26,7 @@ static UInt32 GetDeviceCount()
     return size / sizeof(AudioDeviceID);
 }
 
-netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanForDevices()
+Netero::Audio::DeviceManager::RtCode Netero::Audio::DeviceManager::Impl::ScanForDevices()
 {
     UInt32 deviceCount = GetDeviceCount();
     if (deviceCount == 0) {
@@ -43,13 +43,13 @@ netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanFor
                                                  0,
                                                  nullptr,
                                                  &deviceSize,
-                                                 reinterpret_cast<void *>(&deviceIDList));
+                                                 reinterpret_cast<void*>(&deviceIDList));
     if (result != noErr) {
         return RtCode::NO_DEVICE_CONNECTED;
     }
 
     for (auto deviceID : deviceIDList) {
-        AudioBufferList *bufferList = nullptr;
+        AudioBufferList* bufferList = nullptr;
         property.mSelector = kAudioDevicePropertyStreamConfiguration;
         property.mScope = kAudioDevicePropertyScopeOutput;
         property.mElement = kAudioObjectPropertyElementMaster;
@@ -74,11 +74,12 @@ netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanFor
         delete[] bufferList;
 
         if (channelCount > 0) {
-            auto it = std::find_if(outputDevices.begin(), outputDevices.end(), [deviceID] (auto& device) {
-                return *device == deviceID;
-            });
+            auto it = std::find_if(outputDevices.begin(),
+                                   outputDevices.end(),
+                                   [deviceID](auto& device) { return *device == deviceID; });
             if (it == outputDevices.end()) {
-                auto devicePtr = std::make_unique<DeviceImpl>(deviceID, kAudioObjectPropertyScopeOutput);
+                auto devicePtr =
+                    std::make_unique<DeviceImpl>(deviceID, kAudioObjectPropertyScopeOutput);
                 clientOutputDevices.push_back(devicePtr.get());
                 outputDevices.push_back(std::move(devicePtr));
             }
@@ -103,11 +104,12 @@ netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanFor
         delete[] bufferList;
 
         if (channelCount > 0) {
-            auto it = std::find_if(inputDevices.begin(), inputDevices.end(), [deviceID] (auto& device) {
-                return *device == deviceID;
-            });
+            auto it = std::find_if(inputDevices.begin(),
+                                   inputDevices.end(),
+                                   [deviceID](auto& device) { return *device == deviceID; });
             if (it == inputDevices.end()) {
-                auto devicePtr = std::make_unique<DeviceImpl>(deviceID, kAudioObjectPropertyScopeInput);
+                auto devicePtr =
+                    std::make_unique<DeviceImpl>(deviceID, kAudioObjectPropertyScopeInput);
                 clientInputDevices.push_back(devicePtr.get());
                 inputDevices.push_back(std::move(devicePtr));
             }

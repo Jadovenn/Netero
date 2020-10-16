@@ -3,46 +3,47 @@
  * see LICENSE.txt
  */
 
-#include "deviceManagerImpl.hpp"
+#include "DeviceManagerImpl.hpp"
 
-netero::audio::DeviceManager::Impl::Impl()
+namespace Netero::Audio {
+
+DeviceManager::Impl::Impl()
 {
 }
 
-netero::audio::DeviceManager::Impl::~Impl()
+DeviceManager::Impl::~Impl()
 {
 }
 
 // DeviceManager Impl
 
-netero::audio::DeviceManager::DeviceManager()
-    : _pImpl(std::make_unique<netero::audio::DeviceManager::Impl>())
+DeviceManager::DeviceManager(): myImpl(std::make_unique<DeviceManager::Impl>())
 {
 }
 
-netero::audio::DeviceManager::~DeviceManager() noexcept = default;
+DeviceManager::~DeviceManager() noexcept = default;
 
-bool netero::audio::DeviceManager::isValid()
+bool DeviceManager::IsValid()
 {
     return true;
 }
 
-netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::scanForDevices()
+DeviceManager::RtCode DeviceManager::ScanForDevices()
 {
-    return this->_pImpl->scanForDevices();
+    return this->myImpl->ScanForDevices();
 }
 
-const std::vector<netero::audio::Device*>& netero::audio::DeviceManager::getOutputDevices()
+const std::vector<Device*>& DeviceManager::GetOutputDevices()
 {
-    return this->_pImpl->clientOutputDevices;
+    return this->myImpl->clientOutputDevices;
 }
 
-const std::vector<netero::audio::Device*>& netero::audio::DeviceManager::getInputDevices()
+const std::vector<Device*>& DeviceManager::GetInputDevices()
 {
-    return this->_pImpl->clientInputDevices;
+    return this->myImpl->clientInputDevices;
 }
 
-int netero::audio::DeviceManager::getDefaultOutputDeviceIdx()
+int DeviceManager::GetDefaultOutputDeviceIdx()
 {
     UInt32                     size;
     AudioObjectPropertyAddress property = { kAudioHardwarePropertyDevices,
@@ -66,7 +67,7 @@ int netero::audio::DeviceManager::getDefaultOutputDeviceIdx()
         return -1;
     }
     int idx = 0;
-    for (auto& device : this->_pImpl->outputDevices) {
+    for (auto& device : this->myImpl->outputDevices) {
         if (*device == id) {
             return idx;
         }
@@ -75,7 +76,7 @@ int netero::audio::DeviceManager::getDefaultOutputDeviceIdx()
     return -1;
 }
 
-int netero::audio::DeviceManager::getDefaultInputDeviceIdx()
+int DeviceManager::GetDefaultInputDeviceIdx()
 {
     UInt32                     size;
     AudioObjectPropertyAddress property = { kAudioHardwarePropertyDevices,
@@ -99,7 +100,7 @@ int netero::audio::DeviceManager::getDefaultInputDeviceIdx()
         return -1;
     }
     int idx = 0;
-    for (auto& device : this->_pImpl->inputDevices) {
+    for (auto& device : this->myImpl->inputDevices) {
         if (*device == id) {
             return idx;
         }
@@ -107,3 +108,5 @@ int netero::audio::DeviceManager::getDefaultInputDeviceIdx()
     }
     return -1;
 }
+
+} // namespace Netero::Audio

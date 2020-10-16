@@ -3,11 +3,11 @@
  * see LICENSE.txt
  */
 
-#include "deviceManagerImpl.hpp"
+#include "DeviceManagerImpl.hpp"
 
-#include <netero/os.hpp>
+#include <netero/Os.hpp>
 
-#include "wasapiHelpers.hpp"
+#include "WasapiHelpers.hpp"
 
 netero::audio::DeviceManager::Impl::Impl(): deviceEnumerator(nullptr), isValid(true)
 {

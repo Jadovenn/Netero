@@ -15,10 +15,10 @@
 #include <future>
 #include <string>
 
-#include <netero/audio/format.hpp>
-#include <netero/audio/wave.hpp>
+#include <Netero/Audio/Format.hpp>
+#include <Netero/Audio/Wave.hpp>
 
-namespace netero::audio {
+namespace Netero::Audio {
 
 class WaveFile {
     public:
@@ -41,26 +41,26 @@ class WaveFile {
     WaveFile& operator=(WaveFile&&) = delete;
     virtual ~WaveFile();
 
-    RtCode open(const std::string& name, std::ios_base::openmode mode);
-    RtCode close();
+    RtCode Open(const std::string& name, std::ios_base::openmode mode);
+    RtCode Close();
 
-    bool is_open();
+    bool IsOpen();
 
-    RtCode read(float*, size_t);
-    RtCode write(const float*, size_t);
+    RtCode Read(float*, size_t);
+    RtCode Write(const float*, size_t);
 
-    [[nodiscard]] const Format& getFormat() const { return this->_fileAudioFormat; }
-    RtCode                      setFormat(const Format&);
+    [[nodiscard]] const Format& GetFormat() const { return this->myFileAudioFormat; }
+    RtCode                      SetFormat(const Format&);
 
     private:
-    bool                    _isOpen;
-    std::ios_base::openmode _mode;
+    bool                    myIsOpen;
+    std::ios_base::openmode myMode;
 
-    WaveHeader _waveFileHeader;
-    Format     _fileAudioFormat;
+    WaveHeader myWaveFileHeader;
+    Format     myFileAudioFormat;
 
-    std::string  _fileName;
-    std::fstream _file;
+    std::string  myFileName;
+    std::fstream myFile;
 };
 
-} // namespace netero::audio
+} // namespace Netero::Audio

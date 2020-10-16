@@ -3,7 +3,7 @@
  * see LICENSE.txt
  */
 
-#include "deviceImpl.hpp"
+#include "DeviceImpl.hpp"
 
 #include <cassert>
 

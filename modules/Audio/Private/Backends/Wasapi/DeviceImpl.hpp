@@ -10,7 +10,7 @@
 
 #include <netero/audio/device.hpp>
 
-#include "wasapiHelpers.hpp"
+#include "WasapiHelpers.hpp"
 
 #include <AudioClient.h>
 #include <Functiondiscoverykeys_devpkey.h>

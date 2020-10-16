@@ -10,7 +10,7 @@
 
 #include <netero/audio/deviceManager.hpp>
 
-#include "deviceImpl.hpp"
+#include "DeviceImpl.hpp"
 
 class netero::audio::DeviceManager::Impl {
     public:

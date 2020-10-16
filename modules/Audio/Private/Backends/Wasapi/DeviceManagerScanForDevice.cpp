@@ -3,8 +3,8 @@
  * see LICENSE.txt
  */
 
-#include "deviceManagerImpl.hpp"
-#include "wasapiHelpers.hpp"
+#include "DeviceManagerImpl.hpp"
+#include "WasapiHelpers.hpp"
 
 netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanForOutputDevice()
 {

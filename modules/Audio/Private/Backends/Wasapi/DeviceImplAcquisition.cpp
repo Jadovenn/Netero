@@ -3,8 +3,8 @@
  * see LICENSE.txt
  */
 
-#include "deviceImpl.hpp"
-#include "wasapiHelpers.hpp"
+#include "DeviceImpl.hpp"
+#include "WasapiHelpers.hpp"
 
 #include <audiopolicy.h>
 #include <avrt.h>

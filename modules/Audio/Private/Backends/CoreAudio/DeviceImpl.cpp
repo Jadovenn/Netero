@@ -3,12 +3,12 @@
  * see LICENSE.txt
  */
 
-#include "deviceImpl.hpp"
+#include "DeviceImpl.hpp"
 
 #include <chrono>
 #include <thread>
 
-netero::audio::Device::~Device() = default;
+Netero::Audio::Device::~Device() = default;
 
 static std::string cf_string_to_std_string(CFStringRef &cf_str)
 {
@@ -75,11 +75,11 @@ DeviceImpl::DeviceImpl(UInt32 id, AudioObjectPropertyScope scope)
     }
     unsigned nStreams = bufferList->mNumberBuffers;
     for (unsigned idx = 0; idx < nStreams; idx++) {
-        this->_format.channels = bufferList->mBuffers[idx].mNumberChannels;
-        this->_format.framesCount = bufferList->mBuffers[idx].mDataByteSize;
+        this->_format.myChannels = bufferList->mBuffers[idx].mNumberChannels;
+        this->_format.myFramesCount = bufferList->mBuffers[idx].mDataByteSize;
     }
-    this->_format.bytesPerSample = sizeof(float);
-    this->_format.bytesPerFrame = sizeof(float) * this->_format.channels;
+    this->_format.myBytesPerSample = sizeof(float);
+    this->_format.myBytesPerFrame = sizeof(float) * this->_format.myChannels;
     delete[] bufferList;
 
     //======================================
@@ -106,8 +106,8 @@ DeviceImpl::DeviceImpl(UInt32 id, AudioObjectPropertyScope scope)
     for (unsigned idx = 0; idx < nRanges; idx++) {
         if (rangeList[idx].mMinimum == rangeList[idx].mMaximum) {
             auto samplingRate = (float)rangeList[idx].mMinimum;
-            this->_format.supportedSamplingRate.push_back(samplingRate);
-            this->_format.samplingFrequency = samplingRate;
+            this->_format.mySupportedSamplingRate.push_back(samplingRate);
+            this->_format.mySamplingFrequency = samplingRate;
         }
         else {
             haveValueRange = true;
@@ -122,7 +122,7 @@ DeviceImpl::DeviceImpl(UInt32 id, AudioObjectPropertyScope scope)
     if (haveValueRange) {
         for (auto samplingRate : SamplingRates) {
             if (samplingRate >= (unsigned)minimumRate && samplingRate <= (unsigned)maximumRate) {
-                this->_format.supportedSamplingRate.push_back(samplingRate);
+                this->_format.mySupportedSamplingRate.push_back(samplingRate);
             }
         }
     }
@@ -134,18 +134,18 @@ DeviceImpl::DeviceImpl(UInt32 id, AudioObjectPropertyScope scope)
         this->_isValid = false;
         return;
     }
-    this->_format.samplingFrequency = nominalRate;
+    this->_format.mySamplingFrequency = nominalRate;
 
-    std::sort(this->_format.supportedSamplingRate.begin(),
-              this->_format.supportedSamplingRate.end());
-    this->_format.supportedSamplingRate.erase(
-        std::unique(this->_format.supportedSamplingRate.begin(),
-                    this->_format.supportedSamplingRate.end()),
-        this->_format.supportedSamplingRate.end());
-    if (this->_format.supportedSamplingRate.empty()) {
+    std::sort(this->_format.mySupportedSamplingRate.begin(),
+              this->_format.mySupportedSamplingRate.end());
+    this->_format.mySupportedSamplingRate.erase(
+        std::unique(this->_format.mySupportedSamplingRate.begin(),
+                    this->_format.mySupportedSamplingRate.end()),
+        this->_format.mySupportedSamplingRate.end());
+    if (this->_format.mySupportedSamplingRate.empty()) {
         this->_isValid = false;
     }
-    this->_format.supportedSamplingRate.shrink_to_fit();
+    this->_format.mySupportedSamplingRate.shrink_to_fit();
 }
 
 DeviceImpl::~DeviceImpl() noexcept = default;
@@ -164,7 +164,7 @@ OSStatus DeviceImpl::NativeCallbackHandler(AudioDeviceID inDevice,
             auto *buffer =
                 reinterpret_cast<float *>(outOutputData->mBuffers[device->_bufferIdx].mData);
             size_t frames = outOutputData->mBuffers[device->_bufferIdx].mDataByteSize /
-                device->_format.bytesPerFrame;
+                device->_format.myBytesPerFrame;
             std::memset(buffer, 0, outOutputData->mBuffers[device->_bufferIdx].mDataByteSize);
             device->_processingCallback(buffer, frames);
         }
@@ -172,7 +172,7 @@ OSStatus DeviceImpl::NativeCallbackHandler(AudioDeviceID inDevice,
             const auto *buffer =
                 reinterpret_cast<const float *>(inInputData->mBuffers[device->_bufferIdx].mData);
             size_t frames = inInputData->mBuffers[device->_bufferIdx].mDataByteSize /
-                device->_format.bytesPerFrame;
+                device->_format.myBytesPerFrame;
             device->_acquisitionCallback(buffer, frames);
         }
         else {
@@ -194,7 +194,7 @@ RateListener(AudioObjectID inDevice, UInt32, const AudioObjectPropertyAddress *,
     return kAudioHardwareNoError;
 }
 
-netero::audio::Device::RtCode DeviceImpl::open()
+Netero::Audio::Device::RtCode DeviceImpl::Open()
 {
     if (this->_isOpen) {
         return RtCode::ALREADY_OPEN;
@@ -227,7 +227,7 @@ netero::audio::Device::RtCode DeviceImpl::open()
     }
     int channel_index = -1;
     for (unsigned idx = 0; idx < bufferList->mNumberBuffers; idx++) {
-        if (bufferList->mBuffers[idx].mNumberChannels >= this->_format.channels) {
+        if (bufferList->mBuffers[idx].mNumberChannels >= this->_format.myChannels) {
             channel_index = (int)idx;
             break;
         }
@@ -269,7 +269,7 @@ netero::audio::Device::RtCode DeviceImpl::open()
     if (result != noErr) { // Error while getting the current sample rate
         return RtCode::SYSTEM_ERROR;
     }
-    if (nominalRate != this->_format.samplingFrequency) {
+    if (nominalRate != this->_format.mySamplingFrequency) {
         // if device sampling rate different, reconfigure it
         // here start the tricky thing, the rate is setup by a callback
         // So we register a call back, ask to change the rate, wait until the rate change
@@ -285,7 +285,7 @@ netero::audio::Device::RtCode DeviceImpl::open()
         if (result != noErr) { // Error could not register the callback
             return RtCode::SYSTEM_ERROR;
         }
-        nominalRate = (Float64)this->_format.samplingFrequency;
+        nominalRate = (Float64)this->_format.mySamplingFrequency;
         result =
             AudioObjectSetPropertyData(this->_id, &property, 0, nullptr, dataSize, &nominalRate);
         if (result != noErr) { // Error could not set new sampling rate
@@ -322,7 +322,7 @@ netero::audio::Device::RtCode DeviceImpl::open()
     if (result != noErr) { // Error getting stream format
         return RtCode::SYSTEM_ERROR;
     }
-    description.mSampleRate = (Float64)this->_format.samplingFrequency;
+    description.mSampleRate = (Float64)this->_format.mySamplingFrequency;
     description.mFormatID = kAudioFormatLinearPCM;
     result = AudioObjectSetPropertyData(this->_id, &property, 0, nullptr, dataSize, &description);
     if (result != noErr) { // Error while setting stream data rate and format
@@ -427,7 +427,7 @@ netero::audio::Device::RtCode DeviceImpl::open()
     return RtCode::SUCCESS;
 }
 
-netero::audio::Device::RtCode DeviceImpl::close()
+Netero::Audio::Device::RtCode DeviceImpl::Close()
 {
     if (!this->_isOpen) {
         return RtCode::NOT_OPEN;

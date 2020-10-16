@@ -9,12 +9,12 @@
 #include <string>
 #include <vector>
 
-#include <netero/audio/device.hpp>
-#include <netero/patterns/ISingleton.hpp>
+#include <Netero/Audio/Device.hpp>
+#include <Netero/Patterns/ISingleton.hpp>
 
-namespace netero::audio {
+namespace Netero::Audio {
 
-class DeviceManager final: public patterns::ISingleton<DeviceManager> {
+class DeviceManager final: public Patterns::ISingleton<DeviceManager> {
     private:
     DeviceManager();
     DECLARE_SINGLETON(DeviceManager);
@@ -28,16 +28,16 @@ class DeviceManager final: public patterns::ISingleton<DeviceManager> {
     DeviceManager& operator=(DeviceManager&&) = delete;
     ~DeviceManager() noexcept final;
 
-    [[nodiscard]] bool isValid();
-    RtCode             scanForDevices();
+    [[nodiscard]] bool IsValid();
+    RtCode             ScanForDevices();
 
-    const std::vector<Device*>& getOutputDevices();
-    const std::vector<Device*>& getInputDevices();
-    [[nodiscard]] int           getDefaultOutputDeviceIdx();
-    [[nodiscard]] int           getDefaultInputDeviceIdx();
+    const std::vector<Device*>& GetOutputDevices();
+    const std::vector<Device*>& GetInputDevices();
+    [[nodiscard]] int           GetDefaultOutputDeviceIdx();
+    [[nodiscard]] int           GetDefaultInputDeviceIdx();
 
     private:
     class Impl;
-    std::unique_ptr<Impl> _pImpl;
+    std::unique_ptr<Impl> myImpl;
 };
-} // namespace netero::audio
+} // namespace Netero::Audio

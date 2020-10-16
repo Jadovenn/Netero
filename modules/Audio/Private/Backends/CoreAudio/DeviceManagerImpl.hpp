@@ -7,20 +7,20 @@
 
 #include <unordered_map>
 
-#include <netero/audio/deviceManager.hpp>
+#include <Netero/Audio/DeviceManager.hpp>
 
-#include "deviceImpl.hpp"
+#include "DeviceImpl.hpp"
 
-namespace netero::audio {
+namespace Netero::Audio {
 class Device;
 }
 
-class netero::audio::DeviceManager::Impl {
+class Netero::Audio::DeviceManager::Impl {
     public:
     Impl();
     ~Impl();
 
-    DeviceManager::RtCode scanForDevices();
+    DeviceManager::RtCode ScanForDevices();
 
     std::vector<std::unique_ptr<DeviceImpl>> outputDevices;
     std::vector<Device*>                     clientOutputDevices;
