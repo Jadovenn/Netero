@@ -120,6 +120,6 @@ install(DIRECTORY public/netero
 ##====================================
 
 if (BUILD_TESTING AND NETERO_UNIT_TEST)
-    add_subdirectory(tests)
+    add_subdirectory(Tests)
 endif ()
 
