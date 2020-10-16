@@ -7,8 +7,8 @@
 
 #include <Vulkan/VkUtils.hpp>
 
-#include <netero/logger.hpp>
-#include <netero/netero.hpp>
+#include <Netero/Logger.hpp>
+#include <Netero/Netero.hpp>
 
 #include <Window/Window_GLFW.hpp>
 
@@ -210,7 +210,7 @@ GfxResult WindowGLFW::CreateLogicalDevice()
     deviceCreateInfo.enabledExtensionCount =
         static_cast<uint32_t>(VkUtils::DefaultDeviceExtensions.size());
     deviceCreateInfo.ppEnabledExtensionNames = VkUtils::DefaultDeviceExtensions.data();
-    if (netero::isDebugMode) {
+    if (Netero::IsDebugMode) {
         deviceCreateInfo.enabledLayerCount =
             static_cast<uint32_t>(VkUtils::ValidationLayers.size());
         deviceCreateInfo.ppEnabledLayerNames = VkUtils::ValidationLayers.data();

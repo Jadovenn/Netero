@@ -10,8 +10,8 @@
 #include <GLFW/glfw3.h>
 #include <Vulkan/VkUtils.hpp>
 
-#include <netero/logger.hpp>
-#include <netero/netero.hpp>
+#include <Netero/Logger.hpp>
+#include <Netero/Netero.hpp>
 
 namespace VkUtils {
 
@@ -49,7 +49,7 @@ std::vector<const char*> GetRequiredExtensions()
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-    if (netero::isDebugMode) {
+    if (Netero::IsDebugMode) {
         LOG_INFO << "Available Vulkan extensions:" << std::endl;
         for (const auto& ext : extensions) {
             LOG_INFO << "\t" << ext.extensionName << std::endl;
@@ -65,11 +65,11 @@ std::vector<const char*> GetRequiredExtensions()
             throw std::runtime_error("Could not create instance, missing extension: " +
                                      std::string(glfwExtensions[idx]));
         }
-        if (netero::isDebugMode) {
+        if (Netero::IsDebugMode) {
             LOG_INFO << "Using extensions: " << glfwExtensions[idx] << std::endl;
         }
     }
-    if (netero::isDebugMode) {
+    if (Netero::IsDebugMode) {
         extension.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         extension.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }

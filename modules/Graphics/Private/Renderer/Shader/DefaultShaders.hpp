@@ -6,14 +6,13 @@
 #pragma once
 
 #include <Netero/Graphics/Shader.hpp>
-#include <netero/patterns/IFactory.hpp>
+#include <Netero/Patterns/IFactory.hpp>
 
 namespace Netero::Gfx {
 
-using ShaderFactory = netero::patterns::IFactory<Shader, Renderer&>;
+using ShaderFactory = Netero::Patterns::IFactory<Shader, Renderer&>;
 
-class GeometryFragmentShaderFactory final
-    : ShaderFactory {
+class GeometryFragmentShaderFactory final: ShaderFactory {
     public:
     ~GeometryFragmentShaderFactory() final = default;
 
@@ -22,8 +21,7 @@ class GeometryFragmentShaderFactory final
 
 extern GeometryFragmentShaderFactory DefaultFragmentSF;
 
-class GeometryVertexShaderFactory final
-    : ShaderFactory {
+class GeometryVertexShaderFactory final: ShaderFactory {
     public:
     ~GeometryVertexShaderFactory() final = default;
 

@@ -8,9 +8,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include <netero/Netero.hpp>
 #include <netero/graphics/application.hpp>
 #include <netero/graphics/context.hpp>
-#include <netero/netero.hpp>
 
 #include "utils/vkUtils.hpp"
 

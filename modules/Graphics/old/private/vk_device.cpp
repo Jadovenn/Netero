@@ -7,8 +7,8 @@
 #include <set>
 #include <stdexcept>
 
+#include <netero/Netero.hpp>
 #include <netero/graphics/device.hpp>
-#include <netero/netero.hpp>
 
 #include "utils/vkUtils.hpp"
 

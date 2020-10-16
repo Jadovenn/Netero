@@ -3,8 +3,9 @@
  * see LICENSE.txt
  */
 
-#include <netero/logger.hpp>
 #include <Vulkan/VkUtils.hpp>
+
+#include <Netero/Logger.hpp>
 
 namespace VkUtils {
 

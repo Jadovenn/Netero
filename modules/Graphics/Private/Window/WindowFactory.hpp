@@ -9,14 +9,14 @@
 
 #include <Vulkan/Vulkan.hpp>
 
-#include <netero/patterns/IFactory.hpp>
+#include <Netero/Patterns/IFactory.hpp>
 
 #include <Window/Window_GLFW.hpp>
 
 namespace Netero::Gfx {
 
 class WindowFactory final
-    : netero::patterns::IFactory<Window, VkInstance, int, int, WindowMode, const std::string&> {
+    : Netero::Patterns::IFactory<Window, VkInstance, int, int, WindowMode, const std::string&> {
     public:
     ~WindowFactory() final = default;
 

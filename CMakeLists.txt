@@ -115,7 +115,7 @@ if (NETERO_GRAPHICS)
     if (NOT NETERO_EXTRA OR NOT NETERO_CONSOLE)
         message(FATAL_ERROR "GRAPHICS rely on EXTRA and CONSOLE")
     endif (NOT NETERO_EXTRA OR NOT NETERO_CONSOLE)
-    add_subdirectory(modules/graphics)
+    add_subdirectory(modules/Graphics)
 endif (NETERO_GRAPHICS)
 
 if (NETERO_MEMCHECK)

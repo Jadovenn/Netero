@@ -5,8 +5,8 @@
 
 #include "SpvToH.hpp"
 
+#include <Netero/Logger.hpp>
 #include <Netero/ProgramArguments.hpp>
-#include <netero/logger.hpp>
 
 constexpr char const* OPTION_HELP = "-h";
 constexpr char const* OPTION_HELP_DETAILED = "--help";

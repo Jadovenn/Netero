@@ -6,7 +6,7 @@
 #include <Vulkan/Context/Context.hpp>
 #include <Vulkan/VkUtils.hpp>
 
-#include <netero/logger.hpp>
+#include <Netero/Logger.hpp>
 
 namespace VkUtils {
 

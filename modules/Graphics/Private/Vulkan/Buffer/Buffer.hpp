@@ -6,7 +6,7 @@
 #include <Vulkan/Vulkan.hpp>
 
 #include <Netero/Graphics/Errors.hpp>
-#include <netero/logger.hpp>
+#include <Netero/Logger.hpp>
 
 namespace Netero::Gfx {
 

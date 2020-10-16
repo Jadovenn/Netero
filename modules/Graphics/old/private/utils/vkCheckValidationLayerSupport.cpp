@@ -8,7 +8,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include <netero/netero.hpp>
+#include <netero/Netero.hpp>
 
 #include "utils/vkUtils.hpp"
 

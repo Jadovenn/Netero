@@ -8,8 +8,8 @@
 
 #include <Vulkan/VkUtils.hpp>
 
-#include <netero/logger.hpp>
-#include <netero/netero.hpp>
+#include <Netero/Logger.hpp>
+#include <Netero/Netero.hpp>
 
 #include <Application/ApplicationImpl.hpp>
 
@@ -42,7 +42,7 @@ GfxResult Application::Initialize(const std::string& anApplicationName)
     myImpl->myVulkanApplicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     myImpl->myVulkanApplicationInfo.apiVersion = VK_API_VERSION_1_2;
 
-    if (netero::isDebugMode && !VkUtils::CheckValidationLayerSupport()) {
+    if (Netero::IsDebugMode && !VkUtils::CheckValidationLayerSupport()) {
         return GfxResult::DEBUG_MISSING_VALIDATION_LAYERS;
     }
 
@@ -55,7 +55,7 @@ GfxResult Application::Initialize(const std::string& anApplicationName)
     createInfo.ppEnabledExtensionNames = glfwExtensions;
     createInfo.pNext = nullptr;
 
-    if (netero::isDebugMode) {
+    if (Netero::IsDebugMode) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(VkUtils::ValidationLayers.size());
         createInfo.ppEnabledLayerNames = VkUtils::ValidationLayers.data();
     }
@@ -69,7 +69,7 @@ GfxResult Application::Initialize(const std::string& anApplicationName)
         return GfxResult::DRIVER_CALL_FAILED;
     }
 
-    if (netero::isDebugMode) {
+    if (Netero::IsDebugMode) {
         VkDebugReportCallbackCreateInfoEXT reporterCreateInfo = {};
         VkUtils::PopulateDebugReportCreateInfo(reporterCreateInfo);
         result = VkUtils::CreateDebugReportEXT(myImpl->myVulkanInstance,
@@ -100,7 +100,7 @@ void Application::Terminate()
         aWindow->Close();
         aWindow.reset();
     }
-    if (netero::isDebugMode) {
+    if (Netero::IsDebugMode) {
         VkUtils::DestroyDebugReportEXT(myImpl->myVulkanInstance, myImpl->myDebugReport, nullptr);
         VkUtils::DestroyDebugMessengerEXT(myImpl->myVulkanInstance,
                                           myImpl->myDebugMessenger,
