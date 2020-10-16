@@ -19,9 +19,9 @@ list(APPEND PUBLIC_HEADER
         Public/Netero/ECS/Component.hpp
         Public/Netero/ECS/ComponentFilter.hpp
         Public/Netero/ECS/System.hpp
-        public/Netero/patterns/IObserver.hpp
-        public/Netero/patterns/IFactory.hpp
-        public/Netero/patterns/ISingleton.hpp
+        public/Netero/Patterns/IObserver.hpp
+        public/Netero/Patterns/IFactory.hpp
+        public/Netero/Patterns/ISingleton.hpp
         Public/Netero/Signal.hpp
         Public/Netero/Slot.hpp)
 list(APPEND SRCS
