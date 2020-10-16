@@ -4,4 +4,4 @@
 */
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <netero/extra/tiny_obj_loader.hpp>
+#include <Netero/Extra/tiny_obj_loader.hpp>

@@ -100,7 +100,7 @@ if (NETERO_PATTERNS)
 endif (NETERO_PATTERNS)
 
 if (NETERO_EXTRA)
-    add_subdirectory(modules/extra)
+    add_subdirectory(modules/Extra)
 endif (NETERO_EXTRA)
 
 if (NETERO_AUDIO)

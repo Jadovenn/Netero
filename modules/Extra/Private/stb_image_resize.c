@@ -4,4 +4,4 @@
  */
 
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include <netero/extra/stb_image_resize.h>
+#include <Netero/Extra/stb_image_resize.h>

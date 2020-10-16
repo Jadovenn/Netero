@@ -4,4 +4,4 @@
  */
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <netero/extra/stb_image.h>
+#include <Netero/Extra/stb_image.h>

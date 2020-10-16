@@ -10,19 +10,19 @@ message(STATUS "Configure Netero extra submodule")
 ##  Sources
 ##====================================
 
-set(EXTRA_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
-set(EXTRA_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
+set(EXTRA_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
+set(EXTRA_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Public)
 
 list(APPEND PUBLIC_HEADER
-        public/netero/extra/stb_image.h
-        public/netero/extra/stb_image_resize.h
-        public/netero/extra/stb_image_write.h
-        public/netero/extra/tiny_obj_loader.hpp)
+        Public/Netero/Extra/stb_image.h
+        Public/Netero/Extra/stb_image_resize.h
+        Public/Netero/Extra/stb_image_write.h
+        Public/Netero/Extra/tiny_obj_loader.hpp)
 list(APPEND SRCS
-        private/stb_image.c
-        private/stb_image_resize.c
-        private/stb_image_write.c
-        private/tiny_obj_loader.cpp)
+        Private/stb_image.c
+        Private/stb_image_resize.c
+        Private/stb_image_write.c
+        Private/tiny_obj_loader.cpp)
 
 ##====================================
 ##  Target
