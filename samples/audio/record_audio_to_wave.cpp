@@ -6,24 +6,24 @@
 #include <iostream>
 #include <thread>
 
-#include <netero/audio/deviceManager.hpp>
-#include <netero/audio/waveFile.hpp>
-#include <netero/logger.hpp>
+#include <Netero/Audio/DeviceManager.hpp>
+#include <Netero/Audio/WaveFile.hpp>
+#include <Netero/Logger.hpp>
 
 int ChooseDevice()
 {
-    auto& deviceManager = netero::audio::DeviceManager::GetInstance();
-    deviceManager.scanForDevices();
-    auto& devices = deviceManager.getInputDevices();
+    auto& deviceManager = Netero::Audio::DeviceManager::GetInstance();
+    deviceManager.ScanForDevices();
+    auto& devices = deviceManager.GetInputDevices();
 
-    int defaultInputDeviceIdx = deviceManager.getDefaultInputDeviceIdx();
+    int defaultInputDeviceIdx = deviceManager.GetDefaultInputDeviceIdx();
     LOG << "Choose a Device:" << std::endl;
     if (defaultInputDeviceIdx >= 0) {
-        LOG << "Default input device: " << devices[defaultInputDeviceIdx]->getName() << std::endl;
+        LOG << "Default input device: " << devices[defaultInputDeviceIdx]->GetName() << std::endl;
     }
     int idx = 0;
     for (auto& device : devices) {
-        LOG << idx << ": " << device->getName() << std::endl;
+        LOG << idx << ": " << device->GetName() << std::endl;
         idx += 1;
     }
 
@@ -34,11 +34,11 @@ int ChooseDevice()
 
 int main()
 {
-    auto& deviceManager = netero::audio::DeviceManager::GetInstance();
+    auto& deviceManager = Netero::Audio::DeviceManager::GetInstance();
 
     int idx = ChooseDevice();
-    deviceManager.scanForDevices();
-    auto& devices = deviceManager.getInputDevices();
+    deviceManager.ScanForDevices();
+    auto& devices = deviceManager.GetInputDevices();
 
     if (idx < 0 || idx >= devices.size()) {
         LOG << "Idx out of range you try to trick me or devices have changed" << std::endl;
@@ -46,29 +46,29 @@ int main()
     }
 
     auto&                   device = devices[idx];
-    netero::audio::WaveFile saveFile;
+    Netero::Audio::WaveFile saveFile;
 
-    const auto& format = device->getFormat();
-    saveFile.setFormat(format);
+    const auto& format = device->GetFormat();
+    saveFile.SetFormat(format);
     std::string fileName;
-    fileName += std::to_string(format.channels);
+    fileName += std::to_string(format.myChannels);
     fileName += "channels_";
-    fileName += std::to_string(format.samplingFrequency);
+    fileName += std::to_string(format.mySamplingFrequency);
     fileName += "Hz.wav";
-    saveFile.open(fileName, std::fstream::out | std::fstream::trunc | std::fstream::binary);
+    saveFile.Open(fileName, std::fstream::out | std::fstream::trunc | std::fstream::binary);
 
-    if (!saveFile.is_open()) {
+    if (!saveFile.IsOpen()) {
         LOG << "Failed to create " << fileName << "file." << std::endl;
         return 1;
     }
 
     std::function<void(const float*, unsigned)> acquisitionCallback =
         [&saveFile, format](const float* buffer, unsigned frames) {
-            saveFile.write(buffer, frames * format.channels);
+            saveFile.Write(buffer, frames * format.myChannels);
         };
 
-    device->setAcquisitionCallback(acquisitionCallback);
-    device->open();
+    device->SetAcquisitionCallback(acquisitionCallback);
+    device->Open();
     auto start = std::chrono::system_clock::now();
     while (10 > std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() -
                                                                  start)
@@ -76,8 +76,8 @@ int main()
         std::this_thread::yield();
     }
 
-    device->close();
-    saveFile.close();
+    device->Close();
+    saveFile.Close();
 
     return 0;
 }

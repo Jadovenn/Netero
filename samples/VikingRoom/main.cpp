@@ -7,12 +7,18 @@
 #include <iostream>
 #include <unordered_map>
 
-#include <netero/extra/tiny_obj_loader.hpp>
-#include <netero/graphics/application.hpp>
-#include <netero/graphics/context.hpp>
-#include <netero/graphics/instance.hpp>
-#include <netero/graphics/vertex.hpp>
-#include <netero/os.hpp>
+int main()
+{
+    return 0;
+}
+
+/*
+#include <Netero/Graphics/Application.hpp>
+#include <Netero/Graphics/Context.hpp>
+#include <Netero/Graphics/Instance.hpp>
+#include <Netero/Graphics/vertex.hpp>
+#include <Netero/Os.hpp>
+#include <Netero/extra/tiny_obj_loader.hpp>
 
 const std::string VikingHouseVertexShaderPath =
     netero::os::getBundlePath() + "/shaders/VikingRoomVertexShader.spv";
@@ -127,3 +133,4 @@ int main()
     }
     return rtCode;
 }
+*/

@@ -6,12 +6,12 @@
 #include <fstream>
 #include <iostream>
 
-#include <netero/logger.hpp>
-#include <netero/os.hpp>
+#include <Netero/Logger.hpp>
+#include <Netero/Os.hpp>
 
-class CustomLogger: public netero::Logger {
+class CustomLogger: public Netero::Logger {
     public:
-    CustomLogger(std::ostream& out): netero::Logger(out) {}
+    explicit CustomLogger(std::ostream& out): Netero::Logger(out) {}
 
     protected:
     void printPlaceholder() const final { *this->_stream << "[Custom placeholder] "; }
@@ -19,20 +19,20 @@ class CustomLogger: public netero::Logger {
 
 int main()
 {
-    netero::os::acquireSystemResources();
+    Netero::Os::AcquireSystemResources();
     // On windows COM library is now initialized.
     // But if you or another library in your program have already done
     // netero modules will conform to it. Netero Modules are likely to use this
     // then you don't need to do it explicitly.
     // But this function are a debug starting point if
     // you are getting into trouble on windows/netero/COM interfaces.
-    netero::os::releaseSystemResources();
+    Netero::Os::ReleaseSystemResources();
 
-    LOG << netero::os::getSessionUsername() << std::endl;
-    LOG << netero::os::getUserHomeDirectoryPath() << std::endl;
-    LOG << netero::os::getUserAppDataRoamingPath() << std::endl;
-    LOG << netero::os::getBundlePath() << std::endl;
-    LOG << netero::os::getExecutablePath() << std::endl;
+    LOG << Netero::Os::GetSessionUsername() << std::endl;
+    LOG << Netero::Os::GetUserHomeDirectoryPath() << std::endl;
+    LOG << Netero::Os::GetUserAppDataRoamingPath() << std::endl;
+    LOG << Netero::Os::GetBundlePath() << std::endl;
+    LOG << Netero::Os::GetExecutablePath() << std::endl;
 
     LOG << "A raw log." << std::endl;
     LOG_INFO << "A simple log." << std::endl;
@@ -42,13 +42,13 @@ int main()
 
     CustomLogger myCustomLogger(std::cout);
 
-    netero::log(myCustomLogger, netero::Level::info) << "A custom Logger" << std::endl;
+    Netero::Log(myCustomLogger, Netero::Level::Info) << "A custom Logger" << std::endl;
 
     std::ofstream  myLogFile("MyLogFile.txt", std::ofstream::out | std::ofstream::trunc);
-    netero::Logger myOtherLogger(myLogFile);
+    Netero::Logger myOtherLogger(myLogFile);
 
-    netero::log(myOtherLogger, netero::Level::info) << "Hello friend!" << std::endl;
-    netero::log(myOtherLogger, netero::Level::info) << "This log is saved in a file." << std::endl;
+    Netero::Log(myOtherLogger, Netero::Level::Info) << "Hello friend!" << std::endl;
+    Netero::Log(myOtherLogger, Netero::Level::Info) << "This log is saved in a file." << std::endl;
 
     myLogFile.close();
 

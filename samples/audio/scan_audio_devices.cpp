@@ -3,56 +3,56 @@
  * see LICENSE.txt
  */
 
-#include <netero/audio/deviceManager.hpp>
-#include <netero/logger.hpp>
+#include <Netero/Audio/DeviceManager.hpp>
+#include <Netero/Logger.hpp>
 
 int main()
 {
-    auto& audioDeviceManager = netero::audio::DeviceManager::GetInstance();
+    auto& audioDeviceManager = Netero::Audio::DeviceManager::GetInstance();
 
-    if (!audioDeviceManager.isValid()) {
+    if (!audioDeviceManager.IsValid()) {
         LOG_ERROR << "Audio device manager not initialized correctly!" << std::endl;
         return 1;
     }
 
-    audioDeviceManager.scanForDevices();
-    auto audioDevices = audioDeviceManager.getOutputDevices();
-    int  defaultOuputDeviceIdx = audioDeviceManager.getDefaultOutputDeviceIdx();
+    audioDeviceManager.ScanForDevices();
+    auto audioDevices = audioDeviceManager.GetOutputDevices();
+    int  defaultOuputDeviceIdx = audioDeviceManager.GetDefaultOutputDeviceIdx();
 
     LOG_INFO << "Output Devices:" << std::endl;
     if (defaultOuputDeviceIdx > 0) {
-        LOG << "Default Device: " << audioDevices[defaultOuputDeviceIdx]->getName() << std::endl;
+        LOG << "Default Device: " << audioDevices[defaultOuputDeviceIdx]->GetName() << std::endl;
     }
     for (auto device : audioDevices) {
-        if (!device->isValid()) {
+        if (!device->IsValid()) {
             LOG_ERROR << "Invalid device, system related error" << std::endl;
             continue;
         }
-        LOG << '\t' << device->getName() << " (" << device->getManufacturer() << ")" << std::endl;
-        auto format = device->getFormat();
+        LOG << '\t' << device->GetName() << " (" << device->GetManufacturer() << ")" << std::endl;
+        auto format = device->GetFormat();
         LOG << "\t\t"
-            << "frequency: " << format.samplingFrequency << " Hz channels: " << format.channels
+            << "frequency: " << format.mySamplingFrequency << " Hz channels: " << format.myChannels
             << std::endl
             << std::endl;
     }
 
-    audioDevices = audioDeviceManager.getInputDevices();
-    int defaultInputDeviceIdx = audioDeviceManager.getDefaultInputDeviceIdx();
+    audioDevices = audioDeviceManager.GetInputDevices();
+    int defaultInputDeviceIdx = audioDeviceManager.GetDefaultInputDeviceIdx();
 
     LOG_INFO << "Input Devices:" << std::endl;
     if (defaultInputDeviceIdx >= 0) {
-        LOG << "Default Device: " << audioDevices[defaultInputDeviceIdx]->getName() << std::endl;
+        LOG << "Default Device: " << audioDevices[defaultInputDeviceIdx]->GetName() << std::endl;
     }
     for (auto device : audioDevices) {
-        if (!device->isValid()) {
+        if (!device->IsValid()) {
             LOG_ERROR << "Invalid device, system related error" << std::endl;
             continue;
         }
-        LOG << '\t' << device->getName() << " (" << device->getManufacturer() << ")" << std::endl;
-        auto format = device->getFormat();
+        LOG << '\t' << device->GetName() << " (" << device->GetManufacturer() << ")" << std::endl;
+        auto format = device->GetFormat();
         LOG << "\t\t"
-            << "frequency: " << format.samplingFrequency << " Hz channels: " << format.channels
-            << " isLoopback: " << device->isLoopback() << std::endl
+            << "frequency: " << format.mySamplingFrequency << " Hz channels: " << format.myChannels
+            << " isLoopback: " << device->IsLoopback() << std::endl
             << std::endl;
     }
     return 0;

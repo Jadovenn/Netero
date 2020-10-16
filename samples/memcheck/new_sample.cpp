@@ -3,10 +3,8 @@
  * see LICENSE.txt
  */
 
-#include <iostream>
-
-#include <netero/logger.hpp>
-#include <netero/memcheck/new.hpp>
+#include <Netero/Logger.hpp>
+#include <Netero/MemCheck/New.hpp>
 
 class test {
     public:
@@ -21,7 +19,7 @@ int main()
     // is link to your program and does not required any other configuration
 
     // activate memory corruption detection do detect overflow at runtime
-    netero::memchk::activate_memcorruption_detection();
+    Netero::Memchk::ActivateMemCorruptionDetection();
 
     // Memory checking is invisible and impact performance as low as possible
     auto* object = new test;
@@ -39,10 +37,10 @@ int main()
 
     delete nb;
 
-    netero::memchk::reportLeaks();
+    Netero::Memchk::ReportLeaks();
 
     // For some reason you are allow to deactivate memory corruptions detection
-    netero::memchk::deactivate_memcorruption_detection();
+    Netero::Memchk::DeactivateMemCorruptionDetection();
 
     // This module need to be improved to include info such as call stack,...
     return 0;
