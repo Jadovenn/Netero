@@ -15,10 +15,10 @@ set(FAST_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
 set(FAST_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Public)
 
 list(APPEND PUBLIC_HEADER
-        Public/Netero/fast/Simd.hpp
-        Public/Netero/fast/Easing.hpp)
+        Public/Netero/Fast/Simd.hpp
+        Public/Netero/Fast/Easing.hpp)
 list(APPEND SRCS
-        private/easing_quadratic.cpp)
+        Private/easing_quadratic.cpp)
 
 ##====================================
 ##  Target
