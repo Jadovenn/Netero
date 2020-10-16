@@ -96,7 +96,7 @@ if (NETERO_FAST)
 endif (NETERO_FAST)
 
 if (NETERO_PATTERNS)
-    add_subdirectory(modules/patterns)
+    add_subdirectory(modules/Patterns)
 endif (NETERO_PATTERNS)
 
 if (NETERO_EXTRA)
