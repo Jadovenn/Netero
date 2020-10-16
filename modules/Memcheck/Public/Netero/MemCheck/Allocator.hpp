@@ -9,7 +9,7 @@
 #include <limits>
 #include <new>
 
-namespace netero::memck {
+namespace Netero::Memck {
 
 struct MemoryPool {
     void*       owner;
@@ -18,11 +18,11 @@ struct MemoryPool {
 
 class DefaultAllocatorReporter {
     public:
-    static void reportAllocation(void*, MemoryPool*, void*, std::size_t) {}
-    static void reportDeallocation(void*, MemoryPool*, void*, std::size_t) {}
-    static void reportLeaks(void*, MemoryPool*) {}
-    static void reportZeroSizeUndefinedBehavior(void*) {}
-    static void reportNoByteInPool(void*) {}
+    static void ReportAllocation(void*, MemoryPool*, void*, std::size_t) {}
+    static void ReportDeallocation(void*, MemoryPool*, void*, std::size_t) {}
+    static void ReportLeaks(void*, MemoryPool*) {}
+    static void ReportZeroSizeUndefinedBehavior(void*) {}
+    static void ReportNoByteInPool(void*) {}
 };
 
 template<typename T, class Reporter = DefaultAllocatorReporter>
@@ -56,7 +56,7 @@ class Allocator {
         }
         if (this == pool->owner) {
             if (pool->bytes != 0) {
-                Reporter::reportLeaks(this, this->pool);
+                Reporter::ReportLeaks(this, this->pool);
             }
             try {
                 std::free(pool);
@@ -75,7 +75,7 @@ class Allocator {
     {
         if (this == pool->owner) {
             if (pool->bytes != 0) {
-                Reporter::reportLeaks(this, this->pool);
+                Reporter::ReportLeaks(this, this->pool);
             }
             try {
                 std::free(pool);
@@ -89,7 +89,7 @@ class Allocator {
     [[nodiscard]] constexpr T* allocate(std::size_t size)
     {
         if (size == 0) {
-            Reporter::reportZeroSizeUndefinedBehavior(this);
+            Reporter::ReportZeroSizeUndefinedBehavior(this);
             return nullptr;
         }
         if (std::numeric_limits<std::size_t>::max() / sizeof(T) < size) {
@@ -99,7 +99,7 @@ class Allocator {
         if (!data) {
             throw std::bad_alloc();
         }
-        Reporter::reportAllocation(this, this->pool, static_cast<void*>(data), size);
+        Reporter::ReportAllocation(this, this->pool, static_cast<void*>(data), size);
         pool->bytes += size * sizeof(T);
         return data;
     }
@@ -110,12 +110,12 @@ class Allocator {
             return; // trying to delete a nullptr is a valid behavior in c++
         }
         if (size == 0) {
-            Reporter::reportZeroSizeUndefinedBehavior(this);
+            Reporter::ReportZeroSizeUndefinedBehavior(this);
         }
         if (pool->bytes == 0) {
-            Reporter::reportNoByteInPool(this);
+            Reporter::ReportNoByteInPool(this);
         }
-        Reporter::reportDeallocation(this, this->pool, static_cast<void*>(data), size);
+        Reporter::ReportDeallocation(this, this->pool, static_cast<void*>(data), size);
         std::free(data);
         this->pool->bytes -= sizeof(T) * size;
     }
@@ -140,30 +140,30 @@ bool operator==(const Allocator<T1>& lhs, const Allocator<T2>& rhs) noexcept
 
 class LoggerReporter {
     public:
-    static void reportAllocation(void* allocator, MemoryPool* pool, void* data, std::size_t bytes)
+    static void ReportAllocation(void* allocator, MemoryPool* pool, void* data, std::size_t bytes)
     {
         std::cerr << "Allocator(0x" << allocator << ") pool[0x" << pool << "] ptr[0x" << data
                   << "] ::: Alloc " << bytes << " bytes." << std::endl;
     }
 
-    static void reportDeallocation(void* allocator, MemoryPool* pool, void* data, std::size_t bytes)
+    static void ReportDeallocation(void* allocator, MemoryPool* pool, void* data, std::size_t bytes)
     {
         std::cerr << "Allocator(0x" << allocator << ") pool[0x" << pool << "] ptr[0x" << data
                   << "] ::: Free " << bytes << " bytes." << std::endl;
     }
 
-    static void reportLeaks(void* allocator, MemoryPool* pool)
+    static void ReportLeaks(void* allocator, MemoryPool* pool)
     {
         std::cerr << "Allocator(0x" << allocator << ") ::: leaks detected, losing: " << pool->bytes
                   << " bytes!" << std::endl;
     }
 
-    static void reportZeroSizeUndefinedBehavior(void* allocator)
+    static void ReportZeroSizeUndefinedBehavior(void* allocator)
     {
         std::cerr << "Allocator(0x" << allocator << ") ::: error detected, size is 0." << std::endl;
     }
 
-    static void reportNoByteInPool(void* allocator)
+    static void ReportNoByteInPool(void* allocator)
     {
         std::cerr << "Allocator(0x" << allocator
                   << ") ::: dealloc error detected, no more byte in the pool." << std::endl;
@@ -174,4 +174,4 @@ template<class T>
 class LoggerAllocator: public Allocator<T, LoggerReporter> {
 };
 
-} // namespace netero::memck
+} // namespace Netero::Memck

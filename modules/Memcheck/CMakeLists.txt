@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.11...3.16)
+cmake_minimum_required(VERSION 3.11...3.16)
 project(neteroMemcheck
         VERSION 1.0
         DESCRIPTION "Lightway memory checker."
@@ -10,26 +10,27 @@ message(STATUS "Configure Netero Memcheck")
 ##  Core Sources
 ##====================================
 
-set(MEMCHECK_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
-set(MEMCHECK_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
+set(MEMCHECK_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
+set(MEMCHECK_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Public)
 
 list(APPEND PUBLIC_HEADER
-        public/netero/memcheck/block.hpp
-        public/netero/memcheck/new.hpp)
+        Public/Netero/MemCheck/Allocator.hpp
+        Public/Netero/MemCheck/Block.hpp
+        Public/Netero/MemCheck/New.hpp)
 
 list(APPEND SRCS
-        private/new.cpp)
+        Private/New.cpp)
 
 add_library(NeteroMemcheck STATIC ${SRCS} ${PUBLIC_HEADER})
 add_dependencies(NeteroMemcheck Netero::Netero)
 target_compile_features(NeteroMemcheck PUBLIC cxx_std_17)
 target_include_directories(NeteroMemcheck
-    PUBLIC
+        PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${MEMCHECK_PUBLIC}>
-    PRIVATE
+        PRIVATE
         $<BUILD_INTERFACE:${Netero_Core_INCLUDE_DIRS}>
-)
+        )
 
 add_library(Netero::Memcheck ALIAS NeteroMemcheck)
 
@@ -56,11 +57,11 @@ install(TARGETS NeteroMemcheck
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 install(EXPORT NeteroMemcheck-export
         FILE
-            NeteroMemcheckTargets.cmake
+        NeteroMemcheckTargets.cmake
         NAMESPACE
-            Netero::
+        Netero::
         DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/cmake/netero)
+        ${CMAKE_INSTALL_PREFIX}/cmake/netero)
 install(DIRECTORY public/netero/memcheck
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/netero
         FILES_MATCHING PATTERN "*.hpp")

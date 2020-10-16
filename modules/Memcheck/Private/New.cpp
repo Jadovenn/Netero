@@ -5,25 +5,25 @@
 
 #include <mutex>
 
-#include <netero/debug.hpp>
-#include <netero/memcheck/allocator.hpp>
-#include <netero/memcheck/block.hpp>
-#include <netero/netero.hpp>
+#include <Netero/Debug.hpp>
+#include <Netero/MemCheck/Allocator.hpp>
+#include <Netero/MemCheck/Block.hpp>
+#include <Netero/Netero.hpp>
 
-netero::memck::MemBlockHeader* g_heap = nullptr;
+Netero::Memck::MemBlockHeader* g_heap = nullptr;
 static bool                    g_memcorruption_detection = false;
 std::mutex                     g_allocMutex;
 
 void* operator new(std::size_t size)
 {
     std::scoped_lock<std::mutex> lock(g_allocMutex);
-    auto*                        header = static_cast<netero::memck::MemBlockHeader*>(malloc(
-        size + sizeof(netero::memck::MemBlockHeader) + sizeof(netero::memck::MemBlockFooter)));
-    header->magic = netero::memck::headerMagic;
+    auto*                        header = static_cast<Netero::Memck::MemBlockHeader*>(malloc(
+        size + sizeof(Netero::Memck::MemBlockHeader) + sizeof(Netero::Memck::MemBlockFooter)));
+    header->magic = Netero::Memck::headerMagic;
     header->bytes = size;
-    header->footer = reinterpret_cast<netero::memck::MemBlockFooter*>(
-        (uintptr_t)header + sizeof(netero::memck::MemBlockHeader) + size);
-    header->footer->magic = netero::memck::footerMagic;
+    header->footer = reinterpret_cast<Netero::Memck::MemBlockFooter*>(
+        (uintptr_t)header + sizeof(Netero::Memck::MemBlockHeader) + size);
+    header->footer->magic = Netero::Memck::footerMagic;
     if (likely(g_heap)) {
         header->next = g_heap;
         header->prev = nullptr;
@@ -33,7 +33,7 @@ void* operator new(std::size_t size)
         header->prev = nullptr;
         g_heap = header;
     }
-    void* ptr = reinterpret_cast<void*>((uintptr_t)header + sizeof(netero::memck::MemBlockHeader));
+    void* ptr = reinterpret_cast<void*>((uintptr_t)header + sizeof(Netero::Memck::MemBlockHeader));
     //std::cout << "Allocator(global new) ::: Alloc data(0x" << ptr << ")" << std::endl;
     return ptr;
 }
@@ -44,14 +44,14 @@ void operator delete(void* ptr) noexcept
     if (!ptr) {
         return;
     };
-    auto* header = reinterpret_cast<netero::memck::MemBlockHeader*>(
-        (uintptr_t)ptr - sizeof(netero::memck::MemBlockHeader));
-    if (g_memcorruption_detection && header->footer->magic != netero::memck::footerMagic) {
+    auto* header = reinterpret_cast<Netero::Memck::MemBlockHeader*>(
+        (uintptr_t)ptr - sizeof(Netero::Memck::MemBlockHeader));
+    if (g_memcorruption_detection && header->footer->magic != Netero::Memck::footerMagic) {
         std::cout << "Allocator(global new) data(0x" << ptr << ") ::: Corrupted." << std::endl;
         BREAK;
         return;
     }
-    if (g_memcorruption_detection && header->magic != netero::memck::headerMagic) {
+    if (g_memcorruption_detection && header->magic != Netero::Memck::headerMagic) {
         std::cout << "Allocator(global new) data(0x" << ptr
                   << ") ::: wrong pointer, this block in not managed bu the heap." << std::endl;
         BREAK;
@@ -76,13 +76,13 @@ void operator delete(void* ptr) noexcept
 void* operator new[](std::size_t size)
 {
     std::scoped_lock<std::mutex> lock(g_allocMutex);
-    auto*                        header = static_cast<netero::memck::MemBlockHeader*>(malloc(
-        size + sizeof(netero::memck::MemBlockHeader) + sizeof(netero::memck::MemBlockFooter)));
-    header->magic = netero::memck::headerMagic;
+    auto*                        header = static_cast<Netero::Memck::MemBlockHeader*>(malloc(
+        size + sizeof(Netero::Memck::MemBlockHeader) + sizeof(Netero::Memck::MemBlockFooter)));
+    header->magic = Netero::Memck::headerMagic;
     header->bytes = size;
-    header->footer = reinterpret_cast<netero::memck::MemBlockFooter*>(
-        (uintptr_t)header + sizeof(netero::memck::MemBlockHeader) + size);
-    header->footer->magic = netero::memck::footerMagic;
+    header->footer = reinterpret_cast<Netero::Memck::MemBlockFooter*>(
+        (uintptr_t)header + sizeof(Netero::Memck::MemBlockHeader) + size);
+    header->footer->magic = Netero::Memck::footerMagic;
     if (likely(g_heap)) {
         header->next = g_heap;
         header->prev = nullptr;
@@ -92,7 +92,7 @@ void* operator new[](std::size_t size)
         header->prev = nullptr;
         g_heap = header;
     }
-    void* ptr = reinterpret_cast<void*>((uintptr_t)header + sizeof(netero::memck::MemBlockHeader));
+    void* ptr = reinterpret_cast<void*>((uintptr_t)header + sizeof(Netero::Memck::MemBlockHeader));
     //std::cout << "Allocator(global new) ::: Alloc data(0x" << ptr << ")" << std::endl;
     return ptr;
 }
@@ -103,14 +103,14 @@ void operator delete[](void* ptr) noexcept
     if (!ptr) {
         return;
     };
-    auto* header = reinterpret_cast<netero::memck::MemBlockHeader*>(
-        (uintptr_t)ptr - sizeof(netero::memck::MemBlockHeader));
-    if (g_memcorruption_detection && header->footer->magic != netero::memck::footerMagic) {
+    auto* header = reinterpret_cast<Netero::Memck::MemBlockHeader*>(
+        (uintptr_t)ptr - sizeof(Netero::Memck::MemBlockHeader));
+    if (g_memcorruption_detection && header->footer->magic != Netero::Memck::footerMagic) {
         std::cout << "Allocator(global new) data(0x" << ptr << ") ::: Corrupted." << std::endl;
         BREAK;
         return;
     }
-    if (g_memcorruption_detection && header->magic != netero::memck::headerMagic) {
+    if (g_memcorruption_detection && header->magic != Netero::Memck::headerMagic) {
         std::cout << "Allocator(global new) data(0x" << ptr
                   << ") ::: wrong pointer, this block in not managed bu the heap." << std::endl;
         BREAK;
@@ -132,8 +132,9 @@ void operator delete[](void* ptr) noexcept
     std::free(header);
 }
 
-namespace netero::memchk {
-void reportLeaks()
+namespace Netero::Memchk {
+
+void ReportLeaks()
 {
     std::scoped_lock<std::mutex> lock(g_allocMutex);
     size_t                       nb_block = 0;
@@ -151,15 +152,16 @@ void reportLeaks()
     }
 }
 
-void activate_memcorruption_detection()
+void ActivateMemCorruptionDetection()
 {
     std::scoped_lock<std::mutex> lock(g_allocMutex);
     g_memcorruption_detection = true;
 }
 
-void deactivate_memcorruption_detection()
+void DeactivateMemCorruptionDetection()
 {
     std::scoped_lock<std::mutex> lock(g_allocMutex);
     g_memcorruption_detection = false;
 }
-} // namespace netero::memchk
+
+} // namespace Netero::Memchk

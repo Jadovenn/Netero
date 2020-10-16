@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-namespace netero::memck {
+namespace Netero::Memck {
 
 constexpr uint32_t headerMagic = 0xDEADBEEF;
 constexpr uint32_t footerMagic = 0x1BADB002;
@@ -23,4 +23,5 @@ struct MemBlockHeader {
     struct MemBlockHeader* prev;
     MemBlockFooter*        footer;
 };
-} // namespace netero::memck
+
+} // namespace Netero::Memck

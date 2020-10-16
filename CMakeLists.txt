@@ -119,7 +119,7 @@ if (NETERO_GRAPHICS)
 endif (NETERO_GRAPHICS)
 
 if (NETERO_MEMCHECK)
-    add_subdirectory(modules/memcheck)
+    add_subdirectory(modules/Memcheck)
 endif (NETERO_MEMCHECK)
 
 if (NETERO_SAMPLES)
