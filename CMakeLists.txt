@@ -108,7 +108,7 @@ if (NETERO_AUDIO)
 endif (NETERO_AUDIO)
 
 if (NETERO_CONSOLE)
-    add_subdirectory(modules/console)
+    add_subdirectory(modules/Console)
 endif (NETERO_CONSOLE)
 
 if (NETERO_GRAPHICS)

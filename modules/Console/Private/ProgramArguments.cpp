@@ -3,7 +3,7 @@
  * see LICENSE.txt
  */
 
-#include <netero/logger.hpp>
+#include <Netero/Logger.hpp>
 #include <Netero/ProgramArguments.hpp>
 
 namespace Netero::Console {
@@ -24,8 +24,7 @@ void ProgramArguments::ParserExecute(const int argc, const char** argv)
             auto& argument = myArguments[argument_state_idx];
             result = ParserConsumeInput(argv[idx], argument);
             if (result & ParserState::ERROR) {
-                LOG << "Unexpected " << std::get<1>(argument) << ": " << argv[idx]
-                          << std::endl;
+                LOG << "Unexpected " << std::get<1>(argument) << ": " << argv[idx] << std::endl;
                 myUnexpectedCount += 1;
             }
         }
