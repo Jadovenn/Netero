@@ -11,8 +11,8 @@ message(STATUS "Configure Netero libs")
 ##  Sources
 ##====================================
 
-set(CORE_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private)
-set(CORE_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
+set(CORE_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
+set(CORE_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Public)
 
 list(APPEND PUBLIC_HEADER
         ## Core
