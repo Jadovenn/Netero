@@ -69,3 +69,14 @@ TEST(NeteroConsole, ProgramArgument_compilation)
     LOG << name << " is " << age << " years old." << std::endl;
     LOG << "The target host is " << target.host << " on port " << target.port;
 }
+
+TEST(NeteroConsole, ProgramArgument_test_wrong_option)
+{
+    const char*                      args[] = { "test_console_usage", "-fo", "foobar", nullptr };
+    Netero::Console::ArgumentsParser programArguments;
+    programArguments.AddArgument<VersionOption>();
+    programArguments.AddArgument<ColorArgument>();
+
+    programArguments.Execute(3, args);
+    EXPECT_EQ(programArguments.GetUnexpectedArgumentsCount(), 2);
+}

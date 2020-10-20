@@ -81,9 +81,6 @@ class Option: public Argument {
 
     unsigned Parse(const char* aToken) final
     {
-        if (aToken[0] != '-') {
-            return ParserState::PUSH_STATE;
-        }
         auto option = GetOptionVariant();
         if (option.first == aToken || option.second == aToken) {
             myIsPresent = true;
