@@ -32,8 +32,12 @@ class Logger {
         return *this->_stream;
     }
 
+    operator std::ostream&() { return (*_stream); }
+
     friend Logger& Log(Logger& logger, Level n);
 };
+
+#define Endl "\n"
 
 Logger&        Log(Logger& logger, Level n);
 extern Logger* DefaultGlobalLogger;

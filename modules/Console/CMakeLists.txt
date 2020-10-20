@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.11...3.16)
+cmake_minimum_required(VERSION 3.11...3.16)
 project(NeteroConsole
         VERSION 0.1.0
         DESCRIPTION "Netero console module"
@@ -14,10 +14,12 @@ set(CONSOLE_PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private)
 set(CONSOLE_PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Public)
 
 set(PUBLIC_HEADER
-        Public/Netero/ProgramArguments.hpp)
+        Public/Netero/Console/Arguments.hpp
+        Public/Netero/Console/ArgumentsParser.hpp)
 
 set(SRCS
-        Private/ProgramArguments.cpp)
+        Private/Console/Arguments.cpp
+        Private/Console/ArgumentParser.cpp)
 
 ##====================================
 ##  Target
@@ -28,13 +30,13 @@ add_dependencies(NeteroConsole Netero)
 target_compile_features(NeteroConsole PUBLIC cxx_std_17)
 target_include_directories(NeteroConsole
         PUBLIC
-            $<INSTALL_INTERFACE:include>
-            $<BUILD_INTERFACE:${CONSOLE_PUBLIC}>
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CONSOLE_PUBLIC}>
         PRIVATE
-            $<BUILD_INTERFACE:${CONSOLE_PRIVATE}>)
+        $<BUILD_INTERFACE:${CONSOLE_PRIVATE}>)
 target_link_libraries(NeteroConsole
         PUBLIC
-            Netero)
+        Netero)
 
 add_library(Netero::Console ALIAS NeteroConsole)
 

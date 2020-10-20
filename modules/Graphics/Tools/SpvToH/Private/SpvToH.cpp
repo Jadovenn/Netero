@@ -5,8 +5,10 @@
 
 #include "SpvToH.hpp"
 
+#include <Netero/Console/ArgumentsParser.hpp>
 #include <Netero/Logger.hpp>
-#include <Netero/ProgramArguments.hpp>
+
+#include "SpvToHArguments.hpp"
 
 constexpr char const* OPTION_HELP = "-h";
 constexpr char const* OPTION_HELP_DETAILED = "--help";
@@ -36,44 +38,48 @@ void ShowUsage(const char* aProgramName)
         << std::endl;
 }
 
-void ConfigureProgramArguments(Netero::Console::ProgramArguments& someProgramArguments)
+void ConfigureProgramArguments(Netero::Console::ArgumentsParser& anArgumentsParser)
 {
-    someProgramArguments.AddOption(OPTION_HELP, OPTION_HELP_DETAILED);
-
-    someProgramArguments.AddArgument(Netero::Console::ProgramArgumentType::OPTIONS, OPTION, "");
-    someProgramArguments.AddArgument(Netero::Console::ProgramArgumentType::ARGUMENT,
-                                     SHADER_NAME,
-                                     "[^:]+");
-    someProgramArguments.AddArgument(Netero::Console::ProgramArgumentType::ARGUMENT,
-                                     INPUT_PATH,
-                                     "[^:]+(.spv)");
-    someProgramArguments.AddArgument(Netero::Console::ProgramArgumentType::ARGUMENT,
-                                     OUTPUT_PATH,
-                                     "[^:]+(.h)");
+    anArgumentsParser.SetDescription(
+        "Translate a precompiled spv's shader formatted in c to a valid .h header file.");
+    anArgumentsParser.AddArgument<HelpOption>();
+    anArgumentsParser.AddArgument<ShaderNameArgument>();
+    anArgumentsParser.AddArgument<InputPathArgument>();
+    anArgumentsParser.AddArgument<OutputPathArgument>();
+    anArgumentsParser.SetFooter(
+        "Example:\nSpvToH DefaultVertexShader DefaultVertexShader.c_spv DefaultVertexShader.h");
 }
 
 int main(int argc, const char** argv)
 {
-    Netero::Console::ProgramArguments programArguments;
-    ConfigureProgramArguments(programArguments);
-    programArguments.Parse(argc, argv);
+    Netero::Console::ArgumentsParser argumentsParser;
+    ConfigureProgramArguments(argumentsParser);
+    argumentsParser.Execute(argc, argv);
 
-    if (programArguments.GetAsBool(OPTION_HELP)) {
-        ShowUsage(programArguments.ProgramName());
+    if (argumentsParser.IsPresent<HelpOption>()) {
+        argumentsParser.ShowUsage();
         return 0;
     }
-    if (programArguments.UnexpectedCount() || !programArguments.MissingArgs().empty()) {
-        const auto& missingArgs = programArguments.MissingArgs();
+    if (argumentsParser.GetUnexpectedArgumentsCount() ||
+        argumentsParser.GetMissingArgumentsCount()) {
+        const auto& unexpectedArgs = argumentsParser.GetUnexpectedArguments();
+        for (const auto& unexpectedArg : unexpectedArgs) {
+            LOG << "Unexpected";
+            if (!unexpectedArg.first.empty()) {
+                LOG << " " << unexpectedArg.first;
+            }
+            LOG << " : " << unexpectedArg.second << std::endl;
+        }
+        const auto& missingArgs = argumentsParser.GetMissingArguments();
         for (const auto& missingArg : missingArgs) {
             LOG << "Missing: " << missingArg << std::endl;
         }
-        LOG << "" << std::endl;
-        ShowUsage(programArguments.ProgramName());
+        argumentsParser.ShowUsage();
         return 1;
     }
 
-    auto*             input_file_path = programArguments.GetAsStrings(INPUT_PATH);
-    std::ifstream     input_file(input_file_path->front(), std::ios::ate | std::ios::binary);
+    auto              input_file_path = argumentsParser.Get<InputPathArgument>();
+    std::ifstream     input_file(input_file_path, std::ios::ate | std::ios::binary);
     std::vector<char> input_file_data;
     unsigned          input_word_count = 0;
 
@@ -83,24 +89,24 @@ int main(int argc, const char** argv)
         input_file.close();
     }
     else {
-        LOG_ERROR << "Could not open " << input_file_path->front() << std::endl;
+        LOG_ERROR << "Could not open " << input_file_path << std::endl;
         return 1;
     }
 
-    auto* symbol_suffix = programArguments.GetAsStrings(SHADER_NAME);
-    auto* output_file_path = programArguments.GetAsStrings(OUTPUT_PATH);
-    auto  output_file_name = SpvToH::ExtractFileNameWithoutExtension(output_file_path->front());
-    std::ofstream output_file(output_file_path->front(), std::ios::trunc);
+    auto          symbol_suffix = argumentsParser.Get<ShaderNameArgument>();
+    auto          output_file_path = argumentsParser.Get<OutputPathArgument>();
+    auto          output_file_name = SpvToH::ExtractFileNameWithoutExtension(output_file_path);
+    std::ofstream output_file(output_file_path, std::ios::trunc);
 
     if (output_file.is_open()) {
         SpvToH::PrintNeteroHeader(output_file);
         SpvToH::PrintHeaderGuardPrefix(output_file, output_file_name);
-        SpvToH::EmitSymbols(output_file, symbol_suffix->front(), input_file_data, input_word_count);
+        SpvToH::EmitSymbols(output_file, symbol_suffix, input_file_data, input_word_count);
         SpvToH::PrintHeaderGuardSuffix(output_file, output_file_name);
         output_file.close();
     }
     else {
-        LOG_ERROR << "Could not open " << output_file_path->front() << std::endl;
+        LOG_ERROR << "Could not open " << output_file_path << std::endl;
         return 1;
     }
     return 0;

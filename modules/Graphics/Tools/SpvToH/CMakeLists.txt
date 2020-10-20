@@ -12,6 +12,7 @@ message(STATUS "Configure Netero SpvToH tool.")
 
 set(SRCS
         Private/SpvToH.hpp
+        Private/SpvToHArguments.hpp
         Private/SpvToH.cpp
         Private/SpvToHUtility.cpp)
 
@@ -24,8 +25,8 @@ add_dependencies(SpvToH Netero NeteroConsole)
 target_compile_features(SpvToH PUBLIC cxx_std_17)
 target_include_directories(SpvToH
         PUBLIC
-            $<BUILD_INTERFACE:${Netero_INCLUDE_DIRS}>)
+        $<BUILD_INTERFACE:${Netero_INCLUDE_DIRS}>)
 target_link_libraries(SpvToH
         PUBLIC
-            Netero
-            NeteroConsole)
+        Netero
+        NeteroConsole)
