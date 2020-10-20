@@ -29,7 +29,7 @@ void ArgumentsParser::Execute(int argc, const char** argv)
                 result = ParserState::UNEXPECTED_ARGUMENT | ParserState::CONSUMED;
             }
         }
-        else if (argument_state_idx < myArguments.size()) {
+        else if (argument_state_idx < myPositionalArguments.size()) {
             auto& argument = myPositionalArguments[argument_state_idx];
             result = argument->Parse(argv[idx]);
             if (result & ParserState::ERROR) {
@@ -53,7 +53,7 @@ void ArgumentsParser::Execute(int argc, const char** argv)
             idx += 1;
         }
     }
-    for (unsigned idx = argument_state_idx; idx < myArguments.size(); ++idx) {
+    for (unsigned idx = argument_state_idx; idx < myPositionalArguments.size(); ++idx) {
         auto& argument = myArguments[idx];
         myMissingArguments.emplace_back(argument->GetName());
     }
