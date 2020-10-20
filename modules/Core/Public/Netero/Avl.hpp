@@ -188,38 +188,36 @@ class Avl {
     using NodeAllocator = typename Allocator::template rebind<node>::other;
 
     public:
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
     /**
      * @brief iterator for the container to be compatible
      * with std function and for-range based loop
      * @details it build a list following a in-order traversal of the tree and iterate over it
      * @warning This is bullshit, need to rewrite a tree class for netero
      */
-    class iterator: public std::iterator<std::input_iterator_tag, T, T, const T *, const T &> {
+    class iterator {
         public:
-        /**
-              * @brief build an iterator from a tree and start at the bottom left
-              * @param tree - to iterate over
-              */
-        explicit iterator(Avl &tree)
-        {
-            tree.InOrder([&](const auto &e) { list.push_back(e); });
-            idx = list.front();
-            list.pop_front();
-            isListEmpty = false;
-        }
+        using difference_type = T;
+        using value_type = T;
+        using pointer = const T *;
+        using reference = const T &;
+        using iterator_category = std::forward_iterator_tag;
 
         /**
-         * @brief build an iterator from a specific value
-         * @details this iterator will consider this value as
-         * a last value to iterate
-         * @param last
+         * @brief build an iterator from a tree and start at the bottom left
+         * @param tree - to iterate over
          */
-        explicit iterator(T last)
+        explicit iterator(Avl &tree)
         {
-            idx = last;
-            isListEmpty = false;
+            auto *current = tree.root;
+            while (current->lhs) {
+                current = current->lhs;
+            }
+            myPrev = nullptr;
+            myCurrent = current;
+            myNext = GetNext();
         }
+
+        iterator(): myCurrent(nullptr), myNext(nullptr) {}
 
         /**
          * @brief increment the iterator to the next value
@@ -227,40 +225,90 @@ class Avl {
          */
         iterator &operator++()
         {
-            if (!list.empty()) {
-                idx = list.front();
-                list.pop_front();
-            }
-            else {
-                isListEmpty = true;
-            }
+            myPrev = myCurrent;
+            myCurrent = myNext;
+            myNext = GetNext();
             return *this;
+        }
+
+        iterator operator++(int)
+        {
+            iterator tmp(myCurrent);
+            myPrev = myCurrent;
+            myCurrent = myNext;
+            myNext = GetNext();
+            return tmp;
         }
 
         /**
          * @brief return the index value
          * @return
          */
-        const T &operator*() const { return idx; }
+        const T &operator*() const { return *myCurrent->data; }
 
         /**
          * @brief eql comparator to another iterator
          * @param other - other iterator
          * @return true if equal, false otherwise
          */
-        bool operator==(iterator other) const { return idx == other.idx && isListEmpty; }
+        bool operator==(iterator &other) const
+        {
+            return myCurrent == other.myCurrent && myNext == other.myNext;
+        }
 
         /**
          * @brief not eql comparator to another iterator
          * @param other - other iterator
          * @return true if not eql, false otherwise
          */
-        bool operator!=(iterator other) const { return !isListEmpty; }
+        bool operator!=(iterator &other) const { return !(*this == other); }
+
+        protected:
+        explicit iterator(node *aNode)
+        {
+            myCurrent = aNode;
+            myPrev = aNode->parent;
+            myNext = GetNext();
+        }
 
         private:
-        bool         isListEmpty;
-        T            idx;
-        std::list<T> list;
+        node *GetNext()
+        {
+            if (!myCurrent) {
+                return nullptr;
+            }
+            if (myCurrent->lhs && *myCurrent->data < *myCurrent->lhs->data) {
+                auto *lhs = myCurrent->lhs;
+                while (lhs->lhs) {
+                    lhs = lhs->lhs;
+                }
+                return lhs;
+            }
+            else if (myCurrent->rhs && *myCurrent->data < *myCurrent->rhs->data) {
+                auto *lhs = myCurrent->rhs;
+                while (lhs->lhs) {
+                    lhs = lhs->lhs;
+                }
+                return lhs;
+            }
+            auto *parent = myCurrent->parent;
+            while (parent) {
+                if (*myCurrent->data < *parent->data) {
+                    return parent;
+                }
+                if (parent->rhs) {
+                    if (*myCurrent->data < *parent->rhs->data) {
+                        return parent->rhs;
+                    }
+                }
+                parent = parent->parent;
+            }
+            return parent;
+        }
+
+        node *myCurrent;
+        node *myNext;
+        node *myPrev;
     };
     friend iterator;
     /**
@@ -273,12 +321,7 @@ class Avl {
      * @brief return an iterator to the end of the tree following the in-order traversal
      * @return iterator
      */
-    iterator end()
-    {
-        T data;
-        this->InOrder([&](const auto &e) { data = e; });
-        return iterator(data);
-    }
+    iterator end() { return iterator(); }
 
     // default ctor
     Avl(): root(nullptr) {};
