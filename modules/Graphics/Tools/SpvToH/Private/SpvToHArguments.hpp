@@ -48,7 +48,7 @@ class InputPathArgument final: public Netero::Console::PositionalArgument<std::s
 
 class OutputPathArgument final: public Netero::Console::PositionalArgument<std::string> {
     public:
-    const std::string GetName() final { return "<input_path>"; }
+    const std::string GetName() final { return "<output_path>"; }
 
     const std::string GetDescription() final { return ".h output file path."; }
 

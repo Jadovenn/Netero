@@ -10,34 +10,6 @@
 
 #include "SpvToHArguments.hpp"
 
-constexpr char const* OPTION_HELP = "-h";
-constexpr char const* OPTION_HELP_DETAILED = "--help";
-constexpr char const* OPTION = "[OPTION]";
-constexpr char const* SHADER_NAME = "<shader_name>";
-constexpr char const* INPUT_PATH = "<input_path>";
-constexpr char const* OUTPUT_PATH = "<output_path>";
-
-void ShowUsage(const char* aProgramName)
-{
-    LOG << "Usage: " << aProgramName << " <shader_name> <input_path> <output_path>" << std::endl;
-    LOG << "Translate a precompiled spv's shader formatted in c to a valid .h header file."
-        << std::endl;
-    LOG << "" << std::endl;
-    LOG << "Options:" << std::endl;
-    LOG << "-h, --help    Show this help." << std::endl;
-    LOG << "" << std::endl;
-    LOG << "Arguments:" << std::endl;
-    LOG << "" << std::endl;
-    LOG << "<shader_name>    Shader's name to emit <shader_name>Data and <shader_name>DataCount symbols"
-        << std::endl;
-    LOG << "<input_path>     .c_spv input file path." << std::endl;
-    LOG << "<output_path>    .h output file path." << std::endl;
-    LOG << "" << std::endl;
-    LOG << "Example:" << std::endl;
-    LOG << aProgramName << " DefaultVertexShader DefaultVertexShader.c_spv DefaultVertexShader.h"
-        << std::endl;
-}
-
 void ConfigureProgramArguments(Netero::Console::ArgumentsParser& anArgumentsParser)
 {
     anArgumentsParser.SetDescription(
