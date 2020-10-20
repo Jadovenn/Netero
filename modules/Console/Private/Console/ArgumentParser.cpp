@@ -30,7 +30,7 @@ void ArgumentsParser::Execute(int argc, const char** argv)
             }
         }
         else if (argument_state_idx < myArguments.size()) {
-            auto& argument = myArguments[argument_state_idx];
+            auto& argument = myPositionalArguments[argument_state_idx];
             result = argument->Parse(argv[idx]);
             if (result & ParserState::ERROR) {
                 myUnexpectedArguments.emplace_back(argument->GetName(), argv[idx]);
