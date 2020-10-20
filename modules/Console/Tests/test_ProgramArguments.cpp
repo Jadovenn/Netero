@@ -11,7 +11,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(NeteroConsole, ProgramArgument_basic_usage)
+TEST(NeteroConsole, ArgumentParser_usage_without_option_test)
 {
     const char* args[] = { "test_console_usage", "blue", "foo@bar.com", nullptr };
     Netero::Console::ArgumentsParser programArguments;
@@ -29,17 +29,18 @@ TEST(NeteroConsole, ProgramArgument_basic_usage)
     EXPECT_TRUE(email == std::string(args[2]));
 }
 
-TEST(NeteroConsole, ProgramArgument_missing_arg)
+TEST(NeteroConsole, ArgumentParser_missing_argument_test)
 {
     const char*                      args[] = { "test_console_usage" };
     Netero::Console::ArgumentsParser programArgument;
     programArgument.AddArgument<ColorArgument>();
     programArgument.AddArgument<EmailAddressArgument>();
+    EXPECT_FALSE(programArgument.AddArgument<EmailAddressArgument>());
     programArgument.Execute(1, args);
     EXPECT_GT(programArgument.GetMissingArgumentsCount(), 1);
 }
 
-TEST(NeteroConsole, ProgramArgument_unxepected_arg)
+TEST(NeteroConsole, ArgumentParser_no_argument_test)
 {
     const char*                      args[] = { "test_console_usage", "fo", "foobar", nullptr };
     Netero::Console::ArgumentsParser programArguments;
@@ -48,7 +49,7 @@ TEST(NeteroConsole, ProgramArgument_unxepected_arg)
     EXPECT_EQ(programArguments.GetUnexpectedArgumentsCount(), 2);
 }
 
-TEST(NeteroConsole, ProgramArgument_compilation)
+TEST(NeteroConsole, ArgumentParser_correct_usage_test)
 {
     Netero::Console::ArgumentsParser programArguments;
     const char* args[] = { "ConsoleArguments", "-v", "Paul", "42", "8.8.8.8:80", nullptr };
@@ -59,7 +60,6 @@ TEST(NeteroConsole, ProgramArgument_compilation)
     programArguments.AddArgument<TargetHostArgument>();
     programArguments.SetDescription("A short description.");
     programArguments.Execute(5, args);
-    programArguments.ShowUsage();
     if (programArguments.IsPresent<VersionOption>()) {
         LOG << "This is version 1.0" << std::endl;
     }
@@ -70,13 +70,41 @@ TEST(NeteroConsole, ProgramArgument_compilation)
     LOG << "The target host is " << target.host << " on port " << target.port;
 }
 
-TEST(NeteroConsole, ProgramArgument_test_wrong_option)
+TEST(NeteroConsole, ArgumentParser_wrong_option_test)
 {
-    const char*                      args[] = { "test_console_usage", "-fo", "foobar", nullptr };
+    const char* args[] = { "test_console_usage", "-fo", "red", "foobar", nullptr };
     Netero::Console::ArgumentsParser programArguments;
     programArguments.AddArgument<VersionOption>();
     programArguments.AddArgument<ColorArgument>();
 
-    programArguments.Execute(3, args);
+    programArguments.Execute(4, args);
     EXPECT_EQ(programArguments.GetUnexpectedArgumentsCount(), 2);
+}
+
+TEST(NeteroConsole, ArgumentParser_wrong_argument_test)
+{
+    const char* args[] = { "test_console_usage", "-fo", "yellow", "foobar", nullptr };
+    Netero::Console::ArgumentsParser programArguments;
+    programArguments.AddArgument<VersionOption>();
+    programArguments.AddArgument<ColorArgument>();
+
+    programArguments.Execute(4, args);
+    EXPECT_EQ(programArguments.GetUnexpectedArgumentsCount(), 3);
+    EXPECT_EQ(programArguments.GetMissingArgumentsCount(), 0);
+}
+
+TEST(NeteroConsole, ArgumentParser_usage_test)
+{
+    const char* args[] = { "test_console_usage", "-v",         "hello", "12",
+                           "foo@bar.com",        "8.8.8.8:80", "red",   nullptr };
+
+    Netero::Console::ArgumentsParser argumentsParser;
+    argumentsParser.AddArgument<VersionOption>();
+    argumentsParser.AddArgument<NameArgument>();
+    argumentsParser.AddArgument<AgeArgument>();
+    argumentsParser.AddArgument<EmailAddressArgument>();
+    argumentsParser.AddArgument<TargetHostArgument>();
+    argumentsParser.AddArgument<ColorArgument>();
+    argumentsParser.Execute(7, args);
+    argumentsParser.ShowUsage();
 }

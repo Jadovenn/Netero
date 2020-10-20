@@ -55,8 +55,11 @@ class ArgumentsParser {
     template<typename Arg,
              typename... CtorArgs,
              typename = std::enable_if<std::is_base_of<Argument, Arg>::value>>
-    void AddArgument(CtorArgs... someArguments)
+    bool AddArgument(CtorArgs... someArguments)
     {
+        if (myArguments.find(ArgumentTypeId::GetTypeID<Arg>()) != myArguments.end()) {
+            return false;
+        }
         auto argument = std::make_unique<Arg>(someArguments...);
         if (std::is_base_of<Option, Arg>::value) {
             myOptions.emplace_back(dynamic_cast<Argument*>(argument.get()));
@@ -66,6 +69,7 @@ class ArgumentsParser {
         }
         myArguments.emplace(ArgumentTypeId::GetTypeID<Arg>(),
                             dynamic_cast<Argument*>(argument.release()));
+        return true;
     }
 
     [[nodiscard]] const std::vector<std::string>& GetMissingArguments() const
