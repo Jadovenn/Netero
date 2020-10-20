@@ -52,7 +52,7 @@ class PositionalArgument: public Argument {
         }
         myIsPresent = AssignMatchResult(match);
         if (!myIsPresent) {
-            return ParserState::ERROR | ParserState::PUSH_STATE;
+            return ParserState::ERROR | ParserState::PUSH_STATE | ParserState::CONSUMED;
         }
         return ParserState::PUSH_STATE | ParserState::CONSUMED | ParserState::MANDATORY_ARGUMENT;
     }

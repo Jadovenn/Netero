@@ -108,3 +108,13 @@ TEST(NeteroConsole, ArgumentParser_usage_test)
     argumentsParser.Execute(7, args);
     argumentsParser.ShowUsage();
 }
+
+TEST(NeteroConsole, ArgumentParser_assignMatchResult_error_test)
+{
+    const char* args[] = { "test_console_usage", "8.8.8.8:70000", nullptr };
+
+    Netero::Console::ArgumentsParser argumentsParser;
+    argumentsParser.AddArgument<TargetHostArgument>();
+    argumentsParser.Execute(2, args);
+    EXPECT_EQ(argumentsParser.GetUnexpectedArgumentsCount(), 1);
+}

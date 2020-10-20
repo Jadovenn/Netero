@@ -84,6 +84,9 @@ bool PositionalArgument<TargetHost>::AssignMatchResult(std::cmatch &aMatchResult
 {
     myArgumentValue.host = aMatchResult[1];
     myArgumentValue.port = std::stoi(aMatchResult[2]);
+    if (myArgumentValue.port > 65535) {
+        return false;
+    }
     return true;
 }
 
