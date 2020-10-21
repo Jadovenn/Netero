@@ -48,7 +48,18 @@ TEST(NeteroCore, Avl_insert_emplace_test)
     EXPECT_EQ(it, tree.end());
     it = tree.Emplace(6);
     EXPECT_EQ(*it, 6);
-    tree.Remove(tree.end());
+}
+
+TEST(NeteroCore, Avl_remove_test)
+{
+    Netero::Avl<int> tree;
+    tree.Insert(4);
+    auto it = tree.Find(4);
+    EXPECT_EQ(*it, 4);
+    tree.Remove(it);
+    it = tree.Find(4);
+    EXPECT_EQ(it, tree.end());
+    EXPECT_NO_FATAL_FAILURE(tree.Remove(it));
 }
 
 TEST(NeteroCore, Avl_iterator_test)
