@@ -23,24 +23,68 @@ TEST(NeteroCore, avl_general_usage)
     avl_tree.Insert(8);
     avl_tree.Insert(3);
     avl_tree.Insert(4);
+    avl_tree.Insert(9);
+    avl_tree.Insert(10);
+    avl_tree.Insert(11);
+
     EXPECT_NE(avl_tree.Find(1), avl_tree.end());
     EXPECT_EQ(avl_tree.Find(23), avl_tree.end());
     avl_tree.Remove(1);
     avl_tree.Remove(2);
     avl_tree.Remove(12);
     EXPECT_EQ(avl_tree.Find(1), avl_tree.end());
+    avl_tree.Insert(5);
+    avl_tree.Insert(6);
+    avl_tree.Insert(7);
+}
+
+TEST(NeteroCore, Avl_insert_emplace_test)
+{
+    Netero::Avl<int> tree;
+    tree.Insert(4);
+    auto it = tree.Insert(5);
+    EXPECT_EQ(*it, 5);
+    it = tree.Insert(5);
+    EXPECT_EQ(it, tree.end());
+    it = tree.Emplace(6);
+    EXPECT_EQ(*it, 6);
+    tree.Remove(tree.end());
 }
 
 TEST(NeteroCore, Avl_iterator_test)
 {
-    Netero::Avl<int> tree;
+    Netero::Avl<int> linearInsertTree;
 
     for (unsigned idx = 100; idx > 0; idx--) {
-        tree.Insert(idx);
+        linearInsertTree.Insert(idx);
     }
+    for (const auto& number : linearInsertTree) {
+        LOG_INFO << number << std::endl;
+    }
+
+    Netero::Avl<int> tree;
+
+    tree.Insert(5);
+    tree.Insert(2);
+    tree.Insert(1);
+    tree.Insert(12);
+    tree.Insert(24);
+    tree.Insert(8);
+    tree.Insert(3);
+    tree.Insert(4);
+    tree.Insert(9);
+    tree.Insert(10);
+    tree.Insert(11);
+
     for (const auto& number : tree) {
         LOG_INFO << number << std::endl;
     }
+
+    auto it = tree.begin();
+    EXPECT_EQ(*it, 1);
+    auto postIt = it++;
+    EXPECT_EQ(*postIt, 1);
+    EXPECT_EQ(*it, 2);
 }
 
 TEST(NeteroCore, Avl_copy_operator_test)
@@ -54,11 +98,37 @@ TEST(NeteroCore, Avl_copy_operator_test)
     EXPECT_NE(copyTree.Find(2), tree.end());
 }
 
-TEST(NeteroCore, avl_ctor_and_operator)
+TEST(NeteroCore, Avl_copy_move_ctor)
 {
-    Netero::Avl<int> tree1;
-    tree1.Insert(1);
-    tree1.Insert(2);
-    tree1.Insert(3);
-    tree1.Insert(4);
+    Netero::Avl<int> tree;
+    tree.Insert(1);
+    tree.Insert(2);
+    Netero::Avl<int> copy(tree);
+    EXPECT_NE(copy.Find(2), copy.end());
+    Netero::Avl<int> move(std::move(copy));
+    EXPECT_NE(move.Find(1), move.end());
+    EXPECT_EQ(copy.Find(2), copy.end());
+    copy = std::move(move);
+    EXPECT_EQ(move.Find(1), move.end());
+    EXPECT_NE(copy.Find(2), copy.end());
+}
+
+TEST(NeteroCore, Avl_comparison_op)
+{
+    Netero::Avl<int> a;
+    a.Insert(1);
+    a.Insert(4);
+    a.Insert(-5);
+    Netero::Avl<int> b;
+    b.Insert(1);
+    b.Insert(4);
+    b.Insert(-5);
+    Netero::Avl<int> c;
+    c.Insert(1);
+    c.Insert(4);
+    c.Insert(100);
+
+    EXPECT_TRUE(a == b);
+    EXPECT_TRUE(a != c);
+    EXPECT_FALSE(b == c);
 }

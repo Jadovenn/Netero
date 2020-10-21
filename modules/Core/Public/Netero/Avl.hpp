@@ -205,11 +205,17 @@ class Avl {
         explicit iterator(const Avl &tree)
         {
             auto *current = tree.myRoot;
-            while (current->myLhs) {
-                current = current->myLhs;
+            if (!tree.myRoot) {
+                myCurrent = nullptr;
+                myNext = nullptr;
             }
-            myCurrent = current;
-            myNext = GetNext();
+            else {
+                while (current->myLhs) {
+                    current = current->myLhs;
+                }
+                myCurrent = current;
+                myNext = GetNext();
+            }
         }
 
         iterator(): myCurrent(nullptr), myNext(nullptr) {}
@@ -230,7 +236,6 @@ class Avl {
         }
 
         T &operator*() { return myCurrent->myData; }
-        T *operator->() { return myCurrent->myData; }
 
         /**
          * @brief eql comparator to another iterator
@@ -345,9 +350,28 @@ class Avl {
         return *this;
     }
 
-    bool operator==(const Avl<T> &other) { return this->myRoot == other.root; }
+    bool operator==(const Avl<T> &other)
+    {
+        auto thisIt = begin();
+        auto otherIt = other.begin();
 
-    bool operator!=(const Avl<T> &other) { return this->myRoot != other.root; }
+        while (thisIt != end()) {
+            if (otherIt == other.end()) {
+                return false;
+            }
+            if (*thisIt != *otherIt) {
+                return false;
+            }
+            ++thisIt;
+            ++otherIt;
+        }
+        if (otherIt == other.end()) {
+            return true;
+        }
+        return false;
+    }
+
+    bool operator!=(const Avl<T> &other) { return !(*this == other); }
 
     virtual ~Avl()
     {
@@ -378,29 +402,26 @@ class Avl {
      * @param data - the new item to add
      */
     template<typename... DataCtorArgs>
-    void Emplace(DataCtorArgs... args)
+    iterator Emplace(DataCtorArgs... args)
     {
         Node *node = std::allocator_traits<NodeAllocator>::allocate(myNodeAllocator, 1);
         if (!node)
-            throw std::bad_alloc();
-        std::allocator_traits<NodeAllocator>::construct(myNodeAllocator,
-                                                        node,
-                                                        nullptr,
-                                                        std::forward(args)...);
-        InsertNode(node);
+            return end();
+        std::allocator_traits<NodeAllocator>::construct(myNodeAllocator, node, nullptr, args...);
+        return InsertNode(node);
     }
 
     /**
      * @brief add a new Node to the tree by copy
      * @param data - the new item to add
      */
-    void Insert(const T &aValue)
+    iterator Insert(const T &aValue)
     {
         Node *node = std::allocator_traits<NodeAllocator>::allocate(myNodeAllocator, 1);
         if (!node)
-            throw std::bad_alloc();
+            return end();
         std::allocator_traits<NodeAllocator>::construct(myNodeAllocator, node, nullptr, aValue);
-        InsertNode(node);
+        return InsertNode(node);
     }
 
     /**
@@ -417,23 +438,23 @@ class Avl {
     void Remove(const T &aData) { Remove(Find(aData)); }
 
     private:
-    void InsertNode(Node *aNode)
+    iterator InsertNode(Node *aNode)
     {
         if (!aNode) // Special case, given pointer is null
-            return;
+            return iterator();
         aNode->myRhs = nullptr;
         aNode->myLhs = nullptr;
         if (!myRoot) { // Special case, three is empty add new data as root
             myRoot = aNode;
             ComputeBalance(myRoot);
-            return;
+            return iterator(myRoot);
         }
         { // Regular case, allocate and find the right place to add a leaf
             Node *parent = myRoot;
             Node *idx = myRoot;
             while (idx) {
                 if (idx->myData == aNode->myData) { // Special case the node already exist
-                    return;
+                    return iterator();
                 }
                 if (idx->myData < aNode->myData) {
                     parent = idx;
@@ -456,6 +477,7 @@ class Avl {
         } // end regular case context
         // Now we can balance stuff here
         ComputeBalance(aNode->myParent);
+        return iterator(aNode);
     }
 
     void RemoveNode(Node *aNode)
