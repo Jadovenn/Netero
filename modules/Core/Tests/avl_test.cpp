@@ -14,6 +14,7 @@
 TEST(NeteroCore, avl_general_usage)
 {
     Netero::Avl<int> avl_tree;
+    EXPECT_TRUE(avl_tree.Empty());
 
     avl_tree.Insert(5);
     avl_tree.Insert(2);
@@ -36,6 +37,15 @@ TEST(NeteroCore, avl_general_usage)
     avl_tree.Insert(5);
     avl_tree.Insert(6);
     avl_tree.Insert(7);
+
+    avl_tree.Remove(5);
+    avl_tree.Remove(24);
+    avl_tree.Remove(8);
+    avl_tree.Remove(3);
+    avl_tree.Remove(4);
+    avl_tree.Remove(9);
+    avl_tree.Remove(10);
+    avl_tree.Remove(11);
 }
 
 TEST(NeteroCore, Avl_insert_emplace_test)
@@ -96,6 +106,10 @@ TEST(NeteroCore, Avl_iterator_test)
     auto postIt = it++;
     EXPECT_EQ(*postIt, 1);
     EXPECT_EQ(*it, 2);
+
+    Netero::Avl<int> emptyTree;
+    auto             emptyIt = emptyTree.begin();
+    EXPECT_EQ(emptyIt, emptyTree.end());
 }
 
 TEST(NeteroCore, Avl_copy_operator_test)
@@ -138,8 +152,18 @@ TEST(NeteroCore, Avl_comparison_op)
     c.Insert(1);
     c.Insert(4);
     c.Insert(100);
+    Netero::Avl<int> d;
+    d.Insert(1);
+    d.Insert(4);
+    d.Insert(-5);
+    d.Insert(100);
+    Netero::Avl<int> e;
+    e.Insert(1);
+    e.Insert(4);
 
     EXPECT_TRUE(a == b);
     EXPECT_TRUE(a != c);
     EXPECT_FALSE(b == c);
+    EXPECT_FALSE(a == d);
+    EXPECT_FALSE(a == e);
 }

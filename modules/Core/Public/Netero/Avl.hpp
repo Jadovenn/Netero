@@ -379,12 +379,14 @@ class Avl {
         myRoot = nullptr;
     }
 
+    bool Empty() const { return myRoot == nullptr; }
+
     /**
      * @brief Find if the given item exist in the tree
      * @param data - the item to look for
      * @return true if it is found or false otherwise
      */
-    iterator Find(const T &aValue)
+    iterator Find(const T &aValue) const
     {
         for (Node *idx = myRoot; idx;) {
             if (idx->myData == aValue)
