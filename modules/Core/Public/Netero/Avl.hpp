@@ -26,77 +26,72 @@ template<class T,
          typename = std::enable_if<std::is_copy_constructible<T>::value>>
 class Avl {
     /**
-     * @brief structure representing a node in the tree,
-     * it hold the data provide by the client
+     * @brief Structure representing a node in the tree,
+     *        it hold the data provide by the client.
      */
-    struct node {
-        explicit node(T *data, node *parent = nullptr)
-            : balance(0), parent(parent), rhs(nullptr), lhs(nullptr), data(data)
+    struct Node {
+        template<typename... DataCtorArgs>
+        explicit Node(Node *myParent, DataCtorArgs... args)
+            : myBalance(0), myParent(myParent), myRhs(nullptr), myLhs(nullptr), myData(args...)
         {
         }
 
-        node(const node &) = delete;
-        node(node &&) = delete;
-        node &operator=(const node &) = delete;
-        node &operator=(node &&) = delete;
-
-        ~node()
-        {
-            //delete data;
-        }
+        Node(const Node &) = delete;
+        Node(Node &&) = delete;
+        Node &operator=(const Node &) = delete;
+        Node &operator=(Node &&) = delete;
 
         /**
-         * @brief compute the depth of a node recursively
-         *         by descending to all child of the node
+         * @brief compute the depth of a Node recursively by descending to all child of the Node
          * @return the depth
          */
-        int getDepth()
+        int GetDepth()
         {
-            if (!rhs && !lhs)
+            if (!myRhs && !myLhs)
                 return 0;
-            if (!rhs)
-                return lhs->getDepth() + 1;
-            else if (!lhs)
-                return rhs->getDepth() + 1;
+            if (!myRhs)
+                return myLhs->GetDepth() + 1;
+            else if (!myLhs)
+                return myRhs->GetDepth() + 1;
             else {
-                int x = lhs->getDepth() + 1;
-                int y = rhs->getDepth() + 1;
+                int x = myLhs->GetDepth() + 1;
+                int y = myRhs->GetDepth() + 1;
                 return x > y ? x : y;
             }
         }
 
         /**
-         * @brief compute the balance of a single node (rhs - lhs)
-         * @details instead of going recursively to the root
-         * it only compute the node, it does not balance the tree
+         * @brief compute the balance of a single Node (rhs - myLhs)
+         * @details instead of going recursively to the root it only
+         *          compute the Node, it does not balance the tree
          */
-        void singleBalance()
+        void SingleBalance()
         {
-            const int x = rhs ? rhs->getDepth() : -1;
-            const int y = lhs ? lhs->getDepth() : -1;
-            balance = x - y;
+            const int x = myRhs ? myRhs->GetDepth() : -1;
+            const int y = myLhs ? myLhs->GetDepth() : -1;
+            myBalance = x - y;
         }
 
-        int   balance; /**< Current balance of the node. */
-        node *parent;  /**< Pointer to the parent node. */
-        node *rhs;     /**< Pointer to the right subtree root. */
-        node *lhs;     /**< Pointer to left subtree root. */
-        T *   data;    /**< Data pointer. */
+        int   myBalance; /**< Current balance of the Node. */
+        Node *myParent;  /**< Pointer to the parent Node. */
+        Node *myRhs;     /**< Pointer to the right subtree root. */
+        Node *myLhs;     /**< Pointer to left subtree root. */
+        T     myData;    /**< Data pointer. */
     };
 
     /**
      * @brief compute the balance of a tree recursively
-     * @details it start from the node of the first call
+     * @details it start from the Node of the first call
      * and climb to the root of the tree, it does balance the tree
      * if necessary
      */
-    void computeBalance(node *item)
+    void ComputeBalance(Node *item)
     {
-        item->singleBalance();
-        if (item->balance == 2 || item->balance == -2)
-            this->balanceTree(item); // will call computeBalance again
-        else if (item->parent)
-            computeBalance(item->parent);
+        item->SingleBalance();
+        if (item->myBalance == 2 || item->myBalance == -2)
+            this->BalanceTree(item); // will call computeBalance again
+        else if (item->myParent)
+            ComputeBalance(item->myParent);
     }
 
     /**
@@ -106,30 +101,30 @@ class Avl {
      *          case 3: (2)(-1) the right subtree as a left subtree heavy
      *          case 4: (-2)(1) the left subtree as a right subtree heavy
      */
-    void balanceTree(node *item)
+    void BalanceTree(Node *item)
     {
-        if (item->balance == 2) {          // case 1 or 3
-            if (item->rhs->balance == 1) { // case 1
-                rotateLeft(item);
-                computeBalance(item);
+        if (item->myBalance == 2) {            // case 1 or 3
+            if (item->myRhs->myBalance == 1) { // case 1
+                RotateLeft(item);
+                ComputeBalance(item);
             }
-            else if (item->rhs->balance == -1) { // case 3
-                rotateRight(item->rhs);
-                node *subtree = rotateLeft(item);
-                subtree->lhs->singleBalance();
-                computeBalance(subtree->rhs);
+            else if (item->myRhs->myBalance == -1) { // case 3
+                RotateRight(item->myRhs);
+                Node *subtree = RotateLeft(item);
+                subtree->myLhs->SingleBalance();
+                ComputeBalance(subtree->myRhs);
             }
         }
-        else if (item->balance == -2) {     // case 2 or 4
-            if (item->lhs->balance == -1) { // case 2
-                rotateRight(item);
-                computeBalance(item);
+        else if (item->myBalance == -2) {       // case 2 or 4
+            if (item->myLhs->myBalance == -1) { // case 2
+                RotateRight(item);
+                ComputeBalance(item);
             }
-            else if (item->lhs->balance == 1) { // case 4
-                rotateLeft(item->lhs);
-                node *subtree = rotateRight(item);
-                subtree->lhs->singleBalance();
-                computeBalance(subtree->rhs);
+            else if (item->myLhs->myBalance == 1) { // case 4
+                RotateLeft(item->myLhs);
+                Node *subtree = RotateRight(item);
+                subtree->myLhs->SingleBalance();
+                ComputeBalance(subtree->myRhs);
             }
         }
     }
@@ -139,24 +134,24 @@ class Avl {
      * @param subtree is the root of a tree to rotate.
      * @return The new root of the subtree.
      */
-    node *rotateRight(node *subtree)
+    Node *RotateRight(Node *subtree)
     {
-        node *new_root = subtree->lhs;
-        new_root->parent = subtree->parent;
-        subtree->parent = new_root;
-        node *tmp_subRight = new_root->rhs;
-        new_root->rhs = subtree;
-        subtree->lhs = tmp_subRight;
+        Node *new_root = subtree->myLhs;
+        new_root->myParent = subtree->myParent;
+        subtree->myParent = new_root;
+        Node *tmp_subRight = new_root->myRhs;
+        new_root->myRhs = subtree;
+        subtree->myLhs = tmp_subRight;
         if (tmp_subRight) // update subRight parent to subtree
-            tmp_subRight->parent = subtree;
-        if (new_root->parent) {
-            if (new_root->parent->rhs == subtree)
-                new_root->parent->rhs = new_root;
-            else if (new_root->parent->lhs == subtree)
-                new_root->parent->lhs = new_root;
+            tmp_subRight->myParent = subtree;
+        if (new_root->myParent) {
+            if (new_root->myParent->myRhs == subtree)
+                new_root->myParent->myRhs = new_root;
+            else if (new_root->myParent->myLhs == subtree)
+                new_root->myParent->myLhs = new_root;
         }
         else
-            this->root = new_root;
+            myRoot = new_root;
         return new_root; // no balance recomputing at this point
     }
 
@@ -165,27 +160,27 @@ class Avl {
      * @param subtree - root of a subtree
      * @return new root of the subtree
      */
-    node *rotateLeft(node *subtree)
+    Node *RotateLeft(Node *subtree)
     {
-        node *new_root = subtree->rhs;
-        new_root->parent = subtree->parent;
-        subtree->parent = new_root;
-        node *tmp_subLeft = new_root->lhs;
-        new_root->lhs = subtree;
-        subtree->rhs = tmp_subLeft;
+        Node *new_root = subtree->myRhs;
+        new_root->myParent = subtree->myParent;
+        subtree->myParent = new_root;
+        Node *tmp_subLeft = new_root->myLhs;
+        new_root->myLhs = subtree;
+        subtree->myRhs = tmp_subLeft;
         if (tmp_subLeft) // update subLeft parent to subtree
-            tmp_subLeft->parent = subtree;
-        if (new_root->parent) {
-            if (new_root->parent->rhs == subtree)
-                new_root->parent->rhs = new_root;
-            else if (new_root->parent->lhs == subtree)
-                new_root->parent->lhs = new_root;
+            tmp_subLeft->myParent = subtree;
+        if (new_root->myParent) {
+            if (new_root->myParent->myRhs == subtree)
+                new_root->myParent->myRhs = new_root;
+            else if (new_root->myParent->myLhs == subtree)
+                new_root->myParent->myLhs = new_root;
         }
         else
-            this->root = new_root;
+            this->myRoot = new_root;
         return new_root; // no balance recomputing at this point
     }
-    using NodeAllocator = typename Allocator::template rebind<node>::other;
+    using NodeAllocator = typename Allocator::template rebind<Node>::other;
 
     public:
     /**
@@ -196,6 +191,7 @@ class Avl {
      */
     class iterator {
         public:
+        friend Avl;
         using difference_type = T;
         using value_type = T;
         using pointer = const T *;
@@ -206,26 +202,20 @@ class Avl {
          * @brief build an iterator from a tree and start at the bottom left
          * @param tree - to iterate over
          */
-        explicit iterator(Avl &tree)
+        explicit iterator(const Avl &tree)
         {
-            auto *current = tree.root;
-            while (current->lhs) {
-                current = current->lhs;
+            auto *current = tree.myRoot;
+            while (current->myLhs) {
+                current = current->myLhs;
             }
-            myPrev = nullptr;
             myCurrent = current;
             myNext = GetNext();
         }
 
         iterator(): myCurrent(nullptr), myNext(nullptr) {}
 
-        /**
-         * @brief increment the iterator to the next value
-         * @return
-         */
         iterator &operator++()
         {
-            myPrev = myCurrent;
             myCurrent = myNext;
             myNext = GetNext();
             return *this;
@@ -234,24 +224,20 @@ class Avl {
         iterator operator++(int)
         {
             iterator tmp(myCurrent);
-            myPrev = myCurrent;
             myCurrent = myNext;
             myNext = GetNext();
             return tmp;
         }
 
-        /**
-         * @brief return the index value
-         * @return
-         */
-        const T &operator*() const { return *myCurrent->data; }
+        T &operator*() { return myCurrent->myData; }
+        T *operator->() { return myCurrent->myData; }
 
         /**
          * @brief eql comparator to another iterator
          * @param other - other iterator
          * @return true if equal, false otherwise
          */
-        bool operator==(iterator &other) const
+        bool operator==(const iterator &other) const
         {
             return myCurrent == other.myCurrent && myNext == other.myNext;
         }
@@ -261,281 +247,257 @@ class Avl {
          * @param other - other iterator
          * @return true if not eql, false otherwise
          */
-        bool operator!=(iterator &other) const { return !(*this == other); }
+        bool operator!=(const iterator &other) const { return !(*this == other); }
 
         protected:
-        explicit iterator(node *aNode)
+        explicit iterator(Node *aNode)
         {
             myCurrent = aNode;
-            myPrev = aNode->parent;
             myNext = GetNext();
         }
 
         private:
-        node *GetNext()
+        Node *GetNext()
         {
             if (!myCurrent) {
                 return nullptr;
             }
-            if (myCurrent->lhs && *myCurrent->data < *myCurrent->lhs->data) {
-                auto *lhs = myCurrent->lhs;
-                while (lhs->lhs) {
-                    lhs = lhs->lhs;
+            if (myCurrent->myLhs && myCurrent->myData < myCurrent->myLhs->myData) {
+                auto *leftChild = myCurrent->myLhs;
+                while (leftChild->myLhs) {
+                    leftChild = leftChild->myLhs;
                 }
-                return lhs;
+                return leftChild;
             }
-            else if (myCurrent->rhs && *myCurrent->data < *myCurrent->rhs->data) {
-                auto *lhs = myCurrent->rhs;
-                while (lhs->lhs) {
-                    lhs = lhs->lhs;
+            else if (myCurrent->myRhs && myCurrent->myData < myCurrent->myRhs->myData) {
+                auto *rightChild = myCurrent->myRhs;
+                while (rightChild->myLhs) {
+                    rightChild = rightChild->myLhs;
                 }
-                return lhs;
+                return rightChild;
             }
-            auto *parent = myCurrent->parent;
+            auto *parent = myCurrent->myParent;
             while (parent) {
-                if (*myCurrent->data < *parent->data) {
+                if (myCurrent->myData < parent->myData) {
                     return parent;
                 }
-                if (parent->rhs) {
-                    if (*myCurrent->data < *parent->rhs->data) {
-                        return parent->rhs;
+                if (parent->myRhs) {
+                    if (myCurrent->myData < parent->myRhs->myData) {
+                        return parent->myRhs;
                     }
                 }
-                parent = parent->parent;
+                parent = parent->myParent;
             }
             return parent;
         }
 
-        node *myCurrent;
-        node *myNext;
-        node *myPrev;
+        Node *myCurrent;
+        Node *myNext;
     };
+
     friend iterator;
+
     /**
      * @brief return an iterator to the beginning of the tree following in-order traversal
      * @return iterator
      */
-    iterator begin() { return iterator(*this); }
+    iterator begin() const { return iterator(*this); }
 
     /**
      * @brief return an iterator to the end of the tree following the in-order traversal
      * @return iterator
      */
-    iterator end() { return iterator(); }
+    iterator end() const { return iterator(); }
 
-    // default ctor
-    Avl(): root(nullptr) {};
+    Avl(): myRoot(nullptr) {};
 
-    // copy ctor, not efficient
-    explicit Avl(const Avl<T> &copy): root(nullptr)
+    explicit Avl(const Avl<T> &copy): myRoot(nullptr)
     {
-        copy.InOrder([&](const auto &value) { this->Insert(value); });
+        for (const auto &value : copy) {
+            Insert(value);
+        }
     }
 
-    // move ctor
-    explicit Avl(Avl<T> &&move): root(nullptr)
+    explicit Avl(Avl<T> &&move): myRoot(nullptr)
     {
-        this->root = move.root;
-        move.root = nullptr;
+        myRoot = move.myRoot;
+        move.myRoot = nullptr;
     }
 
-    // copy operator
     Avl &operator=(const Avl<T> &copy)
     {
         if (this == &copy) {
             return *this;
         }
-        this->deleteTree(root);
-        root = nullptr;
-        copy.InOrder([&](const auto &value) { this->Insert(value); });
+        this->DeleteTree(myRoot);
+        myRoot = nullptr;
+        for (const auto &value : copy) {
+            Insert(value);
+        }
         return *this;
     }
 
-    // move operator
     Avl &operator=(Avl<T> &&move) noexcept
     {
-        this->deleteTree(root);
-        this->root = move.root;
-        move.root = nullptr;
+        this->DeleteTree(myRoot);
+        myRoot = move.myRoot;
+        move.myRoot = nullptr;
         return *this;
     }
 
-    // eql operator
-    bool operator==(const Avl<T> &other) { return this->root == other.root; }
+    bool operator==(const Avl<T> &other) { return this->myRoot == other.root; }
 
-    // not eql operator
-    bool operator!=(const Avl<T> &other) { return this->root != other.root; }
+    bool operator!=(const Avl<T> &other) { return this->myRoot != other.root; }
 
-    // destructor
     virtual ~Avl()
     {
-        deleteTree(root);
-        root = nullptr;
+        DeleteTree(myRoot);
+        myRoot = nullptr;
     }
 
-    /**
-     * @brief inOrder traversal of the tree
-     * @param callback
-     */
-    void InOrder(std::function<void(const T &)> callback) const
-    {
-        node *idx = root;
-        InOrder(callback, idx);
-    } // O(n) = n
-
-    private:
-    /**
-     * @brief inOrder traversal of the tree
-     * @param callBack
-     * @param idx
-     */
-    void InOrder(std::function<void(const T &)> &callBack, node *idx) const
-    {
-        if (!idx)
-            return;
-        if (idx->lhs)
-            InOrder(callBack, idx->lhs);
-        callBack(*idx->data);
-        if (idx->rhs)
-            InOrder(callBack, idx->rhs);
-    } // O(n) = n
-
-    public:
     /**
      * @brief Find if the given item exist in the tree
      * @param data - the item to look for
      * @return true if it is found or false otherwise
      */
-    bool Find(const T &data)
+    iterator Find(const T &aValue)
     {
-        for (node *idx = root; idx;) {
-            if ((*idx->data) == data)
-                return true;
-            else if ((*idx->data) < data)
-                idx = idx->rhs;
+        for (Node *idx = myRoot; idx;) {
+            if (idx->myData == aValue)
+                return iterator(idx);
+            else if (idx->myData < aValue)
+                idx = idx->myRhs;
             else
-                idx = idx->lhs;
+                idx = idx->myLhs;
         }
-        return false;
+        return iterator();
     } // O(n) = n log(n)
 
-    void Insert(const T &item)
+    /**
+     * @brief add a new Node to the tree by placing it without copy
+     * @param data - the new item to add
+     */
+    template<typename... DataCtorArgs>
+    void Emplace(DataCtorArgs... args)
     {
-        //             T    *data = new T(item);
-        T *data = std::allocator_traits<Allocator>::allocate(_allocator, 1);
-        std::allocator_traits<Allocator>::construct(_allocator, data, item);
-        Insert(data);
+        Node *node = std::allocator_traits<NodeAllocator>::allocate(myNodeAllocator, 1);
+        if (!node)
+            throw std::bad_alloc();
+        std::allocator_traits<NodeAllocator>::construct(myNodeAllocator,
+                                                        node,
+                                                        nullptr,
+                                                        std::forward(args)...);
+        InsertNode(node);
     }
 
     /**
-     * @brief add a new node to the tree
+     * @brief add a new Node to the tree by copy
      * @param data - the new item to add
      */
-    virtual void Insert(T *data)
+    void Insert(const T &aValue)
     {
-        if (!data) // Special case, given pointer is null
-            return;
-        //node *new_node = new(std::nothrow) node(data);
-        node *new_node = std::allocator_traits<NodeAllocator>::allocate(_nodeAllocator, 1);
-        if (!new_node)
+        Node *node = std::allocator_traits<NodeAllocator>::allocate(myNodeAllocator, 1);
+        if (!node)
             throw std::bad_alloc();
-        std::allocator_traits<NodeAllocator>::construct(_nodeAllocator, new_node, data);
-        new_node->rhs = nullptr;
-        new_node->lhs = nullptr;
-        if (!root) { // Special case, three is empty add new data as root
-            root = new_node;
-            computeBalance(root);
-            return;
-        }
-        { // Regular case, allocate and find the right place to add a leaf
-            node *parent = root;
-            node *idx = root;
-            while (idx) {
-                if (*idx->data == *new_node->data) { // Special case the node already exist
-                    return;
-                }
-                if (*idx->data < *new_node->data) {
-                    parent = idx;
-                    idx = idx->rhs;
-                }
-                else {
-                    parent = idx;
-                    idx = idx->lhs;
-                }
-            } // the node is found in parent add new_node as a leaf
-            if (*parent->data < *new_node->data) { // Regular case, if new_data is bigger add right
-                parent->rhs = new_node;
-            }
-            else { // Regular case, if new_data is smaller add left
-                parent->lhs = new_node;
-            }
-            new_node->parent = parent;
-            new_node->lhs = nullptr;
-            new_node->rhs = nullptr;
-        } // end regular case context
-        // Now we can balance stuff here
-        computeBalance(new_node->parent);
+        std::allocator_traits<NodeAllocator>::construct(myNodeAllocator, node, nullptr, aValue);
+        InsertNode(node);
     }
 
     /**
      * @brief remove the given item from the tree.
      */
-    void Remove(const T &item)
+    void Remove(Avl::iterator it)
     {
-        node *idx = root;
-        if (!idx) // Special case, tree is empty
+        if (it == end()) {
             return;
-        while (idx) { // find the node to remove
-            if (*idx->data == item) {
-                break;
-            }
-            else if (*idx->data < item) {
-                idx = idx->rhs;
-            }
-            else {
-                idx = idx->lhs;
-            }
         }
-        if (!idx) // Special case this data is not in this tree
+        RemoveNode(it.myCurrent);
+    }
+
+    void Remove(const T &aData) { Remove(Find(aData)); }
+
+    private:
+    void InsertNode(Node *aNode)
+    {
+        if (!aNode) // Special case, given pointer is null
             return;
-        node *new_root;
-        node *parent = idx->parent;
+        aNode->myRhs = nullptr;
+        aNode->myLhs = nullptr;
+        if (!myRoot) { // Special case, three is empty add new data as root
+            myRoot = aNode;
+            ComputeBalance(myRoot);
+            return;
+        }
+        { // Regular case, allocate and find the right place to add a leaf
+            Node *parent = myRoot;
+            Node *idx = myRoot;
+            while (idx) {
+                if (idx->myData == aNode->myData) { // Special case the node already exist
+                    return;
+                }
+                if (idx->myData < aNode->myData) {
+                    parent = idx;
+                    idx = idx->myRhs;
+                }
+                else {
+                    parent = idx;
+                    idx = idx->myLhs;
+                }
+            } // the node is found in parent add new_node as a leaf
+            if (parent->myData < aNode->myData) { // Regular case, if new_data is bigger add right
+                parent->myRhs = aNode;
+            }
+            else { // Regular case, if new_data is smaller add left
+                parent->myLhs = aNode;
+            }
+            aNode->myParent = parent;
+            aNode->myLhs = nullptr;
+            aNode->myRhs = nullptr;
+        } // end regular case context
+        // Now we can balance stuff here
+        ComputeBalance(aNode->myParent);
+    }
+
+    void RemoveNode(Node *aNode)
+    {
+        Node *new_root;
+        Node *parent = aNode->myParent;
         {                            // Regular case, delete the node and set correctly the new root
             if (parent == nullptr) { // Special case, idx is root
-                new_root = deleteNode(idx);
-                root = new_root;
+                new_root = DeleteNode(aNode);
+                myRoot = new_root;
             }
-            else if (parent->lhs == idx) {
-                new_root = deleteNode(idx);
-                parent->lhs = new_root;
+            else if (parent->myLhs == aNode) {
+                new_root = DeleteNode(aNode);
+                parent->myLhs = new_root;
             }
             else {
-                new_root = deleteNode(idx);
-                parent->rhs = new_root;
+                new_root = DeleteNode(aNode);
+                parent->myRhs = new_root;
             }
         } // end regular case context
         // Now we can balance thing here
-        if (new_root) // if a sub tree is returned, start balancing here
-            computeBalance(new_root);
-        else if (
-            parent) // if no subtree is returned start balancing at parent, if parent is null do nothing
-            computeBalance(parent);
+        // if a sub tree is returned, start balancing here
+        if (new_root) {
+            ComputeBalance(new_root);
+        }
+        // if no subtree is returned start balancing at parent, if parent is null do nothing
+        else if (parent) {
+            ComputeBalance(parent);
+        }
     }
 
-    private:
     /**
      * @brief Delete the entire tree.
      */
-    void deleteTree(node *item)
+    void DeleteTree(Node *item)
     {
         if (!item)
             return;
-        deleteTree(item->rhs);
-        deleteTree(item->lhs);
-        std::allocator_traits<Allocator>::destroy(_allocator, item->data);
-        std::allocator_traits<Allocator>::deallocate(_allocator, item->data, 1);
-        std::allocator_traits<NodeAllocator>::destroy(_nodeAllocator, item);
-        std::allocator_traits<NodeAllocator>::deallocate(_nodeAllocator, item, 1);
+        DeleteTree(item->myRhs);
+        DeleteTree(item->myLhs);
+        std::allocator_traits<NodeAllocator>::destroy(myNodeAllocator, item);
+        std::allocator_traits<NodeAllocator>::deallocate(myNodeAllocator, item, 1);
         //delete item;
     }
 
@@ -544,58 +506,47 @@ class Avl {
      * @param item is the node to be deleted.
      * @return The root of the tree.
      */
-    node *deleteNode(node *item)
+    Node *DeleteNode(Node *item)
     {
-        node *new_root = nullptr;
-        if (!item->lhs && !item->rhs) { // Regular case is the node is leaf
-            std::allocator_traits<Allocator>::destroy(_allocator, item->data);
-            std::allocator_traits<Allocator>::deallocate(_allocator, item->data, 1);
-            std::allocator_traits<NodeAllocator>::destroy(_nodeAllocator, item);
-            std::allocator_traits<NodeAllocator>::deallocate(_nodeAllocator, item, 1);
+        Node *new_root = nullptr;
+        if (!item->myLhs && !item->myRhs) { // Regular case is the node is leaf
+            std::allocator_traits<NodeAllocator>::destroy(myNodeAllocator, item);
+            std::allocator_traits<NodeAllocator>::deallocate(myNodeAllocator, item, 1);
             //delete item;
             return new_root;
         }
-        if (item->lhs && item->rhs) { // Regular case, item is a node with two child
-            node *idx = item->rhs;
-            while (idx->rhs) // Step 1, find the bigger elem in the right sub-tree
-                idx = idx->rhs;
-            std::allocator_traits<Allocator>::destroy(_allocator, item->data);
-            std::allocator_traits<Allocator>::deallocate(_allocator, item->data, 1);
-            //delete item->data;                    // Step 2, Swap item and idx data
-            item->data = idx->data;
-            idx->data = nullptr;
-            node *idx_parent = idx->parent; // Step 4, remove the bigger elem initial node
-            idx_parent->rhs = deleteNode(idx);
-            if (idx_parent->rhs) // Step 5, make sure the parent link is correct
-                idx_parent->rhs->parent = idx_parent;
+        if (item->myLhs && item->myRhs) { // Regular case, item is a node with two child
+            Node *idx = item->myRhs;
+            while (idx->myRhs) // Step 1, find the bigger elem in the right sub-tree
+                idx = idx->myRhs;
+            item->myData = std::move(idx->myData);
+            Node *idx_parent = idx->myParent; // Step 4, remove the bigger elem initial node
+            idx_parent->myRhs = DeleteNode(idx);
+            if (idx_parent->myRhs) // Step 5, make sure the parent link is correct
+                idx_parent->myRhs->myParent = idx_parent;
             return item; // Step 6, return the initial node with the data field updated
         }
-        else if (item->lhs) { // Regular case, item is a node with only lhs
-            new_root = item->lhs;
-            new_root->parent = item->parent;
-            std::allocator_traits<Allocator>::destroy(_allocator, item->data);
-            std::allocator_traits<Allocator>::deallocate(_allocator, item->data, 1);
-            std::allocator_traits<NodeAllocator>::destroy(_nodeAllocator, item);
-            std::allocator_traits<NodeAllocator>::deallocate(_nodeAllocator, item, 1);
+        else if (item->myLhs) { // Regular case, item is a node with only lhs
+            new_root = item->myLhs;
+            new_root->myParent = item->myParent;
+            std::allocator_traits<NodeAllocator>::destroy(myNodeAllocator, item);
+            std::allocator_traits<NodeAllocator>::deallocate(myNodeAllocator, item, 1);
             //delete item;
             return new_root;
         }
-        else if (item->rhs) { // Regular case, item is node with only rhs
-            new_root = item->rhs;
-            new_root->parent = item->parent;
-            std::allocator_traits<Allocator>::destroy(_allocator, item->data);
-            std::allocator_traits<Allocator>::deallocate(_allocator, item->data, 1);
-            std::allocator_traits<NodeAllocator>::destroy(_nodeAllocator, item);
-            std::allocator_traits<NodeAllocator>::deallocate(_nodeAllocator, item, 1);
+        else if (item->myRhs) { // Regular case, item is node with only rhs
+            new_root = item->myRhs;
+            new_root->myParent = item->myParent;
+            std::allocator_traits<NodeAllocator>::destroy(myNodeAllocator, item);
+            std::allocator_traits<NodeAllocator>::deallocate(myNodeAllocator, item, 1);
             //delete item;
             return new_root;
         }
         return nullptr; // should never be reach
     }
 
-    node *    root;       /**< The root node of the tree container. */
-    Allocator _allocator; /**< The default standard allocator. Only changed for debugging purpose.*/
-    NodeAllocator _nodeAllocator; /** The node allocator. It is based on the provide allocator. */
+    Node *        myRoot;          /**< The root node of the tree container. */
+    NodeAllocator myNodeAllocator; /** The node allocator. It is based on the provide allocator. */
 };
 
 } // namespace Netero
