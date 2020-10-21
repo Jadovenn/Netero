@@ -141,9 +141,9 @@ TEST(NeteroCore, Avl_copy_move_ctor)
 TEST(NeteroCore, Avl_comparison_op)
 {
     Netero::Avl<int> a;
+    a.Insert(-5);
     a.Insert(1);
     a.Insert(4);
-    a.Insert(-5);
     Netero::Avl<int> b;
     b.Insert(1);
     b.Insert(4);
@@ -158,8 +158,8 @@ TEST(NeteroCore, Avl_comparison_op)
     d.Insert(-5);
     d.Insert(100);
     Netero::Avl<int> e;
+    e.Insert(-5);
     e.Insert(1);
-    e.Insert(4);
 
     EXPECT_TRUE(a == b);
     EXPECT_TRUE(a != c);
