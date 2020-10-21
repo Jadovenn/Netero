@@ -8,11 +8,11 @@
 #include <memory>
 #include <vector>
 
-#include <netero/audio/deviceManager.hpp>
+#include <Netero/Audio/DeviceManager.hpp>
 
 #include "DeviceImpl.hpp"
 
-class netero::audio::DeviceManager::Impl {
+class Netero::Audio::DeviceManager::Impl {
     public:
     Impl();
     ~Impl();

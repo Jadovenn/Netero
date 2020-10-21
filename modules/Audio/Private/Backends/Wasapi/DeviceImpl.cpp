@@ -9,7 +9,7 @@
 
 #include <Functiondiscoverykeys_devpkey.h>
 
-netero::audio::Device::~Device() = default;
+Netero::Audio::Device::~Device() = default;
 
 DeviceImpl::DeviceImpl(IMMDevice* aDeviceInterface, EDataFlow aDataFlow)
     : _renderingAsyncState(AsyncState::STOP),
@@ -38,11 +38,11 @@ DeviceImpl::DeviceImpl(IMMDevice* aDeviceInterface, EDataFlow aDataFlow)
         this->_isValid = false;
         return;
     }
-    this->_deviceFomat.channels = this->_wfx->nChannels;
-    this->_deviceFomat.samplingFrequency = this->_wfx->nSamplesPerSec;
-    this->_deviceFomat.bytesPerFrame = this->_wfx->nChannels * (this->_wfx->wBitsPerSample / 8);
-    this->_deviceFomat.bytesPerSample = this->_wfx->wBitsPerSample / 8;
-    this->_deviceFomat.supportedSamplingRate.push_back(this->_wfx->nSamplesPerSec);
+    this->_deviceFomat.myChannels = this->_wfx->nChannels;
+    this->_deviceFomat.mySamplingFrequency = this->_wfx->nSamplesPerSec;
+    this->_deviceFomat.myBytesPerFrame = this->_wfx->nChannels * (this->_wfx->wBitsPerSample / 8);
+    this->_deviceFomat.myBytesPerSample = this->_wfx->wBitsPerSample / 8;
+    this->_deviceFomat.mySupportedSamplingRate.push_back(this->_wfx->nSamplesPerSec);
 
     PROPVARIANT property =
         wasapi::GetDeviceProperty(this->_deviceIdentifier, PKEY_Device_FriendlyName);
@@ -75,7 +75,7 @@ DeviceImpl::~DeviceImpl()
     }
 }
 
-netero::audio::Device::RtCode DeviceImpl::open()
+Netero::Audio::Device::RtCode DeviceImpl::Open()
 {
     if (this->_isOpen) {
         return RtCode::ALREADY_OPEN;
@@ -98,7 +98,7 @@ netero::audio::Device::RtCode DeviceImpl::open()
     return RtCode::SYSTEM_ERROR;
 }
 
-netero::audio::Device::RtCode DeviceImpl::close()
+Netero::Audio::Device::RtCode DeviceImpl::Close()
 {
     if (!this->_isOpen) {
         return RtCode::NOT_OPEN;

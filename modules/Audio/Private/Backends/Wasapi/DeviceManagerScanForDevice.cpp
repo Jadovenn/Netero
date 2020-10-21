@@ -6,7 +6,7 @@
 #include "DeviceManagerImpl.hpp"
 #include "WasapiHelpers.hpp"
 
-netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanForOutputDevice()
+Netero::Audio::DeviceManager::RtCode Netero::Audio::DeviceManager::Impl::scanForOutputDevice()
 {
     IMMDeviceCollection* pCollection = nullptr;
     UINT                 count = 0;
@@ -48,7 +48,7 @@ error:
     return RtCode::SYSTEM_API_ERROR;
 }
 
-netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::Impl::scanForInputDevice()
+Netero::Audio::DeviceManager::RtCode Netero::Audio::DeviceManager::Impl::scanForInputDevice()
 {
     IMMDeviceCollection* pCollection = nullptr;
     UINT                 count = 0;

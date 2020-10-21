@@ -16,7 +16,7 @@
 #include <Functiondiscoverykeys_devpkey.h>
 #include <mmdeviceapi.h>
 
-class DeviceImpl final: public netero::audio::Device {
+class DeviceImpl final: public Netero::Audio::Device {
     public:
     explicit DeviceImpl(IMMDevice*, EDataFlow);
     ~DeviceImpl() final;
@@ -33,42 +33,42 @@ class DeviceImpl final: public netero::audio::Device {
         return false;
     }
 
-    RtCode open() final;
-    RtCode close() final;
+    RtCode Open() final;
+    RtCode Close() final;
 
-    [[nodiscard]] bool isValid() const final { return this->_isValid; }
-    [[nodiscard]] bool isLoopback() const final { return _dataflow == EDataFlow::eAll; }
-    [[nodiscard]] const std::string& getName() const final { return this->_name; }
-    [[nodiscard]] const std::string& getManufacturer() const final { return this->_manufacturer; };
+    [[nodiscard]] bool IsValid() const final { return this->_isValid; }
+    [[nodiscard]] bool IsLoopback() const final { return _dataflow == EDataFlow::eAll; }
+    [[nodiscard]] const std::string& GetName() const final { return this->_name; }
+    [[nodiscard]] const std::string& GetManufacturer() const final { return this->_manufacturer; };
 
-    [[nodiscard]] const netero::audio::Format& getFormat() const final
+    [[nodiscard]] const Netero::Audio::Format& GetFormat() const final
     {
         return this->_deviceFomat;
     }
 
-    void setProcessingCallback(netero::audio::Device::ProcessingCallbackHandle& cb) final
+    void SetProcessingCallback(Netero::Audio::Device::ProcessingCallbackHandle& cb) final
     {
         this->_processingCallback = cb;
     }
 
-    void resetProcessingCallback() final { this->_processingCallback = nullptr; }
+    void ResetProcessingCallback() final { this->_processingCallback = nullptr; }
 
-    void setAcquisitionCallback(netero::audio::Device::AcquisitionCallbackHandle& cb) final
+    void SetAcquisitionCallback(Netero::Audio::Device::AcquisitionCallbackHandle& cb) final
     {
         this->_acquisitionCallback = cb;
     }
 
-    void resetAcquisitionCallback() final { this->_acquisitionCallback = nullptr; }
+    void ResetAcquisitionCallback() final { this->_acquisitionCallback = nullptr; }
 
-    void setErrorCallback(netero::audio::Device::ErrorCallbackHandle& cb) final
+    void SetErrorCallback(Netero::Audio::Device::ErrorCallbackHandle& cb) final
     {
         this->_errorCallback = cb;
     }
 
-    void resetErrorCallback() final { this->_errorCallback = nullptr; }
+    void ResetErrorCallback() final { this->_errorCallback = nullptr; }
 
     private:
-    void repportError(const std::string& anErrorMessage)
+    void RepportError(const std::string& anErrorMessage)
     {
         if (this->_errorCallback) {
             this->_errorCallback(anErrorMessage);
@@ -79,16 +79,16 @@ class DeviceImpl final: public netero::audio::Device {
     enum class AsyncState { STOP = 0, RUN = 1, SYSTEM_ERROR = 2 };
 
     std::atomic<AsyncState>                    _renderingAsyncState;
-    std::future<netero::audio::Device::RtCode> _renderingFuture;
-    static netero::audio::Device::RtCode       RenderingNativeCallback(DeviceImpl*);
-    netero::audio::Device::RtCode              openForRendering();
-    netero::audio::Device::RtCode              closeAfterRendering();
+    std::future<Netero::Audio::Device::RtCode> _renderingFuture;
+    static Netero::Audio::Device::RtCode       RenderingNativeCallback(DeviceImpl*);
+    Netero::Audio::Device::RtCode              openForRendering();
+    Netero::Audio::Device::RtCode              closeAfterRendering();
 
     std::atomic<AsyncState>                    _acquisitionAsyncState;
-    std::future<netero::audio::Device::RtCode> _acquisitionFuture;
-    static netero::audio::Device::RtCode       AcquisitionNativeCallback(DeviceImpl*);
-    netero::audio::Device::RtCode              openForAcquisition();
-    netero::audio::Device::RtCode              closeAfterAcquisition();
+    std::future<Netero::Audio::Device::RtCode> _acquisitionFuture;
+    static Netero::Audio::Device::RtCode       AcquisitionNativeCallback(DeviceImpl*);
+    Netero::Audio::Device::RtCode              openForAcquisition();
+    Netero::Audio::Device::RtCode              closeAfterAcquisition();
 
     bool          _isValid;
     bool          _isOpen;
@@ -97,10 +97,10 @@ class DeviceImpl final: public netero::audio::Device {
     IAudioClient* _audioClient;
     WAVEFORMATEX* _wfx;
 
-    netero::audio::Format                            _deviceFomat;
-    netero::audio::Device::ProcessingCallbackHandle  _processingCallback;
-    netero::audio::Device::AcquisitionCallbackHandle _acquisitionCallback;
-    netero::audio::Device::ErrorCallbackHandle       _errorCallback;
+    Netero::Audio::Format                            _deviceFomat;
+    Netero::Audio::Device::ProcessingCallbackHandle  _processingCallback;
+    Netero::Audio::Device::AcquisitionCallbackHandle _acquisitionCallback;
+    Netero::Audio::Device::ErrorCallbackHandle       _errorCallback;
 
     std::string _name;
     std::string _manufacturer;

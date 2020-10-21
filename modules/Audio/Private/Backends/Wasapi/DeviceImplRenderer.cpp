@@ -9,7 +9,7 @@
 #include <audiopolicy.h>
 #include <avrt.h>
 
-netero::audio::Device::RtCode DeviceImpl::RenderingNativeCallback(DeviceImpl* aContext)
+Netero::Audio::Device::RtCode DeviceImpl::RenderingNativeCallback(DeviceImpl* aContext)
 {
     REFERENCE_TIME        latency;
     UINT32                bufferFramesCount;
@@ -106,7 +106,7 @@ exit_on_error:
     return RtCode::SYSTEM_ERROR;
 }
 
-netero::audio::Device::RtCode DeviceImpl::openForRendering()
+Netero::Audio::Device::RtCode DeviceImpl::openForRendering()
 {
     this->_renderingAsyncState = AsyncState::RUN;
     this->_renderingFuture =
@@ -115,18 +115,17 @@ netero::audio::Device::RtCode DeviceImpl::openForRendering()
         this->_renderingAsyncState = AsyncState::STOP;
         return RtCode::SYSTEM_ERROR;
     }
+    this->_isOpen = true;
     return RtCode::SUCCESS;
 }
 
-netero::audio::Device::RtCode DeviceImpl::closeAfterRendering()
+Netero::Audio::Device::RtCode DeviceImpl::closeAfterRendering()
 {
     if (!this->_renderingFuture.valid()) {
         return RtCode::SYSTEM_ERROR;
     }
     this->_renderingAsyncState = AsyncState::STOP;
-    auto status = this->_renderingFuture.wait_for(std::chrono::seconds(1));
-    if (status != std::future_status::ready) {
-        return RtCode::TIME_OUT;
-    }
+    this->_renderingFuture.wait();
+    this->_isOpen = false;
     return this->_renderingFuture.get();
 }

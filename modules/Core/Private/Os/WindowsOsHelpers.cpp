@@ -39,7 +39,7 @@ std::string GetUserHomeDirectoryPath()
     DWORD len = 32;
 
     if (GetProfilesDirectoryA(path, &len)) {
-        return std::string(path) + "\\" + netero::os::getSessionUsername();
+        return std::string(path) + "\\" + Netero::Os::GetSessionUsername();
     }
     return std::string();
 }

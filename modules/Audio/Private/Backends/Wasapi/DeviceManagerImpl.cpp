@@ -5,56 +5,56 @@
 
 #include "DeviceManagerImpl.hpp"
 
-#include <netero/Os.hpp>
+#include <Netero/Os.hpp>
 
 #include "WasapiHelpers.hpp"
 
-netero::audio::DeviceManager::Impl::Impl(): deviceEnumerator(nullptr), isValid(true)
+Netero::Audio::DeviceManager::Impl::Impl(): deviceEnumerator(nullptr), isValid(true)
 {
-    netero::os::acquireSystemResources();
-    HRESULT result = CoCreateInstance(wasapi::CLSID_MMDeviceEnumerator,
-                                      nullptr,
-                                      CLSCTX_ALL,
-                                      wasapi::IID_IMMDeviceEnumerator,
-                                      reinterpret_cast<void**>(&this->deviceEnumerator));
+    Netero::Os::AcquireSystemResources();
+    const HRESULT result = CoCreateInstance(wasapi::CLSID_MMDeviceEnumerator,
+                                            nullptr,
+                                            CLSCTX_ALL,
+                                            wasapi::IID_IMMDeviceEnumerator,
+                                            reinterpret_cast<void**>(&this->deviceEnumerator));
     if (FAILED(result)) {
         this->isValid = false;
     }
 }
 
-netero::audio::DeviceManager::Impl::~Impl()
+Netero::Audio::DeviceManager::Impl::~Impl()
 {
-    netero::os::releaseSystemResources();
+    Netero::Os::ReleaseSystemResources();
 }
 
 // DeviceManager Impl
 
-netero::audio::DeviceManager::DeviceManager()
-    : _pImpl(std::make_unique<netero::audio::DeviceManager::Impl>())
+Netero::Audio::DeviceManager::DeviceManager()
+    : myImpl(std::make_unique<Netero::Audio::DeviceManager::Impl>())
 {
 }
 
-netero::audio::DeviceManager::~DeviceManager() = default;
+Netero::Audio::DeviceManager::~DeviceManager() = default;
 
-bool netero::audio::DeviceManager::isValid()
+bool Netero::Audio::DeviceManager::IsValid()
 {
-    return this->_pImpl->isValid;
+    return myImpl->isValid;
 }
 
-int netero::audio::DeviceManager::getDefaultOutputDeviceIdx()
+int Netero::Audio::DeviceManager::GetDefaultOutputDeviceIdx()
 {
-    if (this->_pImpl->outputDevices.empty()) {
+    if (myImpl->outputDevices.empty()) {
         return -1;
     }
     IMMDevice* deviceInterface = nullptr;
-    HRESULT    result = this->_pImpl->deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eRender,
-                                                                             ERole::eConsole,
-                                                                             &deviceInterface);
+    HRESULT    result = myImpl->deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eRender,
+                                                                       ERole::eConsole,
+                                                                       &deviceInterface);
     if (FAILED(result)) {
         return -1;
     }
     int idx = 0;
-    for (auto& device : this->_pImpl->outputDevices) {
+    for (auto& device : myImpl->outputDevices) {
         if (*device == deviceInterface) {
             return idx;
         }
@@ -63,20 +63,20 @@ int netero::audio::DeviceManager::getDefaultOutputDeviceIdx()
     return -1;
 }
 
-int netero::audio::DeviceManager::getDefaultInputDeviceIdx()
+int Netero::Audio::DeviceManager::GetDefaultInputDeviceIdx()
 {
-    if (this->_pImpl->inputDevices.empty()) {
+    if (myImpl->inputDevices.empty()) {
         return -1;
     }
     IMMDevice* deviceInterface = nullptr;
-    HRESULT    result = this->_pImpl->deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture,
-                                                                             ERole::eConsole,
-                                                                             &deviceInterface);
+    HRESULT    result = myImpl->deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture,
+                                                                       ERole::eConsole,
+                                                                       &deviceInterface);
     if (FAILED(result)) {
         return -1;
     }
     int idx = 0;
-    for (auto& device : this->_pImpl->inputDevices) {
+    for (auto& device : myImpl->inputDevices) {
         if (*device == deviceInterface) {
             return idx;
         }
@@ -85,25 +85,25 @@ int netero::audio::DeviceManager::getDefaultInputDeviceIdx()
     return -1;
 }
 
-netero::audio::DeviceManager::RtCode netero::audio::DeviceManager::scanForDevices()
+Netero::Audio::DeviceManager::RtCode Netero::Audio::DeviceManager::ScanForDevices()
 {
-    auto result = this->_pImpl->scanForOutputDevice();
+    auto result = myImpl->scanForOutputDevice();
     if (result != RtCode::SUCCESS) {
         return RtCode::SYSTEM_API_ERROR;
     }
-    result = this->_pImpl->scanForInputDevice();
+    result = myImpl->scanForInputDevice();
     if (result != RtCode::SUCCESS) {
         return RtCode::SYSTEM_API_ERROR;
     }
     return RtCode::SUCCESS;
 }
 
-const std::vector<netero::audio::Device*>& netero::audio::DeviceManager::getOutputDevices()
+const std::vector<Netero::Audio::Device*>& Netero::Audio::DeviceManager::GetOutputDevices()
 {
-    return this->_pImpl->clientOutputDevices;
+    return myImpl->clientOutputDevices;
 }
 
-const std::vector<netero::audio::Device*>& netero::audio::DeviceManager::getInputDevices()
+const std::vector<Netero::Audio::Device*>& Netero::Audio::DeviceManager::GetInputDevices()
 {
-    return this->_pImpl->clientInputDevices;
+    return myImpl->clientInputDevices;
 }

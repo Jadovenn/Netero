@@ -9,7 +9,7 @@
 #include <audiopolicy.h>
 #include <avrt.h>
 
-netero::audio::Device::RtCode DeviceImpl::AcquisitionNativeCallback(DeviceImpl* aContext)
+Netero::Audio::Device::RtCode DeviceImpl::AcquisitionNativeCallback(DeviceImpl* aContext)
 {
     REFERENCE_TIME        latency;
     UINT32                bufferFramesCount;
@@ -112,7 +112,7 @@ exit_on_error:
     return RtCode::SUCCESS;
 }
 
-netero::audio::Device::RtCode DeviceImpl::openForAcquisition()
+Netero::Audio::Device::RtCode DeviceImpl::openForAcquisition()
 {
     this->_acquisitionAsyncState = AsyncState::RUN;
     this->_acquisitionFuture =
@@ -124,7 +124,7 @@ netero::audio::Device::RtCode DeviceImpl::openForAcquisition()
     return RtCode::SUCCESS;
 }
 
-netero::audio::Device::RtCode DeviceImpl::closeAfterAcquisition()
+Netero::Audio::Device::RtCode DeviceImpl::closeAfterAcquisition()
 {
     if (!this->_acquisitionFuture.valid()) {
         return RtCode::SYSTEM_ERROR;
