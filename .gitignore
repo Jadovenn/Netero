@@ -38,3 +38,9 @@ cmake-build*/
 out/
 /Documentation
 modules/graphics/Private/Renderer/Shader/*.h
+.idea/.gitignore
+.idea/codeStyles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/netero.iml
+.idea/vcs.xml
