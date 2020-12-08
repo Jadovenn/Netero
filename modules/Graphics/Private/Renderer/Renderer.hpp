@@ -16,6 +16,7 @@
 
 namespace Netero::Gfx {
 
+class Camera;
 class Drawable;
 
 class RendererImpl final: public Renderer {
@@ -36,10 +37,14 @@ class RendererImpl final: public Renderer {
     GfxResult RegisterDrawable(std::shared_ptr<Drawable> anObject) final;
     GfxResult UnRegisterDrawable(std::shared_ptr<Drawable> anObject) final;
 
+    void AttachCamera(Camera*) final;
+    void DetachCamera() final;
+
     [[nodiscard]] Context& GetContext() const { return myContext; }
 
     private:
     Context& myContext;
+    Camera*  myCamera;
 
     std::set<std::shared_ptr<Drawable>> myDrawables;
 };

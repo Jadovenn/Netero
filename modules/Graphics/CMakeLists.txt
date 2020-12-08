@@ -54,6 +54,7 @@ list(APPEND PUBLIC_HEADER
         Public/Netero/Graphics/Window.hpp
         Public/Netero/Graphics/Renderer.hpp
         Public/Netero/Graphics/Drawable.hpp
+        Public/Netero/Graphics/Camera.hpp
         Public/Netero/Graphics/Vertex.hpp
         Public/Netero/Graphics/Geometry.hpp
         Public/Netero/Graphics/Attributes/Attribute.hpp

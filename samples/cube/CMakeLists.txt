@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11...3.16)
-project(cube
+project(Cube
         VERSION 1.0
         DESCRIPTION "Graphics example program using netero_graphics."
         LANGUAGES CXX)

@@ -9,6 +9,7 @@
 #include <Netero/Graphics/Application.hpp>
 #include <Netero/Graphics/Attributes/Indices.hpp>
 #include <Netero/Graphics/Attributes/Vertices.hpp>
+#include <Netero/Graphics/Camera.hpp>
 #include <Netero/Graphics/Geometry.hpp>
 #include <Netero/Graphics/Renderer.hpp>
 #include <Netero/Logger.hpp>
@@ -38,7 +39,11 @@ int main()
     // Look at the renderer, it depend on the window you create
     // This is because it depend on the surface attributes that are
     // provided with the window
-    auto renderer = window->GetRenderer();
+    auto                renderer = window->GetRenderer();
+    Netero::Gfx::Camera camera(Netero::Gfx::CameraMode::LOOK_AT);
+    renderer->AttachCamera(&camera);
+    camera.myPosition = { 3, 0, 1 };
+    camera.myLookAt = { 0, 0, 0 };
 
     /********************************************
      * Step 2.
@@ -52,11 +57,11 @@ int main()
     * Step 3.
     * Show the window and run our application loop
     ********************************************/
+    window->Show();
     if (renderer->RegisterDrawable(square) != Netero::GfxResult::SUCCESS) {
         LOG_ERROR << "Check log somethings is going wrong with attributes." << std::endl;
         return 1;
     }
-    window->Show();
     while (window->PullEvent() != Netero::GfxResult::EXIT) {
         // Update the object state here
         // Look at the update, it is the last operation

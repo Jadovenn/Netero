@@ -11,7 +11,7 @@
 
 namespace Netero::Gfx {
 
-RendererImpl::RendererImpl(Context &aContext): myContext(aContext)
+RendererImpl::RendererImpl(Context &aContext): myContext(aContext), myCamera(nullptr)
 {
 }
 
@@ -32,6 +32,16 @@ GfxResult RendererImpl::UnRegisterDrawable(std::shared_ptr<Drawable> aDrawable)
         return GfxResult::SUCCESS;
     }
     return GfxResult::FAILED;
+}
+
+void RendererImpl::AttachCamera(Camera *aCamera)
+{
+    myCamera = aCamera;
+}
+
+void RendererImpl::DetachCamera()
+{
+    myCamera = nullptr;
 }
 
 GfxResult RendererImpl::Initialize()

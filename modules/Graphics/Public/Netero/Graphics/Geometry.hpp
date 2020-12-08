@@ -8,8 +8,8 @@
 #include <atomic>
 #include <vector>
 
-#include <Netero/Graphics/Drawable.hpp>
 #include <Netero/Graphics/Attributes/Attribute.hpp>
+#include <Netero/Graphics/Drawable.hpp>
 #include <Netero/Graphics/Vertex.hpp>
 
 namespace Netero::Gfx {
@@ -21,6 +21,24 @@ class Renderer;
  */
 class Axis {
     public:
+    Axis() = default;
+    explicit Axis(float aValue): myValue(aValue) {}
+
+    explicit Axis(const Axis& anAxis)
+    {
+        myValue = anAxis.myValue.load();
+        myScale = anAxis.myScale.load();
+        myRotation = anAxis.myRotation.load();
+    }
+
+    Axis& operator=(const Axis& anAxis)
+    {
+        myValue = anAxis.myValue.load();
+        myScale = anAxis.myScale.load();
+        myRotation = anAxis.myRotation.load();
+        return *this;
+    }
+
     /**
      * Test if the axis had been altered.
      */
@@ -81,6 +99,31 @@ class Axis {
     std::atomic<float> myRotation = 0;      /**< Rotation to be applied to the axis in radian. */
     std::atomic<float> myScale = 1;         /**< Scale ratio to be applied to the axis. */
     std::atomic<bool>  myHasChanged = true; /**< Not used please ignore. */
+};
+
+struct Position {
+    Axis x;
+    Axis y;
+    Axis z;
+
+    Position() = default;
+    Position(float anX, float anY, float anZ): x(anX), y(anY), z(anZ) {}
+
+    Position operator=(Position aPosition)
+    {
+        x = aPosition.x;
+        y = aPosition.y;
+        z = aPosition.z;
+        return *this;
+    }
+
+    Position operator=(Position& aPosition)
+    {
+        x = aPosition.x;
+        y = aPosition.y;
+        z = aPosition.z;
+        return *this;
+    }
 };
 
 class Geometry: public Drawable {

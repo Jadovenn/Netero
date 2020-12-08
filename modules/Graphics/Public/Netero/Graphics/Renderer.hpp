@@ -12,9 +12,14 @@
 
 namespace Netero::Gfx {
 
+class Camera;
+
 class Renderer {
     public:
     virtual ~Renderer() = default;
+
+    virtual void AttachCamera(Camera*) = 0;
+    virtual void DetachCamera() = 0;
 
     virtual GfxResult RegisterDrawable(std::shared_ptr<Drawable> anObject) = 0;
     virtual GfxResult UnRegisterDrawable(std::shared_ptr<Drawable> anObject) = 0;
