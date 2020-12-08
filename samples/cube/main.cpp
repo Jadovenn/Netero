@@ -4,12 +4,14 @@
  */
 
 #include <chrono>
-#include <iostream>
 #include <vector>
 
 #include <Netero/Graphics/Application.hpp>
+#include <Netero/Graphics/Attributes/Indices.hpp>
+#include <Netero/Graphics/Attributes/Vertices.hpp>
 #include <Netero/Graphics/Geometry.hpp>
 #include <Netero/Graphics/Renderer.hpp>
+#include <Netero/Logger.hpp>
 
 std::vector<Netero::Gfx::Vertex> squareVertices {
     { { -0.5f, -0.5f, 0.f }, { 1.f, 0.0f, 0.f }, { 0.f, 0.f } },
@@ -43,14 +45,18 @@ int main()
      * Create a drawable object to display
      ********************************************/
     auto square = Netero::Gfx::Geometry::New(*renderer);
-    square->SetVerticesWithIndices(squareVertices, squareIndices);
+    square->addAttribute<Netero::Gfx::Vertices>(squareVertices);
+    square->addAttribute<Netero::Gfx::Indices>(squareIndices);
 
     /********************************************
     * Step 3.
     * Show the window and run our application loop
     ********************************************/
+    if (renderer->RegisterDrawable(square) != Netero::GfxResult::SUCCESS) {
+        LOG_ERROR << "Check log somethings is going wrong with attributes." << std::endl;
+        return 1;
+    }
     window->Show();
-    renderer->RegisterDrawable(square);
     while (window->PullEvent() != Netero::GfxResult::EXIT) {
         // Update the object state here
         // Look at the update, it is the last operation

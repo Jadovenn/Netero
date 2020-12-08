@@ -25,6 +25,9 @@ if (APPLE)
     set_source_files_properties(${APP_ICON} PROPERTIES
             MACOSX_PACKAGE_LOCATION "Resources")
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${APP_ICON} ${SOURCES})
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS
+            "${CMAKE_CURRENT_SOURCE_DIR}/cube.entitlements")
 endif (APPLE)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
