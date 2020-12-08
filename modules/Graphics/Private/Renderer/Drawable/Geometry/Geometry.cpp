@@ -29,37 +29,32 @@ GeometryImpl::~GeometryImpl()
     Teardown();
 }
 
+void *GeometryImpl::_addAttribute(type_id aTypeID, std::shared_ptr<Attribute> anAttribute)
+{
+    if (myAttributes.find(aTypeID) == myAttributes.end()) {
+        myAttributes.insert({ aTypeID, anAttribute });
+        return anAttribute.get();
+    }
+    else {
+        return nullptr;
+    }
+}
+
+void *GeometryImpl::_getAttribute(type_id aTypeID)
+{
+    auto it = myAttributes.find(aTypeID);
+    if (it != myAttributes.end()) {
+        return it->second.get();
+    }
+    return nullptr;
+}
+
 std::shared_ptr<Geometry> Geometry::New(Renderer &aRenderer)
 {
     if (auto *renderer = dynamic_cast<RendererImpl *>(&aRenderer)) {
         return std::make_unique<GeometryImpl>(renderer->GetContext());
     }
     return nullptr;
-}
-
-void GeometryImpl::SetVertices(const Vertices &someVertices)
-{
-    myVertices = someVertices;
-    for (unsigned index = 0; index < myVertices.size(); ++index) {
-        myIndices.push_back(index);
-    }
-}
-
-void GeometryImpl::SetVerticesWithIndices(const Vertices &someVertices, const Indices &someIndices)
-{
-    myVertices = someVertices;
-    myIndices = someIndices;
-}
-
-void GeometryImpl::SetShader(std::shared_ptr<Shader> aShader)
-{
-    if (auto *shader = dynamic_cast<ShaderImpl *>(aShader.get())) {
-        if (shader->IsValid()) {
-            myShaders[static_cast<int>(aShader->GetShaderStage())] = aShader;
-        }
-        // may be assert again here with a different err msg
-    }
-    // can assert here in else statement
 }
 
 } // namespace Netero::Gfx

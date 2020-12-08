@@ -5,17 +5,15 @@
 
 #pragma once
 
-#include <memory>
+#include <Netero/TypeId.hpp>
 
 namespace Netero::Gfx {
 
-class Shader;
-
-class GfxObject {
+class Attribute {
     public:
-    virtual ~GfxObject() = default;
-
-    virtual void SetShader(std::shared_ptr<Shader>) = 0;
+    virtual ~Attribute() = default;
 };
+
+using AttributesTypeID = Netero::TypeID<Attribute>;
 
 } // namespace Netero::Gfx

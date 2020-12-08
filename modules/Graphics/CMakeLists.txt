@@ -53,10 +53,14 @@ list(APPEND PUBLIC_HEADER
         Public/Netero/Graphics/Application.hpp
         Public/Netero/Graphics/Window.hpp
         Public/Netero/Graphics/Renderer.hpp
-        Public/Netero/Graphics/Shader.hpp
-        Public/Netero/Graphics/GfxObject.hpp
+        Public/Netero/Graphics/Drawable.hpp
+        Public/Netero/Graphics/Vertex.hpp
         Public/Netero/Graphics/Geometry.hpp
-        Public/Netero/Graphics/Texture.hpp)
+        Public/Netero/Graphics/Attributes/Attribute.hpp
+        Public/Netero/Graphics/Attributes/Vertices.hpp
+        Public/Netero/Graphics/Attributes/Indices.hpp
+        Public/Netero/Graphics/Attributes/Shader.hpp
+        Public/Netero/Graphics/Attributes/Texture.hpp)
 
 list(APPEND SRCS
         Private/Vulkan/Vulkan.hpp
@@ -82,14 +86,13 @@ list(APPEND SRCS
         Private/Swapchain/Swapchain.cpp
         Private/Renderer/Renderer.hpp
         Private/Renderer/Renderer.cpp
-        Private/Renderer/Drawable/Drawable.hpp
         Private/Renderer/Drawable/Geometry/Geometry.hpp
         Private/Renderer/Drawable/Geometry/Geometry.cpp
         Private/Renderer/Drawable/Geometry/GeometryDrawable.cpp
         Private/Renderer/Shader/Shader.hpp
         Private/Renderer/Shader/Shader.cpp
         Private/Renderer/Shader/DefaultShaders.hpp
-        Private/Renderer/Shader/DefaultShaders.cpp
+        Private/Renderer/Shader/GeometryDefaultShaders.cpp
         Private/Renderer/Pipeline/Pipeline.hpp
         Private/Renderer/Pipeline/Pipeline.cpp)
 

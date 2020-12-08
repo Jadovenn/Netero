@@ -10,7 +10,6 @@
 #include <Vulkan/Context/Context.hpp>
 
 #include <Netero/Graphics/Errors.hpp>
-#include <Netero/Graphics/GfxObject.hpp>
 #include <Netero/Graphics/Renderer.hpp>
 
 #include "Swapchain/Swapchain.hpp"
@@ -34,8 +33,8 @@ class RendererImpl final: public Renderer {
     GfxResult ReBuild();
     GfxResult Update();
 
-    void RegisterDrawable(std::shared_ptr<GfxObject> anObject) final;
-    void UnRegisterDrawable(std::shared_ptr<GfxObject> anObject) final;
+    GfxResult RegisterDrawable(std::shared_ptr<Drawable> anObject) final;
+    GfxResult UnRegisterDrawable(std::shared_ptr<Drawable> anObject) final;
 
     [[nodiscard]] Context& GetContext() const { return myContext; }
 

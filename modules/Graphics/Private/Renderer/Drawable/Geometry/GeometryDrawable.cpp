@@ -3,31 +3,47 @@
  * see LICENSE.txt
  */
 
+#include <Netero/Logger.hpp>
+
+#include <Netero/Graphics/Attributes/Indices.hpp>
+#include <Netero/Graphics/Attributes/Vertices.hpp>
+
 #include "Renderer/Drawable/Geometry/Geometry.hpp"
 
 namespace Netero::Gfx {
 
 GfxResult GeometryImpl::Initialize()
 {
-    { // Transfer Vertices to GPU
+    GfxResult result = GfxResult::SUCCESS;
+    if (auto* attr = getAttribute<Vertices>()) { // Transfer Vertices to GPU
+        auto&          vertices = attr->GetVertices();
         Buffer<Vertex> verticesTransferBuffer(myContext,
                                               VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        verticesTransferBuffer.Reserve(myVertices.size());
-        verticesTransferBuffer.Write(0, myVertices.data(), myVertices.size());
+        verticesTransferBuffer.Reserve(vertices.size());
+        verticesTransferBuffer.Write(0, vertices.data(), vertices.size());
         verticesTransferBuffer >> myVerticesBuffer;
     }
-    { // Transfer Indices to GPU
+    else {
+        LOG_ERROR << "Vertices attribute not present on Geometry." << std::endl;
+        result = GfxResult::MISSING_ATTRIBUTES;
+    }
+    if (auto* attr = getAttribute<Indices>()) { // Transfer Indices to GPU
+        auto&            indices = attr->GetIndices();
         Buffer<uint32_t> indicesTransferBuffer(myContext,
                                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        indicesTransferBuffer.Reserve(myIndices.size());
-        indicesTransferBuffer.Write(0, myIndices.data(), myIndices.size());
+        indicesTransferBuffer.Reserve(indices.size());
+        indicesTransferBuffer.Write(0, indices.data(), indices.size());
         indicesTransferBuffer >> myIndicesBuffer;
     }
-    return GfxResult::SUCCESS;
+    else {
+        LOG_ERROR << "Indices attribute not present on Geometry." << std::endl;
+        result = GfxResult::MISSING_ATTRIBUTES;
+    }
+    return result;
 }
 
 GfxResult GeometryImpl::Teardown()

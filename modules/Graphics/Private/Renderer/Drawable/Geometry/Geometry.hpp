@@ -5,37 +5,38 @@
 
 #pragma once
 
-#include <array>
+#include <map>
 #include <utility>
 #include <vector>
 
+#include <Netero/Graphics/Drawable.hpp>
+#include <Netero/Graphics/Attributes/Attribute.hpp>
 #include <Netero/Graphics/Geometry.hpp>
 
-#include "Renderer/Drawable/Drawable.hpp"
 #include "Vulkan/Buffer/Buffer.hpp"
 #include "Vulkan/Context/Context.hpp"
 
 namespace Netero::Gfx {
 
-class GeometryImpl final: public Drawable, public Geometry {
+class GeometryImpl final: public Geometry {
     public:
     explicit GeometryImpl(Context& aContext);
     ~GeometryImpl() override;
-
-    void SetVertices(const Vertices& someVertices) override;
-    void SetVerticesWithIndices(const Vertices& someVertices, const Indices& someIndices) override;
-
-    void SetShader(std::shared_ptr<Shader>) override;
 
     GfxResult Initialize() final;
     GfxResult Teardown() final;
 
     private:
-    Context&                               myContext;
-    std::array<std::shared_ptr<Shader>, 4> myShaders;
+    void* _addAttribute(type_id, std::shared_ptr<Attribute>) final;
+    void* _getAttribute(type_id) final;
 
-    Vertices myVertices;
-    Indices  myIndices;
+    std::map<Netero::type_id, std::shared_ptr<Netero::Gfx::Attribute>> myAttributes;
+
+    private:
+    Context& myContext;
+
+    //Vertices myVertices;
+    //Indices  myIndices;
 
     Buffer<Vertex>   myVerticesBuffer;
     Buffer<uint32_t> myIndicesBuffer;

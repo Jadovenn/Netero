@@ -5,7 +5,9 @@
 
 #pragma once
 
-#include <Netero/Graphics/Shader.hpp>
+#include "Vulkan/Vulkan.hpp"
+
+#include <Netero/Graphics/Attributes/Shader.hpp>
 
 namespace Netero::Gfx {
 

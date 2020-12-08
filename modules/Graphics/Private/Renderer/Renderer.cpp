@@ -5,7 +5,8 @@
 
 #include "Renderer/Renderer.hpp"
 
-#include "Renderer/Drawable/Drawable.hpp"
+#include <Netero/Graphics/Drawable.hpp>
+
 #include "Vulkan/Buffer/Buffer.hpp"
 
 namespace Netero::Gfx {
@@ -14,20 +15,23 @@ RendererImpl::RendererImpl(Context &aContext): myContext(aContext)
 {
 }
 
-void RendererImpl::RegisterDrawable(std::shared_ptr<GfxObject> anObject)
+GfxResult RendererImpl::RegisterDrawable(std::shared_ptr<Drawable> aDrawable)
 {
-    auto result = myDrawables.insert(std::dynamic_pointer_cast<Drawable>(anObject));
+    auto result = myDrawables.insert(aDrawable);
     if (result.second) {
-        (*result.first)->Initialize();
+        return (*result.first)->Initialize();
     }
+    return GfxResult::FAILED;
 }
 
-void RendererImpl::UnRegisterDrawable(std::shared_ptr<GfxObject> anObject)
+GfxResult RendererImpl::UnRegisterDrawable(std::shared_ptr<Drawable> aDrawable)
 {
-    if (auto drawable = std::dynamic_pointer_cast<Drawable>(anObject)) {
+    if (auto drawable = std::dynamic_pointer_cast<Drawable>(aDrawable)) {
         drawable->Teardown();
         myDrawables.erase(drawable);
+        return GfxResult::SUCCESS;
     }
+    return GfxResult::FAILED;
 }
 
 GfxResult RendererImpl::Initialize()

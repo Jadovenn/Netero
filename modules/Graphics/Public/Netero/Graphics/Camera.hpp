@@ -4,3 +4,12 @@
  */
 
 #pragma once
+
+namespace Netero::Gfx {
+
+class Camera {
+    public:
+};
+
+
+}

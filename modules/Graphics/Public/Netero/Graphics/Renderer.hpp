@@ -7,16 +7,17 @@
 
 #include <memory>
 
-namespace Netero::Gfx {
+#include <Netero/Graphics/Errors.hpp>
+#include <Netero/Graphics/Drawable.hpp>
 
-class GfxObject;
+namespace Netero::Gfx {
 
 class Renderer {
     public:
     virtual ~Renderer() = default;
 
-    virtual void RegisterDrawable(std::shared_ptr<GfxObject> anObject) = 0;
-    virtual void UnRegisterDrawable(std::shared_ptr<GfxObject> anObject) = 0;
+    virtual GfxResult RegisterDrawable(std::shared_ptr<Drawable> anObject) = 0;
+    virtual GfxResult UnRegisterDrawable(std::shared_ptr<Drawable> anObject) = 0;
 };
 
 } // namespace Netero::Gfx

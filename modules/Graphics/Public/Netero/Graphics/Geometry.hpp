@@ -6,32 +6,15 @@
 #pragma once
 
 #include <atomic>
-#include <unordered_map>
 #include <vector>
 
-#include <glm/glm.hpp>
-#include <glm/gtx/hash.hpp>
-
-#include <Netero/Graphics/GfxObject.hpp>
+#include <Netero/Graphics/Drawable.hpp>
+#include <Netero/Graphics/Attributes/Attribute.hpp>
+#include <Netero/Graphics/Vertex.hpp>
 
 namespace Netero::Gfx {
 
 class Renderer;
-
-struct Vertex {
-    glm::vec3 myCoordonite;
-    glm::vec3 myColor;
-    glm::vec2 myTextureCoordonite;
-
-    bool operator==(const Vertex& anOther) const
-    {
-        return myCoordonite == anOther.myCoordonite && myColor == anOther.myColor &&
-            myTextureCoordonite == anOther.myTextureCoordonite;
-    }
-};
-
-using Vertices = std::vector<Vertex>;
-using Indices = std::vector<unsigned>;
 
 /**
  * @brief An axis container with value, rotation and scale ratio attributes.
@@ -100,27 +83,32 @@ class Axis {
     std::atomic<bool>  myHasChanged = true; /**< Not used please ignore. */
 };
 
-class Geometry: public GfxObject {
+class Geometry: public Drawable {
     public:
     static std::shared_ptr<Geometry> New(Renderer&);
 
-    virtual void SetVertices(const Vertices& someVertices) = 0;
-    virtual void SetVerticesWithIndices(const Vertices& someVertices,
-                                        const Indices&  someIndices) = 0;
+    template<typename T, typename... Args>
+    T* addAttribute(Args... args)
+    {
+        auto attr = T::New(args...);
+        if (attr) {
+            return reinterpret_cast<T*>(_addAttribute(AttributesTypeID::GetTypeID<T>(),
+                                                      std::dynamic_pointer_cast<Attribute>(attr)));
+        }
+        else {
+            return nullptr;
+        }
+    }
+
+    template<typename T>
+    T* getAttribute()
+    {
+        return reinterpret_cast<T*>(_getAttribute(AttributesTypeID::GetTypeID<T>()));
+    }
+
+    private:
+    virtual void* _addAttribute(type_id, std::shared_ptr<Attribute>) = 0;
+    virtual void* _getAttribute(type_id) = 0;
 };
 
 } // namespace Netero::Gfx
-
-namespace std {
-template<>
-struct hash<Netero::Gfx::Vertex> {
-    size_t operator()(Netero::Gfx::Vertex const& aVertex) const
-    {
-        return ((hash<glm::vec3>()(aVertex.myCoordonite) ^
-                 hash<glm::vec3>()(aVertex.myColor) << 1)) >>
-            1 ^
-            (hash<glm::vec2>()(aVertex.myTextureCoordonite) << 1);
-    }
-};
-
-} // namespace std
