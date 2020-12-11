@@ -62,7 +62,6 @@ class WindowGLFW final: public Window {
 
     GLFWwindow*  myWindow;
     Context      myContext;
-    Swapchain    mySwapchain;
     RendererImpl myRenderer;
 };
 

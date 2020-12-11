@@ -8,7 +8,7 @@
 #include <memory>
 
 #include <Netero/Graphics/Errors.hpp>
-#include <Netero/Graphics/Drawable.hpp>
+#include <Netero/Graphics/PublicDrawable.hpp>
 
 namespace Netero::Gfx {
 
@@ -21,8 +21,10 @@ class Renderer {
     virtual void AttachCamera(Camera*) = 0;
     virtual void DetachCamera() = 0;
 
-    virtual GfxResult RegisterDrawable(std::shared_ptr<Drawable> anObject) = 0;
-    virtual GfxResult UnRegisterDrawable(std::shared_ptr<Drawable> anObject) = 0;
+    virtual GfxResult RegisterDrawable(std::shared_ptr<PublicDrawable> anObject) = 0;
+    virtual GfxResult UnRegisterDrawable(std::shared_ptr<PublicDrawable> anObject) = 0;
+
+    virtual GfxResult PresentFrame() = 0;
 };
 
 } // namespace Netero::Gfx

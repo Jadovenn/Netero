@@ -7,7 +7,6 @@
 
 #include <memory>
 
-#include <Netero/Graphics/Drawable.hpp>
 #include <Netero/Graphics/Geometry.hpp>
 
 namespace Netero::Gfx {

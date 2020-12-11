@@ -239,7 +239,7 @@ void Model::commitRenderCommand(VkCommandBuffer cmdBuffer, size_t frameIdx)
     VkBuffer     instanceBuffer[] = { this->_instanceBuffer };
     VkDeviceSize instanceOffsets[] = { sizeof(Instance::Data) * this->_modelInstances.size() *
                                        frameIdx };
-    vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffer, offsets);
+    vkCmdBindVertexBuf;
     vkCmdBindVertexBuffers(cmdBuffer, 1, 1, instanceBuffer, instanceOffsets);
     vkCmdBindIndexBuffer(cmdBuffer, this->_vertexBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
     vkCmdBindDescriptorSets(cmdBuffer,

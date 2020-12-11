@@ -43,6 +43,7 @@ class Swapchain {
     uint32_t  GetFrameCount() { return myFrameCount; }
     GfxResult PrepareFrame(Frame& aFrame);
     GfxResult SubmitFrame(Frame& aFrame);
+    bool      IsOutOfDate() const { return myIsOutOfDate; }
 
 #pragma region Private Utility Methods
 
@@ -74,6 +75,7 @@ class Swapchain {
 
 #pragma region - Swapchain Attributes
 
+    bool                       myIsOutOfDate;
     VkSwapchainKHR             mySwapchain;
     VkExtent2D                 mySwapchainExtent;
     std::vector<VkImage>       mySwapchainImages;

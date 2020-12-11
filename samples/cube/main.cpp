@@ -67,7 +67,8 @@ int main()
         // Look at the update, it is the last operation
         // graphics' object are not thread safe. Please update
         // the graphics' object and the window in the same thread.
-        window->Update();
+        renderer->PresentFrame();
+        //window->Update();
     }
     renderer->UnRegisterDrawable(square);
 

@@ -10,6 +10,7 @@
 #include <Vulkan/Context/Context.hpp>
 
 #include <Netero/Graphics/Errors.hpp>
+#include <Netero/Graphics/PublicDrawable.hpp>
 #include <Netero/Graphics/Renderer.hpp>
 
 #include "Swapchain/Swapchain.hpp"
@@ -32,19 +33,23 @@ class RendererImpl final: public Renderer {
     GfxResult Build();
     GfxResult Release();
     GfxResult ReBuild();
-    GfxResult Update();
+    GfxResult Update(Frame&);
 
-    GfxResult RegisterDrawable(std::shared_ptr<Drawable> anObject) final;
-    GfxResult UnRegisterDrawable(std::shared_ptr<Drawable> anObject) final;
+    GfxResult RegisterDrawable(std::shared_ptr<PublicDrawable> anObject) final;
+    GfxResult UnRegisterDrawable(std::shared_ptr<PublicDrawable> anObject) final;
 
     void AttachCamera(Camera*) final;
     void DetachCamera() final;
 
+    GfxResult PresentFrame() final;
+
+    bool                   IsSwapchainOutOfDate() const;
     [[nodiscard]] Context& GetContext() const { return myContext; }
 
     private:
-    Context& myContext;
-    Camera*  myCamera;
+    Context&  myContext;
+    Swapchain mySwapchain;
+    Camera*   myCamera;
 
     std::set<std::shared_ptr<Drawable>> myDrawables;
 };

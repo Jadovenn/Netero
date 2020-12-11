@@ -25,7 +25,6 @@ WindowGLFW::WindowGLFW(VkInstance         aVulkanInstance,
       myMode(aMode),
       myTitle(aTitle),
       myWindow(nullptr),
-      mySwapchain(myContext, 2),
       myRenderer(myContext)
 {
     myContext.myVulkanInstance = aVulkanInstance;
@@ -83,9 +82,7 @@ GfxResult WindowGLFW::Show()
             return GfxResult::DRIVER_CALL_FAILED;
         }
 
-        mySwapchain.Initialize();
         myRenderer.Initialize();
-        mySwapchain.Build();
         myRenderer.Build();
     }
     glfwShowWindow(myWindow);
@@ -96,7 +93,6 @@ GfxResult WindowGLFW::Close()
 {
     if (myContext.mySurface) {
         myRenderer.Teardown();
-        mySwapchain.Teardown();
         vkDestroySurfaceKHR(myContext.myVulkanInstance, myContext.mySurface, nullptr);
         vkDestroyCommandPool(myContext.myLogicalDevice, myContext.myTransferCommandPool, nullptr);
         vkDestroyDevice(myContext.myLogicalDevice, nullptr);
@@ -113,35 +109,21 @@ GfxResult WindowGLFW::Hide()
 
 GfxResult WindowGLFW::Update()
 {
-    Frame aFrame {};
     assert(myContext.myLogicalDevice != nullptr); // Do you have call Show() before update?
     assert(myContext.mySurface != nullptr);
-    GfxResult result = mySwapchain.PrepareFrame(aFrame);
-    if (result == GfxResult::OUT_OF_DATE_SWAPCHAIN) {
+    if (myRenderer.IsSwapchainOutOfDate()) {
         vkDeviceWaitIdle(myContext.myLogicalDevice);
         glfwGetFramebufferSize(myWindow, &myContext.myWidth, &myContext.myHeight);
         while (myContext.myWidth == 0 || myContext.myHeight == 0) {
             glfwGetFramebufferSize(myWindow, &myContext.myWidth, &myContext.myHeight);
             glfwWaitEvents();
         }
-        mySwapchain.ReBuild();
         myRenderer.ReBuild();
         return GfxResult::SUCCESS;
     }
-    else if (result != GfxResult::SUCCESS) {
-        return GfxResult::DRIVER_CALL_FAILED;
-    }
-    if (myRenderer.Update() != GfxResult::SUCCESS) {
-        return GfxResult::DRIVER_CALL_FAILED;
-    }
-    result = mySwapchain.SubmitFrame(aFrame);
-    if (result == GfxResult::OUT_OF_DATE_SWAPCHAIN) {
-        mySwapchain.ReBuild();
+    if (myRenderer.IsSwapchainOutOfDate()) {
         myRenderer.ReBuild();
         return GfxResult::SUCCESS;
-    }
-    else if (result != GfxResult::SUCCESS) {
-        return GfxResult::DRIVER_CALL_FAILED;
     }
     return GfxResult::SUCCESS;
 }
@@ -151,6 +133,22 @@ GfxResult WindowGLFW::PullEvent()
     glfwPollEvents();
     if (glfwWindowShouldClose(myWindow)) {
         return GfxResult::EXIT;
+    }
+    assert(myContext.myLogicalDevice != nullptr); // Do you have call Show() before update?
+    assert(myContext.mySurface != nullptr);
+    if (myRenderer.IsSwapchainOutOfDate()) {
+        vkDeviceWaitIdle(myContext.myLogicalDevice);
+        glfwGetFramebufferSize(myWindow, &myContext.myWidth, &myContext.myHeight);
+        while (myContext.myWidth == 0 || myContext.myHeight == 0) {
+            glfwGetFramebufferSize(myWindow, &myContext.myWidth, &myContext.myHeight);
+            glfwWaitEvents();
+        }
+        myRenderer.ReBuild();
+        return GfxResult::SUCCESS;
+    }
+    if (myRenderer.IsSwapchainOutOfDate()) {
+        myRenderer.ReBuild();
+        return GfxResult::SUCCESS;
     }
     return GfxResult::SUCCESS;
 }

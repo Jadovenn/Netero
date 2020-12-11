@@ -7,8 +7,9 @@
 
 namespace Netero::Gfx {
 
-class Pipeline {
+class PublicDrawable {
     public:
+    virtual ~PublicDrawable() = default;
 };
 
 } // namespace Netero::Gfx

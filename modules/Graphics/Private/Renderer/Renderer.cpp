@@ -1,30 +1,30 @@
 /**
-* Netero sources under BSD-3-Clause
-* see LICENSE.txt
-*/
+ * Netero sources under BSD-3-Clause
+ * see LICENSE.txt
+ */
 
 #include "Renderer/Renderer.hpp"
 
-#include <Netero/Graphics/Drawable.hpp>
-
+#include "Renderer/Drawable/Drawable.hpp"
 #include "Vulkan/Buffer/Buffer.hpp"
 
 namespace Netero::Gfx {
 
-RendererImpl::RendererImpl(Context &aContext): myContext(aContext), myCamera(nullptr)
+RendererImpl::RendererImpl(Context &aContext)
+    : myContext(aContext), mySwapchain(myContext, 2), myCamera(nullptr)
 {
 }
 
-GfxResult RendererImpl::RegisterDrawable(std::shared_ptr<Drawable> aDrawable)
+GfxResult RendererImpl::RegisterDrawable(std::shared_ptr<PublicDrawable> aDrawable)
 {
-    auto result = myDrawables.insert(aDrawable);
+    auto result = myDrawables.insert(std::dynamic_pointer_cast<Drawable>(aDrawable));
     if (result.second) {
         return (*result.first)->Initialize();
     }
     return GfxResult::FAILED;
 }
 
-GfxResult RendererImpl::UnRegisterDrawable(std::shared_ptr<Drawable> aDrawable)
+GfxResult RendererImpl::UnRegisterDrawable(std::shared_ptr<PublicDrawable> aDrawable)
 {
     if (auto drawable = std::dynamic_pointer_cast<Drawable>(aDrawable)) {
         drawable->Teardown();
@@ -44,6 +44,11 @@ void RendererImpl::DetachCamera()
     myCamera = nullptr;
 }
 
+bool RendererImpl::IsSwapchainOutOfDate() const
+{
+    return mySwapchain.IsOutOfDate();
+}
+
 GfxResult RendererImpl::Initialize()
 {
     Buffer<int> buffer(myContext,
@@ -52,32 +57,59 @@ GfxResult RendererImpl::Initialize()
     buffer.Reserve(64);
     int data[5] = { 1, 2, 3, 4, 5 };
     buffer.Write(0, data, 5);
-    return GfxResult::SUCCESS;
+    auto result = mySwapchain.Initialize();
+    if (result != GfxResult::SUCCESS) {
+        return result;
+    }
+    return result;
 }
 
 GfxResult RendererImpl::Teardown()
 {
-    return GfxResult::SUCCESS;
+    auto result = mySwapchain.Teardown();
+    if (result != GfxResult::SUCCESS) {
+        return result;
+    }
+    return result;
 }
 
 GfxResult RendererImpl::Build()
 {
+    mySwapchain.Build();
     return GfxResult::SUCCESS;
 }
 
 GfxResult RendererImpl::Release()
 {
+    mySwapchain.Release();
     return GfxResult::SUCCESS;
 }
 
 GfxResult RendererImpl::ReBuild()
 {
-    Release();
+    mySwapchain.ReBuild();
     return GfxResult::SUCCESS;
 }
 
-GfxResult RendererImpl::Update()
+GfxResult RendererImpl::Update(Frame &)
 {
+    // TODO: Update Uniform Buffer Object
+    // TODO: Record draw calls from registered drawable
+    return GfxResult::SUCCESS;
+}
+
+GfxResult RendererImpl::PresentFrame()
+{
+    Frame frame;
+    auto  result = mySwapchain.PrepareFrame(frame);
+    if (result != GfxResult::SUCCESS) {
+        return GfxResult::SUCCESS;
+    }
+    Update(frame);
+    result = mySwapchain.SubmitFrame(frame);
+    if (result != GfxResult::SUCCESS) {
+        return result;
+    }
     return GfxResult::SUCCESS;
 }
 

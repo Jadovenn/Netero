@@ -9,16 +9,17 @@
 #include <utility>
 #include <vector>
 
-#include <Netero/Graphics/Drawable.hpp>
+
 #include <Netero/Graphics/Attributes/Attribute.hpp>
 #include <Netero/Graphics/Geometry.hpp>
 
 #include "Vulkan/Buffer/Buffer.hpp"
 #include "Vulkan/Context/Context.hpp"
+#include "Renderer/Drawable/Drawable.hpp"
 
 namespace Netero::Gfx {
 
-class GeometryImpl final: public Geometry {
+class GeometryImpl final: public Drawable, public Geometry {
     public:
     explicit GeometryImpl(Context& aContext);
     ~GeometryImpl() override;

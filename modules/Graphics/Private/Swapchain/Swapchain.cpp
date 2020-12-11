@@ -19,6 +19,7 @@ Swapchain::Swapchain(Context& aContext, uint32_t aMaxInFlightFrameCount)
       myCurrentFrame(0),
       myFrameCount(0),
       myMaximumInFlightFrames(aMaxInFlightFrameCount),
+      myIsOutOfDate(true),
       mySwapchain(nullptr),
       mySwapchainExtent { 0, 0 },
       mySwapchainImageFormat(VK_FORMAT_UNDEFINED),
@@ -86,6 +87,7 @@ GfxResult Swapchain::Build()
     CreateFrameBuffer();
     CreateGraphicsCommandPool();
     CreateCommandBuffers();
+    myIsOutOfDate = false;
     return GfxResult::SUCCESS;
 }
 
@@ -99,6 +101,7 @@ GfxResult Swapchain::ReBuild()
     CreateFrameBuffer();
     CreateGraphicsCommandPool();
     CreateCommandBuffers();
+    myIsOutOfDate = false;
     return GfxResult::SUCCESS;
 }
 
@@ -138,9 +141,11 @@ GfxResult Swapchain::PrepareFrame(Frame& aFrame)
                                             nullptr,
                                             &myFrameIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        myIsOutOfDate = true;
         return GfxResult::OUT_OF_DATE_SWAPCHAIN;
     }
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        myIsOutOfDate = true;
         return GfxResult::DRIVER_CALL_FAILED;
     }
     aFrame.myFrameIdx = myFrameIndex;
@@ -215,6 +220,7 @@ GfxResult Swapchain::SubmitFrame(Frame& aFrame)
     presentInfo.pResults = nullptr;
     result = vkQueuePresentKHR(myContext.myPresentQueue, &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        myIsOutOfDate = true;
         return GfxResult::OUT_OF_DATE_SWAPCHAIN;
     }
     else if (result != VK_SUCCESS) {

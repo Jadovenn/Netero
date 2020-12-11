@@ -53,7 +53,7 @@ list(APPEND PUBLIC_HEADER
         Public/Netero/Graphics/Application.hpp
         Public/Netero/Graphics/Window.hpp
         Public/Netero/Graphics/Renderer.hpp
-        Public/Netero/Graphics/Drawable.hpp
+        Public/Netero/Graphics/PublicDrawable.hpp
         Public/Netero/Graphics/Camera.hpp
         Public/Netero/Graphics/Vertex.hpp
         Public/Netero/Graphics/Geometry.hpp
@@ -70,6 +70,10 @@ list(APPEND SRCS
         Private/Vulkan/Context/Context.cpp
         Private/Vulkan/RenderPass/RenderPass.hpp
         Private/Vulkan/RenderPass/RenderPass.cpp
+        Private/Vulkan/Descriptors/Descriptor.hpp
+        Private/Vulkan/Descriptors/DescriptorSet.hpp
+        Private/Vulkan/Descriptors/DescriptorSet.cpp
+
         Private/Vulkan/VkUtils.hpp
         Private/Vulkan/Utils/VkCommandBuffer.cpp
         Private/Vulkan/Utils/VkValidationLayerSupport.cpp
@@ -78,24 +82,30 @@ list(APPEND SRCS
         Private/Vulkan/Utils/VkDeviceSupport.cpp
         Private/Vulkan/Utils/VkImageSupport.cpp
         Private/Vulkan/Utils/VkMemory.cpp
+
         Private/Application/ApplicationImpl.hpp
         Private/Application/Application.cpp
+
         Private/Window/Window_GLFW.cpp
         Private/Window/Window_GLFW.hpp
         Private/Window/WindowFactory.hpp
+
         Private/Swapchain/Swapchain.hpp
         Private/Swapchain/Swapchain.cpp
+
+        Private/GraphicPipeline/GraphicPipeline.hpp
+        Private/GraphicPipeline/GraphicPipeline.cpp
+
         Private/Renderer/Renderer.hpp
         Private/Renderer/Renderer.cpp
+        Private/Renderer/Drawable/Drawable.hpp
         Private/Renderer/Drawable/Geometry/Geometry.hpp
         Private/Renderer/Drawable/Geometry/Geometry.cpp
         Private/Renderer/Drawable/Geometry/GeometryDrawable.cpp
         Private/Renderer/Shader/Shader.hpp
         Private/Renderer/Shader/Shader.cpp
         Private/Renderer/Shader/DefaultShaders.hpp
-        Private/Renderer/Shader/GeometryDefaultShaders.cpp
-        Private/Renderer/Pipeline/Pipeline.hpp
-        Private/Renderer/Pipeline/Pipeline.cpp)
+        Private/Renderer/Shader/GeometryDefaultShaders.cpp)
 
 set(BUILT_IN_SHADERS
         Private/Renderer/Shader/Default/GeometryVertex.vert

@@ -9,7 +9,7 @@
 #include <vector>
 
 #include <Netero/Graphics/Attributes/Attribute.hpp>
-#include <Netero/Graphics/Drawable.hpp>
+#include <Netero/Graphics/PublicDrawable.hpp>
 #include <Netero/Graphics/Vertex.hpp>
 
 namespace Netero::Gfx {
@@ -126,7 +126,7 @@ struct Position {
     }
 };
 
-class Geometry: public Drawable {
+class Geometry: public PublicDrawable {
     public:
     static std::shared_ptr<Geometry> New(Renderer&);
 
