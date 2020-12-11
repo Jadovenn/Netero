@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Graphics" pattern="file[netero]:cmake//*||file[netero]:modules/Graphics//*||file[netero]:samples/cube//*||file:CMakeLists.txt||file:.gitignore||file:.clang-format" />
+</component>
