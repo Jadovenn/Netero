@@ -37,7 +37,8 @@ build/
 cmake-build*/
 out/
 /Documentation
-modules/graphics/Private/Renderer/Shader/*.h
+modules/Graphics/Private/Renderer/Shader/Default/*.h
+modules/Graphics/Private/Renderer/Shader/Default/*.spv
 .idea/.gitignore
 .idea/codeStyles/
 .idea/misc.xml
