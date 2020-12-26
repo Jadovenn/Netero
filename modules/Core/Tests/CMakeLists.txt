@@ -11,6 +11,7 @@ add_unit_test(NAME Core_Algo_test
         buffer_test.cpp
         size_buffer_bug_test.cpp
         type_id_test.cpp
+        RandomEngine_test.cpp
         INCLUDE_DIRS
         ${Netero_INCLUDE_DIRS}
         DEPENDS

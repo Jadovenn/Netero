@@ -27,10 +27,13 @@ list(APPEND PUBLIC_HEADER
         Public/Netero/Buffer.hpp
         ## OS
         Public/Netero/Os.hpp
+        ## Random
+        Public/Netero/RandomEngine.hpp
         )
 
 list(APPEND SRCS
-        Private/Logger/Logger.cpp)
+        Private/Logger/Logger.cpp
+        Private/RandomEngine.cpp)
 
 ##====================================
 ##  Os sources
